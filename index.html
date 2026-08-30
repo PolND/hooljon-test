@@ -4121,7 +4121,7 @@
   <div id="launchReadinessBarTrack" style="height:5px; background:#333; border-radius:3px; margin-top:5px; overflow:hidden;">
     <div id="launchReadinessBarFill" style="height:100%; width:0%; background:linear-gradient(90deg,#E63946,#F4A340); transition:width .4s ease;"></div>
   </div>
-  <div id="launchReadinessDetail" style="display:none; margin-top:8px; padding-top:8px; border-top:1px solid #333; line-height:1.8; max-height:55vh; overflow-y:auto; -webkit-overflow-scrolling:touch;"></div>
+  <div id="launchReadinessDetail" style="display:none; margin-top:8px; padding-top:8px; border-top:1px solid #333; line-height:1.8; max-height:55vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y;"></div>
 </div>
 
 <script>
@@ -4270,7 +4270,12 @@ function renderLaunchReadinessBar(){
   `).join('');
 }
 
-document.getElementById('launchReadinessBar').addEventListener('click', () => {
+document.getElementById('launchReadinessBar').addEventListener('click', (e) => {
+  // Kliknięcia/dotknięcia POCHODZĄCE z wnętrza rozwiniętej listy mają tylko przewijać,
+  // nie przełączać widoczność całego panelu - inaczej próba scrollowania palcem po liście
+  // (dotyk-przeciągnięcie bywa odczytywany jako "click" na całym pasku) zamykała/otwierała
+  // panel w trakcie przewijania, dając wrażenie "pasek się rusza, treść stoi w miejscu".
+  if(e.target.closest('#launchReadinessDetail')) return;
   const detail = document.getElementById('launchReadinessDetail');
   const hint = document.getElementById('launchReadinessToggleHint');
   const isOpen = detail.style.display === 'block';
