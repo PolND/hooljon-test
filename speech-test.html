@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1d2b3a">
+<title>Test: Speech Recognition</title>
+<style>
+  :root{ --ink:#1d2b3a; --hwang:#E63946; --good:#2a9d5c; --bad:#c0392b; --bg:#f6f5f2; --card:#fff; --border:#e2e0da; }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:var(--bg); color:var(--ink); padding:16px; padding-bottom:40px;
+    padding-top:calc(16px + env(safe-area-inset-top));
+  }
+  h1{font-size:18px; margin:0 0 4px;}
+  .sub{font-size:12.5px; color:#666; margin-bottom:16px;}
+  .card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:12px;}
+  .badge{display:inline-block; padding:3px 9px; border-radius:999px; font-size:11px; font-weight:700; margin-bottom:8px;}
+  .badge.ok{background:#e3f5ea; color:var(--good);}
+  .badge.bad{background:#fbeaea; color:var(--bad);}
+  .badge.warn{background:#fff6e0; color:#a56b00;}
+  .kv{font-size:13px; line-height:1.7;}
+  .kv b{display:inline-block; min-width:150px;}
+  select, button{
+    font-size:15px; padding:10px 14px; border-radius:10px; border:1px solid var(--border);
+    background:#fff; margin:4px 4px 4px 0;
+  }
+  button{background:var(--ink); color:#fff; border:none; font-weight:600; cursor:pointer;}
+  button:active{opacity:0.8;}
+  button.stop{background:var(--bad);}
+  button:disabled{opacity:0.4;}
+  #transcript{
+    min-height:60px; background:#f0efe9; border-radius:10px; padding:12px;
+    font-size:16px; margin-top:10px; white-space:pre-wrap; word-break:break-word;
+  }
+  #log{
+    background:#111; color:#7ee787; font-family:ui-monospace,Menlo,monospace; font-size:11.5px;
+    padding:10px; border-radius:10px; height:220px; overflow-y:auto; white-space:pre-wrap;
+    line-height:1.5;
+  }
+  .row{display:flex; flex-wrap:wrap; align-items:center; gap:4px;}
+</style>
+</head>
+<body>
+
+  <h1>🎤 Test rozpoznawania mowy</h1>
+  <div class="sub">Izolowany test — nie część głównej apki. Sprawdzamy, czy to w ogóle działa, zanim zbudujemy funkcję.</div>
+
+  <div class="card">
+    <div id="supportBadge" class="badge">sprawdzam…</div>
+    <div class="kv" id="envInfo"></div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <select id="langSelect">
+        <option value="ko-KR">Koreański (ko-KR) — docelowy</option>
+        <option value="pl-PL">Polski (pl-PL) — porównawczo</option>
+        <option value="en-US">Angielski (en-US) — porównawczo</option>
+      </select>
+    </div>
+    <div class="row" style="margin-top:8px;">
+      <button id="btnSingle">▶️ Test pojedynczy (non-continuous)</button>
+      <button id="btnContinuous">🔁 Test ciągły (continuous — tryb w aucie)</button>
+      <button id="btnStop" class="stop" disabled>⏹ Stop</button>
+    </div>
+    <div id="transcript">(tu pojawi się rozpoznany tekst)</div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px; font-weight:700; margin-bottom:6px; opacity:0.7;">LOG ZDARZEŃ (na żywo, bo na telefonie nie ma konsoli)</div>
+    <div id="log"></div>
+  </div>
+
+  <div class="card sub">
+    <b>Jak testować:</b><br>
+    1) Otwórz tę stronę normalnie w przeglądarce, przetestuj oba tryby.<br>
+    2) Dodaj do ekranu głównego ("Dodaj do ekranu początkowego" / "Zainstaluj"), otwórz z ikony, przetestuj ponownie.<br>
+    3) Zrób to samo na Androidzie i iPhonie, jeśli masz oba.<br>
+    Napisz mi, co się różni między trybami/urządzeniami — zwłaszcza czy tryb ciągły w ogóle się kończy i czy działa po instalacji jako PWA.
+  </div>
+
+<script>
+  const logEl = document.getElementById('log');
+  const transcriptEl = document.getElementById('transcript');
+  const supportBadge = document.getElementById('supportBadge');
+  const envInfo = document.getElementById('envInfo');
+  const btnSingle = document.getElementById('btnSingle');
+  const btnContinuous = document.getElementById('btnContinuous');
+  const btnStop = document.getElementById('btnStop');
+  const langSelect = document.getElementById('langSelect');
+
+  function log(msg){
+    const t = new Date().toISOString().split('T')[1].replace('Z','');
+    logEl.textContent += `[${t}] ${msg}\n`;
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  // Wykrycie trybu PWA (zainstalowana na ekranie głównym) vs zwykła karta przeglądarki.
+  // navigator.standalone = iOS Safari specific; matchMedia display-mode = standard.
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+
+  const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  envInfo.innerHTML = `
+    <div class="kv">
+      <b>User agent:</b> ${navigator.userAgent}<br>
+      <b>Tryb wyświetlania:</b> ${isStandalone ? '📱 STANDALONE (zainstalowana jako PWA)' : '🌐 zwykła karta przeglądarki'}<br>
+      <b>API dostępne:</b> ${SpeechRecognitionCtor ? 'tak' : 'NIE'}<br>
+      <b>Online:</b> ${navigator.onLine ? 'tak' : 'nie'}
+    </div>
+  `;
+
+  if(SpeechRecognitionCtor){
+    supportBadge.textContent = isStandalone
+      ? '⚠️ API obecne, ale tryb PWA — testuj koniecznie'
+      : '✅ API obecne w tej przeglądarce';
+    supportBadge.className = 'badge ' + (isStandalone ? 'warn' : 'ok');
+  } else {
+    supportBadge.textContent = '❌ Brak SpeechRecognition w tej przeglądarce/trybie';
+    supportBadge.className = 'badge bad';
+    btnSingle.disabled = true;
+    btnContinuous.disabled = true;
+  }
+
+  let recognition = null;
+
+  function startRecognition(continuous){
+    if(!SpeechRecognitionCtor){ log('BRAK API - nie mogę wystartować'); return; }
+    transcriptEl.textContent = '';
+    recognition = new SpeechRecognitionCtor();
+    recognition.lang = langSelect.value;
+    recognition.continuous = continuous;
+    recognition.interimResults = true;
+
+    log(`start() wywołane — lang=${recognition.lang}, continuous=${continuous}, standalone=${isStandalone}`);
+
+    recognition.onstart = () => log('event: onstart (mikrofon aktywny)');
+    recognition.onaudiostart = () => log('event: onaudiostart');
+    recognition.onsoundstart = () => log('event: onsoundstart (wykryto dźwięk)');
+    recognition.onspeechstart = () => log('event: onspeechstart (wykryto mowę)');
+    recognition.onspeechend = () => log('event: onspeechend');
+    recognition.onsoundend = () => log('event: onsoundend');
+    recognition.onaudioend = () => log('event: onaudioend');
+
+    recognition.onresult = (e) => {
+      let text = '';
+      let isFinal = false;
+      for(let i = e.resultIndex; i < e.results.length; i++){
+        text += e.results[i][0].transcript;
+        if(e.results[i].isFinal) isFinal = true;
+      }
+      transcriptEl.textContent = text;
+      log(`event: onresult — "${text}" (isFinal=${isFinal})`);
+    };
+
+    recognition.onerror = (e) => {
+      log(`❌ event: onerror — ${e.error}`);
+    };
+
+    recognition.onend = () => {
+      log('event: onend (rozpoznawanie ZAKOŃCZONE)');
+      btnSingle.disabled = false;
+      btnContinuous.disabled = false;
+      btnStop.disabled = true;
+    };
+
+    try{
+      recognition.start();
+      btnSingle.disabled = true;
+      btnContinuous.disabled = true;
+      btnStop.disabled = false;
+    }catch(err){
+      log(`❌ wyjątek przy start(): ${err.message}`);
+    }
+  }
+
+  btnSingle.addEventListener('click', () => startRecognition(false));
+  btnContinuous.addEventListener('click', () => startRecognition(true));
+  btnStop.addEventListener('click', () => {
+    if(recognition){
+      log('stop() wywołane ręcznie przez usera');
+      recognition.stop();
+    }
+  });
+
+  log('Strona testowa załadowana. Standalone=' + isStandalone + ', API=' + (!!SpeechRecognitionCtor));
+</script>
+</body>
+</html>
