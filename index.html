@@ -4691,6 +4691,16 @@ const dataStore = {
           if(!data) return null; // brak wpisu na dziś -> apka sama zainicjuje zera
           return { value: JSON.stringify({ date: data.quota_date, counts: { vocab: data.vocab_count, conj: data.conj_count, grammar: data.grammar_count } }) };
         }
+        case STORAGE_KEYS.storyProgress: {
+          // Postęp Trybu Opowieści - przeniesiony z localStorage na serwer (2026-08-30).
+          // Wcześniej żył TYLKO lokalnie, mimo że panel konta obiecuje "postęp zapisany
+          // na serwerze" - user tracił wszystko przy zmianie urządzenia. Wymaga kolumny
+          // story_progress (jsonb) w tabeli 'rewards' - patrz zlecenie dla Claude Code.
+          // Zanim powstanie, ta gałąź zwróci null i klient spadnie na localStorage.
+          const row = await dsSelectSingle('rewards', 'story_progress', userId);
+          if(!row || !row.story_progress) return null;
+          return { value: JSON.stringify(row.story_progress) };
+        }
         case STORAGE_KEYS.dayStreak: {
           const row = await dsSelectSingle('rewards', 'day_streak,best_day_streak,last_active_date', userId);
           if(!row) return null;
@@ -4783,6 +4793,10 @@ const dataStore = {
         case STORAGE_KEYS.daily: {
           const { date, counts } = JSON.parse(value);
           await dsUpsertColumns('daily_quota', userId, { quota_date: date, vocab_count: counts.vocab||0, conj_count: counts.conj||0, grammar_count: counts.grammar||0 }, 'user_id,quota_date');
+          return;
+        }
+        case STORAGE_KEYS.storyProgress: {
+          await dsUpsertColumns('rewards', userId, { story_progress: JSON.parse(value) });
           return;
         }
         case STORAGE_KEYS.dayStreak: {
@@ -12524,7 +12538,7 @@ const DEFAULT_WORDS = [
   {ko:"저항", pl:"opór", en:"resistance", category:"Fizyka", level:2, pos:"noun", ex:"전선이 가늘수록 저항이 커진다.", exPl:"Im cieńszy przewód, tym większy opór.", exEn:"The thinner the wire, the greater the resistance.", source:'own'},
 ];
 
-const STORAGE_KEYS = { custom:"custom-words", missed:"missed-words", stats:"session-stats", showImg:"show-image", premium:"premium-status", daily:"daily-quota", categories:"selected-categories", theme:"theme-preference", loggedIn:"logged-in-status", account:"account-info", readings:"custom-readings", uiLang:"translation-language", sound:"sound-enabled", srs:"srs-data", dayStreak:"day-streak", badges:"earned-badges", mastery:"mastery-stats", dailyValue:"daily-value-stats" };
+const STORAGE_KEYS = { custom:"custom-words", missed:"missed-words", stats:"session-stats", showImg:"show-image", premium:"premium-status", daily:"daily-quota", categories:"selected-categories", theme:"theme-preference", loggedIn:"logged-in-status", account:"account-info", readings:"custom-readings", uiLang:"translation-language", sound:"sound-enabled", srs:"srs-data", dayStreak:"day-streak", badges:"earned-badges", mastery:"mastery-stats", dailyValue:"daily-value-stats", storyProgress:"story-progress" };
 let customWords = [];
 let missedWords = {}; // { ko: {ko,pl,emoji,category,count} }
 let allWords = [...DEFAULT_WORDS];
@@ -16138,20 +16152,51 @@ document.getElementById('ptDoneBtn').addEventListener('click', ()=>{
 /* ===================== TRYB OPOWIEŚCI (pilotaż — silnik + 12 lekcji) ===================== */
 
 const STORY_PROGRESS_KEY = 'hooljon_story_progress';
-// Celowo localStorage na razie — dataStore (Supabase) nie zna tego klucza i cicho nic by nie
-// zapisał (patrz gałąź default w dataStore.get/set). To pilotaż; migracja na prawdziwą tabelę
-// to zadanie dla Claude Code przy następnej turze backendowej.
+// Postęp Trybu Opowieści jest teraz synchronizowany z serwerem (2026-08-30). Wcześniej
+// żył WYŁĄCZNIE w localStorage - user tracił cały postęp przy zmianie urządzenia albo
+// wyczyszczeniu przeglądarki, mimo że panel konta obiecuje "postęp zapisany na serwerze".
+// localStorage zostaje jako natychmiastowy zapis lokalny (działa offline, bez czekania
+// na sieć), serwer jako źródło trwałe. Przy ładowaniu SCALAMY oba źródła sumą zbiorów -
+// nigdy nie nadpisujemy jednego drugim, żeby postęp zrobiony offline (albo istniejący
+// lokalnie sprzed tej zmiany) nie zniknął przy pierwszym zalogowaniu.
 
 let storyProgress = { completedLessonIds: [] };
 
-function loadStoryProgress(){
+function readLocalStoryProgress(){
   try{
     const raw = localStorage.getItem(STORY_PROGRESS_KEY);
-    storyProgress = raw ? JSON.parse(raw) : { completedLessonIds: [] };
-  }catch(e){ storyProgress = { completedLessonIds: [] }; }
+    const parsed = raw ? JSON.parse(raw) : null;
+    return (parsed && Array.isArray(parsed.completedLessonIds)) ? parsed : { completedLessonIds: [] };
+  }catch(e){ return { completedLessonIds: [] }; }
 }
-function saveStoryProgress(){
+
+async function loadStoryProgress(){
+  const local = readLocalStoryProgress();
+  let remote = { completedLessonIds: [] };
+  try{
+    const r = await window.storage.get(STORAGE_KEYS.storyProgress);
+    if(r && r.value){
+      const parsed = JSON.parse(r.value);
+      if(parsed && Array.isArray(parsed.completedLessonIds)) remote = parsed;
+    }
+  }catch(e){ /* brak sieci albo kolumny jeszcze nie ma - zostajemy przy lokalnym */ }
+
+  // Suma zbiorów - ukończona lekcja pozostaje ukończona, niezależnie gdzie ją zapisano.
+  const merged = [...new Set([...local.completedLessonIds, ...remote.completedLessonIds])];
+  storyProgress = { completedLessonIds: merged };
+
+  // Jeśli scalenie dało coś więcej niż miał serwer, odeślij wynik z powrotem.
+  if(merged.length > remote.completedLessonIds.length){
+    try{ await window.storage.set(STORAGE_KEYS.storyProgress, JSON.stringify(storyProgress)); }catch(e){}
+  }
   try{ localStorage.setItem(STORY_PROGRESS_KEY, JSON.stringify(storyProgress)); }catch(e){}
+}
+
+function saveStoryProgress(){
+  // Lokalnie natychmiast (żeby UI nie czekał na sieć), serwer w tle - błąd sieci
+  // nie może zablokować oznaczenia lekcji jako ukończonej.
+  try{ localStorage.setItem(STORY_PROGRESS_KEY, JSON.stringify(storyProgress)); }catch(e){}
+  try{ window.storage.set(STORAGE_KEYS.storyProgress, JSON.stringify(storyProgress)); }catch(e){}
 }
 function isLessonDone(id){ return storyProgress.completedLessonIds.includes(id); }
 // Rozdziały odwołują się do lekcji przez JAWNE ID (lessonIds), nie przez pozycję
@@ -16217,7 +16262,14 @@ function resolveLessonGrammarItems(lesson){
 }
 
 function renderStoryMap(){
-  loadStoryProgress();
+  // loadStoryProgress jest teraz asynchroniczne (pobiera też z serwera). Renderujemy
+  // NAJPIERW z tym, co już mamy w pamięci/localStorage (natychmiast, bez pustego ekranu),
+  // a po dojściu danych z serwera renderujemy ponownie, jeśli coś się zmieniło.
+  // Bez tego renderStoryMap czytałoby stan sprzed załadowania - klasyczny wyścig.
+  const before = storyProgress.completedLessonIds.length;
+  loadStoryProgress().then(() => {
+    if(storyProgress.completedLessonIds.length !== before) renderStoryMap();
+  }).catch(()=>{});
   const nextIndex = getNextLessonIndex();
   const doneCount = storyProgress.completedLessonIds.length;
   document.getElementById('storyMapProgress').textContent =
@@ -20133,6 +20185,7 @@ async function loadEverythingFromServer(){
   await loadRewardsData();
   await loadDailyValueStats();
   await loadMasteryStats();
+  await loadStoryProgress(); // postęp Trybu Opowieści - od 2026-08-30 też z serwera, nie tylko localStorage
   await loadAccount();
 
   // szybkie przełączanie Premium do testów lokalnych: dopisz ?premium=0 (free),
