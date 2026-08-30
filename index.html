@@ -750,6 +750,19 @@
   .story-next-card .snc-label{font-size:13.5px; color:var(--hwang); font-weight:600; text-transform:uppercase; letter-spacing:0.4px;}
   .story-next-card .snc-title{font-family:'Song Myung', serif; font-size:20px; color:var(--ink); margin:6px 0 4px;}
   .story-next-card .snc-desc{font-size:14.5px; color:var(--ink-dim); margin-bottom:16px;}
+  .level-inline{
+    display:inline-block;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    padding:2px 7px;
+    border-radius:100px;
+    background:var(--surface-2);
+    color:var(--ink-dim);
+    vertical-align:middle;
+    white-space:nowrap;
+  }
   .story-next-card .snc-done{font-size:14.5px; color:var(--good); font-weight:600;}
   /* MAPA TRYBU OPOWIEŚCI — rozdziały zamiast płaskiej listy, ścieżka lekcji w środku */
   /* GRUPY DZIAŁÓW SŁÓWEK — ten sam mechanizm co rozdziały Trybu Opowieści */
@@ -4380,9 +4393,9 @@ const LAUNCH_READINESS = {
             'Raport po sesji: co przeczytano źle vs co rozpoznawanie źle zrozumiało — BRAK, tylko "X/Y poprawnie" bez rozbicia',
             'Zgodność z bramkowaniem Premium Pro z cennika — BRAK, funkcja niezablokowana mimo że sprzedawana jako płatna',
           ] },
-        { label: 'Widoczne etykiety poziomu TOPIK/CEFR', value: 30, note: 'dane są, brak ekspozycji w UI',
+        { label: 'Widoczne etykiety poziomu TOPIK/CEFR', value: 70, note: 'wyeksponowane 2026-08-30: mapa Trybu Opowieści (rozdziały + karta następnej lekcji), karty poziomów słownictwa, ekran wyboru poziomu gramatyki. Jedno źródło prawdy, żeby etykiety się nie rozjechały.',
           criteria: [
-            'Etykieta widoczna na Story Map i w Sandbox, nie tylko w jednym miejscu',
+            'Etykieta widoczna na Story Map i w Sandbox, nie tylko w jednym miejscu (SPEŁNIONE)',
             'Tester potrafi bez pytania powiedzieć, na jakim jest poziomie',
           ] },
         { label: 'Czytelność (rozmiar czcionek, kontrast)', value: 100, note: 'naprawione 2026-08-30: baza 17px, twardy floor 13px w całej apce' },
@@ -13019,9 +13032,9 @@ function renderVocabDeptCards(){
 }
 
 const LEVEL_META = [
-  {level:1, icon:'🌱', label:'Podstawowy', labelEn:'Basic', sub:'TOPIK 1-2', title:'Yusaeng (유생)'},
-  {level:2, icon:'🌿', label:'Średniozaawansowany', labelEn:'Intermediate', sub:'TOPIK 3-4', title:'Seonbi (선비)'},
-  {level:3, icon:'🌳', label:'Zaawansowany', labelEn:'Advanced', sub:'TOPIK 5-6', title:'Jiphyeon (집현)'},
+  {level:1, icon:'🌱', label:'Podstawowy', labelEn:'Basic', sub:'TOPIK 1–2 · CEFR A1–A2', title:'Yusaeng (유생)'},
+  {level:2, icon:'🌿', label:'Średniozaawansowany', labelEn:'Intermediate', sub:'TOPIK 3–4 · CEFR B1–B2', title:'Seonbi (선비)'},
+  {level:3, icon:'🌳', label:'Zaawansowany', labelEn:'Advanced', sub:'TOPIK 5–6 · CEFR C1–C2', title:'Jiphyeon (집현)'},
 ];
 
 function buildVocabLevelCardsHTML(perLevelCounts, totalCount){
@@ -16379,6 +16392,30 @@ function resolveLessonWords(lesson){
   });
   return words;
 }
+// Etykiety poziomu (TOPIK/CEFR) - do 2026-08-30 były widoczne TYLKO na ekranie wyboru
+// poziomu gramatyki, mimo że user spędza większość czasu w Trybie Opowieści i nie miał
+// jak się zorientować, na jakim jest poziomie. Teraz pokazujemy je też przy lekcjach
+// i rozdziałach. Dane pochodzą z GRAMMAR_LEVELS (pola topik/cefr) - jedno źródło prawdy,
+// żeby etykieta w dwóch miejscach nie mogła się rozjechać.
+const LEVEL_SHORT = {
+  basic:        { pl:'TOPIK 1–2 · A1–A2', en:'TOPIK 1–2 · A1–A2' },
+  intermediate: { pl:'TOPIK 3–4 · B1–B2', en:'TOPIK 3–4 · B1–B2' },
+  advanced:     { pl:'TOPIK 5–6 · C1–C2', en:'TOPIK 5–6 · C1–C2' },
+};
+function levelBadgeFor(levelKey){
+  const m = LEVEL_SHORT[levelKey];
+  return m ? (uiLang === 'en' ? m.en : m.pl) : '';
+}
+// Poziom rozdziału = poziom jego lekcji gramatycznych. Rozdziały czysto słownikowe
+// nie mają własnego poziomu i celowo nie dostają etykiety (nie zgadujemy).
+function chapterLevelKey(chapter){
+  for(const id of chapter.lessonIds){
+    const l = STORY_LESSONS.find(x => x.id === id);
+    if(l && l.type === 'grammar' && l.level) return l.level;
+  }
+  return null;
+}
+
 function resolveLessonGrammarItems(lesson){
   const all = GRAMMAR_LEVELS[lesson.level].chapters[lesson.chapterIndex].items;
   // Od przebudowy 2026-08-30 lekcja obejmuje WYBRANE wzorce z rozdziału (pole patterns),
@@ -16436,7 +16473,7 @@ function renderStoryMap(){
       <div class="snc-icon">${nextIndex + 1}</div>
       <div class="snc-label">${uiLang === 'en' ? `LESSON ${nextIndex + 1}` : `LEKCJA ${nextIndex + 1}`}</div>
       <div class="snc-title">${uiLang === 'en' ? lesson.title.en : lesson.title.pl}</div>
-      <div class="snc-desc">${lesson.type === 'vocab' ? (uiLang === 'en' ? 'New words' : 'Nowe słówka') : (uiLang === 'en' ? 'Grammar pattern' : 'Wzorzec gramatyczny')}</div>
+      <div class="snc-desc">${lesson.type === 'vocab' ? (uiLang === 'en' ? 'New words' : 'Nowe słówka') : (uiLang === 'en' ? 'Grammar pattern' : 'Wzorzec gramatyczny')}${lesson.type === 'grammar' && lesson.level ? ` · <span class="level-inline">${levelBadgeFor(lesson.level)}</span>` : ''}</div>
       <button class="primary" id="storyStartBtn">${uiLang === 'en' ? 'Start lesson' : 'Rozpocznij lekcję'}</button>
     `;
     document.getElementById('storyStartBtn').addEventListener('click', ()=>{
@@ -16474,7 +16511,10 @@ function renderStoryMap(){
         <div class="sc-header">
           <div class="sc-icon">${chapterLocked ? '🔒' : ch.icon}</div>
           <div class="sc-info">
-            <div class="sc-title">${uiLang === 'en' ? ch.title.en : ch.title.pl}</div>
+            <div class="sc-title">${uiLang === 'en' ? ch.title.en : ch.title.pl}${(() => {
+              const lk = chapterLevelKey(ch);
+              return lk ? ` <span class="level-inline">${levelBadgeFor(lk)}</span>` : '';
+            })()}</div>
             <div class="sc-progress-text">${chapterLocked
               ? (uiLang === 'en' ? 'Complete the previous chapter to unlock' : 'Ukończ poprzedni rozdział, żeby odblokować')
               : `${doneInChapter} / ${ch.lessonIds.length} ${uiLang === 'en' ? 'lessons' : 'lekcji'}`}</div>
