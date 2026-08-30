@@ -3819,37 +3819,6 @@
 </div>
 
 <script>
-// TYMCZASOWE narzędzie diagnostyczne — pokazuje na ekranie (nie w konsoli, do której nie
-// ma łatwego dostępu na telefonie bez podłączenia do komputera) dosłownie każdy błąd
-// JavaScript i każde nieobsłużone odrzucenie obietnicy (np. z fetch()), gdziekolwiek by
-// nie wystąpiły w całej apce. Bez tego debugowanie na urządzeniu, do którego nie mam
-// bezpośredniego dostępu, polega na zgadywaniu pojedynczych hipotez jedna po drugiej —
-// to pokazuje PRAWDZIWY błąd wprost na ekranie, za jednym razem.
-(function(){
-  let debugBox = null;
-  function showDebugError(text){
-    if(!debugBox){
-      debugBox = document.createElement('div');
-      debugBox.style.cssText = 'position:fixed; top:0; left:0; right:0; z-index:99999; background:#E76F51; color:#fff; font-family:monospace; font-size:11px; padding:10px; max-height:50vh; overflow:auto; white-space:pre-wrap;';
-      document.documentElement.appendChild(debugBox);
-    }
-    const line = document.createElement('div');
-    line.style.cssText = 'border-top:1px solid rgba(255,255,255,0.3); padding-top:6px; margin-top:6px;';
-    line.textContent = text;
-    debugBox.appendChild(line);
-  }
-  window.addEventListener('error', function(e){
-    showDebugError('BŁĄD JS: ' + e.message + '\n  plik: ' + (e.filename||'?') + ':' + (e.lineno||'?'));
-  });
-  window.addEventListener('unhandledrejection', function(e){
-    const reason = e.reason;
-    const msg = (reason && (reason.message || reason.toString())) || String(reason);
-    showDebugError('NIEOBSŁUŻONY BŁĄD OBIETNICY: ' + msg);
-  });
-})();
-</script>
-
-<script>
 // Zabezpieczenie diagnostyczne: jeśli SDK Supabase (ładowane z zewnętrznego CDN, patrz
 // <script src> w <head>) z jakiegokolwiek powodu nie zdążyło się wczytać - najczęściej
 // brak internetu w momencie otwierania pliku, albo przeglądarka zablokowała wczytanie
