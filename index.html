@@ -4350,7 +4350,8 @@ const LAUNCH_READINESS = {
           ] },
         { label: 'Gramatyka krok-po-kroku przed ćwiczeniem', value: 40, note: 'funkcja działa, ale gęstość za duża (4-13, jeden rozdział aż 73 wzorce/lekcję) - osobny projekt przebudowy, patrz pamięć',
           criteria: [
-            'Budżet trudności (0,5/1,0/1,5/2,5 pkt) wdrożony w danych',
+            'Klasyfikacja trudności 175 wzorców gotowa (SPEŁNIONE - Fable, 2026-08-30, 196 pkt)',
+            'Podział na lekcje wg budżetu wdrożony w STORY_LESSONS (potrzeba ~78-90 lekcji zamiast obecnych 54)',
             'Żadna lekcja nie przekracza budżetu 2-3 pkt',
             'Tempo zweryfikowane na realnych testerach jako nieprzytłaczające',
           ] },
@@ -4461,7 +4462,14 @@ function renderLaunchReadinessBar(){
       ${cat.items.map(i => `
         <div style="padding-left:10px; margin-top:4px;">
           <div style="opacity:0.85;">• ${i.label}: ${i.value}%${i.note ? ' — '+i.note : ''}</div>
-          ${i.criteria ? `<div style="padding-left:14px; opacity:0.6;">${i.criteria.map(c => `☐ ${c}`).join('<br>')}</div>` : ''}
+          ${i.criteria ? `<div style="padding-left:14px;">${i.criteria.map(c => {
+            // Kryteria oznaczone słowem SPEŁNIONE w treści renderujemy jako odhaczone i na zielono -
+            // inaczej cała lista wygląda jednakowo i nie widać na pierwszy rzut oka, co jest już zrobione.
+            const done = /SPEŁNIONE/.test(c);
+            return done
+              ? `<span style="color:#4ade80;">☑ ${c}</span>`
+              : `<span style="opacity:0.55;">☐ ${c}</span>`;
+          }).join('<br>')}</div>` : ''}
         </div>
       `).join('')}
     </div>
