@@ -4395,9 +4395,9 @@ const LAUNCH_READINESS = {
             'Treść zweryfikowana merytorycznie (native speaker/ekspert dziedzinowy)',
             'Słowa używane w kontekście zdań, nie tylko jako izolowana lista',
           ] },
-        { label: 'Wizualna gramatyka wszystkich wzorców', value: 70, note: '96/96 zaimplementowane, poprawność lingwistyczna niezweryfikowana zewnętrznie',
+        { label: 'Wizualna gramatyka wszystkich wzorców', value: 40, note: 'ZNALEZISKO 2026-08-30: GRAMMAR_LEVELS urosło do 175 unikalnych wzorców, tylko 96 ma conjHtml - 79 nowych przybyło bez wizualnych reguł koniugacji. Poprzednie "96/96" było prawdziwe w momencie weryfikacji, ale nieaktualne teraz.',
           criteria: [
-            '96/96 wzorców z conjHtml (SPEŁNIONE)',
+            '96/175 wzorców ma conjHtml - BRAKUJE 79',
             'Poprawność lingwistyczna zweryfikowana przez native speakera',
             'Zero błędów zgłoszonych przez testerów/userów',
           ] },
