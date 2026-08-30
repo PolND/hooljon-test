@@ -4331,7 +4331,7 @@ const LAUNCH_READINESS = {
     {
       id: 'content', label: 'Objętość treści', weight: 40,
       items: [
-        { label: 'Godziny materiału prowadzonego (Story+Akademia)', value: 22, note: '~22h (SZACUNEK, nie pomiar) / cel 100h',
+        { label: 'Godziny materiału prowadzonego (Story+Akademia)', value: 37, note: '~37h (SZACUNEK, nie pomiar) / cel 100h. Skok z ~22h po przebudowie 2026-08-30: Tryb Opowieści urósł z 54 do 136 lekcji.',
           criteria: [
             'Osiągnięte min. 100h łącznie',
             'Czas per lekcja zmierzony realnie na testerach, nie szacowany',
@@ -5949,70 +5949,143 @@ const REGISTER_META = [
 // czysta częstotliwość daje fatalną Lekcję 1 pełną słów gramatycznych/abstrakcyjnych zamiast
 // realnego słownictwa startowego). Gramatyka to kolejne rozdziały Podstawowego w całości.
 const STORY_LESSONS = [
-  { id:1, type:'vocab', title:{pl:'Powitania (1)', en:'Greetings (1)'}, sources:[{category:'Powitania i zwroty', start:0, count:10}], wordKos:["안녕하세요", "감사합니다", "죄송합니다", "네", "아니요", "이름", "안녕하십니까?", "안녕!", "오랜만이에요!", "안녕히 계세요"] },
-  { id:2, type:'vocab', title:{pl:'Powitania (2)', en:'Greetings (2)'}, sources:[{category:'Powitania i zwroty', start:10, count:10}], wordKos:["안녕히 가세요", "잘 가!", "다음에 또 봐요!", "처음 뵙겠습니다", "만나서 반가워요", "잘 부탁드립니다", "고맙습니다", "천만에요", "미안해!", "괜찮아요"] },
-  { id:3, type:'vocab', title:{pl:'Powitania (3)', en:'Greetings (3)'}, sources:[{category:'Powitania i zwroty', start:20, count:8}], wordKos:["실례합니다", "잠시만요", "잘 먹겠습니다", "잘 먹었습니다", "안녕히 주무세요", "잘 자요", "수고하셨습니다", "좋은 하루 보내세요"] },
-  { id:4, type:'grammar', title:{pl:'Kim jesteś?', en:'Who are you?'}, level:'basic', chapterIndex:0 },
-  { id:5, type:'vocab', title:{pl:'Rodzina (1)', en:'Family (1)'}, sources:[{category:'Rodzina i ludzie', start:0, count:10}], wordKos:["친구", "가족", "어머니", "아버지", "사람", "명", "여자", "아이", "인간", "여성"] },
-  { id:6, type:'vocab', title:{pl:'Rodzina (2)', en:'Family (2)'}, sources:[{category:'Rodzina i ludzie', start:10, count:10}], wordKos:["남편", "아들", "애", "아내", "언니", "자식", "할머니", "개인", "고향", "결혼"] },
-  { id:7, type:'grammar', title:{pl:'To i tamto', en:'This and that'}, level:'basic', chapterIndex:1 },
-  { id:8, type:'vocab', title:{pl:'Jedzenie (1)', en:'Food (1)'}, sources:[{category:'Jedzenie i picie', start:0, count:10}], wordKos:["물", "밥", "김치", "커피", "술", "맛", "음식", "쌀", "식사", "쓴 맛"] },
-  { id:9, type:'vocab', title:{pl:'Jedzenie (2)', en:'Food (2)'}, sources:[{category:'Jedzenie i picie', start:10, count:10}], wordKos:["고기", "소금", "식당", "과일", "요리", "조미료", "우유", "빵", "달걀", "논"] },
-  { id:10, type:'grammar', title:{pl:'Codzienne czynności', en:'Daily activities'}, level:'basic', chapterIndex:2 },
-  { id:11, type:'vocab', title:{pl:'Kolory i zwierzęta', en:'Colors and animals'}, sources:[{category:'Kolory', start:0, count:5},{category:'Zwierzęta', start:0, count:5}], wordKos:["빨간색", "파란색", "노란색", "흰색", "검은색", "고양이", "강아지", "마리", "호랑이", "소"] },
-  { id:12, type:'grammar', title:{pl:'Zaprzeczenia', en:'Negation'}, level:'basic', chapterIndex:3 },
-  { id:13, type:'vocab', title:{pl:'Dom (1)', en:'Home (1)'}, sources:[{category:'Dom i codzienność', start:0, count:10}], wordKos:["학교", "책", "집", "문", "건물", "아파트", "층", "벽", "집안", "매일"] },
-  { id:14, type:'vocab', title:{pl:'Dom (2)', en:'Home (2)'}, sources:[{category:'Dom i codzienność', start:10, count:10}], wordKos:["바닥", "주택", "화장실", "백화점", "창문", "마루", "지붕", "창밖", "청소", "복도"] },
-  { id:15, type:'grammar', title:{pl:'Partykuły i liczniki', en:'Particles and counters'}, level:'basic', chapterIndex:4 },
-  { id:16, type:'vocab', title:{pl:'Pogoda (1)', en:'Weather (1)'}, sources:[{category:'Pogoda i natura', start:0, count:10}], wordKos:["날씨", "비", "눈", "하늘", "자연", "산", "꽃", "바람", "바다", "불"] },
-  { id:17, type:'vocab', title:{pl:'Pogoda (2)', en:'Weather (2)'}, sources:[{category:'Pogoda i natura', start:10, count:10}], wordKos:["나무", "달", "지구", "숲", "별", "흙", "태양", "강", "섬", "파도"] },
-  { id:18, type:'grammar', title:{pl:'Wyrażenia czasu', en:'Time expressions'}, level:'basic', chapterIndex:5 },
-  { id:19, type:'vocab', title:{pl:'Emocje (1)', en:'Emotions (1)'}, sources:[{category:'Emocje', start:0, count:10}], wordKos:["질투하다", "피곤하다", "슬프다", "외롭다", "편안하다", "편하다", "행복하다", "기쁘다", "불안하다", "답답하다"] },
-  { id:20, type:'vocab', title:{pl:'Emocje (2)', en:'Emotions (2)'}, sources:[{category:'Emocje', start:10, count:10}], wordKos:["무섭다", "부끄럽다", "자랑스럽다", "지루하다", "화나다", "감동하다", "놀라다", "긴장하다", "실망하다", "걱정되다"] },
-  { id:21, type:'grammar', title:{pl:'Prośby i intencje', en:'Requests and intentions'}, level:'basic', chapterIndex:6 },
-  { id:22, type:'vocab', title:{pl:'Praca i zawody', en:'Work and jobs'}, sources:[{category:'Praca i zawody', start:0, count:10}], wordKos:["소방관", "어부", "디자이너", "엔지니어", "프로그래머", "선생님", "작가", "의사", "공무원", "가수"] },
-  { id:23, type:'vocab', title:{pl:'Transport', en:'Transport'}, sources:[{category:'Transport', start:0, count:10}], wordKos:["자동차", "오토바이", "트럭", "지하철역", "기차역", "배", "버스", "비행기", "자전거", "지하철"] },
-  { id:24, type:'grammar', title:{pl:'Warunki i przyczyny', en:'Conditions and reasons'}, level:'basic', chapterIndex:7 },
-  { id:25, type:'grammar', title:{pl:'Stany i domysły', en:'States and guesses'}, level:'basic', chapterIndex:8 },
-  { id:26, type:'vocab', title:{pl:'Liczby rdzenne (1-10)', en:'Native numbers (1-10)'}, sources:[{category:'Liczby rdzenne', start:0, count:10}], wordKos:["하나", "둘", "셋", "넷", "다섯", "여섯", "일곱", "여덟", "아홉", "열"] },
-  { id:27, type:'vocab', title:{pl:'Liczby rdzenne (11-90)', en:'Native numbers (11-90)'}, sources:[{category:'Liczby rdzenne', start:10, count:10}], wordKos:["열하나", "열둘", "스물", "서른", "마흔", "쉰", "예순", "일흔", "여든", "아흔"] },
-  { id:28, type:'vocab', title:{pl:'Liczby sinokoreańskie (0-10)', en:'Sino-Korean numbers (0-10)'}, sources:[{category:'Liczby sinokoreańskie', start:0, count:10}], wordKos:["영", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"] },
-  { id:29, type:'vocab', title:{pl:'Liczby sinokoreańskie (11-1 000 000)', en:'Sino-Korean numbers (11-1,000,000)'}, sources:[{category:'Liczby sinokoreańskie', start:10, count:10}], wordKos:["십", "십일", "이십", "삼십", "사십", "오십", "백", "천", "만", "백만"] },
-  { id:30, type:'vocab', title:{pl:'Kolory i zwierzęta (1)', en:'Colors and animals (1)'}, sources:[{category:'Kolory', start:0, count:5},{category:'Zwierzęta', start:0, count:5}], wordKos:["빨간색", "파란색", "노란색", "흰색", "검은색", "고양이", "강아지", "마리", "호랑이", "소"] },
-  { id:31, type:'vocab', title:{pl:'Zwierzęta (2)', en:'Animals (2)'}, sources:[{category:'Zwierzęta', start:5, count:10}], wordKos:["생선", "닭", "쥐", "개구리", "늑대", "뱀", "사슴", "나비", "오리", "원숭이"] },
-  { id:32, type:'vocab', title:{pl:'Miesiące', en:'Months'}, sources:[{category:'Miesiące', start:0, count:10}], wordKos:["오월", "사월", "구월", "유월", "삼월", "칠월", "십이월", "시월", "팔월", "일월"] },
-  { id:33, type:'vocab', title:{pl:'Dom (3)', en:'Home (3)'}, sources:[{category:'Dom i codzienność', start:20, count:10}], wordKos:["거실", "일상생활", "냉장고", "열쇠", "창", "유리창", "일상적", "정원", "주거", "차창"] },
-  { id:34, type:'vocab', title:{pl:'Pogoda (3)', en:'Weather (3)'}, sources:[{category:'Pogoda i natura', start:20, count:10}], wordKos:["햇살", "구름", "불빛", "더위", "물결", "자연환경", "얼음", "안개", "땅속", "호수"] },
-  { id:35, type:'vocab', title:{pl:'Praca i zawody (2)', en:'Work and jobs (2)'}, sources:[{category:'Praca i zawody', start:10, count:9}], wordKos:["배우", "경찰관", "화가", "농부", "변호사", "요리사", "간호사", "운전기사", "사업가"] },
-  { id:36, type:'grammar', title:{pl:'Przypuszczenia i kontrast (bonus)', en:'Guesses and contrast (bonus)'}, level:'intermediate', chapterIndex:0 },
-  { id:37, type:'vocab', title:{pl:'Rodzina (3)', en:'Family (3)'}, wordKos:["엄마", "아빠", "할아버지", "형", "부모", "친하다", "인사하다", "어른"] },
-  { id:38, type:'vocab', title:{pl:'Emocje (3)', en:'Emotions (3)'}, wordKos:["좋다", "싫다", "재미있다", "심심하다", "아쉽다", "솔직하다", "신기하다", "순수하다"] },
-  { id:39, type:'vocab', title:{pl:'Dom (4)', en:'Home (4)'}, wordKos:["자다", "깨끗하다", "더럽다", "아늑하다", "시끄럽다", "쾌적하다", "낡다", "한적하다"] },
-  { id:40, type:'vocab', title:{pl:'Jedzenie (3)', en:'Food (3)'}, wordKos:["먹다", "마시다", "맛있다", "맵다", "달다", "짜다", "시원하다", "맛없다"] },
-  { id:41, type:'vocab', title:{pl:'Emocje (4)', en:'Emotions (4)'}, wordKos:["소중하다", "신중하다", "순진하다", "씩씩하다", "안타깝다", "소박하다", "속상하다", "아깝다"] },
-  { id:42, type:'vocab', title:{pl:'Praca i zawody (3)', en:'Work and jobs (3)'}, wordKos:["퇴근하다", "근무하다", "회의", "기업", "회장", "기자", "감독", "선수"] },
-  { id:43, type:'vocab', title:{pl:'Szkoła (1)', en:'School (1)'}, wordKos:["펜", "샤프", "칠판지우개", "학원", "단어장", "컴퓨터실", "보기", "방학하다"] },
-  { id:44, type:'vocab', title:{pl:'Zakupy (1)', en:'Shopping (1)'}, wordKos:["쇼핑하다", "슈퍼", "가격표", "할인하다", "알바", "환전", "빌려주다", "꽃집"] },
-  { id:45, type:'vocab', title:{pl:'Komunikacja i media (1)', en:'Communication and media (1)'}, wordKos:["거짓말", "드라마", "메시지", "알람", "알파벳", "앱", "휴대폰", "농담하다"] },
-  { id:46, type:'vocab', title:{pl:'Wygląd i ubiór (1)', en:'Appearance and clothing (1)'}, wordKos:["티", "반바지", "카디건", "목도리", "겨울옷", "귀걸이", "로션", "날씬하다"] },
-  { id:47, type:'vocab', title:{pl:'Hobby i czas wolny (1)', en:'Hobbies and free time (1)'}, wordKos:["등산하다", "낚시하다", "산책하다", "놀이동산", "동물원", "게임기", "가위바위보", "농구장"] },
-  { id:48, type:'vocab', title:{pl:'Wydarzenia i aktywność społeczna (1)', en:'Events and social activity (1)'}, wordKos:["거절", "검사하다", "경기하다", "돌려주다", "병문안", "생일잔치", "서비스하다", "헤어지다"] },
-  { id:49, type:'vocab', title:{pl:'Kultura i sztuka (1)', en:'Culture and art (1)'}, wordKos:["그리기", "디자인하다", "만화책", "색소폰", "액션", "코미디언", "팝"] },
-  { id:50, type:'vocab', title:{pl:'Sport (1)', en:'Sport (1)'}, wordKos:["골키퍼", "씨름하다", "금메달리스트", "레드카드", "멀리뛰기", "그라운드", "배트", "준결승"] },
-  { id:51, type:'vocab', title:{pl:'Polityka i prawo (1)', en:'Politics and law (1)'}, wordKos:["경찰차", "비자", "국경일", "애국가", "선거하다", "권력", "등록하다", "협조하다"] },
-  { id:52, type:'vocab', title:{pl:'Religia i duchowość (1)', en:'Religion and spirituality (1)'}, wordKos:["크리스마스이브", "산타", "캐럴", "석불"] },
-  { id:53, type:'vocab', title:{pl:'Przyroda i geografia (1)', en:'Nature and geography (1)'}, wordKos:["땅", "돌멩이", "산불", "보름달", "폭포", "강가", "봉우리", "동아시아"] },
-  { id:54, type:'vocab', title:{pl:'Nauka i technologia (1)', en:'Science and technology (1)'}, wordKos:["수리하다", "발견하다", "물체", "시스템", "화면", "설치하다", "장비", "피시"] },
+  { id:1, type:'vocab', title:{pl:'Powitania (1)', en:'Greetings (1)'}, sources:[{"category":"Powitania i zwroty","start":0,"count":10}], wordKos:['안녕하세요', '감사합니다', '죄송합니다', '네', '아니요', '이름', '안녕하십니까?', '안녕!', '오랜만이에요!', '안녕히 계세요'] },
+  { id:2, type:'vocab', title:{pl:'Powitania (2)', en:'Greetings (2)'}, sources:[{"category":"Powitania i zwroty","start":10,"count":10}], wordKos:['안녕히 가세요', '잘 가!', '다음에 또 봐요!', '처음 뵙겠습니다', '만나서 반가워요', '잘 부탁드립니다', '고맙습니다', '천만에요', '미안해!', '괜찮아요'] },
+  { id:3, type:'vocab', title:{pl:'Powitania (3)', en:'Greetings (3)'}, sources:[{"category":"Powitania i zwroty","start":20,"count":8}], wordKos:['실례합니다', '잠시만요', '잘 먹겠습니다', '잘 먹었습니다', '안녕히 주무세요', '잘 자요', '수고하셨습니다', '좋은 하루 보내세요'] },
+  { id:4, type:'grammar', title:{pl:'Kim jestem — styl uprzejmy', en:'Who I am — polite style'}, level:'basic', chapterIndex:0, patterns:['N은/는 N이에요/예요', 'N이에요/예요 (styl uprzejmy nieformalny, 해요체)'] },
+  { id:5, type:'grammar', title:{pl:'Styl formalny, przeczenie i istnienie', en:'Formal style, negation and existence'}, level:'basic', chapterIndex:0, patterns:['N입니다 (styl formalny, 격식체)', 'N이/가 아닙니다', 'N이/가 있어요 [없어요]'] },
+  { id:6, type:'vocab', title:{pl:'Rodzina (1)', en:'Family (1)'}, sources:[{"category":"Rodzina i ludzie","start":0,"count":10}], wordKos:['친구', '가족', '어머니', '아버지', '사람', '명', '여자', '아이', '인간', '여성'] },
+  { id:7, type:'vocab', title:{pl:'Rodzina (2)', en:'Family (2)'}, sources:[{"category":"Rodzina i ludzie","start":10,"count":10}], wordKos:['남편', '아들', '애', '아내', '언니', '자식', '할머니', '개인', '고향', '결혼'] },
+  { id:8, type:'grammar', title:{pl:'Wskazywanie: to, tamto, tutaj', en:'Pointing: this, that, here'}, level:'basic', chapterIndex:1, patterns:['이거는/그거는/저거는 N이에요', '이/그/저 + N (przed rzeczownikiem)', '여기가/거기가/저기가 N이에요'] },
+  { id:9, type:'grammar', title:{pl:'Gdzie coś jest', en:'Where things are'}, level:'basic', chapterIndex:1, patterns:['N에 있어요 [없어요] (miejsce statyczne)', 'N 옆/앞/뒤 (obok/przed/za)', 'N 위/아래 (nad/pod)'] },
+  { id:10, type:'grammar', title:{pl:'Ruch i pierwsza prośba', en:'Movement and your first request'}, level:'basic', chapterIndex:1, patterns:['N에 가요 [와요] (kierunek ruchu)', 'N을/를 주세요 (prośba)'] },
+  { id:11, type:'vocab', title:{pl:'Jedzenie (1)', en:'Food (1)'}, sources:[{"category":"Jedzenie i picie","start":0,"count":10}], wordKos:['물', '밥', '김치', '커피', '술', '맛', '음식', '쌀', '식사', '쓴 맛'] },
+  { id:12, type:'vocab', title:{pl:'Jedzenie (2)', en:'Food (2)'}, sources:[{"category":"Jedzenie i picie","start":10,"count":10}], wordKos:['고기', '소금', '식당', '과일', '요리', '조미료', '우유', '빵', '달걀', '논'] },
+  { id:13, type:'grammar', title:{pl:'Czas teraźniejszy i dopełnienie', en:'Present tense and objects'}, level:'basic', chapterIndex:2, patterns:['V-아요/어요 (czas teraźniejszy, styl uprzejmy nieformalny)', 'N을/를 (dopełnienie bliższe)'] },
+  { id:14, type:'grammar', title:{pl:'Styl formalny i miejsce czynności', en:'Formal style and where things happen'}, level:'basic', chapterIndex:2, patterns:['A/V-습니다/ㅂ니다 (czas teraźniejszy, styl formalny)', 'N에서 (miejsce dynamiczne — gdzie coś się dzieje)'] },
+  { id:15, type:'grammar', title:{pl:'Przeszłość i przyszłość', en:'Past and future'}, level:'basic', chapterIndex:2, patterns:['V-았/었- (czas przeszły)', 'V-(으)ㄹ 거예요 (czas przyszły, zamiar/plan)'] },
+  { id:16, type:'grammar', title:{pl:'Czynność w toku i czas zaprzeszły', en:'Ongoing actions and the past perfect'}, level:'basic', chapterIndex:2, patterns:['V-고 있다 (czas progresywny — czynność w toku)', 'A/V-았/었었어요 (czas zaprzeszły)'] },
+  { id:17, type:'vocab', title:{pl:'Kolory i zwierzęta', en:'Colors and animals'}, sources:[{"category":"Kolory","start":0,"count":5},{"category":"Zwierzęta","start":0,"count":5}], wordKos:['빨간색', '파란색', '노란색', '흰색', '검은색', '고양이', '강아지', '마리', '호랑이', '소'] },
+  { id:18, type:'grammar', title:{pl:'Negacja podstawowa', en:'Basic negation'}, level:'basic', chapterIndex:3, patterns:['안 V (podstawowa negacja, przedrostek)', 'A/V-지 않아요 (podstawowa negacja, przyrostek)'] },
+  { id:19, type:'grammar', title:{pl:'Negacja możliwościowa', en:'Negation of ability'}, level:'basic', chapterIndex:3, patterns:['못 V (negacja możliwościowa, przedrostek)', 'V-지 못해요 (negacja możliwościowa, przyrostek)'] },
+  { id:20, type:'grammar', title:{pl:'Spójniki: i, ale, albo', en:'Connectors: and, but, or'}, level:'basic', chapterIndex:3, patterns:['A/V-고 (spójnik chronologiczny/wyliczający)', 'A/V-지만 (spójnik przeciwstawny)', 'V-거나 (spójnik alternatywy dla czasowników)'] },
+  { id:21, type:'grammar', title:{pl:'Tło sytuacyjne -(으)ㄴ/는데', en:'Setting the scene with -(으)ㄴ/는데'}, level:'basic', chapterIndex:3, patterns:['A/V-(으)ㄴ/는데 (tło sytuacyjne, delikatny kontrast)'] },
+  { id:22, type:'vocab', title:{pl:'Dom (1)', en:'Home (1)'}, sources:[{"category":"Dom i codzienność","start":0,"count":10}], wordKos:['학교', '책', '집', '문', '건물', '아파트', '층', '벽', '집안', '매일'] },
+  { id:23, type:'vocab', title:{pl:'Dom (2)', en:'Home (2)'}, sources:[{"category":"Dom i codzienność","start":10,"count":10}], wordKos:['바닥', '주택', '화장실', '백화점', '창문', '마루', '지붕', '창밖', '청소', '복도'] },
+  { id:24, type:'grammar', title:{pl:'Łączenie rzeczowników', en:'Joining nouns'}, level:'basic', chapterIndex:4, patterns:['N하고 N (spójnik "i/z", uniwersalny)', 'N과/와 N (spójnik "i/z", zależny od głoski)'] },
+  { id:25, type:'grammar', title:{pl:'Przynależność, też, tylko', en:'Possession, also, only'}, level:'basic', chapterIndex:4, patterns:['N의 (partykuła dzierżawcza)', 'N도 (partykuła addytywna "też/również")', 'N만 (partykuła wyłączności "tylko")'] },
+  { id:26, type:'grammar', title:{pl:'Ograniczenie i narzędzie', en:'Limits and instruments'}, level:'basic', chapterIndex:4, patterns:['N밖에 + przeczenie (partykuła ograniczająca)', 'N(으)로 (środek transportu/narzędzie)'] },
+  { id:27, type:'grammar', title:{pl:'Porównania i "każdy"', en:'Comparisons and "every"'}, level:'basic', chapterIndex:4, patterns:['N처럼/N같이 (porównanie "jak")', 'N보다 (porównanie "bardziej niż")', 'N마다 (partykuła dystrybutywna "każdy")'] },
+  { id:28, type:'grammar', title:{pl:'Liczniki', en:'Counters'}, level:'basic', chapterIndex:4, patterns:['Klasyfikatory (개, 병, 잔, 그릇)'] },
+  { id:29, type:'vocab', title:{pl:'Pogoda (1)', en:'Weather (1)'}, sources:[{"category":"Pogoda i natura","start":0,"count":10}], wordKos:['날씨', '비', '눈', '하늘', '자연', '산', '꽃', '바람', '바다', '불'] },
+  { id:30, type:'vocab', title:{pl:'Pogoda (2)', en:'Weather (2)'}, sources:[{"category":"Pogoda i natura","start":10,"count":10}], wordKos:['나무', '달', '지구', '숲', '별', '흙', '태양', '강', '섬', '파도'] },
+  { id:31, type:'grammar', title:{pl:'Punkty i zakresy czasu', en:'Points and ranges in time'}, level:'basic', chapterIndex:5, patterns:['N에 (partykuła czasowa — o danej godzinie/dacie)', 'N부터 (zakres czasowy — "od")', 'N까지 (zakres czasowy — "do")'] },
+  { id:32, type:'grammar', title:{pl:'Przed i po', en:'Before and after'}, level:'basic', chapterIndex:5, patterns:['V-기 전에 (relacja wyprzedzania — "przed")', 'V-(으)ㄴ 후에 (sekwencja czasowa — "po")'] },
+  { id:33, type:'grammar', title:{pl:'Następstwo zdarzeń', en:'One thing after another'}, level:'basic', chapterIndex:5, patterns:['V-고 나서 (ścisła sekwencja po ukończeniu)', 'V-자마자 (natychmiastowe następstwo)'] },
+  { id:34, type:'grammar', title:{pl:'Kiedy i jak długo', en:'When and how long'}, level:'basic', chapterIndex:5, patterns:['N때 / A/V-(으)ㄹ 때 (moment — "kiedy")', 'N동안 (trwanie czynności — "podczas")'] },
+  { id:35, type:'grammar', title:{pl:'Równocześnie i od kiedy', en:'At the same time, and since when'}, level:'basic', chapterIndex:5, patterns:['V-(으)면서 (dwie czynności równocześnie)', 'V-(으)ㄴ지 (upływ czasu od czynności)'] },
+  { id:36, type:'vocab', title:{pl:'Emocje (1)', en:'Emotions (1)'}, sources:[{"category":"Emocje","start":0,"count":10}], wordKos:['질투하다', '피곤하다', '슬프다', '외롭다', '편안하다', '편하다', '행복하다', '기쁘다', '불안하다', '답답하다'] },
+  { id:37, type:'vocab', title:{pl:'Emocje (2)', en:'Emotions (2)'}, sources:[{"category":"Emocje","start":10,"count":10}], wordKos:['무섭다', '부끄럽다', '자랑스럽다', '지루하다', '화나다', '감동하다', '놀라다', '긴장하다', '실망하다', '걱정되다'] },
+  { id:38, type:'grammar', title:{pl:'Prośby i zakazy', en:'Requests and prohibitions'}, level:'basic', chapterIndex:6, patterns:['V-(으)세요 (uprzejmy tryb rozkazujący/prośba)', 'V-지 마세요 (uprzejmy zakaz)'] },
+  { id:39, type:'grammar', title:{pl:'Prośba o przysługę i obietnica', en:'Asking a favour, promising one'}, level:'basic', chapterIndex:6, patterns:['V-아/어 주세요 (prośba o wykonanie czegoś dla mnie)', 'V-아/어 줄게요 (obietnica pomocy)'] },
+  { id:40, type:'grammar', title:{pl:'Chęci i życzenia', en:'Wants and wishes'}, level:'basic', chapterIndex:6, patterns:['V-고 싶다 (własne chęci/pragnienia)', 'A/V-았/었으면 좋겠다 (życzenie hipotetyczne)'] },
+  { id:41, type:'grammar', title:{pl:'Propozycje', en:'Suggestions'}, level:'basic', chapterIndex:6, patterns:['V-(으)ㄹ까요? (propozycja/pytanie o opinię)', 'V-(으)ㅂ시다 (formalna propozycja wspólnego działania)'] },
+  { id:42, type:'grammar', title:{pl:'Intencje w rozmowie', en:'Intentions in conversation'}, level:'basic', chapterIndex:6, patterns:['V-(으)ㄹ래요? (pytanie o intencje, swobodnie)', 'V-(으)ㄹ게요 (deklaracja/obietnica wobec rozmówcy)'] },
+  { id:43, type:'grammar', title:{pl:'Plany i decyzje', en:'Plans and decisions'}, level:'basic', chapterIndex:6, patterns:['V-(으)려고 하다 (plan/zamiar)', 'V-기로 하다 (wiążąca decyzja)'] },
+  { id:44, type:'vocab', title:{pl:'Praca i zawody', en:'Work and jobs'}, sources:[{"category":"Praca i zawody","start":0,"count":10}], wordKos:['소방관', '어부', '디자이너', '엔지니어', '프로그래머', '선생님', '작가', '의사', '공무원', '가수'] },
+  { id:45, type:'vocab', title:{pl:'Transport', en:'Transport'}, sources:[{"category":"Transport","start":0,"count":10}], wordKos:['자동차', '오토바이', '트럭', '지하철역', '기차역', '배', '버스', '비행기', '자전거', '지하철'] },
+  { id:46, type:'grammar', title:{pl:'Możliwość i umiejętność', en:'Possibility and skill'}, level:'basic', chapterIndex:7, patterns:['V-(으)ㄹ 수 있다/없다 (możliwość / jej brak)', 'V-(으)ㄹ 줄 알다/모르다 (posiadana umiejętność)'] },
+  { id:47, type:'grammar', title:{pl:'Obowiązek i pozwolenie', en:'Obligation and permission'}, level:'basic', chapterIndex:7, patterns:['A/V-아/어야 되다 (konieczność, obowiązek)', 'A/V-아/어도 되다 (pozwolenie)'] },
+  { id:48, type:'grammar', title:{pl:'Warunek i zakaz', en:'Condition and prohibition'}, level:'basic', chapterIndex:7, patterns:['A/V-(으)면 (warunek prosty)', 'A/V-(으)면 안 되다 (zakaz)'] },
+  { id:49, type:'grammar', title:{pl:'Przyczyna: trzy sposoby', en:'Cause: three ways'}, level:'basic', chapterIndex:7, patterns:['A/V-아/어서 (przyczyna, bezpośredni związek)', 'N때문에 (przyczyna obiektywna)', 'A/V-(으)니까 (przyczyna przed sugestią/poleceniem)'] },
+  { id:50, type:'grammar', title:{pl:'Cel działania', en:'Purpose'}, level:'basic', chapterIndex:7, patterns:['N을/를 위해서 (cel działania)', 'V-(으)러 가다 (ruch w określonym celu)'] },
+  { id:51, type:'grammar', title:{pl:'Ustępstwo i przysłówki', en:'Concession and adverbs'}, level:'basic', chapterIndex:7, patterns:['A/V-아/어도 (ustępstwo "nawet jeśli")', 'A-게 (tworzenie przysłówków od przymiotników)'] },
+  { id:52, type:'grammar', title:{pl:'Próbowanie i doświadczenia', en:'Trying things and life experience'}, level:'basic', chapterIndex:8, patterns:['V-아/어 보다 (spróbowanie czynności)', 'V-(으)ㄴ 적이 있다/없다 (doświadczenie życiowe)'] },
+  { id:53, type:'grammar', title:{pl:'Łagodne przypuszczenie 것 같다', en:'Soft guesses with 것 같다'}, level:'basic', chapterIndex:8, patterns:['A/V-(으)ㄴ/는/(으)ㄹ 것 같다 (łagodne przypuszczenie)'] },
+  { id:54, type:'grammar', title:{pl:'Domysł i zmiana stanu', en:'Guessing and changes of state'}, level:'basic', chapterIndex:8, patterns:['A/V-겠어요 (przypuszczenie/zamiar)', 'V-게 되다 (zmiana stanu niezależna od woli)'] },
+  { id:55, type:'grammar', title:{pl:'Stan trwający i potwierdzanie', en:'Resulting states and confirming'}, level:'basic', chapterIndex:8, patterns:['V-아/어 있다 (stan trwający po czynności)', 'A/V-지요? (potwierdzanie znanej informacji)'] },
+  { id:56, type:'grammar', title:{pl:'Reakcje i uprzejme pytania', en:'Reactions and softened questions'}, level:'basic', chapterIndex:8, patterns:['A/V-네요 (zaskoczenie, świeże spostrzeżenie)', 'A-(으)ㄴ가요?/V-나요? (zmiękczone, uprzejme pytanie)'] },
+  { id:57, type:'grammar', title:{pl:'Odmiana nieregularna 르', en:'The 르 irregular'}, level:'basic', chapterIndex:8, patterns:['Koniugacja nieregularna na 르'] },
+  { id:58, type:'vocab', title:{pl:'Liczby rdzenne (1-10)', en:'Native numbers (1-10)'}, sources:[{"category":"Liczby rdzenne","start":0,"count":10}], wordKos:['하나', '둘', '셋', '넷', '다섯', '여섯', '일곱', '여덟', '아홉', '열'] },
+  { id:59, type:'vocab', title:{pl:'Liczby rdzenne (11-90)', en:'Native numbers (11-90)'}, sources:[{"category":"Liczby rdzenne","start":10,"count":10}], wordKos:['열하나', '열둘', '스물', '서른', '마흔', '쉰', '예순', '일흔', '여든', '아흔'] },
+  { id:60, type:'vocab', title:{pl:'Liczby sinokoreańskie (0-10)', en:'Sino-Korean numbers (0-10)'}, sources:[{"category":"Liczby sinokoreańskie","start":0,"count":10}], wordKos:['영', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'] },
+  { id:61, type:'vocab', title:{pl:'Liczby sinokoreańskie (11-1 000 000)', en:'Sino-Korean numbers (11-1,000,000)'}, sources:[{"category":"Liczby sinokoreańskie","start":10,"count":10}], wordKos:['십', '십일', '이십', '삼십', '사십', '오십', '백', '천', '만', '백만'] },
+  { id:62, type:'vocab', title:{pl:'Kolory i zwierzęta (1)', en:'Colors and animals (1)'}, sources:[{"category":"Kolory","start":0,"count":5},{"category":"Zwierzęta","start":0,"count":5}], wordKos:['빨간색', '파란색', '노란색', '흰색', '검은색', '고양이', '강아지', '마리', '호랑이', '소'] },
+  { id:63, type:'vocab', title:{pl:'Zwierzęta (2)', en:'Animals (2)'}, sources:[{"category":"Zwierzęta","start":5,"count":10}], wordKos:['생선', '닭', '쥐', '개구리', '늑대', '뱀', '사슴', '나비', '오리', '원숭이'] },
+  { id:64, type:'vocab', title:{pl:'Miesiące', en:'Months'}, sources:[{"category":"Miesiące","start":0,"count":10}], wordKos:['오월', '사월', '구월', '유월', '삼월', '칠월', '십이월', '시월', '팔월', '일월'] },
+  { id:65, type:'vocab', title:{pl:'Dom (3)', en:'Home (3)'}, sources:[{"category":"Dom i codzienność","start":20,"count":10}], wordKos:['거실', '일상생활', '냉장고', '열쇠', '창', '유리창', '일상적', '정원', '주거', '차창'] },
+  { id:66, type:'vocab', title:{pl:'Pogoda (3)', en:'Weather (3)'}, sources:[{"category":"Pogoda i natura","start":20,"count":10}], wordKos:['햇살', '구름', '불빛', '더위', '물결', '자연환경', '얼음', '안개', '땅속', '호수'] },
+  { id:67, type:'vocab', title:{pl:'Praca i zawody (2)', en:'Work and jobs (2)'}, sources:[{"category":"Praca i zawody","start":10,"count":9}], wordKos:['배우', '경찰관', '화가', '농부', '변호사', '요리사', '간호사', '운전기사', '사업가'] },
+  { id:68, type:'grammar', title:{pl:'Wrażenie i dedukcja', en:'Impressions and deductions'}, level:'intermediate', chapterIndex:0, patterns:['-아/어 보이다 (wrażenie na podstawie wyglądu)', '-(으)ㄴ/는 모양이다 (dedukcja sytuacyjna)'] },
+  { id:69, type:'grammar', title:{pl:'Przypuszczenie jako tło', en:'Assumptions as background'}, level:'intermediate', chapterIndex:0, patterns:['-(으)ㄹ 텐데 (tło z przypuszczenia)', '-(으)ㄹ 테니까 (przypuszczenie jako powód prośby)'] },
+  { id:70, type:'grammar', title:{pl:'Niepewność', en:'Uncertainty'}, level:'intermediate', chapterIndex:0, patterns:['-(으)ㄹ걸요 (niepewne przypuszczenie w odpowiedzi)', '-(으)ㄹ지도 모르다 (ewentualność zdarzenia)'] },
+  { id:71, type:'grammar', title:{pl:'Błędne przekonanie', en:'Mistaken assumptions'}, level:'intermediate', chapterIndex:0, patterns:['-(으)ㄴ/는/(으)ㄹ 줄 몰랐다 (błędne przekonanie)'] },
+  { id:72, type:'grammar', title:{pl:'Zastrzeżenie i kontrast', en:'Concession and contrast'}, level:'intermediate', chapterIndex:0, patterns:['-기는 하지만 (przyznanie racji z zastrzeżeniem)', '-(으)ㄴ/는 반면에 (czysty kontrast cech)'] },
+  { id:73, type:'grammar', title:{pl:'Kontrast mimo okoliczności', en:'Contrast despite the odds'}, level:'intermediate', chapterIndex:0, patterns:['-(으)ㄴ/는데도 (kontrast mimo okoliczności)'] },
+  { id:74, type:'vocab', title:{pl:'Rodzina (3)', en:'Family (3)'}, wordKos:['엄마', '아빠', '할아버지', '형', '부모', '친하다', '인사하다', '어른'] },
+  { id:75, type:'vocab', title:{pl:'Emocje (3)', en:'Emotions (3)'}, wordKos:['좋다', '싫다', '재미있다', '심심하다', '아쉽다', '솔직하다', '신기하다', '순수하다'] },
+  { id:76, type:'vocab', title:{pl:'Dom (4)', en:'Home (4)'}, wordKos:['자다', '깨끗하다', '더럽다', '아늑하다', '시끄럽다', '쾌적하다', '낡다', '한적하다'] },
+  { id:77, type:'vocab', title:{pl:'Jedzenie (3)', en:'Food (3)'}, wordKos:['먹다', '마시다', '맛있다', '맵다', '달다', '짜다', '시원하다', '맛없다'] },
+  { id:78, type:'vocab', title:{pl:'Emocje (4)', en:'Emotions (4)'}, wordKos:['소중하다', '신중하다', '순진하다', '씩씩하다', '안타깝다', '소박하다', '속상하다', '아깝다'] },
+  { id:79, type:'vocab', title:{pl:'Praca i zawody (3)', en:'Work and jobs (3)'}, wordKos:['퇴근하다', '근무하다', '회의', '기업', '회장', '기자', '감독', '선수'] },
+  { id:80, type:'vocab', title:{pl:'Szkoła (1)', en:'School (1)'}, wordKos:['펜', '샤프', '칠판지우개', '학원', '단어장', '컴퓨터실', '보기', '방학하다'] },
+  { id:81, type:'vocab', title:{pl:'Zakupy (1)', en:'Shopping (1)'}, wordKos:['쇼핑하다', '슈퍼', '가격표', '할인하다', '알바', '환전', '빌려주다', '꽃집'] },
+  { id:82, type:'vocab', title:{pl:'Komunikacja i media (1)', en:'Communication and media (1)'}, wordKos:['거짓말', '드라마', '메시지', '알람', '알파벳', '앱', '휴대폰', '농담하다'] },
+  { id:83, type:'vocab', title:{pl:'Wygląd i ubiór (1)', en:'Appearance and clothing (1)'}, wordKos:['티', '반바지', '카디건', '목도리', '겨울옷', '귀걸이', '로션', '날씬하다'] },
+  { id:84, type:'vocab', title:{pl:'Hobby i czas wolny (1)', en:'Hobbies and free time (1)'}, wordKos:['등산하다', '낚시하다', '산책하다', '놀이동산', '동물원', '게임기', '가위바위보', '농구장'] },
+  { id:85, type:'vocab', title:{pl:'Wydarzenia i aktywność społeczna (1)', en:'Events and social activity (1)'}, wordKos:['거절', '검사하다', '경기하다', '돌려주다', '병문안', '생일잔치', '서비스하다', '헤어지다'] },
+  { id:86, type:'vocab', title:{pl:'Kultura i sztuka (1)', en:'Culture and art (1)'}, wordKos:['그리기', '디자인하다', '만화책', '색소폰', '액션', '코미디언', '팝'] },
+  { id:87, type:'vocab', title:{pl:'Sport (1)', en:'Sport (1)'}, wordKos:['골키퍼', '씨름하다', '금메달리스트', '레드카드', '멀리뛰기', '그라운드', '배트', '준결승'] },
+  { id:88, type:'vocab', title:{pl:'Polityka i prawo (1)', en:'Politics and law (1)'}, wordKos:['경찰차', '비자', '국경일', '애국가', '선거하다', '권력', '등록하다', '협조하다'] },
+  { id:89, type:'vocab', title:{pl:'Religia i duchowość (1)', en:'Religion and spirituality (1)'}, wordKos:['크리스마스이브', '산타', '캐럴', '석불'] },
+  { id:90, type:'vocab', title:{pl:'Przyroda i geografia (1)', en:'Nature and geography (1)'}, wordKos:['땅', '돌멩이', '산불', '보름달', '폭포', '강가', '봉우리', '동아시아'] },
+  { id:91, type:'vocab', title:{pl:'Nauka i technologia (1)', en:'Science and technology (1)'}, wordKos:['수리하다', '발견하다', '물체', '시스템', '화면', '설치하다', '장비', '피시'] },
+  { id:92, type:'grammar', title:{pl:'Wyjaśnianie i przypominanie', en:'Explaining and reminding'}, level:'intermediate', chapterIndex:1, patterns:['-거든요 (wyjaśnienie w odpowiedzi)', '-잖아요 (przypomnienie oczywistego faktu)'] },
+  { id:93, type:'grammar', title:{pl:'Niespodziewany skutek i obawa', en:'Unexpected results and worries'}, level:'intermediate', chapterIndex:1, patterns:['-는 바람에 (niespodziewany negatywny skutek)', '-(으)ㄹ까 봐 (działanie z obawy)'] },
+  { id:94, type:'grammar', title:{pl:'Dopytanie o cudze słowa', en:'Questioning what was said'}, level:'intermediate', chapterIndex:1, patterns:['-다고요? (dopytanie o to, co powiedziano)'] },
+  { id:95, type:'grammar', title:{pl:'Potwierdzanie usłyszanego', en:'Confirming what you heard'}, level:'intermediate', chapterIndex:1, patterns:['-다면서요? (potwierdzanie usłyszanej informacji)'] },
+  { id:96, type:'grammar', title:{pl:'Luźne i bliskie zamiary', en:'Loose plans and imminent ones'}, level:'intermediate', chapterIndex:1, patterns:['-(으)ㄹ까 하다 (luźny zamiar)', '-(으)려던 참이다 ("właśnie miałem zamiar...")'] },
+  { id:97, type:'grammar', title:{pl:'Warto i dopilnuj', en:'Worth doing, make sure you do'}, level:'intermediate', chapterIndex:1, patterns:['-(으)ㄹ 만하다 (warto coś zrobić)', '-도록 하다 (rada/dopilnowanie)'] },
+  { id:98, type:'grammar', title:{pl:'Łagodna sugestia', en:'A gentle suggestion'}, level:'intermediate', chapterIndex:1, patterns:['-지 그래요? (łagodna, pośrednia sugestia)'] },
+  { id:99, type:'grammar', title:{pl:'Retrospekcja: -던 i -던데요', en:'Looking back: -던 and -던데요'}, level:'intermediate', chapterIndex:2, patterns:['-던 (niedokończona/powtarzająca się przeszłość)', '-던데요 (wspomnienie jako tło rozmowy)'] },
+  { id:100, type:'grammar', title:{pl:'Relacja z osobistego odkrycia', en:'Reporting what you discovered'}, level:'intermediate', chapterIndex:2, patterns:['-더라고요 (relacja z osobistego odkrycia)'] },
+  { id:101, type:'grammar', title:{pl:'Strona bierna', en:'The passive voice'}, level:'intermediate', chapterIndex:2, patterns:['Strona bierna (nieregularny sufiks -히-)'] },
+  { id:102, type:'grammar', title:{pl:'Strona sprawcza', en:'The causative voice'}, level:'intermediate', chapterIndex:2, patterns:['Strona sprawcza (nieregularny sufiks -이-)'] },
+  { id:103, type:'grammar', title:{pl:'Sprawianie i stopniowa zmiana', en:'Making things happen, gradual change'}, level:'intermediate', chapterIndex:2, patterns:['-게 하다 (uniwersalna strona sprawcza)', '-아/어지다 (stopniowa zmiana stanu)'] },
+  { id:104, type:'grammar', title:{pl:'Warunek konieczny', en:'The necessary condition'}, level:'intermediate', chapterIndex:2, patterns:['-아/어야 (warunek konieczny)'] },
+  { id:105, type:'grammar', title:{pl:'Nie tylko... ale też', en:'Not only... but also'}, level:'intermediate', chapterIndex:3, patterns:['-(으)ㄹ 뿐만 아니라 (nie tylko..., ale też...)', '-(으)ㄴ/는 데다가 (a do tego jeszcze...)'] },
+  { id:106, type:'grammar', title:{pl:'Stopień i skrajność', en:'Degree and extremes'}, level:'intermediate', chapterIndex:3, patterns:['조차 (nawet — skrajny przypadek)', 'N만큼 (ten sam stopień/ilość)', '-(으)ㄹ 정도로 (do tego stopnia, że...)'] },
+  { id:107, type:'grammar', title:{pl:'Po drodze i przerwanie', en:'On the way, and interruptions'}, level:'intermediate', chapterIndex:3, patterns:['-는 길에 (po drodze, przy okazji)', '-다가 (czynność przerwana przez inną)'] },
+  { id:108, type:'grammar', title:{pl:'Obojętnie które', en:'Any of them will do'}, level:'intermediate', chapterIndex:3, patterns:['아무+(이)나 (cokolwiek, bez znaczenia które)', '-든지 -든지 (czy tak, czy tak)'] },
+  { id:109, type:'grammar', title:{pl:'Zamiast czegoś', en:'Instead of something'}, level:'intermediate', chapterIndex:3, patterns:['-(으)ㄴ/는 대신에 (zamiast czegoś)'] },
+  { id:110, type:'grammar', title:{pl:'Potoczne łączniki -아/어', en:'Colloquial -아/어 connectors'}, level:'intermediate', chapterIndex:4, patterns:['-아/어 가지고 (potoczny odpowiednik -아서)', '-아/어다가 (rezultat przeniesiony w inne miejsce)'] },
+  { id:111, type:'grammar', title:{pl:'Kolejność i upływ czasu', en:'Sequence and elapsed time'}, level:'intermediate', chapterIndex:4, patterns:['-고서 (ścisła kolejność, zwięźlej niż -고 나서)', 'N만에 (po upływie danego czasu)'] },
+  { id:112, type:'grammar', title:{pl:'Odkrycia po czynności', en:'Discoveries after the fact'}, level:'intermediate', chapterIndex:4, patterns:['-고 보니 (odkrycie po wykonaniu czynności)', '-다 보니 (odkrycie po powtarzającej się czynności)'] },
+  { id:113, type:'grammar', title:{pl:'Stan niezmieniony i zgodność', en:'Unchanged states and going along'}, level:'intermediate', chapterIndex:4, patterns:['-(으)ㄴ 채로 (w niezmienionym stanie)', '-는 대로 (zaraz jak/zgodnie z czymś)'] },
+  { id:114, type:'grammar', title:{pl:'Cechy i emfaza', en:'Qualities and emphasis'}, level:'intermediate', chapterIndex:4, patterns:['N-스럽다 (przymiotnik z rzeczownika)', '얼마나 -는지 모르다 (emfatyczne podkreślenie stopnia)'] },
+  { id:115, type:'grammar', title:{pl:'Naturalne prawidłowości', en:'The way things naturally are'}, level:'intermediate', chapterIndex:5, patterns:['-(으)ㄴ/는 법이다 (naturalne prawo rzeczywistości)', '-기 마련이다 (naturalna tendencja/nieuniknioność)'] },
+  { id:116, type:'grammar', title:{pl:'Podkreślenie i cel', en:'Emphasis and purpose'}, level:'intermediate', chapterIndex:5, patterns:['N(이)야말로 (silne podkreślenie "to właśnie...")', '-도록 (cel — "tak, żeby...")'] },
+  { id:117, type:'grammar', title:{pl:'Zakończenie i niezamierzony skutek', en:'Finishing off, and unintended results'}, level:'intermediate', chapterIndex:5, patterns:['-아/어 버리다 (całkowite zakończenie, emocjonalnie)', '-고 말다 (niezamierzony rezultat, zwykle negatywny)'] },
+  { id:118, type:'grammar', title:{pl:'Bezcelowość', en:'Pointlessness'}, level:'intermediate', chapterIndex:5, patterns:['-아/어 봤자 (próba z góry skazana na porażkę)', '-(으)나 마나 (wynik ten sam, niezależnie od czynności)'] },
+  { id:119, type:'grammar', title:{pl:'Hipotezy o przeszłości', en:'What might have been'}, level:'intermediate', chapterIndex:6, patterns:['-았/었더라면 (hipoteza dotycząca przeszłości)', '-(으)ㄹ 뻔하다 (coś o mało się nie wydarzyło)'] },
+  { id:120, type:'grammar', title:{pl:'Żal i niespełniony obowiązek', en:'Regret and unmet obligations'}, level:'intermediate', chapterIndex:6, patterns:['-(으)ㄹ걸 그랬다 (żal — "powinienem był")', '-았/었어야 했는데 (niespełniony obowiązek)'] },
+  { id:121, type:'grammar', title:{pl:'Nawyki i nagminność', en:'Habits and recurring events'}, level:'intermediate', chapterIndex:6, patterns:['-곤 하다 (powtarzający się nawyk z przeszłości)', '-기 일쑤다 (coś nagminnie się zdarza)'] },
+  { id:122, type:'grammar', title:{pl:'Nominalizacja cudzej wypowiedzi', en:'Nominalising what others said'}, level:'advanced', chapterIndex:0, patterns:['-다는 것 (nominalizacja cudzej wypowiedzi/faktu)'] },
+  { id:123, type:'grammar', title:{pl:'Formalny nominalizator i przyczyna', en:'Formal nominaliser and cause'}, level:'advanced', chapterIndex:0, patterns:['-(으)ㅁ (formalny, pisany nominalizator)', '-(으)므로 (formalny spójnik przyczynowy)'] },
+  { id:124, type:'grammar', title:{pl:'Ustępstwo i luźny wybór', en:'Concession and loose choice'}, level:'advanced', chapterIndex:0, patterns:['아무리 -아/어도 (wzmocnione ustępstwo)', 'N(이)나 (luźny, niezdecydowany wybór)'] },
+  { id:125, type:'grammar', title:{pl:'Źródło i formalna przyczyna', en:'Citing sources, formal cause'}, level:'advanced', chapterIndex:1, patterns:['N에 따르면 (wprowadzenie źródła informacji)', 'N(으)로 인해 (formalna przyczyna)'] },
+  { id:126, type:'grammar', title:{pl:'Ustępstwo i granica warunku', en:'Concession and the limits of a condition'}, level:'advanced', chapterIndex:1, patterns:['-(으)ㄹ지라도 (formalne, mocne ustępstwo)', '-는 한 (granica warunku — "dopóki")'] },
+  { id:127, type:'grammar', title:{pl:'Formalna hipoteza', en:'Formal hypotheticals'}, level:'advanced', chapterIndex:1, patterns:['만약 -다면 (formalna konstrukcja hipotetyczna)'] },
+  { id:128, type:'grammar', title:{pl:'Formalne dodawanie', en:'Formal addition'}, level:'advanced', chapterIndex:2, patterns:['-거니와 (formalne dodawanie zgodnej cechy)', '게다가 (spójnik zdaniowy — "co więcej")'] },
+  { id:129, type:'grammar', title:{pl:'Natychmiastowość i warunek wystarczający', en:'Immediacy and sufficient conditions'}, level:'advanced', chapterIndex:2, patterns:['-자 (literacki odpowiednik -자마자)', '-기만 하면 (wystarczający warunek)'] },
+  { id:130, type:'grammar', title:{pl:'Formalne "mimo że"', en:'Formal "even though"'}, level:'advanced', chapterIndex:2, patterns:['-(으)ㅁ에도 불구하고 (formalne "mimo że")', '-고도 (kontrast — "mimo że coś zrobiono")'] },
+  { id:131, type:'grammar', title:{pl:'Formalne zastrzeżenie', en:'Formal provisos'}, level:'advanced', chapterIndex:2, patterns:['-되 (formalne zastrzeżenie do polecenia)'] },
+  { id:132, type:'grammar', title:{pl:'Prawdopodobieństwo', en:'Likelihood'}, level:'advanced', chapterIndex:3, patterns:['-기 십상이다 (wysokie prawdopodobieństwo, zwykle złego wyniku)', '-(으)ㄹ 법하다 (formalne przypuszczenie/wiarygodność)'] },
+  { id:133, type:'grammar', title:{pl:'Zaprzeczenie i zestawienie', en:'Ruling out, and setting side by side'}, level:'advanced', chapterIndex:3, patterns:['-(으)ㄹ 리가 없다 (silne zaprzeczenie możliwości)', '-는가 하면 (zestawienie dwóch różnych sytuacji)'] },
+  { id:134, type:'grammar', title:{pl:'Literackie wyliczanie', en:'Literary listing'}, level:'advanced', chapterIndex:3, patterns:['-(이)며 -(이)며 (literackie wyliczanie — "i to, i tamto")'] },
+  { id:135, type:'grammar', title:{pl:'Kryterium i "nigdy"', en:'Criteria and "never"'}, level:'advanced', chapterIndex:4, patterns:['N치고 (kryterium sytuacji — "jak na coś")', '-는 법이 없다 (nigdy się nie zdarza)'] },
+  { id:136, type:'grammar', title:{pl:'Skrajny stopień i literacka przyczyna', en:'Extreme degree and literary cause'}, level:'advanced', chapterIndex:4, patterns:['-기 짝이 없다 (utrwalony zwrot — skrajny stopień)', '-았/었기에 (formalny, literacki spójnik przyczynowy)'] },
 ];
-
-// Hanja (한자) — chińskie znaki będące etymologicznym rdzeniem >60% słownictwa koreańskiego.
-// Format czytania to tradycyjny 훈음 (znaczenie + wymowa), np. "물 수" = "woda [czytana] su".
-// Każdy znak łączy się z RZECZYWISTYMI słowami już istniejącymi w bazie (sprawdzone programowo
-// przed dodaniem, nie wymyślone) — pokazuje uczącemu się, że słowa nie są przypadkowe, tylko
-// zbudowane ze wspólnych, powtarzających się elementów znaczeniowych.
-// Historia i kultura Korei — pilotaż na 6 dobrze udokumentowanych, sprawdzonych tematach,
-// nie próba objęcia wszystkiego naraz. Temat duchowy (musok) opisany rzeczowo i z szacunkiem,
-// nie jako "ciekawostka" — to żywa, wciąż praktykowana tradycja, nie zamierzchła przeszłość.
 const CULTURE_TOPICS = [
   {
     id:'musok', icon:'🔔',
@@ -16153,6 +16226,13 @@ document.getElementById('ptDoneBtn').addEventListener('click', ()=>{
 /* ===================== TRYB OPOWIEŚCI (pilotaż — silnik + 12 lekcji) ===================== */
 
 const STORY_PROGRESS_KEY = 'hooljon_story_progress';
+// Wersja układu lekcji. Po przebudowie 2026-08-30 (10 -> 92 lekcje gramatyczne, pełne
+// przenumerowanie) stare ID wskazują na CAŁKIEM INNĄ treść niż wcześniej, więc zapisany
+// postęp trzeba raz wyzerować - inaczej user miałby "ukończone" losowe lekcje. Świadoma
+// decyzja: mamy tylko testowych userów, więc czysty reset jest lepszy niż mapowanie.
+// Przy każdej kolejnej przebudowie numeracji wystarczy podbić tę wartość.
+const STORY_LAYOUT_VERSION = 2;
+const STORY_LAYOUT_KEY = 'hooljon_story_layout_version';
 // Postęp Trybu Opowieści jest teraz synchronizowany z serwerem (2026-08-30). Wcześniej
 // żył WYŁĄCZNIE w localStorage - user tracił cały postęp przy zmianie urządzenia albo
 // wyczyszczeniu przeglądarki, mimo że panel konta obiecuje "postęp zapisany na serwerze".
@@ -16174,6 +16254,19 @@ function readLocalStoryProgress(){
 let storyProgressRemoteBlocked = false; // true, gdy odczyt z serwera zawiódł (np. Brave Shields blokuje żądania)
 
 async function loadStoryProgress(){
+  // Reset przy zmianie układu lekcji - patrz STORY_LAYOUT_VERSION. Robimy to PRZED
+  // odczytem, żeby wyczyścić zarówno lokalne, jak i serwerowe dane sprzed przenumerowania.
+  let knownLayout = null;
+  try{ knownLayout = localStorage.getItem(STORY_LAYOUT_KEY); }catch(e){}
+  if(String(knownLayout) !== String(STORY_LAYOUT_VERSION)){
+    storyProgress = { completedLessonIds: [] };
+    try{ localStorage.setItem(STORY_PROGRESS_KEY, JSON.stringify(storyProgress)); }catch(e){}
+    try{ localStorage.setItem(STORY_LAYOUT_KEY, String(STORY_LAYOUT_VERSION)); }catch(e){}
+    try{ await window.storage.set(STORAGE_KEYS.storyProgress, JSON.stringify(storyProgress)); }catch(e){}
+    storyProgressRemoteBlocked = false;
+    return;
+  }
+
   const local = readLocalStoryProgress();
   let remote = { completedLessonIds: [] };
   let remoteOk = false;
@@ -16223,30 +16316,40 @@ function isLessonDone(id){ return storyProgress.completedLessonIds.includes(id);
 // Dzięki temu nową lekcję można wstawić w dowolne miejsce sekwencji bez rozsypania
 // granic wszystkich kolejnych rozdziałów.
 const STORY_CHAPTERS = [
-  { title:{pl:'Podstawy i powitania', en:'Basics and greetings'}, icon:'👋', lessonIds:[1,2,3,4] },
-  { title:{pl:'Rodzina', en:'Family'}, icon:'👨‍👩‍👧', lessonIds:[5,6,37,7] },
-  { title:{pl:'Jedzenie', en:'Food'}, icon:'🍜', lessonIds:[8,9,40,10] },
-  { title:{pl:'Kolory i zwierzęta', en:'Colors and animals'}, icon:'🐶', lessonIds:[11,12] },
-  { title:{pl:'Dom', en:'Home'}, icon:'🏠', lessonIds:[13,14,39,15] },
-  { title:{pl:'Pogoda', en:'Weather'}, icon:'☁️', lessonIds:[16,17,18] },
-  { title:{pl:'Emocje', en:'Emotions'}, icon:'😊', lessonIds:[19,20,38,41,21] },
-  { title:{pl:'Praca i transport', en:'Work and transport'}, icon:'💼', lessonIds:[22,23,42,24,25] },
-  { title:{pl:'Liczby', en:'Numbers'}, icon:'🔢', lessonIds:[26,27,28,29] },
-  { title:{pl:'Uzupełnienia', en:'Extras'}, icon:'⭐', lessonIds:[30,31,32,33,34,35,36] },
-  { title:{pl:'Szkoła', en:'School'}, icon:'🎓', lessonIds:[43] },
-  { title:{pl:'Zakupy', en:'Shopping'}, icon:'🛍️', lessonIds:[44] },
-  { title:{pl:'Komunikacja i media', en:'Communication and media'}, icon:'📱', lessonIds:[45] },
-  { title:{pl:'Wygląd i ubiór', en:'Appearance and clothing'}, icon:'👕', lessonIds:[46] },
-  { title:{pl:'Hobby i czas wolny', en:'Hobbies and free time'}, icon:'🎣', lessonIds:[47] },
-  { title:{pl:'Wydarzenia i aktywność społeczna', en:'Events and social activity'}, icon:'🎉', lessonIds:[48] },
-  { title:{pl:'Kultura i sztuka', en:'Culture and art'}, icon:'🎨', lessonIds:[49] },
-  { title:{pl:'Sport', en:'Sport'}, icon:'⚽', lessonIds:[50] },
-  { title:{pl:'Polityka i prawo', en:'Politics and law'}, icon:'🏛️', lessonIds:[51] },
-  { title:{pl:'Religia i duchowość', en:'Religion and spirituality'}, icon:'🕯️', lessonIds:[52] },
-  { title:{pl:'Przyroda i geografia', en:'Nature and geography'}, icon:'⛰️', lessonIds:[53] },
-  { title:{pl:'Nauka i technologia', en:'Science and technology'}, icon:'🔬', lessonIds:[54] },
+  { title:{pl:'Podstawy i powitania', en:'Basics and greetings'}, icon:'👋', lessonIds:[1,2,3,4,5] },
+  { title:{pl:'Rodzina', en:'Family'}, icon:'👨‍👩‍👧', lessonIds:[6,7,74,8,9,10] },
+  { title:{pl:'Jedzenie', en:'Food'}, icon:'🍜', lessonIds:[11,12,77,13,14,15,16] },
+  { title:{pl:'Kolory i zwierzęta', en:'Colors and animals'}, icon:'🐶', lessonIds:[17,18,19,20,21] },
+  { title:{pl:'Dom', en:'Home'}, icon:'🏠', lessonIds:[22,23,76,24,25,26,27,28] },
+  { title:{pl:'Pogoda', en:'Weather'}, icon:'☁️', lessonIds:[29,30,31,32,33,34,35] },
+  { title:{pl:'Emocje', en:'Emotions'}, icon:'😊', lessonIds:[36,37,75,78,38,39,40,41,42,43] },
+  { title:{pl:'Praca i transport', en:'Work and transport'}, icon:'💼', lessonIds:[44,45,79,46,47,48,49,50,51,52,53,54,55,56,57] },
+  { title:{pl:'Liczby', en:'Numbers'}, icon:'🔢', lessonIds:[58,59,60,61] },
+  { title:{pl:'Uzupełnienia', en:'Extras'}, icon:'⭐', lessonIds:[62,63,64,65,66,67,68,69,70,71,72,73] },
+  { title:{pl:'Szkoła', en:'School'}, icon:'🎓', lessonIds:[80] },
+  { title:{pl:'Zakupy', en:'Shopping'}, icon:'🛍️', lessonIds:[81] },
+  { title:{pl:'Komunikacja i media', en:'Communication and media'}, icon:'📱', lessonIds:[82] },
+  { title:{pl:'Wygląd i ubiór', en:'Appearance and clothing'}, icon:'👕', lessonIds:[83] },
+  { title:{pl:'Hobby i czas wolny', en:'Hobbies and free time'}, icon:'🎣', lessonIds:[84] },
+  { title:{pl:'Wydarzenia i aktywność społeczna', en:'Events and social activity'}, icon:'🎉', lessonIds:[85] },
+  { title:{pl:'Kultura i sztuka', en:'Culture and art'}, icon:'🎨', lessonIds:[86] },
+  { title:{pl:'Sport', en:'Sport'}, icon:'⚽', lessonIds:[87] },
+  { title:{pl:'Polityka i prawo', en:'Politics and law'}, icon:'🏛️', lessonIds:[88] },
+  { title:{pl:'Religia i duchowość', en:'Religion and spirituality'}, icon:'🕯️', lessonIds:[89] },
+  { title:{pl:'Przyroda i geografia', en:'Nature and geography'}, icon:'⛰️', lessonIds:[90] },
+  { title:{pl:'Nauka i technologia', en:'Science and technology'}, icon:'🔬', lessonIds:[91] },
+  { title:{pl:'Blok B: Przyczyny, mowa zależna, zamiary i rady', en:'Blok B: Przyczyny, mowa zależna, zamiary i rady'}, icon:'📘', lessonIds:[92,93,94,95,96,97,98] },
+  { title:{pl:'Blok C: Wspomnienia, strona bierna i sprawcza, warunki', en:'Blok C: Wspomnienia, strona bierna i sprawcza, warunki'}, icon:'📘', lessonIds:[99,100,101,102,103,104] },
+  { title:{pl:'Blok D: Dodawanie informacji, przerwane czynności, stopień', en:'Blok D: Dodawanie informacji, przerwane czynności, stopień'}, icon:'📘', lessonIds:[105,106,107,108,109] },
+  { title:{pl:'Blok E: Sekwencja czasowa, odkrycia, stany i cechy', en:'Blok E: Sekwencja czasowa, odkrycia, stany i cechy'}, icon:'📘', lessonIds:[110,111,112,113,114] },
+  { title:{pl:'Blok F: Podkreślenie, cel, ukończenie i bezcelowość', en:'Blok F: Podkreślenie, cel, ukończenie i bezcelowość'}, icon:'📘', lessonIds:[115,116,117,118] },
+  { title:{pl:'Blok G: Sytuacje hipotetyczne, żal i nawyki', en:'Blok G: Sytuacje hipotetyczne, żal i nawyki'}, icon:'📘', lessonIds:[119,120,121] },
+  { title:{pl:'Wybór, cytowanie akademickie i nominalizacja', en:'Wybór, cytowanie akademickie i nominalizacja'}, icon:'📕', lessonIds:[122,123,124] },
+  { title:{pl:'Przyczyny akademickie i sytuacje hipotetyczne', en:'Przyczyny akademickie i sytuacje hipotetyczne'}, icon:'📕', lessonIds:[125,126,127] },
+  { title:{pl:'Sekwencja, warunki, kontrast i dodawanie', en:'Sekwencja, warunki, kontrast i dodawanie'}, icon:'📕', lessonIds:[128,129,130,131] },
+  { title:{pl:'Nawyki, modyfikacja, przypuszczenia i wyliczanie', en:'Nawyki, modyfikacja, przypuszczenia i wyliczanie'}, icon:'📕', lessonIds:[132,133,134] },
+  { title:{pl:'Sytuacje, podkreślenie, rejestry historyczne i zwroty specjalne', en:'Sytuacje, podkreślenie, rejestry historyczne i zwroty specjalne'}, icon:'📕', lessonIds:[135,136] },
 ];
-
 function isLessonUnlocked(index){
   if(index === 0) return true;
   return isLessonDone(STORY_LESSONS[index - 1].id);
@@ -16277,7 +16380,17 @@ function resolveLessonWords(lesson){
   return words;
 }
 function resolveLessonGrammarItems(lesson){
-  return GRAMMAR_LEVELS[lesson.level].chapters[lesson.chapterIndex].items;
+  const all = GRAMMAR_LEVELS[lesson.level].chapters[lesson.chapterIndex].items;
+  // Od przebudowy 2026-08-30 lekcja obejmuje WYBRANE wzorce z rozdziału (pole patterns),
+  // nie cały rozdział naraz. Wcześniej jedna lekcja potrafiła wrzucić 13 wzorców na raz
+  // (a w skrajnym przypadku cały blok średniozaawansowany), co dawało nieznośne tempo.
+  // Podział jest oparty o budżet trudności 2-3 pkt na lekcję - patrz lesson_split_plan.json.
+  if(!lesson.patterns || !lesson.patterns.length) return all; // zabezpieczenie na wypadek lekcji bez listy
+  const wanted = new Set(lesson.patterns);
+  const picked = all.filter(it => wanted.has(it.pattern));
+  // Jeśli filtr nic nie znalazł (np. literówka w nazwie wzorca), lepiej pokazać cały
+  // rozdział niż pustą lekcję - user zobaczy za dużo, ale nie zobaczy NIC.
+  return picked.length ? picked : all;
 }
 
 function renderStoryMap(){
