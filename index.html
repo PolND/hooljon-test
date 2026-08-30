@@ -21,7 +21,7 @@
 <title>Hooljon · 훈련</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Song+Myung&family=Noto+Serif+KR:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Song+Myung&family=Noto+Serif+KR:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -56,6 +56,162 @@
     --surface-2: #232A38;
     --heuk: #345C82;      /* trochę jaśniejszy navy, żeby odróżnić się od ciemnego tła */
   }
+
+  /* ── MOTYWY PREMIUM PRO ─────────────────────────────────────────────
+     Dwa dodatkowe motywy, dostępne tylko dla premiumTier === 'pro'.
+     Zmienne pokrywają kolory; poniżej każdego bloku dopiski na to,
+     czego :root nie trzyma — krój nagłówków, promienie, ikony, animacje.
+     Pakiet od Claude Design, zweryfikowany i wdrożony 2026-08-30. */
+
+  /* HANJI — papier, tusz, pieczęć */
+  [data-theme="hanji"]{
+    --bg: #F1EADB;
+    --bg-glow: #E6DBC4;
+    --card: #FBF6EA;
+    --card-hi: #F2EAD9;
+    --ink: #2B2622;
+    --ink-dim: #7C6F5C;
+    --border: #D9CBAF;
+    --surface-2: #EDE4D0;
+    --primary: #3E3A32;
+    --hwang: #8C2F27;     /* akcent = kolor pieczęci */
+    --heuk: #2B2622;
+    --jeok: #8C2F27;
+    --cheong: #4A5D5E;
+    --baek: #5C6E4A;
+    --good: #5C6E4A;
+    --bad: #A85A2E;
+    --radius: 3px;        /* papier ma krawędzie, nie zaokrąglenia */
+  }
+  [data-theme="hanji"] body{
+    background:
+      repeating-linear-gradient(90deg, rgba(120,100,70,.055) 0 1px, transparent 1px 4px),
+      radial-gradient(circle at 50% -10%, var(--bg-glow) 0%, var(--bg) 55%);
+  }
+  /* zero cieni — kluczowe dla wrażenia papieru */
+  [data-theme="hanji"] .home-card,
+  [data-theme="hanji"] .ans-btn,
+  [data-theme="hanji"] .center-card,
+  [data-theme="hanji"] .bottom-nav,
+  [data-theme="hanji"] .hanja-card,
+  [data-theme="hanji"] .achv-streak-card{ box-shadow:none; }
+  [data-theme="hanji"] .home-card,
+  [data-theme="hanji"] .ans-btn,
+  [data-theme="hanji"] .center-card,
+  [data-theme="hanji"] .price-card,
+  [data-theme="hanji"] .dict-word-row,
+  [data-theme="hanji"] .story-chapter,
+  [data-theme="hanji"] .achv-badge,
+  [data-theme="hanji"] .limit-lock,
+  [data-theme="hanji"] .back-btn{ border-radius:3px; }
+  [data-theme="hanji"] .theme-toggle-btn,
+  [data-theme="hanji"] .premium-badge-btn,
+  [data-theme="hanji"] .tier-tab,
+  [data-theme="hanji"] .category-chip{ border-radius:3px; }
+  [data-theme="hanji"] .home-card .icon{
+    font-family:'Song Myung', serif;
+    color:var(--hwang);
+    font-size:25px;
+  }
+  [data-theme="hanji"] .sc-progress-fill,
+  [data-theme="hanji"] .grammar-dot.active,
+  [data-theme="hanji"] .grammar-dot.done{
+    border-radius:0;
+    animation:hj-ink 4s ease-in-out infinite;
+  }
+  @keyframes hj-ink{ 0%,100%{opacity:.85} 50%{opacity:1} }
+
+  /* NEON — Seoul night; najdalej od obecnej identyfikacji */
+  [data-theme="neon"]{
+    --bg: #0A0810;
+    --bg-glow: #1B0F26;
+    --card: #141020;
+    --card-hi: #1D1529;
+    --ink: #F4EFFF;
+    --ink-dim: #9B8FB4;
+    --border: #31244A;
+    --surface-2: #1A1428;
+    --primary: #3BE8E0;
+    --hwang: #FF2E88;     /* akcent główny: magenta */
+    --heuk: #3BE8E0;
+    --jeok: #FF2E88;
+    --cheong: #3BE8E0;
+    --baek: #4BE39B;
+    --good: #4BE39B;
+    --bad: #FF7A4B;
+    --radius: 22px;
+  }
+  [data-theme="neon"] body{
+    background:
+      linear-gradient(rgba(255,46,136,.05) 1px, transparent 1px) 0 0 / 100% 26px,
+      radial-gradient(120% 70% at 80% -10%, rgba(59,232,224,.12), transparent 65%),
+      radial-gradient(circle at 50% -10%, var(--bg-glow) 0%, var(--bg) 55%);
+  }
+  /* nagłówki: mono wersalikami — ale TYLKO łacinka.
+     Hangul zostaje w Noto Serif KR, mono-caps psuje czytelność koreańskiego. */
+  [data-theme="neon"] .academy-title,
+  [data-theme="neon"] .home-card .title,
+  [data-theme="neon"] h1, [data-theme="neon"] h3{
+    font-family:'IBM Plex Mono', monospace;
+    text-transform:uppercase;
+    letter-spacing:1.4px;
+    font-weight:600;
+    font-size:0.86em;
+  }
+  [data-theme="neon"] .dict-word-ko,
+  [data-theme="neon"] .sce-ko,
+  [data-theme="neon"] .hanja-card,
+  [data-theme="neon"] .study-card-example{
+    font-family:'Noto Serif KR', serif;
+    text-transform:none;
+    letter-spacing:normal;
+  }
+  [data-theme="neon"] .home-card .icon{
+    font-family:'IBM Plex Mono', monospace;
+    color:#3BE8E0;
+    font-size:17px;
+    font-weight:600;
+  }
+  [data-theme="neon"] .home-card{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 18px 36px -26px #000;
+  }
+  [data-theme="neon"] .home-card:hover{ box-shadow:0 0 22px -8px rgba(255,46,136,.55); }
+  [data-theme="neon"] .ans-btn.selected,
+  [data-theme="neon"] .ans-btn:active{ box-shadow:0 0 0 3px rgba(255,46,136,.25); }
+  [data-theme="neon"] .sc-progress-fill,
+  [data-theme="neon"] .grammar-dot.active{
+    background:linear-gradient(90deg,#FF2E88,#3BE8E0);
+    animation:hj-neon 2.2s ease-in-out infinite;
+  }
+  [data-theme="neon"] .premium-badge-btn{
+    background:linear-gradient(90deg,#FF2E88,#3BE8E0);
+    color:#0A0810;
+  }
+  @keyframes hj-neon{ 0%,100%{filter:brightness(1)} 50%{filter:brightness(1.35)} }
+
+  /* PANEL WYBORU MOTYWU (rozwijany pod ikoną 🌙) */
+  .theme-row{
+    display:flex; align-items:center; gap:10px;
+    padding:9px 10px; border-radius:10px;
+    border:1px solid transparent; background:transparent;
+    width:100%; text-align:left; cursor:pointer; color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+  }
+  .theme-row.active{ background:var(--card-hi); border-color:var(--border); }
+  .theme-row .tr-swatch{
+    width:20px; height:20px; flex:none; border-radius:50%;
+    border:1px solid var(--border);
+  }
+  .theme-row .tr-name{ font-size:14.5px; font-weight:500; }
+  .theme-row .tr-ko{ font-size:12.5px; color:var(--ink-dim); margin-top:1px; }
+  .theme-row .tr-pro{
+    font-size:11px; font-weight:600; letter-spacing:.6px;
+    padding:2px 7px; border-radius:100px;
+    background:var(--hwang); color:#fff;
+  }
+  .theme-row .tr-check{ color:var(--hwang); font-size:14px; }
+  [data-theme="hanji"] .theme-row,
+  [data-theme="hanji"] .theme-row .tr-swatch{ border-radius:3px; }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   html{
@@ -2631,8 +2787,19 @@
     </div>
   </header>
   <div class="header-tools" id="headerTools">
-    <button class="theme-toggle-btn" id="themeToggleBtn" title="Przełącz motyw" aria-label="Przełącz jasny/ciemny motyw">🌙</button>
+    <button class="theme-toggle-btn" id="themeToggleBtn" title="Motyw" aria-label="Wybierz motyw" aria-haspopup="true" aria-expanded="false">🌙</button>
     <button class="theme-toggle-btn" id="langToggleBtn" title="Język tłumaczeń" aria-label="Język tłumaczeń" style="font-size:13px; font-weight:700;">PL</button>
+
+    <div class="panel" id="themePanel">
+      <div class="modal-card">
+        <button class="modal-close" data-close="themePanel" aria-label="Zamknij">✕</button>
+        <h3 data-i18n="themePanelTitle">Motyw</h3>
+        <div id="themeRows"></div>
+        <div class="hint-note" id="themeProHint" style="margin-top:8px; display:none;" data-i18n="themeProHint">
+          Motywy Hanji i Neon są częścią Premium Pro.
+        </div>
+      </div>
+    </div>
 
     <div class="panel" id="langPanel">
       <div class="modal-card">
@@ -3441,8 +3608,8 @@
           </div>
           <div class="login-field">
             <label for="readingTextInput" data-i18n="koreanTextLabel">Tekst po koreańsku</label>
-            <textarea id="readingTextInput" placeholder="저는 아침에 일어나요..." maxlength="700"></textarea>
-            <div class="reading-char-counter" id="readingCharCounter">0 / 700 znaków</div>
+            <textarea id="readingTextInput" placeholder="저는 아침에 일어나요..." maxlength="3000"></textarea>
+            <div class="reading-char-counter" id="readingCharCounter">0 / 3000 znaków</div>
           </div>
           <div class="hint-note" style="text-align:left; margin-top:0;" data-i18n="readingLimitNote">
             Limit celowo ogranicza to do krótkich fragmentów do ćwiczeń — nie do wgrywania całych, chronionych prawem autorskim tekstów.
@@ -4063,6 +4230,12 @@ const LAUNCH_READINESS = {
             'Testy na min. 5 różnych urządzeniach/wersjach OS',
             'Zero critical bugów przez min. 2 tygodnie codziennego użycia',
             'Brak zgłoszeń o utracie danych/postępu',
+          ] },
+        { label: 'Bezpieczeństwo uprawnień RPC (anon)', value: 100, note: '2026-08-30: znaleziono i naprawiono lukę - anon dostawał HTTP 200 z realnych funkcji (get_ai_usage_status, get_gemini_usage_status) przez brak jawnego revoke execute from public/anon. Zweryfikowane na świeżym koncie testowym, nie tylko na słowo migracji.',
+          criteria: [
+            'Wszystkie istniejące RPC audytowane pod kątem revoke execute from public/anon — SPEŁNIONE',
+            'Zweryfikowane na realnym koncie testowym (nie tylko treść migracji) — SPEŁNIONE',
+            'Nowe RPC (np. get_daily_readings) dostają jawny revoke od razu przy tworzeniu, nie jako poprawka później',
           ] },
       ],
     },
@@ -12604,6 +12777,8 @@ const I18N = {
   homeCultureTitle: { pl: 'Historia i kultura', en: 'History and Culture' },
   homeCultureDesc: { pl: 'Szamanizm, tradycje, święta — kontekst za językiem.', en: 'Shamanism, traditions, holidays - the context behind the language.' },
   langPanelTitle: { pl: 'Język interfejsu', en: 'Interface language' },
+  themePanelTitle: { pl: 'Motyw', en: 'Theme' },
+  themeProHint: { pl: 'Motywy Hanji i Neon są częścią Premium Pro.', en: 'Hanji and Neon themes are part of Premium Pro.' },
   langPanelDesc: { pl: 'Docelowo Hooljon ma wspierać uczących się z różnych stron świata — każdy język ojczysty inaczej "mapuje się" na koreański, więc plany na przyszłość obejmują też dopasowane wskazówki gramatyczne, nie tylko tłumaczenie interfejsu.', en: 'Hooljon aims to support learners from around the world — every native language "maps" onto Korean differently, so future plans include tailored grammar hints too, not just interface translation.' },
   listenFullBtn: { pl: 'Odsłuchaj', en: 'Listen' },
   aiCheckLoading: { pl: '🤔 AI sprawdza, czy to jednak nie jest poprawne…', en: "🤔 AI is checking whether this might be correct after all…" },
@@ -13587,12 +13762,63 @@ document.getElementById('soundToggleBtn').addEventListener('click', async ()=>{
   if(soundEnabled) playCorrectSound(); // krótka próbka, żeby użytkownik od razu usłyszał efekt włączenia
 });
 
+// ── MOTYWY ───────────────────────────────────────────────────────────
+// Kolejność w panelu = kolejność tutaj. pro:true => wiersz widoczny
+// tylko dla premiumTier === 'pro'. Pakiet od Claude Design, wdrożony 2026-08-30.
+const THEMES = [
+  { id:'light', name:'Jasny',  ko:'밝음',              icon:'🌙', pro:false, sw:['#F8F9FA','#E63946'] },
+  { id:'dark',  name:'Ciemny', ko:'어두움',            icon:'☀️', pro:false, sw:['#12151C','#E63946'] },
+  { id:'hanji', name:'Hanji',  ko:'한지 · tusz i papier', icon:'🖌️', pro:true,  sw:['#F1EADB','#8C2F27'] },
+  { id:'neon',  name:'Neon',   ko:'네온 · Seoul night',  icon:'⚡', pro:true,  sw:['#0A0810','#FF2E88'] }
+];
+const PRO_THEME_IDS = THEMES.filter(t => t.pro).map(t => t.id);
+
+// Ikony kart: Hanji podmienia emoji na hanja, Neon na numery.
+// Oryginał trzymamy w dataset, więc powrót do light/dark jest bezstratny.
+const THEME_ICONS = {
+  hanji: { '🔁':'回','한':'한','📚':'語','📐':'文','漢':'漢','📖':'讀','🗺️':'圖','📜':'冊',
+           '🏮':'燈','🏢':'社','🎙️':'話','🏫':'學','🔍':'索','🔤':'字','🧩':'組','🔥':'熱' },
+  neon:  { '🔁':'RE','한':'한','📚':'VO','📐':'GR','漢':'漢','📖':'RD','🗺️':'MP','📜':'AC',
+           '🏮':'CU','🏢':'BZ','🎙️':'AI','🏫':'SC','🔍':'FD','🔤':'CJ','🧩':'GX','🔥':'HT' }
+};
+function applyThemeIcons(theme){
+  const map = THEME_ICONS[theme];
+  document.querySelectorAll('.home-card .icon').forEach(el => {
+    if(!el.dataset.origIcon) el.dataset.origIcon = el.textContent.trim();
+    const orig = el.dataset.origIcon;
+    el.textContent = (map && map[orig]) || orig;
+  });
+}
+
 function applyTheme(theme){
+  // motyw Pro po utracie subskrypcji → cofnij do ciemnego, bez komunikatu
+  if(PRO_THEME_IDS.includes(theme) && premiumTier !== 'pro') theme = 'dark';
   currentTheme = theme;
-  document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : '');
+  document.documentElement.setAttribute('data-theme', theme === 'light' ? '' : theme);
+  const meta = THEMES.find(t => t.id === theme) || THEMES[0];
   const btn = document.getElementById('themeToggleBtn');
-  btn.textContent = theme === 'dark' ? '☀️' : '🌙';
-  btn.title = theme === 'dark' ? 'Przełącz na jasny motyw' : 'Przełącz na ciemny motyw';
+  if(btn) btn.textContent = meta.icon;
+  applyThemeIcons(theme);
+  renderThemePanel();
+}
+
+function renderThemePanel(){
+  const wrap = document.getElementById('themeRows');
+  if(!wrap) return;
+  const isPro = premiumTier === 'pro';
+  const visible = THEMES.filter(t => !t.pro || isPro);
+  wrap.innerHTML = visible.map(t => `
+    <button class="theme-row ${t.id === currentTheme ? 'active' : ''}" data-theme-id="${t.id}">
+      <span class="tr-swatch" style="background:linear-gradient(135deg,${t.sw[0]} 50%,${t.sw[1]} 50%);"></span>
+      <span style="flex:1; min-width:0;">
+        <span class="tr-name" style="display:block;">${t.name}</span>
+        <span class="tr-ko" style="display:block;">${t.ko}</span>
+      </span>
+      ${t.pro ? '<span class="tr-pro">PRO</span>' : ''}
+      ${t.id === currentTheme ? '<span class="tr-check">✓</span>' : ''}
+    </button>`).join('');
+  const hint = document.getElementById('themeProHint');
+  if(hint) hint.style.display = isPro ? 'block' : 'none';
 }
 
 async function loadTheme(){
@@ -13608,10 +13834,25 @@ async function loadTheme(){
   applyTheme(prefersDark ? 'dark' : 'light');
 }
 
-document.getElementById('themeToggleBtn').addEventListener('click', async ()=>{
-  const next = currentTheme === 'dark' ? 'light' : 'dark';
-  applyTheme(next);
-  try{ await window.storage.set(STORAGE_KEYS.theme, next); }catch(e){}
+document.getElementById('themeToggleBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  const panel = document.getElementById('themePanel');
+  const open = panel.classList.toggle('open');   // '.panel.open' — ta sama mechanika co #langPanel
+  e.currentTarget.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if(open) renderThemePanel();
+});
+
+document.getElementById('themePanel').addEventListener('click', async (e) => {
+  const row = e.target.closest('.theme-row');
+  if(!row) return;
+  applyTheme(row.dataset.themeId);
+  document.getElementById('themePanel').classList.remove('open');
+  try{ await window.storage.set(STORAGE_KEYS.theme, currentTheme); }catch(err){}
+});
+
+document.addEventListener('click', () => {
+  const p = document.getElementById('themePanel');
+  if(p) p.classList.remove('open');
 });
 
 async function loadStorage(){
@@ -17165,7 +17406,7 @@ document.getElementById('readingRestartBtn').addEventListener('click', ()=>{
   openReading(currentReading);
 });
 
-const READING_TEXT_LIMIT = 700;
+const READING_TEXT_LIMIT = 3000; // podniesione z 700 na prośbę z 2026-08-30 - za mało miejsca na realny krótki tekst
 
 // Trzy stany przycisku mikrofonu Czytania, użyte w kilku miejscach naraz - jedna definicja
 // zamiast powtarzania tego samego tekstu (i ryzyka niespójności) w czterech miejscach.
@@ -18315,6 +18556,12 @@ function applyPremiumUI(){
     scenarioGate.style.display = isPremiumPro ? 'none' : 'block';
     scenarioBody.style.display = isPremiumPro ? 'block' : 'none';
   }
+
+  // Motywy Pro (Hanji/Neon) znikają razem z utratą subskrypcji, bez komunikatu -
+  // cofamy do ciemnego. Panel trzeba przeliczyć niezależnie od tego, czy motyw
+  // się zmienił, bo lista widocznych wierszy (PRO badge) zależy od premiumTier.
+  if(PRO_THEME_IDS.includes(currentTheme) && premiumTier !== 'pro') applyTheme('dark');
+  renderThemePanel();
 }
 
 function maybeShowInterstitial(kind){
@@ -19207,6 +19454,14 @@ renderTenseChips();
    dopiero potem pokaż "home". Jeśli sesji nie ma, jedyny osiągalny ekran to "login". */
 
 async function loadEverythingFromServer(){
+  // KOLEJNOŚĆ WAŻNA: loadStorage() (ustawia premiumTier przez setPremiumTier) MUSI
+  // wykonać się PRZED loadTheme() - inaczej motyw Pro (Hanji/Neon) zostanie odczytany
+  // z serwera, ale applyTheme() go od razu zdegraduje do 'dark', bo w tym momencie
+  // premiumTier wciąż miałby wartość domyślną 'free'. To nieodwracalne w tej samej
+  // sesji - applyTheme() tylko cofa motywy Pro, nigdy ich nie przywraca, więc późniejsze
+  // ustawienie premiumTier na 'pro' by tego nie naprawiło. Znalezione i poprawione
+  // przy wdrożeniu motywów Hanji/Neon, 2026-08-30.
+  await loadStorage();
   await loadTheme();
   await loadUiLang();
   await loadSoundPref();
@@ -19215,7 +19470,6 @@ async function loadEverythingFromServer(){
   await loadRewardsData();
   await loadDailyValueStats();
   await loadMasteryStats();
-  await loadStorage();
   await loadAccount();
 
   // szybkie przełączanie Premium do testów lokalnych: dopisz ?premium=0 (free),
