@@ -924,7 +924,10 @@
     padding:8px 6px;
     font-family:'IBM Plex Sans', sans-serif;
     font-weight:700;
-    font-size:clamp(12px, 3vw, 14.5px);
+    font-size:clamp(11px, 3vw, 14.5px);
+    overflow-wrap:break-word;
+    word-break:break-word;
+    hyphens:none;
     cursor:pointer;
     color:var(--seal);
     line-height:1.2;
@@ -1645,11 +1648,32 @@
     padding:32px 20px;
     text-align:center;
   }
+  .hangul-card .hg-stage{
+    position:relative;
+    width:130px;
+    height:130px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
   .hangul-card .hg-big-char{
     font-family:'Noto Serif KR', serif;
     font-size:88px;
     line-height:1;
     color:var(--ink);
+  }
+  .hangul-card .hg-big-char.has-strokes{
+    opacity:0; /* glif czcionki chowany na czas animacji - wzór (hg-stroke-guide) i animacja
+                  pochodzą z tych samych współrzędnych SVG, więc TYLKO to gwarantuje
+                  dopasowanie 1:1; nakładanie na realny font tej gwarancji by nie dawało */
+  }
+  .hg-stroke-svg-overlay{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
   }
   .hangul-card .hg-composed{
     font-size:17px;
@@ -1663,6 +1687,11 @@
     color:var(--hwang);
     margin-top:12px;
     letter-spacing:1px;
+    max-width:90%;
+    margin-left:auto;
+    margin-right:auto;
+    word-break:break-word;
+    overflow-wrap:break-word;
   }
   .hangul-card .hg-desc{
     font-size:14.5px;
@@ -1677,6 +1706,90 @@
     margin-top:20px;
     padding-top:16px;
     border-top:1px dashed var(--border);
+    flex:1;
+    min-width:0;
+  }
+  .hg-strokes{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:12px;
+    background:var(--surface-2);
+    text-align:left;
+  }
+  .hg-strokes-label{
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--ink-dim);
+    margin-bottom:6px;
+  }
+  .hg-strokes-list{
+    margin:0;
+    padding-left:20px;
+    font-size:14px;
+    color:var(--ink);
+    line-height:1.6;
+  }
+  .hg-stroke-guide{
+    fill:none;
+    stroke:var(--ink-dim);
+    stroke-width:6;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    opacity:0.4; /* "zmniejszona przejrzystość" - wzór ma być wyraźnie widoczny, nie ledwo zauważalny */
+  }
+  .hg-stroke-path{
+    fill:none;
+    stroke:var(--hwang);
+    stroke-width:6;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    stroke-dasharray:260;
+    stroke-dashoffset:260;
+    filter:drop-shadow(0 0 5px var(--hwang)) drop-shadow(0 0 2px var(--hwang));
+    animation:hg-draw-stroke 0.7s ease forwards;
+  }
+  .hg-stroke-dot{
+    fill:var(--hwang);
+    opacity:0;
+    filter:drop-shadow(0 0 4px var(--hwang));
+    animation:hg-dot-appear 0.3s ease forwards;
+  }
+  @keyframes hg-draw-stroke{
+    to{ stroke-dashoffset:0; }
+  }
+  @keyframes hg-dot-appear{
+    0%{ opacity:0; }
+    15%{ opacity:1; }
+    100%{ opacity:1; }
+  }
+  .hg-replay-btn{
+    display:block;
+    margin:8px auto 0;
+    padding:6px 16px;
+    border-radius:100px;
+    border:1px solid var(--border);
+    background:var(--card);
+    color:var(--ink-dim);
+    font-size:13px;
+    font-family:'IBM Plex Sans', sans-serif;
+    cursor:pointer;
+  }
+  .hg-example-pair{
+    display:flex;
+    gap:14px;
+  }
+  .hg-example-pair .hg-example{
+    text-align:center;
+  }
+  .hg-example-label{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--hwang);
+    margin-bottom:6px;
   }
   .hangul-card .hg-example-word{
     font-family:'Noto Serif KR', serif;
@@ -1948,6 +2061,64 @@
   .home-card .title{font-family:'Song Myung', serif; font-size:20px; margin-bottom:6px; letter-spacing:0.2px;}
   .home-card .desc{font-size:14.5px; color:var(--ink-dim); line-height:1.5;}
   .home-hint{font-size:14px; color:var(--ink-dim); text-align:center; margin-top:6px;}
+
+  /* Kompaktowa lista czytanek - .home-card jest za duże/za "ciężkie" dla listy 18+ pozycji
+     (to styl na ~8 kart menu głównego, nie na przewijaną bibliotekę). Ustalone 2026-08-30. */
+  .reading-section-label{
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--ink-dim);
+    margin:18px 0 8px;
+  }
+  .reading-section-label:first-child{ margin-top:0; }
+  .reading-level-label{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--hwang);
+    margin:12px 0 4px 4px;
+  }
+  .reading-row-list{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .reading-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 8px;
+    border-radius:10px;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--border);
+    text-align:left;
+    cursor:pointer;
+    width:100%;
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    transition:background .15s ease;
+  }
+  .reading-row:last-child{ border-bottom:none; }
+  .reading-row:hover, .reading-row:active{ background:var(--card-hi); }
+  .reading-row .icon{ font-size:19px; flex:none; }
+  .reading-row .title{
+    font-family:'Song Myung', serif;
+    font-size:15.5px;
+    line-height:1.3;
+  }
+  .reading-row .tw-badge{
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.4px;
+    padding:1px 6px;
+    border-radius:100px;
+    background:var(--surface-2);
+    color:var(--ink-dim);
+    margin-left:6px;
+    vertical-align:middle;
+  }
   @media (prefers-reduced-motion: reduce){
     .home-card, .home-card .icon{transition:border-color .15s ease !important; transform:none !important; box-shadow:none !important;}
   }
@@ -2618,7 +2789,6 @@
   .reading-legend .dot.rl-correct{background:var(--good);}
   .reading-legend .dot.rl-wrong{background:var(--bad);}
   #readingMicBtn.ai-chat-mic-active{background:var(--bad);}
-  #readingListCards .home-card{padding:16px;}
 
   .reading-report-box{
     margin-top:14px;
@@ -2648,6 +2818,7 @@
     font-family:'Noto Serif KR', serif;
     font-size:15px;
     padding:6px 0;
+    flex-wrap:wrap;
   }
   .reading-report-row .rr-expected{color:var(--good); font-weight:600;}
   .reading-report-row .rr-arrow{color:var(--ink-dim); font-size:13px; font-family:'IBM Plex Sans', sans-serif;}
@@ -2659,6 +2830,26 @@
     text-align:center;
     padding:6px 0;
   }
+  .rr-verdict-pill{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:11px;
+    font-weight:600;
+    padding:2px 8px;
+    border-radius:100px;
+    white-space:nowrap;
+  }
+  .rr-verdict-pill.rr-recog{ background:rgba(42,157,143,0.15); color:var(--good); }
+  .rr-verdict-pill.rr-reading{ background:rgba(230,57,70,0.12); color:var(--bad); }
+  .reading-ai-loading, .reading-ai-summary, .reading-ai-error, .reading-ai-upsell{
+    margin-top:12px;
+    padding-top:10px;
+    border-top:1px dashed var(--border);
+    font-size:13px;
+    color:var(--ink-dim);
+    line-height:1.5;
+  }
+  .reading-ai-summary{ color:var(--ink); }
+  .reading-ai-upsell{ color:var(--hwang); font-weight:500; }
 
   /* WZORCE GRAMATYCZNE */
   .grammar-choice-grid{
@@ -3518,7 +3709,7 @@
           <button class="tool-btn" id="dailyReadingGoProBtn" style="width:100%;" data-i18n="seePremium4">Zobacz Premium</button>
         </div>
 
-        <div class="home-screen" id="readingListCards" style="margin-top:0;"></div>
+        <div id="readingListCards"></div>
         <div class="row">
           <button class="tool-btn" id="btnAddReading" style="flex:1;">+ <span data-i18n="addOwnReading">Dodaj własną czytankę</span></button>
         </div>
@@ -4209,6 +4400,13 @@ const LAUNCH_READINESS = {
             '96/96 wzorców z conjHtml (SPEŁNIONE)',
             'Poprawność lingwistyczna zweryfikowana przez native speakera',
             'Zero błędów zgłoszonych przez testerów/userów',
+          ] },
+        { label: 'Czytanka dnia (żaden porównywany konkurent tego nie ma)', value: 55, note: 'pipeline zbudowany i zweryfikowany end-to-end na poziomie backendu (baza, logi); NIEZWERYFIKOWANE jeszcze jako realna funkcja w apce - nikt tego jeszcze nie przetestował jako user',
+          criteria: [
+            'Pipeline generowania (fabricated + real) zweryfikowany end-to-end na poziomie backendu (SPEŁNIONE)',
+            'Bezpieczny wzorzec dla treści "real" - fakty jako kontekst, nie tłumaczenie (SPEŁNIONE, potwierdzone punktową kontrolą)',
+            'Przetestowane jako realna funkcja w apce przez człowieka (czy się wyświetla, czy działa z rozpoznawaniem mowy, czy wygląda dobrze)',
+            'Pierwszy w pełni automatyczny, nienadzorowany przebieg cron potwierdzony',
           ] },
       ],
     },
@@ -5067,6 +5265,15 @@ async function loadGeminiUsageStatus(){
     if(error || !data) return;
     const used = data.minutes_used_this_month;
     const limit = data.monthly_limit_minutes;
+    // Zabezpieczenie: jeśli backend zwrócił coś o innym kształcie niż oczekiwany kontrakt
+    // (np. inne nazwy pól), used/limit będą undefined - lepiej po cichu schować wskaźnik
+    // niż pokazać złamane "undefined/undefined min". Ustalone po zgłoszeniu 2026-08-30.
+    if(used === undefined || used === null || limit === undefined || limit === null){
+      const badge0 = document.getElementById('geminiUsageBadge');
+      if(badge0) badge0.style.display = 'none';
+      if(headerBadge) headerBadge.style.display = 'none';
+      return;
+    }
     const badge = document.getElementById('geminiUsageBadge');
     if(badge){
       badge.textContent = uiLang === 'en'
@@ -5358,6 +5565,7 @@ const KOREAN_VERBS = [
 const READING_TEXTS = [
   {
     id:'day',
+    level:1,
     title:'저의 하루 (Mój dzień)',
     titleEn:'저의 하루 (My Day)',
     ko:'저는 아침에 일어나요. 물을 마셔요. 학교에 가요. 친구를 만나요. 저녁에 집에 가요. 그리고 자요.',
@@ -5371,6 +5579,7 @@ const READING_TEXTS = [
   },
   {
     id:'coffee',
+    level:1,
     title:'커피와 친구 (Kawa i przyjaciel)',
     titleEn:'커피와 친구 (Coffee and a Friend)',
     ko:'저는 커피를 좋아해요. 오늘 친구하고 커피를 마셔요. 날씨가 좋아요. 우리는 이야기해요. 정말 행복해요.',
@@ -5384,6 +5593,7 @@ const READING_TEXTS = [
   },
   {
     id:'weather',
+    level:1,
     title:'좋은 날씨 (Ładna pogoda)',
     titleEn:'좋은 날씨 (Nice Weather)',
     ko:'오늘은 날씨가 좋아요. 하늘이 파래요. 바람이 시원해요. 저는 공원에 가요. 사람들이 많아요. 다 같이 산책해요.',
@@ -5397,6 +5607,7 @@ const READING_TEXTS = [
   },
   {
     id:'family',
+    level:1,
     title:'우리 가족 (Nasza rodzina)',
     titleEn:'우리 가족 (My Family)',
     ko:'저는 가족이 네 명이에요. 아버지, 어머니, 언니 그리고 저예요. 아버지는 회사원이에요. 어머니는 선생님이에요. 언니는 대학생이에요. 우리는 주말에 같이 밥을 먹어요.',
@@ -5410,6 +5621,7 @@ const READING_TEXTS = [
   },
   {
     id:'market',
+    level:2,
     title:'시장에서 (Na targu)',
     titleEn:'시장에서 (At the Market)',
     ko:'저는 시장에 자주 가요. 시장에는 과일하고 채소가 많아요. 오늘은 사과하고 배추를 샀어요. 아주머니가 친절하게 웃으면서 말했어요. "또 오세요!" 저도 웃으면서 대답했어요.',
@@ -5423,6 +5635,7 @@ const READING_TEXTS = [
   },
   {
     id:'rainyday',
+    level:2,
     title:'비 오는 날 (Deszczowy dzień)',
     titleEn:'비 오는 날 (A Rainy Day)',
     ko:'아침에 비가 와서 우산을 가지고 나갔어요. 그런데 학교에 도착하니까 비가 그쳤어요. 오후에는 날씨가 다시 좋아졌어요. 친구가 "우산 필요 없었네!"라고 말했어요. 저는 조금 부끄러웠지만 그래도 웃었어요.',
@@ -5436,6 +5649,7 @@ const READING_TEXTS = [
   },
   {
     id:'travelplan',
+    level:2,
     title:'여행 계획 (Plany podróży)',
     titleEn:'여행 계획 (Travel Plans)',
     ko:'저는 이번 여름에 제주도에 여행을 가려고 해요. 바다도 보고 싶고 맛있는 음식도 먹고 싶어요. 친구랑 같이 갈까 생각 중이에요. 비행기표가 비쌀까 봐 미리 예약하려고 해요. 벌써부터 기대돼요.',
@@ -5449,6 +5663,7 @@ const READING_TEXTS = [
   },
   {
     id:'firstday',
+    level:2,
     title:'첫 출근 (Pierwszy dzień pracy)',
     titleEn:'첫 출근 (First Day at Work)',
     ko:'저는 다음 주부터 새 회사에서 일하게 됐어요. 사실 조금 긴장돼요. 그래서 미리 회사 근처를 가 보려고 해요. 사람들이 다 친절하면 좋겠어요. 처음이라서 실수할까 봐 걱정도 되지만, 최선을 다할 거예요.',
@@ -5462,6 +5677,7 @@ const READING_TEXTS = [
   },
   {
     id:'seasons',
+    level:2,
     title:'한국의 사계절 (Cztery pory roku w Korei)',
     titleEn:'한국의 사계절 (The Four Seasons of Korea)',
     ko:'한국은 사계절이 뚜렷한 나라입니다. 봄에는 꽃이 피고 날씨가 따뜻합니다. 여름은 덥고 비가 많이 옵니다. 가을에는 단풍이 아름답고 하늘이 맑습니다. 겨울에는 눈이 내리고 매우 춥습니다. 계절마다 다른 매력이 있어서 한국 사람들은 사계절을 자랑스러워합니다.',
@@ -5475,6 +5691,7 @@ const READING_TEXTS = [
   },
   {
     id:'regret',
+    level:2,
     title:'후회 (Żal)',
     titleEn:'후회 (Regret)',
     ko:'어제 친구가 저녁을 같이 먹자고 했는데 바빠서 거절했어요. 그런데 오늘 친구가 갑자기 다른 도시로 이사를 간다고 들었어요. 어제 시간을 내서 만날걸 그랬어요. 더 자주 연락했어야 했는데 후회가 돼요. 다음에는 소중한 사람들에게 더 신경 쓸 거예요.',
@@ -5488,8 +5705,9 @@ const READING_TEXTS = [
   },
   {
     id:'heungbu',
-    title:'흥부와 놀부 (Heungbu i Nolbu) — Podstawowy',
-    titleEn:'흥부와 놀부 (Heungbu and Nolbu) — Basic',
+    level:1,
+    title:'흥부와 놀부 (Heungbu i Nolbu)',
+    titleEn:'흥부와 놀부 (Heungbu and Nolbu)',
     ko:'옛날에 흥부와 놀부라는 형제가 살았어요. 형 놀부는 욕심이 많았고, 동생 흥부는 마음이 착했어요. 어느 날 흥부는 다리를 다친 제비를 도와줬어요. 다음 해 봄에 제비가 씨앗을 물고 왔어요. 흥부가 그 씨앗을 심으니까 큰 박이 열렸어요. 박 안에는 금은보화가 가득했어요. 흥부는 부자가 됐어요. 이 이야기를 들은 놀부도 제비 다리를 일부러 부러뜨렸어요. 하지만 놀부의 박에서는 도깨비가 나와서 놀부를 혼내줬어요.',
     pl:'Dawno temu żyło rodzeństwo — Heungbu i Nolbu. Starszy brat Nolbu był bardzo chciwy, a młodszy Heungbu miał dobre serce. Pewnego dnia Heungbu pomógł jaskółce ze złamaną nogą. Następnej wiosny jaskółka przyniosła w dziobie nasiono. Kiedy Heungbu je zasadził, wyrosła z niego wielka tykwa. W środku tykwy było pełno złota i skarbów. Heungbu stał się bogaty. Kiedy Nolbu usłyszał tę historię, celowo złamał nogę jaskółce. Ale z tykwy Nolbu wyszły gobliny (dokkaebi) i ukarały go.',
     en:'Long ago, there lived siblings named Heungbu and Nolbu. The older brother Nolbu was very greedy, while the younger brother Heungbu had a kind heart. One day, Heungbu helped a swallow with a broken leg. The following spring, the swallow brought a seed in its beak. When Heungbu planted it, a huge gourd grew. Inside was full of gold and treasures. Heungbu became rich. When Nolbu heard this, he deliberately broke a swallow leg. But out of Nolbu gourd came goblins who punished him.',
@@ -5501,8 +5719,9 @@ const READING_TEXTS = [
   },
   {
     id:'kongjwi',
-    title:'콩쥐팥쥐 (Kongjwi i Patjwi) — Podstawowy',
-    titleEn:'콩쥐팥쥐 (Kongjwi and Patjwi) — Basic',
+    level:1,
+    title:'콩쥐팥쥐 (Kongjwi i Patjwi)',
+    titleEn:'콩쥐팥쥐 (Kongjwi and Patjwi)',
     ko:'옛날에 콩쥐라는 착한 소녀가 살았어요. 콩쥐의 어머니가 돌아가신 후, 아버지는 새어머니와 결혼했어요. 새어머니에게는 팥쥐라는 딸이 있었어요. 새어머니와 팥쥐는 콩쥐를 미워하고 힘든 일을 많이 시켰어요. 어느 날 잔치에 가고 싶었던 콩쥐에게 새어머니는 어려운 일들을 시켰어요. 그때 두꺼비와 새들이 나타나서 콩쥐를 도와줬어요. 콩쥐는 예쁜 옷을 입고 잔치에 갈 수 있었어요. 그곳에서 원님을 만나서 나중에 결혼했어요.',
     pl:'Dawno temu żyła dobra dziewczyna imieniem Kongjwi. Po śmierci matki Kongjwi, ojciec ożenił się z macochą. Macocha miała córkę imieniem Patjwi. Macocha i Patjwi nienawidziły Kongjwi i kazały jej wykonywać dużo ciężkiej pracy. Pewnego dnia, gdy Kongjwi chciała pójść na przyjęcie, macocha zadała jej trudne zadania. Wtedy pojawiły się ropucha i ptaki, które jej pomogły. Kongjwi mogła ubrać się pięknie i pójść na przyjęcie. Tam spotkała urzędnika, za którego później wyszła za mąż.',
     en:'Long ago, there lived a kind girl named Kongjwi. After her mother passed away, her father married a stepmother, who had a daughter named Patjwi. The stepmother and Patjwi hated Kongjwi and made her do hard work. One day, when Kongjwi wanted to go to a feast, the stepmother gave her difficult tasks. A toad and birds appeared and helped her. Kongjwi could dress beautifully and go to the feast, where she met a magistrate whom she later married.',
@@ -5514,8 +5733,9 @@ const READING_TEXTS = [
   },
   {
     id:'sejong',
-    title:'세종대왕과 한글 (Król Sejong i hangul) — Średniozaawansowany',
-    titleEn:'세종대왕과 한글 (King Sejong and Hangul) — Intermediate',
+    level:2,
+    title:'세종대왕과 한글 (Król Sejong i hangul)',
+    titleEn:'세종대왕과 한글 (King Sejong and Hangul)',
     ko:'조선 시대에 세종대왕이라는 훌륭한 왕이 있었습니다. 그 당시 백성들은 한자를 배우기가 너무 어려워서 글을 읽고 쓸 줄 몰랐습니다. 세종대왕은 이것을 매우 안타깝게 생각했습니다. 그래서 집현전의 학자들과 함께 새로운 문자를 만들기 시작했습니다. 오랜 연구 끝에 1443년, 배우기 쉬운 문자인 한글이 탄생했습니다. 한글은 소리 나는 대로 쓸 수 있어서 누구나 쉽게 배울 수 있었습니다. 오늘날 한글은 세계에서 가장 과학적인 문자 중 하나로 인정받고 있습니다.',
     pl:'W czasach dynastii Joseon żył wybitny król o imieniu Sejong Wielki. W tamtych czasach zwykli ludzie mieli tak trudno z nauką chińskich znaków, że nie potrafili czytać ani pisać. Król Sejong uważał to za bardzo smutne. Dlatego razem z uczonymi z Jiphyeonjeon (Izby Mędrców) zaczął tworzyć nowy alfabet. Po długich badaniach, w 1443 roku, narodził się łatwy do nauki alfabet — hangul. Hangul można pisać dokładnie tak, jak się słyszy, więc każdy mógł się go łatwo nauczyć. Dziś hangul jest uznawany za jeden z najbardziej naukowych alfabetów na świecie.',
     en:'During the Joseon dynasty, there was an outstanding king named Sejong the Great. At that time, common people found Chinese characters so difficult that they could not read or write. King Sejong found this very unfortunate, so together with scholars from the Hall of Worthies, he began creating a new writing system. After long research, in 1443, the easy-to-learn alphabet Hangul was born. Hangul could be written exactly as it sounds, so anyone could learn it easily. Today Hangul is recognized as one of the most scientific alphabets in the world.',
@@ -5527,8 +5747,9 @@ const READING_TEXTS = [
   },
   {
     id:'dangun',
-    title:'단군신화 (Mit o Dangunie) — Zaawansowany',
-    titleEn:'단군신화 (The Dangun Myth) — Advanced',
+    level:3,
+    title:'단군신화 (Mit o Dangunie)',
+    titleEn:'단군신화 (The Dangun Myth)',
     ko:'아주 먼 옛날, 하늘을 다스리던 환인에게는 환웅이라는 아들이 있었다. 환웅은 인간 세상에 관심이 많아, 아버지의 허락을 받아 무리를 이끌고 태백산으로 내려왔다. 그는 바람과 비와 구름을 다스리는 신하들과 함께 인간 세상을 다스리기 시작했다. 그 무렵, 곰 한 마리와 호랑이 한 마리가 사람이 되고 싶어 환웅을 찾아왔다. 환웅은 그들에게 쑥과 마늘을 주며, 백 일 동안 햇빛을 보지 않고 견디면 사람이 될 수 있다고 말했다. 호랑이는 참지 못하고 도망쳤지만, 곰은 끝까지 견뎌내어 여자가 되었다. 이 여인은 환웅과 혼인하여 아들을 낳았으니, 그가 바로 고조선을 세운 단군왕검이다.',
     pl:'Bardzo dawno temu syn Hwanina, który rządził niebem, nosił imię Hwanung. Hwanung bardzo interesował się światem ludzi, więc za zgodą ojca zszedł z grupą towarzyszy na górę Taebaek. Wraz z duchami rządzącymi wiatrem, deszczem i chmurami zaczął rządzić światem ludzi. W tym czasie niedźwiedzica i tygrysica, pragnące stać się ludźmi, przyszły do Hwanunga. Hwanung dał im piołun i czosnek, mówiąc, że jeśli wytrzymają sto dni bez światła słonecznego, staną się ludźmi. Tygrysica nie wytrzymała i uciekła, ale niedźwiedzica wytrwała do końca i stała się kobietą. Ta kobieta poślubiła Hwanunga i urodziła syna — to właśnie on, Dangun Wanggeom, założył starożytne królestwo Gojoseon.',
     en:'Long, long ago, Hwanin, who ruled the heavens, had a son named Hwanung. Hwanung was deeply interested in the human world, so with his father permission, he descended to Mount Taebaek leading a group of followers. Together with spirits governing wind, rain, and clouds, he began to rule the human world. Around that time, a bear and a tiger, wishing to become human, came to Hwanung. He gave them mugwort and garlic, saying that if they endured one hundred days without sunlight, they would become human. The tiger could not endure it and fled, but the bear persevered and became a woman. She married Hwanung and gave birth to a son — Dangun Wanggeom, founder of the ancient kingdom of Gojoseon.',
@@ -5816,50 +6037,205 @@ const CULTURE_TOPICS = [
 // Romanizacja użyta WYŁĄCZNIE tutaj, do wprowadzenia dźwięku, zanim user umie czytać —
 // to inny przypadek niż romanizacja jako "podpórka" przez cały kurs, której unikamy gdzie indziej.
 const HANGUL_CONSONANTS = [
-  { char:'ㄱ', name:'기역', romanization:'g/k', example:'가', exampleRoman:'ga', desc:'Jak polskie "g", ale na końcu sylaby brzmi bliżej "k".', descEn:'Like the "g" in "go", but closer to a "k" sound at the end of a syllable.' },
-  { char:'ㄴ', name:'니은', romanization:'n', example:'나', exampleRoman:'na', desc:'Jak polskie "n".', descEn:'Like the "n" in "no".' },
-  { char:'ㄷ', name:'디귿', romanization:'d/t', example:'다', exampleRoman:'da', desc:'Jak polskie "d", na końcu sylaby bliżej "t".', descEn:'Like the "d" in "day", but closer to a "t" sound at the end of a syllable.' },
-  { char:'ㄹ', name:'리을', romanization:'r/l', example:'라', exampleRoman:'ra', desc:'Coś pomiędzy polskim "r" a "l" — jeden dźwięk, nie dwa osobne.', descEn:'Something between the English "r" and "l" — one sound, not two separate ones.' },
-  { char:'ㅁ', name:'미음', romanization:'m', example:'마', exampleRoman:'ma', desc:'Jak polskie "m".', descEn:'Like the "m" in "mom".' },
-  { char:'ㅂ', name:'비읍', romanization:'b/p', example:'바', exampleRoman:'ba', desc:'Jak polskie "b", na końcu sylaby bliżej "p".', descEn:'Like the "b" in "boy", but closer to a "p" sound at the end of a syllable.' },
-  { char:'ㅅ', name:'시옷', romanization:'s', example:'사', exampleRoman:'sa', desc:'Jak polskie "s".', descEn:'Like the "s" in "sun".' },
-  { char:'ㅇ', name:'이응', romanization:'—/ng', example:'강', exampleRoman:'gang', desc:'Na początku sylaby NIC nie znaczy (to tylko "wypełniacz" miejsca) — na końcu brzmi jak "ng". Ten przykład kończy się na ㅇ, więc usłyszysz właśnie to "ng".', descEn:'Means NOTHING at the start of a syllable (just a placeholder) — sounds like "ng" at the end. This example ends in ㅇ, so you\'ll actually hear that "ng" sound.' },
-  { char:'ㅈ', name:'지읒', romanization:'j', example:'자', exampleRoman:'ja', desc:'Jak angielskie "j" w "job".', descEn:'Like English "j" in "job".' },
-  { char:'ㅊ', name:'치읓', romanization:'ch', example:'차', exampleRoman:'cha', desc:'Jak polskie "cz", z mocnym wydechem.', descEn:'Like an aspirated "ch".' },
-  { char:'ㅋ', name:'키읔', romanization:'k', example:'카', exampleRoman:'ka', desc:'Jak polskie "k", ale z wyraźnym wydechem.', descEn:'Like the "k" in "kite", with a strong puff of air.' },
-  { char:'ㅌ', name:'티읕', romanization:'t', example:'타', exampleRoman:'ta', desc:'Jak polskie "t", z wyraźnym wydechem.', descEn:'Like the "t" in "top", with a strong puff of air.' },
-  { char:'ㅍ', name:'피읖', romanization:'p', example:'파', exampleRoman:'pa', desc:'Jak polskie "p", z wyraźnym wydechem.', descEn:'Like the "p" in "pie", with a strong puff of air.' },
-  { char:'ㅎ', name:'히읗', romanization:'h', example:'하', exampleRoman:'ha', desc:'Jak polskie "h".', descEn:'Like the "h" in "hello".' },
+  { char:'ㄱ', name:'기역', romanization:'g/k', example:'가', exampleRoman:'ga',
+    finalExample:'떡', finalExampleRoman:'tteok',
+    strokes:['Pozioma kreska w prawo','Zagięcie w dół (jedna, ciągła kreska)'],
+    strokesEn:['Horizontal stroke to the right','Bend downward (one continuous stroke)'],
+    strokePaths:[['M20,20 L70,20'],['M70,20 L70,80']],
+    desc:'Jak polskie "g", ale na końcu sylaby brzmi bliżej "k" (bez eksplozji powietrza — dźwięk "urywa się").', descEn:'Like the "g" in "go", but closer to an unreleased "k" at the end of a syllable — the sound stops abruptly, no puff of air.' },
+  { char:'ㄴ', name:'니은', romanization:'n', example:'나', exampleRoman:'na',
+    finalExample:'손', finalExampleRoman:'son',
+    strokes:['Pionowa kreska w dół','Zagięcie w prawo (jedna, ciągła kreska)'],
+    strokesEn:['Vertical stroke downward','Bend to the right (one continuous stroke)'],
+    strokePaths:[['M20,20 L20,80'],['M20,80 L70,80']],
+    desc:'Jak polskie "n" — brzmienie nie zmienia się na końcu sylaby.', descEn:'Like the "n" in "no" — the sound stays the same at the end of a syllable.' },
+  { char:'ㄷ', name:'디귿', romanization:'d/t', example:'다', exampleRoman:'da',
+    finalExample:'곧', finalExampleRoman:'got',
+    strokes:['Pozioma kreska u góry','Kształt ㄴ poniżej (pion w dół, potem zagięcie w prawo)'],
+    strokesEn:['Horizontal stroke at the top','The ㄴ shape below it (down, then bend right)'],
+    strokePaths:[['M20,20 L70,20'],['M20,20 L20,80 L70,80']],
+    desc:'Jak polskie "d", na końcu sylaby bliżej nieartykułowanego "t" (dźwięk "urywa się", bez eksplozji powietrza).', descEn:'Like the "d" in "day", but closer to an unreleased "t" at the end of a syllable — the sound stops abruptly.' },
+  { char:'ㄹ', name:'리을', romanization:'r/l', example:'라', exampleRoman:'ra',
+    finalExample:'달', finalExampleRoman:'dal',
+    strokes:['Kształt ㄱ u góry','Pozioma kreska w środku','Kształt ㄴ u dołu'],
+    strokesEn:['The ㄱ shape at the top','Horizontal stroke through the middle','The ㄴ shape at the bottom'],
+    strokePaths:[['M20,15 L70,15 L70,37'],['M20,44 L70,44'],['M20,51 L20,85 L70,85']],
+    desc:'Coś pomiędzy polskim "r" a "l" na początku sylaby — na końcu brzmi wyraźnie bliżej "l" (język dotyka podniebienia i zostaje, bez "uderzenia" jak przy "r").', descEn:'Something between the English "r" and "l" at the start of a syllable — closer to a clear "l" at the end, where the tongue touches and stays rather than tapping.' },
+  { char:'ㅁ', name:'미음', romanization:'m', example:'마', exampleRoman:'ma',
+    finalExample:'밤', finalExampleRoman:'bam',
+    strokes:['Pionowa kreska po lewej','Pozioma kreska u góry','Pionowa kreska po prawej','Pozioma kreska u dołu'],
+    strokesEn:['Left vertical stroke','Top horizontal stroke','Right vertical stroke','Bottom horizontal stroke'],
+    strokePaths:[['M20,20 L20,80'],['M20,20 L70,20'],['M70,20 L70,80'],['M20,80 L70,80']],
+    desc:'Jak polskie "m" — brzmienie nie zmienia się na końcu sylaby.', descEn:'Like the "m" in "mom" — the sound stays the same at the end of a syllable.' },
+  { char:'ㅂ', name:'비읍', romanization:'b/p', example:'바', exampleRoman:'ba',
+    finalExample:'집', finalExampleRoman:'jip',
+    strokes:['Pionowa kreska po lewej','Pionowa kreska po prawej','Pozioma kreska w środku','Pozioma kreska u dołu'],
+    strokesEn:['Left vertical stroke','Right vertical stroke','Middle horizontal stroke','Bottom horizontal stroke'],
+    strokePaths:[['M20,20 L20,80'],['M70,20 L70,80'],['M20,50 L70,50'],['M20,80 L70,80']],
+    desc:'Jak polskie "b", na końcu sylaby bliżej nieartykułowanego "p" (dźwięk "urywa się", bez eksplozji powietrza).', descEn:'Like the "b" in "boy", but closer to an unreleased "p" at the end of a syllable — the sound stops abruptly.' },
+  { char:'ㅅ', name:'시옷', romanization:'s', example:'사', exampleRoman:'sa',
+    finalExample:'옷', finalExampleRoman:'ot',
+    strokes:['Ukośna kreska w dół-lewo','Ukośna kreska w dół-prawo (obie spotykają się u góry)'],
+    strokesEn:['Diagonal stroke down-left','Diagonal stroke down-right (both meet at the top)'],
+    strokePaths:[['M40,15 L15,85'],['M40,45 L78,85']],
+    desc:'Jak polskie "s" na początku sylaby — ale UWAGA: na końcu sylaby NIE brzmi jak "s", tylko jak nieartykułowane "t" (tak jak ㄷ i ㅌ na końcu). To częsty błąd początkujących.', descEn:'Like the "s" in "sun" at the start of a syllable — but WATCH OUT: at the end of a syllable it does NOT sound like "s", it sounds like an unreleased "t" (same as ㄷ and ㅌ at the end). A very common beginner mistake.' },
+  { char:'ㅇ', name:'이응', romanization:'—/ng', example:'아', exampleRoman:'a',
+    finalExample:'강', finalExampleRoman:'gang',
+    exampleLabelOverride:'POCZĄTEK sylaby (ㅇ tu NIE ma własnego dźwięku)',
+    exampleLabelOverrideEn:'START of syllable (ㅇ has NO sound of its own here)',
+    strokes:['Okrąg rysowany jednym ruchem, w kierunku przeciwnym do wskazówek zegara, od góry'],
+    strokesEn:['Circle drawn in one continuous motion, counter-clockwise, starting from the top'],
+    strokePaths:[['M50,18 A32,32 0 1,0 49.99,18']],
+    desc:'Na początku sylaby NIC nie znaczy (to tylko "wypełniacz" miejsca, dlatego przykład 아 brzmi po prostu jak "a") — na końcu sylaby brzmi jak "ng".', descEn:'Means NOTHING at the start of a syllable (just a placeholder, which is why the example 아 simply sounds like "a") — sounds like "ng" at the end of a syllable.' },
+  { char:'ㅈ', name:'지읒', romanization:'j', example:'자', exampleRoman:'ja',
+    finalExample:'낮', finalExampleRoman:'nat',
+    strokes:['Pozioma kreska u góry','Kształt ㅅ poniżej (dwie ukośne kreski)'],
+    strokesEn:['Horizontal stroke at the top','The ㅅ shape below it (two diagonal strokes)'],
+    strokePaths:[['M20,20 L70,20'],['M42,25 L15,88','M42,52 L80,88']],
+    desc:'Jak angielskie "j" w "job" na początku sylaby — na końcu brzmi jak nieartykułowane "t" (tak jak ㄷ, ㅅ, ㅌ na końcu).', descEn:'Like English "j" in "job" at the start of a syllable — at the end it sounds like an unreleased "t" (same as ㄷ, ㅅ, ㅌ at the end).' },
+  { char:'ㅊ', name:'치읓', romanization:'ch', example:'차', exampleRoman:'cha',
+    finalExample:'꽃', finalExampleRoman:'kkot',
+    strokes:['Krótka ukośna kreska nad literą (jak apostrof)','Pozioma kreska','Kształt ㅅ poniżej (dwie ukośne kreski)'],
+    strokesEn:['Short diagonal tick above the letter (like an apostrophe)','Horizontal stroke','The ㅅ shape below it (two diagonal strokes)'],
+    strokePaths:[['M42,8 L50,16'],['M20,25 L70,25'],['M44,30 L15,92','M44,56 L82,92']],
+    desc:'Jak polskie "cz", z mocnym wydechem, na początku sylaby — na końcu brzmi jak nieartykułowane "t" (tak jak ㄷ, ㅅ, ㅈ na końcu).', descEn:'Like an aspirated "ch" at the start of a syllable — at the end it sounds like an unreleased "t" (same as ㄷ, ㅅ, ㅈ at the end).' },
+  { char:'ㅋ', name:'키읔', romanization:'k', example:'카', exampleRoman:'ka',
+    finalExample:'부엌', finalExampleRoman:'bueok',
+    strokes:['Kształt ㄱ (pozioma kreska + zagięcie w dół, jedna kreska)','Krótka pozioma kreska w poprzek środka'],
+    strokesEn:['The ㄱ shape (horizontal stroke + bend down, one stroke)','Short horizontal stroke through the middle'],
+    strokePaths:[['M20,20 L70,20 L70,80'],['M25,50 L65,50']],
+    desc:'Jak polskie "k", ale z wyraźnym wydechem, na początku sylaby — na końcu brzmi identycznie jak ㄱ na końcu (nieartykułowane "k").', descEn:'Like the "k" in "kite", with a strong puff of air, at the start of a syllable — at the end it sounds identical to ㄱ at the end (unreleased "k").' },
+  { char:'ㅌ', name:'티읕', romanization:'t', example:'타', exampleRoman:'ta',
+    finalExample:'밭', finalExampleRoman:'bat',
+    strokes:['Pozioma kreska u góry','Krótka pozioma kreska w środku','Kształt ㄴ u dołu'],
+    strokesEn:['Horizontal stroke at the top','Short horizontal stroke in the middle','The ㄴ shape at the bottom'],
+    strokePaths:[['M20,15 L70,15'],['M20,45 L66,45'],['M20,15 L20,85 L70,85']],
+    desc:'Jak polskie "t", z wyraźnym wydechem, na początku sylaby — na końcu brzmi identycznie jak ㄷ na końcu (nieartykułowane "t").', descEn:'Like the "t" in "top", with a strong puff of air, at the start of a syllable — at the end it sounds identical to ㄷ at the end (unreleased "t").' },
+  { char:'ㅍ', name:'피읖', romanization:'p', example:'파', exampleRoman:'pa',
+    finalExample:'잎', finalExampleRoman:'ip',
+    strokes:['Pozioma kreska u góry','Pionowa kreska po lewej','Pionowa kreska po prawej','Pozioma kreska u dołu'],
+    strokesEn:['Top horizontal stroke','Left vertical stroke','Right vertical stroke','Bottom horizontal stroke'],
+    strokePaths:[['M15,20 L75,20'],['M30,20 L30,80'],['M60,20 L60,80'],['M15,85 L75,85']],
+    desc:'Jak polskie "p", z wyraźnym wydechem, na początku sylaby — na końcu brzmi identycznie jak ㅂ na końcu (nieartykułowane "p").', descEn:'Like the "p" in "pie", with a strong puff of air, at the start of a syllable — at the end it sounds identical to ㅂ at the end (unreleased "p").' },
+  { char:'ㅎ', name:'히읗', romanization:'h', example:'하', exampleRoman:'ha',
+    strokes:['Krótka pozioma kreska u góry','Kolejna pozioma kreska poniżej niej','Okrąg u dołu (jak ㅇ)'],
+    strokesEn:['Short horizontal stroke at the top','Another horizontal stroke below it','Circle at the bottom (like ㅇ)'],
+    strokePaths:[['M40,5 L50,12'],['M15,20 L75,20'],['M50,42 A20,20 0 1,0 49.99,42']],
+    desc:'Jak polskie "h" na początku sylaby. Jako końcówka sylaby (받침) zdarza się rzadko i ma skomplikowane zasady — często cichnie albo łączy się z sąsiednim dźwiękiem. Poznasz to szczegółowo na wyższym poziomie, nie na tym etapie.', descEn:'Like the "h" in "hello" at the start of a syllable. As a syllable-final consonant it is rare and follows complex rules — it often goes silent or merges with a neighboring sound. You will learn this in detail at a higher level, not at this stage.' },
 ];
 
 const HANGUL_VOWELS = [
-  { char:'ㅏ', romanization:'a', example:'아', exampleRoman:'a', desc:'Jak polskie "a".', descEn:'Like the "a" in "father".' },
-  { char:'ㅑ', romanization:'ya', example:'야', exampleRoman:'ya', desc:'Jak polskie "ja".', descEn:'Like "ya" in "yard".' },
-  { char:'ㅓ', romanization:'eo', example:'어', exampleRoman:'eo', desc:'Krótkie "o" wymawiane z ustami jak do "a" — nie ma dokładnego odpowiednika w polskim.', descEn:'Similar to the vowel in "law" — no exact English equivalent.' },
-  { char:'ㅕ', romanization:'yeo', example:'여', exampleRoman:'yeo', desc:'To samo co ㅓ, tylko z "j" na początku.', descEn:'Same as ㅓ, with a "y" glide at the start.' },
-  { char:'ㅗ', romanization:'o', example:'오', exampleRoman:'o', desc:'Jak polskie "o".', descEn:'Like the "o" in "go".' },
-  { char:'ㅛ', romanization:'yo', example:'요', exampleRoman:'yo', desc:'Jak polskie "jo".', descEn:'Like "yo" in "yo-yo".' },
-  { char:'ㅜ', romanization:'u', example:'우', exampleRoman:'u', desc:'Jak polskie "u".', descEn:'Like the "oo" in "moon".' },
-  { char:'ㅠ', romanization:'yu', example:'유', exampleRoman:'yu', desc:'Jak polskie "ju".', descEn:'Like "yu" in "yule".' },
-  { char:'ㅡ', romanization:'eu', example:'으', exampleRoman:'eu', desc:'Jak polskie "y", ale z ustami szeroko rozciągniętymi na boki.', descEn:'Similar to the "oo" in "book", but said with lips stretched wide and unrounded — no exact English equivalent.' },
-  { char:'ㅣ', romanization:'i', example:'이', exampleRoman:'i', desc:'Jak polskie "i".', descEn:'Like the "ee" in "see".' },
+  { char:'ㅏ', romanization:'a', example:'아', exampleRoman:'a',
+    strokes:['Pionowa kreska od góry do dołu','Krótka pozioma kreska w prawo, w połowie wysokości'],
+    strokesEn:['Vertical stroke top to bottom','Short horizontal stroke to the right, at mid-height'],
+    strokePaths:[['M35,15 L35,85'],['M35,50 L62,50']],
+    desc:'Jak polskie "a".', descEn:'Like the "a" in "father".' },
+  { char:'ㅑ', romanization:'ya', example:'야', exampleRoman:'ya',
+    strokes:['Pionowa kreska od góry do dołu','Dwie krótkie poziome kreski w prawo'],
+    strokesEn:['Vertical stroke top to bottom','Two short horizontal strokes to the right'],
+    strokePaths:[['M35,15 L35,85'],['M35,38 L58,38','M35,60 L58,60']],
+    desc:'Jak polskie "ja".', descEn:'Like "ya" in "yard".' },
+  { char:'ㅓ', romanization:'eo', example:'어', exampleRoman:'eo',
+    strokes:['Krótka pozioma kreska w lewo','Pionowa kreska od góry do dołu'],
+    strokesEn:['Short horizontal stroke to the left','Vertical stroke top to bottom'],
+    strokePaths:[['M65,50 L38,50'],['M65,15 L65,85']],
+    desc:'Krótkie "o" wymawiane z ustami jak do "a" — nie ma dokładnego odpowiednika w polskim.', descEn:'Similar to the vowel in "law" — no exact English equivalent.' },
+  { char:'ㅕ', romanization:'yeo', example:'여', exampleRoman:'yeo',
+    strokes:['Dwie krótkie poziome kreski w lewo','Pionowa kreska od góry do dołu'],
+    strokesEn:['Two short horizontal strokes to the left','Vertical stroke top to bottom'],
+    strokePaths:[['M65,38 L42,38','M65,60 L42,60'],['M65,15 L65,85']],
+    desc:'To samo co ㅓ, tylko z "j" na początku.', descEn:'Same as ㅓ, with a "y" glide at the start.' },
+  { char:'ㅗ', romanization:'o', example:'오', exampleRoman:'o',
+    strokes:['Krótka pionowa kreska w górę, u góry','Pozioma kreska od lewej do prawej'],
+    strokesEn:['Short vertical stroke upward, at the top','Horizontal stroke left to right'],
+    strokePaths:[['M45,60 L45,25'],['M20,60 L80,60']],
+    desc:'Jak polskie "o".', descEn:'Like the "o" in "go".' },
+  { char:'ㅛ', romanization:'yo', example:'요', exampleRoman:'yo',
+    strokes:['Dwie krótkie pionowe kreski u góry','Pozioma kreska od lewej do prawej'],
+    strokesEn:['Two short vertical strokes at the top','Horizontal stroke left to right'],
+    strokePaths:[['M35,60 L35,25','M60,60 L60,25'],['M20,60 L80,60']],
+    desc:'Jak polskie "jo".', descEn:'Like "yo" in "yo-yo".' },
+  { char:'ㅜ', romanization:'u', example:'우', exampleRoman:'u',
+    strokes:['Pozioma kreska od lewej do prawej','Krótka pionowa kreska w dół, na środku'],
+    strokesEn:['Horizontal stroke left to right','Short vertical stroke downward, at the center'],
+    strokePaths:[['M20,40 L80,40'],['M50,40 L50,70']],
+    desc:'Jak polskie "u".', descEn:'Like the "oo" in "moon".' },
+  { char:'ㅠ', romanization:'yu', example:'유', exampleRoman:'yu',
+    strokes:['Pozioma kreska od lewej do prawej','Dwie krótkie pionowe kreski w dół'],
+    strokesEn:['Horizontal stroke left to right','Two short vertical strokes downward'],
+    strokePaths:[['M20,40 L80,40'],['M35,40 L35,70','M60,40 L60,70']],
+    desc:'Jak polskie "ju".', descEn:'Like "yu" in "yule".' },
+  { char:'ㅡ', romanization:'eu', example:'으', exampleRoman:'eu',
+    strokes:['Jedna pozioma kreska od lewej do prawej'],
+    strokePaths:[['M20,50 L80,50']],
+    strokesEn:['One horizontal stroke left to right'],
+    desc:'Jak polskie "y", ale z ustami szeroko rozciągniętymi na boki.', descEn:'Similar to the "oo" in "book", but said with lips stretched wide and unrounded — no exact English equivalent.' },
+  { char:'ㅣ', romanization:'i', example:'이', exampleRoman:'i',
+    strokes:['Jedna pionowa kreska od góry do dołu'],
+    strokesEn:['One vertical stroke top to bottom'],
+    strokePaths:[['M50,15 L50,85']],
+    desc:'Jak polskie "i".', descEn:'Like the "ee" in "see".' },
 ];
 
 // Złożone samogłoski (이중모음) — powstają z połączenia dwóch prostych samogłosek uczonych
 // wyżej. Pole composedFrom jest opcjonalne i celowo nieużywane w HANGUL_VOWELS powyżej —
 // renderHangulLetterStage() pokazuje je tylko wtedy, gdy istnieje, nie psując starszych wpisów.
 const HANGUL_DIPHTHONGS = [
-  { char:'ㅐ', romanization:'ae', composedFrom:'ㅏ + ㅣ', example:'애', exampleRoman:'ae', desc:'Jak polskie "e", usta szeroko otwarte.', descEn:'Like the "e" in "bed", with the mouth opened a bit wider.' },
-  { char:'ㅒ', romanization:'yae', composedFrom:'ㅑ + ㅣ', example:'얘', exampleRoman:'yae', desc:'To samo co ㅐ, tylko z "j" na początku. Rzadko używane.', descEn:'Same as ㅐ, with a "y" glide. Rarely used.' },
-  { char:'ㅔ', romanization:'e', composedFrom:'ㅓ + ㅣ', example:'에', exampleRoman:'e', desc:'Jak polskie "e" — w mowie wielu Koreańczyków brzmi tak samo jak ㅐ.', descEn:'Like the "e" in "bed" — in many speakers\' speech, sounds identical to ㅐ.' },
-  { char:'ㅖ', romanization:'ye', composedFrom:'ㅕ + ㅣ', example:'예', exampleRoman:'ye', desc:'To samo co ㅔ, tylko z "j" na początku.', descEn:'Same as ㅔ, with a "y" glide.' },
-  { char:'ㅘ', romanization:'wa', composedFrom:'ㅗ + ㅏ', example:'와', exampleRoman:'wa', desc:'Połączenie "ł" i "a" — jak angielskie "wa" w "watch".', descEn:'Combination of "w" and "a" — like English "wa" in "watch".' },
-  { char:'ㅙ', romanization:'wae', composedFrom:'ㅗ + ㅐ', example:'왜', exampleRoman:'wae', desc:'Połączenie "ł" i "e" — jak angielskie "we" w "wet".', descEn:'Combination of "w" and "e" — like English "we" in "wet".' },
-  { char:'ㅚ', romanization:'oe', composedFrom:'ㅗ + ㅣ', example:'외', exampleRoman:'oe', desc:'W nowoczesnej wymowie brzmi podobnie do ㅙ/ㅞ — "łe".', descEn:'In modern pronunciation, sounds similar to ㅙ/ㅞ — "we".' },
-  { char:'ㅝ', romanization:'wo', composedFrom:'ㅜ + ㅓ', example:'워', exampleRoman:'wo', desc:'Połączenie "ł" i samogłoski ㅓ — jak angielskie "wo" w "won".', descEn:'Combination of "w" and the ㅓ sound — like English "wo" in "won".' },
-  { char:'ㅞ', romanization:'we', composedFrom:'ㅜ + ㅔ', example:'웨', exampleRoman:'we', desc:'Połączenie "ł" i "e" — jak angielskie "we" w "wet".', descEn:'Combination of "w" and "e" — like English "we" in "wet".' },
-  { char:'ㅟ', romanization:'wi', composedFrom:'ㅜ + ㅣ', example:'위', exampleRoman:'wi', desc:'Połączenie "ł" i "i" — jak angielskie "wee".', descEn:'Combination of "w" and "i" — like English "wee".' },
-  { char:'ㅢ', romanization:'ui', composedFrom:'ㅡ + ㅣ', example:'의', exampleRoman:'ui', desc:'Szybkie przejście od "y" do "i". Na końcu słów (np. jako "-ego") często wymawiane po prostu jako "e" albo "i".', descEn:'A quick glide from "eu" to "i". At the end of words (e.g. as a possessive marker), often simplified to just "e" or "i".' },
+  { char:'ㅐ', romanization:'ae', composedFrom:'ㅏ + ㅣ', example:'애', exampleRoman:'ae',
+    strokes:['Pionowa kreska (jak w ㅏ)','Krótka pozioma kreska w prawo (jak w ㅏ)','Druga pionowa kreska po prawej (ㅣ)'],
+    strokesEn:['Vertical stroke (as in ㅏ)','Short horizontal stroke to the right (as in ㅏ)','Second vertical stroke on the right (ㅣ)'],
+    strokePaths:[['M28,15 L28,85'],['M28,50 L50,50'],['M62,15 L62,85']],
+    desc:'Jak polskie "e", usta szeroko otwarte.', descEn:'Like the "e" in "bed", with the mouth opened a bit wider.' },
+  { char:'ㅒ', romanization:'yae', composedFrom:'ㅑ + ㅣ', example:'얘', exampleRoman:'yae',
+    strokes:['Pionowa kreska (jak w ㅑ)','Dwie krótkie poziome kreski w prawo (jak w ㅑ)','Druga pionowa kreska po prawej (ㅣ)'],
+    strokesEn:['Vertical stroke (as in ㅑ)','Two short horizontal strokes to the right (as in ㅑ)','Second vertical stroke on the right (ㅣ)'],
+    strokePaths:[['M25,15 L25,85'],['M25,38 L47,38','M25,60 L47,60'],['M60,15 L60,85']],
+    desc:'To samo co ㅐ, tylko z "j" na początku. Rzadko używane.', descEn:'Same as ㅐ, with a "y" glide. Rarely used.' },
+  { char:'ㅔ', romanization:'e', composedFrom:'ㅓ + ㅣ', example:'에', exampleRoman:'e',
+    strokes:['Krótka pozioma kreska w lewo (jak w ㅓ)','Pionowa kreska (jak w ㅓ)','Druga pionowa kreska po prawej (ㅣ)'],
+    strokesEn:['Short horizontal stroke to the left (as in ㅓ)','Vertical stroke (as in ㅓ)','Second vertical stroke on the right (ㅣ)'],
+    strokePaths:[['M45,50 L25,50'],['M45,15 L45,85'],['M60,15 L60,85']],
+    desc:'Jak polskie "e" — w mowie wielu Koreańczyków brzmi tak samo jak ㅐ.', descEn:'Like the "e" in "bed" — in many speakers\' speech, sounds identical to ㅐ.' },
+  { char:'ㅖ', romanization:'ye', composedFrom:'ㅕ + ㅣ', example:'예', exampleRoman:'ye',
+    strokes:['Dwie krótkie poziome kreski w lewo (jak w ㅕ)','Pionowa kreska (jak w ㅕ)','Druga pionowa kreska po prawej (ㅣ)'],
+    strokesEn:['Two short horizontal strokes to the left (as in ㅕ)','Vertical stroke (as in ㅕ)','Second vertical stroke on the right (ㅣ)'],
+    strokePaths:[['M45,38 L25,38','M45,60 L25,60'],['M45,15 L45,85'],['M60,15 L60,85']],
+    desc:'To samo co ㅔ, tylko z "j" na początku.', descEn:'Same as ㅔ, with a "y" glide.' },
+  { char:'ㅘ', romanization:'wa', composedFrom:'ㅗ + ㅏ', example:'와', exampleRoman:'wa',
+    strokes:['Krótka pionowa kreska w górę (jak w ㅗ)','Pozioma kreska (jak w ㅗ)','Pionowa kreska (jak w ㅏ)','Krótka pozioma kreska w prawo (jak w ㅏ)'],
+    strokesEn:['Short vertical stroke upward (as in ㅗ)','Horizontal stroke (as in ㅗ)','Vertical stroke (as in ㅏ)','Short horizontal stroke to the right (as in ㅏ)'],
+    strokePaths:[['M25,60 L25,30'],['M8,60 L42,60'],['M55,15 L55,85'],['M55,50 L78,50']],
+    desc:'Połączenie "ł" i "a" — jak angielskie "wa" w "watch".', descEn:'Combination of "w" and "a" — like English "wa" in "watch".' },
+  { char:'ㅙ', romanization:'wae', composedFrom:'ㅗ + ㅐ', example:'왜', exampleRoman:'wae',
+    strokes:['Krótka pionowa kreska w górę (ㅗ)','Pozioma kreska (ㅗ)','Pionowa kreska (ㅏ)','Krótka pozioma kreska w prawo (ㅏ)','Druga pionowa kreska po prawej (ㅣ)'],
+    strokesEn:['Short vertical stroke upward (ㅗ)','Horizontal stroke (ㅗ)','Vertical stroke (ㅏ)','Short horizontal stroke to the right (ㅏ)','Second vertical stroke on the right (ㅣ)'],
+    strokePaths:[['M17,60 L17,30'],['M5,60 L28,60'],['M40,15 L40,85'],['M40,50 L58,50'],['M70,15 L70,85']],
+    desc:'Połączenie "ł" i "e" — jak angielskie "we" w "wet".', descEn:'Combination of "w" and "e" — like English "we" in "wet".' },
+  { char:'ㅚ', romanization:'oe', composedFrom:'ㅗ + ㅣ', example:'외', exampleRoman:'oe',
+    strokes:['Krótka pionowa kreska w górę (jak w ㅗ)','Pozioma kreska (jak w ㅗ)','Pionowa kreska po prawej (ㅣ)'],
+    strokesEn:['Short vertical stroke upward (as in ㅗ)','Horizontal stroke (as in ㅗ)','Vertical stroke on the right (ㅣ)'],
+    strokePaths:[['M30,60 L30,30'],['M12,60 L48,60'],['M62,15 L62,85']],
+    desc:'W nowoczesnej wymowie brzmi podobnie do ㅙ/ㅞ — "łe".', descEn:'In modern pronunciation, sounds similar to ㅙ/ㅞ — "we".' },
+  { char:'ㅝ', romanization:'wo', composedFrom:'ㅜ + ㅓ', example:'워', exampleRoman:'wo',
+    strokes:['Pozioma kreska (jak w ㅜ)','Krótka pionowa kreska w dół (jak w ㅜ)','Krótka pozioma kreska w lewo (jak w ㅓ)','Pionowa kreska (jak w ㅓ)'],
+    strokesEn:['Horizontal stroke (as in ㅜ)','Short vertical stroke downward (as in ㅜ)','Short horizontal stroke to the left (as in ㅓ)','Vertical stroke (as in ㅓ)'],
+    strokePaths:[['M8,35 L35,35'],['M20,35 L20,58'],['M58,50 L40,50'],['M58,15 L58,85']],
+    desc:'Połączenie "ł" i samogłoski ㅓ — jak angielskie "wo" w "won".', descEn:'Combination of "w" and the ㅓ sound — like English "wo" in "won".' },
+  { char:'ㅞ', romanization:'we', composedFrom:'ㅜ + ㅔ', example:'웨', exampleRoman:'we',
+    strokes:['Pozioma kreska (ㅜ)','Krótka pionowa kreska w dół (ㅜ)','Krótka pozioma kreska w lewo (ㅓ)','Pionowa kreska (ㅓ)','Druga pionowa kreska po prawej (ㅣ)'],
+    strokesEn:['Horizontal stroke (ㅜ)','Short vertical stroke downward (ㅜ)','Short horizontal stroke to the left (ㅓ)','Vertical stroke (ㅓ)','Second vertical stroke on the right (ㅣ)'],
+    strokePaths:[['M5,32 L26,32'],['M15,32 L15,54'],['M40,48 L24,48'],['M40,15 L40,85'],['M55,15 L55,85']],
+    desc:'Połączenie "ł" i "e" — jak angielskie "we" w "wet".', descEn:'Combination of "w" and "e" — like English "we" in "wet".' },
+  { char:'ㅟ', romanization:'wi', composedFrom:'ㅜ + ㅣ', example:'위', exampleRoman:'wi',
+    strokes:['Pozioma kreska (jak w ㅜ)','Krótka pionowa kreska w dół (jak w ㅜ)','Pionowa kreska po prawej (ㅣ)'],
+    strokesEn:['Horizontal stroke (as in ㅜ)','Short vertical stroke downward (as in ㅜ)','Vertical stroke on the right (ㅣ)'],
+    strokePaths:[['M8,35 L35,35'],['M20,35 L20,58'],['M52,15 L52,85']],
+    desc:'Połączenie "ł" i "i" — jak angielskie "wee".', descEn:'Combination of "w" and "i" — like English "wee".' },
+  { char:'ㅢ', romanization:'ui', composedFrom:'ㅡ + ㅣ', example:'의', exampleRoman:'ui',
+    strokes:['Pozioma kreska (ㅡ)','Pionowa kreska przy prawym końcu (ㅣ)'],
+    strokesEn:['Horizontal stroke (ㅡ)','Vertical stroke at the right end (ㅣ)'],
+    strokePaths:[['M15,45 L72,54'],['M75,15 L75,85']],
+    desc:'Szybkie przejście od "y" do "i". Na końcu słów (np. jako "-ego") często wymawiane po prostu jako "e" albo "i".', descEn:'A quick glide from "eu" to "i". At the end of words (e.g. as a possessive marker), often simplified to just "e" or "i".' },
 ];
 
 // Demonstracja składania sylab — celowo TYLKO ze znaków uczonych wyżej (14 spółgłosek +
@@ -15382,20 +15758,101 @@ function renderHangulScreen(){
     : `<span data-i18n="registerNext">${uiLang === 'en' ? 'Next' : 'Następne'}</span> ▶`;
 }
 
+function buildStrokeOrderSvg(strokePaths){
+  // strokePaths: tablica KROKÓW (1:1 z tekstową listą strokes/strokesEn), każdy krok to
+  // tablica 1+ ścieżek SVG (np. "dwie krótkie kreski" dla ㅑ/ㅕ/ㅛ/ㅠ). Animacja: efekt
+  // "rysowania" przez stroke-dasharray/dashoffset.
+  //
+  // WAŻNE (naprawione 2026-08-30): KAŻDA pojedyncza ścieżka dostaje WŁASNE, osobne
+  // opóźnienie - nawet te należące do tego samego kroku tekstowego (np. dwie kreski ㅑ).
+  // Wcześniej całe kroki dostawały jedno wspólne opóźnienie, więc "dwie kreski" rysowały
+  // się dosłownie naraz - fizycznie niemożliwe do napisania jedną ręką. Między krokami
+  // jest dodatkowa, nieco większa przerwa (extraStepGap), żeby wciąż było widać
+  // grupowanie z listą tekstową poniżej.
+  //
+  // WARSTWA "WZORU" (hg-stroke-guide): te same ścieżki, wszystkie naraz, bez animacji,
+  // w jasnym kolorze pod spodem - to jedyny sposób na PRAWDZIWE dopasowanie 1:1, bo wzór
+  // i animacja pochodzą z DOKŁADNIE tych samych współrzędnych. Nakładanie na realny glif
+  // czcionki (Noto Serif KR) nigdy nie dałoby gwarancji dopasowania, bo nie kontroluję
+  // wewnętrznej geometrii glifu - stąd realny znak jest ukryty na czas tej animacji
+  // (patrz renderHangulLetterStage), a nie tylko "przyciemniony".
+  let guidePaths = '';
+  let paths = '';
+  let dots = '';
+  let t = 0;
+  const perStroke = 0.8;   // czas między KOLEJNYMI kreskami, nawet w tym samym kroku
+  const extraStepGap = 0.25; // dodatkowa przerwa przed nowym krokiem tekstowym
+  strokePaths.forEach((step) => {
+    step.forEach(d => {
+      const delay = t.toFixed(2);
+      guidePaths += `<path d="${d}" class="hg-stroke-guide"></path>`;
+      paths += `<path d="${d}" class="hg-stroke-path" style="animation-delay:${delay}s;"></path>`;
+      const m = d.match(/^M([\d.]+),([\d.]+)/);
+      if(m){
+        dots += `<circle cx="${m[1]}" cy="${m[2]}" r="3.2" class="hg-stroke-dot" style="animation-delay:${delay}s;"></circle>`;
+      }
+      t += perStroke;
+    });
+    t += extraStepGap;
+  });
+  return `<svg viewBox="0 0 100 100" class="hg-stroke-svg-overlay">${guidePaths}${paths}${dots}</svg>`;
+}
+
+function replayHangulStrokeAnimation(item){
+  const stage = document.querySelector('#hangulCard .hg-stage');
+  if(!stage || !item.strokePaths) return;
+  const bigChar = stage.querySelector('.hg-big-char');
+  const oldSvg = stage.querySelector('.hg-stroke-svg-overlay');
+  if(oldSvg) oldSvg.remove();
+  if(bigChar) bigChar.classList.add('has-strokes');
+  stage.insertAdjacentHTML('beforeend', buildStrokeOrderSvg(item.strokePaths));
+}
+
 function renderHangulLetterStage(list, labelPl, labelEn){
   const item = list[hangulIndex];
   document.getElementById('hangulStageLabel').textContent = `${uiLang === 'en' ? labelEn : labelPl} — ${hangulIndex + 1} / ${list.length}`;
+  const strokesList = uiLang === 'en' ? item.strokesEn : item.strokes;
+  const hasStrokes = !!item.strokePaths;
   document.getElementById('hangulCard').innerHTML = `
-    <div class="hg-big-char">${item.char}</div>
+    <div class="hg-stage">
+      <div class="hg-big-char">${item.char}</div>
+    </div>
     ${item.composedFrom ? `<div class="hg-composed">${item.composedFrom}</div>` : ''}
     <div class="hg-roman">${item.romanization}</div>
+    ${strokesList ? `
+      <div class="hg-strokes">
+        <div class="hg-strokes-label">✍️ ${uiLang === 'en' ? 'Stroke order' : 'Kolejność kresek'}</div>
+        <ol class="hg-strokes-list">${strokesList.map(s => `<li>${s}</li>`).join('')}</ol>
+        ${hasStrokes ? `<button type="button" class="hg-replay-btn" id="hangulReplayStrokes">▶️ ${uiLang === 'en' ? 'Show animation' : 'Pokaż animację'}</button>` : ''}
+      </div>
+    ` : ''}
     <div class="hg-desc">${uiLang === 'en' ? item.descEn : item.desc}</div>
-    <div class="hg-example sb-tappable" id="hangulExampleTap" data-speak="${item.example}">
-      <div class="hg-example-word">${item.example}</div>
-      <div class="hg-example-roman">🔊 ${item.exampleRoman}</div>
+    <div class="hg-example-pair">
+      <div class="hg-example sb-tappable" id="hangulExampleTap" data-speak="${item.example}">
+        ${item.finalExample ? `<div class="hg-example-label">${uiLang === 'en' ? (item.exampleLabelOverrideEn || 'START of syllable') : (item.exampleLabelOverride || 'POCZĄTEK sylaby')}</div>` : ''}
+        <div class="hg-example-word">${item.example}</div>
+        <div class="hg-example-roman">🔊 ${item.exampleRoman}</div>
+      </div>
+      ${item.finalExample ? `
+        <div class="hg-example sb-tappable" id="hangulFinalExampleTap" data-speak="${item.finalExample}">
+          <div class="hg-example-label">${uiLang === 'en' ? 'END of syllable' : 'KONIEC sylaby'}</div>
+          <div class="hg-example-word">${item.finalExample}</div>
+          <div class="hg-example-roman">🔊 ${item.finalExampleRoman}</div>
+        </div>
+      ` : ''}
     </div>
   `;
+  const replayBtn = document.getElementById('hangulReplayStrokes');
+  if(replayBtn){
+    replayBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      replayHangulStrokeAnimation(item);
+      replayBtn.textContent = `🔁 ${uiLang === 'en' ? 'Replay' : 'Odtwórz ponownie'}`;
+    });
+  }
   document.getElementById('hangulExampleTap').onclick = () => speakKorean(item.example);
+  const finalTap = document.getElementById('hangulFinalExampleTap');
+  if(finalTap) finalTap.onclick = () => speakKorean(item.finalExample);
 }
 
 function renderHangulSyllableStage(){
@@ -17219,18 +17676,54 @@ function showReadingList(){
 
 function renderReadingList(){
   const wrap = document.getElementById('readingListCards');
-  const all = [...READING_TEXTS.map(r => ({...r, custom:false})), ...customReadings.map(r => ({...r, custom:true}))];
-  wrap.innerHTML = all.map((r, i) => `
-    <button class="home-card" data-idx="${i}">
+  const normal = READING_TEXTS.filter(r => r.type !== 'tongueTwister').map(r => ({...r, custom:false}));
+  const tongueTwisters = READING_TEXTS.filter(r => r.type === 'tongueTwister').map(r => ({...r, custom:false}));
+  const own = customReadings.map(r => ({...r, custom:true}));
+
+  // Płaska lista w TEJ kolejności - potrzebna do poprawnego mapowania kliknięcia na index,
+  // niezależnie od tego, jak grupujemy wizualnie (własne -> poziomy -> łamańce).
+  const all = [...own, ...normal, ...tongueTwisters];
+
+  const LEVEL_LABELS = {
+    1: { pl:'Podstawowy', en:'Basic' },
+    2: { pl:'Średniozaawansowany', en:'Intermediate' },
+    3: { pl:'Zaawansowany', en:'Advanced' },
+  };
+
+  const renderRow = (r, i) => `
+    <button class="reading-row" data-idx="${i}">
       <span class="icon">${r.custom ? '✏️' : r.type === 'tongueTwister' ? '🌀' : '📖'}</span>
-      <span>
-        <div class="title">${escapeHtml(uiLang === 'en' && r.titleEn ? r.titleEn : r.title)}${r.type === 'tongueTwister' ? ` <span class="tw-badge">${uiLang === 'en' ? 'TONGUE TWISTER' : 'ŁAMANIEC'}</span>` : ''}</div>
-        <div class="desc">${escapeHtml(r.ko.length > 60 ? r.ko.slice(0, 60) + '…' : r.ko)}</div>
-      </span>
+      <span class="title">${escapeHtml(uiLang === 'en' && r.titleEn ? r.titleEn : r.title)}${r.type === 'tongueTwister' ? ` <span class="tw-badge">${uiLang === 'en' ? 'TONGUE TWISTER' : 'ŁAMANIEC'}</span>` : ''}</span>
     </button>
-  `).join('');
-  wrap.querySelectorAll('.home-card').forEach((card, i) => {
-    card.addEventListener('click', () => openReading(all[i]));
+  `;
+
+  let html = '';
+  let offset = 0;
+  if(own.length){
+    html += `<div class="reading-section-label">${uiLang === 'en' ? 'Your own' : 'Twoje własne'}</div>`;
+    html += `<div class="reading-row-list">${own.map((r, i) => renderRow(r, offset + i)).join('')}</div>`;
+    offset += own.length;
+  }
+  if(normal.length){
+    html += `<div class="reading-section-label">${uiLang === 'en' ? 'Reading library' : 'Biblioteka czytanek'}</div>`;
+    // Podział na poziomy WEWNĄTRZ biblioteki - własny, mniejszy nagłówek niż sekcja główna,
+    // żeby zachować wizualną hierarchię (sekcja > poziom).
+    [1, 2, 3].forEach(lvl => {
+      const atLevel = normal.filter(r => r.level === lvl);
+      if(!atLevel.length) return;
+      const startIdx = offset;
+      html += `<div class="reading-level-label">${uiLang === 'en' ? LEVEL_LABELS[lvl].en : LEVEL_LABELS[lvl].pl}</div>`;
+      html += `<div class="reading-row-list">${atLevel.map((r, i) => renderRow(r, startIdx + normal.indexOf(r))).join('')}</div>`;
+    });
+    offset += normal.length;
+  }
+  if(tongueTwisters.length){
+    html += `<div class="reading-section-label">${uiLang === 'en' ? 'Tongue twisters' : 'Łamańce językowe'}</div>`;
+    html += `<div class="reading-row-list">${tongueTwisters.map((r, i) => renderRow(r, offset + i)).join('')}</div>`;
+  }
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('.reading-row').forEach((row) => {
+    row.addEventListener('click', () => openReading(all[Number(row.dataset.idx)]));
   });
 }
 
@@ -17294,7 +17787,7 @@ function alignReadingTranscript(transcript){
 // "ocenę", pokazujemy wprost: oczekiwane słowo vs to, co faktycznie usłyszał mikrofon -
 // user sam widzi, czy to jego błąd wymowy, czy rozpoznawanie się pomyliło. Przejrzystość
 // zamiast fałszywego czarnoskrzynkowego werdyktu.
-function renderReadingReport(){
+async function renderReadingReport(){
   const box = document.getElementById('readingReportBox');
   const wrongIndices = readingResults
     .map((r, i) => ({ r, i }))
@@ -17302,23 +17795,57 @@ function renderReadingReport(){
 
   if(wrongIndices.length === 0){
     box.innerHTML = `<div class="reading-report-perfect">🎉 ${uiLang === 'en' ? 'Every word matched — perfect reading!' : 'Każde słowo się zgodziło — idealne czytanie!'}</div>`;
-  } else {
-    const rows = wrongIndices.map(({i}) => `
-      <div class="reading-report-row">
-        <span class="rr-expected">${escapeHtml(readingWordsRaw[i])}</span>
-        <span class="rr-arrow">→</span>
-        <span class="rr-heard">${escapeHtml(readingRecognized[i] || (uiLang === 'en' ? '(nothing heard)' : '(nic nie usłyszano)'))}</span>
-      </div>
-    `).join('');
-    box.innerHTML = `
-      <div class="reading-report-title">📊 ${uiLang === 'en' ? 'Word-by-word report' : 'Raport słowo po słowie'}</div>
-      <div class="reading-report-disclaimer">${uiLang === 'en'
-        ? 'This is browser speech recognition, not an AI evaluation — a mismatch below could be your pronunciation OR the microphone mishearing you. Tap 🔊 on any word in the text above to check the correct pronunciation.'
-        : 'To rozpoznawanie mowy przeglądarki, nie ocena AI — niezgodność poniżej może być Twoją wymową ALBO pomyłką mikrofonu. Dotknij 🔊 przy słowie w tekście wyżej, żeby sprawdzić poprawną wymowę.'}</div>
-      ${rows}
-    `;
+    box.style.display = 'block';
+    return;
   }
+
+  const rows = wrongIndices.map(({i}) => `
+    <div class="reading-report-row">
+      <span class="rr-expected">${escapeHtml(readingWordsRaw[i])}</span>
+      <span class="rr-arrow">→</span>
+      <span class="rr-heard">${escapeHtml(readingRecognized[i] || (uiLang === 'en' ? '(nothing heard)' : '(nic nie usłyszano)'))}</span>
+      <span class="rr-verdict" id="rrVerdict-${i}"></span>
+    </div>
+  `).join('');
+  box.innerHTML = `
+    <div class="reading-report-title">📊 ${uiLang === 'en' ? 'Word-by-word report' : 'Raport słowo po słowie'}</div>
+    <div class="reading-report-disclaimer">${uiLang === 'en'
+      ? 'Base layer: browser speech recognition, not an AI evaluation on its own — a mismatch below could be your pronunciation OR the microphone mishearing you. Tap 🔊 on any word in the text above to check the correct pronunciation.'
+      : 'Warstwa bazowa: rozpoznawanie mowy przeglądarki, samo w sobie nie ocena AI — niezgodność poniżej może być Twoją wymową ALBO pomyłką mikrofonu. Dotknij 🔊 przy słowie w tekście wyżej, żeby sprawdzić poprawną wymowę.'}</div>
+    ${rows}
+    <div id="readingAiVerdictArea"></div>
+  `;
   box.style.display = 'block';
+
+  const aiArea = document.getElementById('readingAiVerdictArea');
+  if(!isPremiumPro){
+    // Darmowy/Premium (nie Pro): dyskretna zachęta, bez fałszywej obietnicy - zgodnie
+    // z ustaleniem, że sama ocena AI ma być realnie za Premium Pro, nie tylko na sztywno
+    // wypisana w cenniku bez pokrycia w kodzie.
+    aiArea.innerHTML = `<div class="reading-ai-upsell">🔒 ${uiLang === 'en'
+      ? 'Premium Pro adds an AI verdict for each mismatch above — likely a mic glitch vs. an actual reading mistake.'
+      : 'Premium Pro dodaje werdykt AI przy każdej niezgodności powyżej — czy to prawdopodobnie pomyłka mikrofonu, czy faktyczny błąd czytania.'}</div>`;
+    return;
+  }
+
+  aiArea.innerHTML = `<div class="reading-ai-loading">🤖 ${uiLang === 'en' ? 'AI is analyzing your reading…' : 'AI analizuje Twoje czytanie…'}</div>`;
+  try{
+    const pairs = wrongIndices.map(({i}) => ({ expected: readingWordsRaw[i], heard: readingRecognized[i] }));
+    const result = await evaluateReadingWithAI(pairs);
+    (result.verdicts || []).forEach(v => {
+      const orig = wrongIndices[v.i];
+      if(!orig) return;
+      const el = document.getElementById(`rrVerdict-${orig.i}`);
+      if(!el) return;
+      const isRecog = v.likely === 'recognition';
+      el.innerHTML = `<span class="rr-verdict-pill ${isRecog ? 'rr-recog' : 'rr-reading'}" title="${escapeHtml(v.note || '')}">${isRecog
+        ? (uiLang === 'en' ? '🎙️ likely mic' : '🎙️ pewnie mikrofon')
+        : (uiLang === 'en' ? '📖 likely you' : '📖 pewnie Ty')}</span>`;
+    });
+    aiArea.innerHTML = `<div class="reading-ai-summary">🤖 ${escapeHtml(result.summary || '')}</div>`;
+  }catch(e){
+    aiArea.innerHTML = `<div class="reading-ai-error">⚠️ ${uiLang === 'en' ? 'AI analysis failed — showing the basic report only.' : 'Analiza AI nie powiodła się — pokazuję tylko podstawowy raport.'}</div>`;
+  }
 }
 
 function initReadingRecognition(){
@@ -17377,6 +17904,12 @@ document.getElementById('readingMicBtn').addEventListener('click', ()=>{
       readingListening = false;
       document.getElementById('readingMicBtn').classList.remove('ai-chat-mic-active');
       document.getElementById('readingMicBtn').textContent = readingMicIdleLabel();
+      // Web Speech API bywa kapryśne - potrafi wystrzelić spóźniony błąd (np. 'network')
+      // PO tym, jak alignReadingTranscript już wykryło zakończenie i pokazało sukces +
+      // raport. Bez tej strażniczej kontroli taki spóźniony błąd nadpisywał komunikat
+      // sukcesu, sprawiając wrażenie, że błąd jest częścią raportu/oceny AI poniżej.
+      const alreadyFinished = readingResults.length > 0 && readingResults.every(r => r !== null);
+      if(alreadyFinished) return;
       const messages = uiLang === 'en' ? {
         'not-allowed': '⚠️ Microphone access denied. Check the site permissions in your browser settings and try again.',
         'service-not-allowed': '⚠️ Microphone access blocked by the browser or operating system.',
@@ -17527,6 +18060,39 @@ document.getElementById('readingRetellBtn').addEventListener('click', ()=>{
   document.getElementById('retellLoading').style.display = 'none';
   document.getElementById('readingRetellPanel').classList.add('open');
 });
+
+// ===================== PRAWDZIWA OCENA AI DLA CZYTANIA =====================
+// Dodane 2026-08-30, w miejsce poprzedniego stanu, gdzie "Czytanie z oceną AI" wcale
+// nie używało AI (patrz notatka w pamięci Claude). UCZCIWE OGRANICZENIE: mamy tylko
+// TEKSTOWĄ transkrypcję z Web Speech API, nie prawdziwe audio - AI nie ocenia więc
+// "jakości wymowy" w sensie akustycznym, bo nie ma do tego danych. To, co realnie
+// można ocenić z samego tekstu: czy niezgodność między oczekiwanym a rozpoznanym
+// słowem jest fonetycznie bliska (prawdopodobny błąd ROZPOZNAWANIA, nie ucznia) czy
+// zupełnie inna (prawdopodobny błąd CZYTANIA) - dokładnie problem, który zidentyfikowaliśmy
+// przy starym mechanizmie. Model: Haiku - zadanie dobrze ograniczone, strukturalne,
+// wysoki potencjalny wolumen (raz na czytankę), więc taniość ma znaczenie.
+async function evaluateReadingWithAI(wrongPairs){
+  if(!wrongPairs.length) return { verdicts: [], summary: '' };
+  const langName = uiLang === 'en' ? 'angielski' : 'polski';
+  const pairsText = wrongPairs.map((p, i) => `${i}. oczekiwane: "${p.expected}", rozpoznane: "${p.heard || '(nic)'}"`).join('\n');
+  const instruction = `Uczeń czytał na głos tekst po koreańsku. Rozpoznawanie mowy w przeglądarce (Web Speech API) uznało poniższe pary słów za niezgodne:\n\n${pairsText}\n\n` +
+    'Dla KAŻDEJ pary oceń, czy niezgodność wygląda na: (a) pomyłkę ROZPOZNAWANIA MOWY - rozpoznane słowo brzmi fonetycznie podobnie do oczekiwanego (prawdopodobnie uczeń przeczytał poprawnie, ale mikrofon się pomylił), czy (b) prawdziwy błąd CZYTANIA - rozpoznane słowo brzmi zupełnie inaczej niż oczekiwane (prawdopodobnie uczeń faktycznie przeczytał źle). ' +
+    `Odpowiedz WYŁĄCZNIE czystym tekstem JSON, bez markdown, w dokładnym formacie: {"verdicts":[{"i":0,"likely":"recognition"|"reading","note":"krótkie wyjaśnienie po ${langName}, max 1 zdanie"}],"summary":"2-3 zdaniowe ogólne podsumowanie sesji czytania po ${langName}, przyjazne i konstruktywne"}. Nie pisz niczego poza tym JSON-em.`;
+
+  const response = await callAiProxy({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 600,
+    messages: [{ role: "user", content: instruction }]
+  });
+  const data = await response.json();
+  const textBlock = (data.content || []).map(b => b.text || '').join('');
+  const cleaned = textBlock.replace(/```json/gi, '').replace(/```/g, '').trim();
+  let parsed;
+  try{ parsed = JSON.parse(cleaned); }
+  catch(e){ throw new Error('Nie udało się odczytać odpowiedzi AI. Spróbuj ponownie.'); }
+  return parsed;
+}
+// ===================== KONIEC OCENY AI DLA CZYTANIA =====================
 
 async function evaluateRetell(originalText, userSummary){
   const langName = uiLang === 'en' ? 'angielski' : 'polski';
