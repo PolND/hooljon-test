@@ -89,6 +89,54 @@
     min-height:100vh;
     display:flex;
     flex-direction:column;
+    position:relative;
+    z-index:1;
+  }
+
+  /* ===================== DESKTOP — Etap 2: apka jako świadomie zaprojektowana
+     strona, nie mobilny widok wciśnięty na duży ekran. Zero zmian w samych
+     ekranach apki (zbyt duże ryzyko po tak długiej sesji) - zamiast tego panel
+     apki dostaje wyraźną "oprawę" (cień, zaokrąglenie, nieco większa szerokość),
+     a strona wokół niego dostaje dyskretną dekorację nawiązującą do przedmiotu
+     nauki (hangul w tle), zamiast pustej przestrzeni. Telefon (poniżej 900px)
+     nie widzi żadnej z tych zmian - Etap 1 zostaje nietknięty. */
+  @media (min-width:900px){
+    body::before, body::after{
+      content:'';
+      position:fixed;
+      pointer-events:none;
+      z-index:0;
+      font-family:'Song Myung', serif;
+      color:var(--ink);
+      line-height:1;
+    }
+    body::before{
+      content:'훈';
+      top:-100px;
+      left:-70px;
+      font-size:460px;
+      opacity:0.035;
+    }
+    body::after{
+      content:'련';
+      bottom:-140px;
+      right:-90px;
+      font-size:420px;
+      color:var(--hwang);
+      opacity:0.03;
+    }
+    .wrap{
+      max-width:640px;
+      margin:48px auto;
+      background:var(--card);
+      border-radius:28px;
+      box-shadow:0 40px 90px -35px rgba(27,58,87,0.28), 0 6px 18px rgba(27,58,87,0.06);
+      padding-left:40px;
+      padding-right:40px;
+    }
+    .ad-slot{
+      max-width:640px; /* ten sam pasek reklamowy, żeby wyrównać się z szerszym panelem powyżej */
+    }
   }
 
   /* HEADER */
