@@ -16179,7 +16179,12 @@ async function loadStoryProgress(){
       const parsed = JSON.parse(r.value);
       if(parsed && Array.isArray(parsed.completedLessonIds)) remote = parsed;
     }
-  }catch(e){ /* brak sieci albo kolumny jeszcze nie ma - zostajemy przy lokalnym */ }
+  }catch(e){
+    // Brak sieci albo kolumny jeszcze nie ma - zostajemy przy lokalnym. Logujemy jawnie,
+    // bo cichy fallback wyglądał identycznie jak "działa poprawnie, po prostu nic nie ma
+    // na serwerze" - to utrudniało diagnozę braku synchronizacji.
+    console.warn('[Story] Nie udało się wczytać postępu z serwera, używam lokalnego:', e);
+  }
 
   // Suma zbiorów - ukończona lekcja pozostaje ukończona, niezależnie gdzie ją zapisano.
   const merged = [...new Set([...local.completedLessonIds, ...remote.completedLessonIds])];
@@ -16196,7 +16201,12 @@ function saveStoryProgress(){
   // Lokalnie natychmiast (żeby UI nie czekał na sieć), serwer w tle - błąd sieci
   // nie może zablokować oznaczenia lekcji jako ukończonej.
   try{ localStorage.setItem(STORY_PROGRESS_KEY, JSON.stringify(storyProgress)); }catch(e){}
-  try{ window.storage.set(STORAGE_KEYS.storyProgress, JSON.stringify(storyProgress)); }catch(e){}
+  // UWAGA: window.storage.set jest asynchroniczne. Zwykły try/catch wokół niego NIE
+  // złapałby odrzucenia obietnicy - błąd zapisu na serwer stawał się cichym
+  // "unhandled rejection" i znikał bez śladu, uniemożliwiając diagnozę. Stąd .catch()
+  // na obietnicy, z jawnym logiem. Poprawione 2026-08-30 przy diagnozie braku synchronizacji.
+  Promise.resolve(window.storage.set(STORAGE_KEYS.storyProgress, JSON.stringify(storyProgress)))
+    .catch(err => console.error('[Story] Nie udało się zapisać postępu na serwer:', err));
 }
 function isLessonDone(id){ return storyProgress.completedLessonIds.includes(id); }
 // Rozdziały odwołują się do lekcji przez JAWNE ID (lessonIds), nie przez pozycję
