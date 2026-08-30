@@ -5159,7 +5159,11 @@ async function connectGeminiRelay(isRetry){
     document.getElementById('geminiHelpControls').style.display = 'none';
     document.getElementById('geminiHelpArea').style.display = 'none';
     document.getElementById('geminiLevelSelector').style.display = '';
-    setGeminiVoiceStatus(uiLang === 'en' ? 'Disconnected.' : 'Rozłączono.');
+    // Kod zamknięcia (event.code) trafiał dotąd TYLKO do konsoli przeglądarki - user
+    // zgłaszający "połączono, zaraz rozłączono" nie miał jak podać nic więcej niż to.
+    // Pokazujemy kod wprost w widocznym statusie, żeby diagnoza nie wymagała za każdym
+    // razem otwierania narzędzi deweloperskich. Ustalone 2026-08-30.
+    setGeminiVoiceStatus((uiLang === 'en' ? 'Disconnected.' : 'Rozłączono.') + ` (kod ${event.code}${event.reason ? ': ' + event.reason : ''})`);
   };
 }
 
@@ -17652,6 +17656,7 @@ let readingResults = [];    // stan per słowo: null | 'correct' | 'wrong'
 let readingRecognized = []; // co faktycznie rozpoznał mikrofon per słowo - do raportu (przejrzystość zamiast fałszywej "oceny AI")
 let readingRecognition = null;
 let readingListening = false;
+let readingNetworkRetried = false; // reset przy każdym nowym otwarciu czytanki (openReading) i każdym ręcznym kliknięciu mikrofonu
 
 function normalizeReadingWord(w){
   return (w || '').replace(/[.,!?"'“”‘’…\-]/g, '').trim();
@@ -17733,6 +17738,7 @@ function openReading(reading){
   readingWords = readingWordsRaw.map(normalizeReadingWord);
   readingResults = readingWordsRaw.map(() => null);
   readingRecognized = readingWordsRaw.map(() => null); // co faktycznie usłyszał mikrofon - potrzebne do raportu
+  readingNetworkRetried = false; // świeży start = świeża szansa na jedną automatyczną próbę ponowienia
 
   document.getElementById('readingListWrap').style.display = 'none';
   document.getElementById('readingActiveWrap').style.display = 'block';
@@ -17763,13 +17769,69 @@ function renderReadingText(){
   });
 }
 
+// Dopasowanie sekwencyjne (najdłuższy wspólny podciąg + wypełnianie luk lokalnie),
+// zamiast sztywnego porównania pozycja-do-pozycji. Naprawia potwierdzony błąd: jedno
+// zgubione/zlepione przez rozpoznawanie słowo kaskadowo przesuwało WSZYSTKIE kolejne
+// porównania, fałszywie oznaczając poprawnie przeczytane słowa jako błędne (dowód:
+// test 2026-08-30, "가요"→rozpoznane "친구를" [to dosłownie następne oczekiwane słowo]).
+// Dokładne trafienia stają się "kotwicami" niezależnie od pozycji; luki między kotwicami
+// wypełniane są LOKALNYM porównaniem pozycyjnym (bezpieczne w małej, ograniczonej luce,
+// w przeciwieństwie do porównania globalnego na całej długości tekstu).
+function alignWordSequences(expected, heard){
+  const n = expected.length, m = heard.length;
+  const dp = Array.from({length: n + 1}, () => new Array(m + 1).fill(0));
+  for(let i = 1; i <= n; i++){
+    for(let j = 1; j <= m; j++){
+      dp[i][j] = (expected[i-1] === heard[j-1])
+        ? dp[i-1][j-1] + 1
+        : Math.max(dp[i-1][j], dp[i][j-1]);
+    }
+  }
+  // Traceback - zbieramy TYLKO dokładne trafienia jako kotwice, w oryginalnej kolejności.
+  const anchors = [];
+  let i = n, j = m;
+  while(i > 0 && j > 0){
+    if(expected[i-1] === heard[j-1]){ anchors.push({ ei: i-1, hi: j-1 }); i--; j--; }
+    else if(dp[i-1][j] >= dp[i][j-1]) i--;
+    else j--;
+  }
+  anchors.reverse();
+
+  const result = expected.map(() => ({ status: 'pending', heardWord: null }));
+  anchors.forEach(a => { result[a.ei] = { status: 'correct', heardWord: heard[a.hi] }; });
+
+  // Wypełnij luki MIĘDZY kotwicami (i przed pierwszą / po ostatniej) lokalnym
+  // dopasowaniem pozycyjnym - bezpieczne, bo luki są małe i ograniczone kotwicami
+  // z obu stron (poza ostatnią luką, patrz niżej).
+  let prevE = -1, prevH = -1;
+  const boundaries = [...anchors, { ei: n, hi: m }];
+  boundaries.forEach((b, idx) => {
+    const isLastGap = idx === boundaries.length - 1;
+    const eGapStart = prevE + 1, hGapStart = prevH + 1;
+    const eGapLen = b.ei - eGapStart, hGapLen = b.hi - hGapStart;
+    for(let k = 0; k < eGapLen; k++){
+      const ei = eGapStart + k;
+      if(k < hGapLen){
+        result[ei] = { status: 'wrong', heardWord: heard[hGapStart + k] };
+      } else if(isLastGap){
+        result[ei] = { status: 'pending', heardWord: null }; // ostatnia luka = jeszcze nie przeczytane, nie potwierdzony błąd
+      } else {
+        result[ei] = { status: 'wrong', heardWord: null }; // luka W ŚRODKU, potwierdzona kotwicami po obu stronach = naprawdę pominięte
+      }
+    }
+    prevE = b.ei; prevH = b.hi;
+  });
+  return result;
+}
+
 function alignReadingTranscript(transcript){
   const recognizedWords = transcript.split(/\s+/).map(normalizeReadingWord).filter(Boolean);
-  const n = Math.min(recognizedWords.length, readingWords.length);
-  for(let i = 0; i < n; i++){
-    readingResults[i] = (recognizedWords[i] === readingWords[i]) ? 'correct' : 'wrong';
-    readingRecognized[i] = recognizedWords[i];
-  }
+  const aligned = alignWordSequences(readingWords, recognizedWords);
+  aligned.forEach((a, i) => {
+    if(a.status === 'pending') return; // zostaw null - jeszcze nie wiadomo
+    readingResults[i] = a.status;
+    readingRecognized[i] = a.heardWord;
+  });
   renderReadingText();
 
   if(recognizedWords.length >= readingWords.length){
@@ -17877,6 +17939,7 @@ document.getElementById('readingListenBtn').addEventListener('click', ()=>{
 
 document.getElementById('readingMicBtn').addEventListener('click', ()=>{
   if(readingListening){ stopReadingMic(); document.getElementById('readingStatus').textContent = uiLang === 'en' ? 'Stopped. Tap to continue.' : 'Zatrzymano. Kliknij, żeby kontynuować.'; return; }
+  readingNetworkRetried = false; // ręczne kliknięcie = świeża szansa na jedną automatyczną próbę ponowienia
 
   if(!window.isSecureContext){
     document.getElementById('readingUnsupported').style.display = 'block';
@@ -17910,18 +17973,39 @@ document.getElementById('readingMicBtn').addEventListener('click', ()=>{
       // sukcesu, sprawiając wrażenie, że błąd jest częścią raportu/oceny AI poniżej.
       const alreadyFinished = readingResults.length > 0 && readingResults.every(r => r !== null);
       if(alreadyFinished) return;
+
+      // 'network' bywa PRZEJŚCIOWY (chwilowy problem z połączeniem do backendu
+      // rozpoznawania Google, nie stały błąd konfiguracji) - jedna automatyczna próba
+      // ponowienia, zanim pokażemy userowi komunikat błędu. Ustalone 2026-08-30 po
+      // zgłoszeniu, że czytanie w ogóle nie startowało na serwerze testowym.
+      if(e.error === 'network' && !readingNetworkRetried){
+        readingNetworkRetried = true;
+        document.getElementById('readingStatus').textContent = uiLang === 'en'
+          ? '🔄 Connection hiccup — retrying automatically…'
+          : '🔄 Chwilowy problem z połączeniem — ponawiam automatycznie…';
+        setTimeout(() => {
+          try{
+            readingListening = true;
+            document.getElementById('readingMicBtn').classList.add('ai-chat-mic-active');
+            document.getElementById('readingMicBtn').textContent = readingMicListeningLabel();
+            readingRecognition.start();
+          }catch(err){ /* jeśli druga próba też się nie uda, onerror wystrzeli ponownie i tym razem readingNetworkRetried=true pokaże już normalny komunikat błędu */ }
+        }, 1200);
+        return;
+      }
+
       const messages = uiLang === 'en' ? {
         'not-allowed': '⚠️ Microphone access denied. Check the site permissions in your browser settings and try again.',
         'service-not-allowed': '⚠️ Microphone access blocked by the browser or operating system.',
         'no-speech': 'No speech detected — try again and speak clearly into the microphone.',
         'audio-capture': '⚠️ No microphone found. Connect a microphone and try again.',
-        'network': '⚠️ Network problem during speech recognition.',
+        'network': '⚠️ Network problem reaching the speech recognition service. Check your internet connection (or try disabling any VPN) and try again.',
       } : {
         'not-allowed': '⚠️ Odmówiono dostępu do mikrofonu. Sprawdź uprawnienia strony w ustawieniach przeglądarki i spróbuj ponownie.',
         'service-not-allowed': '⚠️ Dostęp do mikrofonu zablokowany przez przeglądarkę lub system operacyjny.',
         'no-speech': 'Nie wykryto mowy — spróbuj ponownie i mów wyraźnie do mikrofonu.',
         'audio-capture': '⚠️ Nie znaleziono mikrofonu. Podłącz mikrofon i spróbuj ponownie.',
-        'network': '⚠️ Problem z siecią podczas rozpoznawania mowy.',
+        'network': '⚠️ Problem z połączeniem do serwisu rozpoznawania mowy. Sprawdź internet (albo spróbuj wyłączyć VPN, jeśli używasz) i spróbuj ponownie.',
       };
       document.getElementById('readingStatus').textContent = messages[e.error] || (uiLang === 'en' ? `⚠️ Speech recognition failed (${e.error}).` : `⚠️ Nie udało się rozpoznać mowy (${e.error}).`);
     };
