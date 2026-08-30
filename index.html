@@ -13226,6 +13226,16 @@ document.getElementById('soundToggleBtn').addEventListener('click', async ()=>{
   applySoundUI();
   try{ await window.storage.set(STORAGE_KEYS.sound, JSON.stringify(soundEnabled)); }catch(e){}
   if(soundEnabled) playCorrectSound(); // krótka próbka, żeby użytkownik od razu usłyszał efekt włączenia
+  // TYMCZASOWA DIAGNOSTYKA - pokazuje realny stan AudioContext wprost na ekranie,
+  // bo Web Audio API zawodzi po cichu (bez błędu do złapania) na niektórych
+  // przeglądarkach/iOS, jeśli nie zostanie poprawnie odblokowane gestem użytkownika.
+  setTimeout(()=>{
+    const ctx = getAudioCtx();
+    alert('Diagnostyka dźwięku:\n' +
+      'AudioContext state: ' + (ctx ? ctx.state : 'BRAK KONTEKSTU (getAudioCtx zwróciło null)') + '\n' +
+      'sampleRate: ' + (ctx ? ctx.sampleRate : '-') + '\n' +
+      'soundEnabled: ' + soundEnabled);
+  }, 300);
 });
 
 function applyTheme(theme){
