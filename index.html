@@ -4100,6 +4100,7 @@
     <button class="back-btn" data-back="modeSelect" data-i18n="backModeSelect">Wybór trybu</button>
     <h3 style="text-align:center; margin-bottom:4px;">🗺️ <span data-i18n="storyModeTitle">Tryb opowieści</span></h3>
     <p class="hint-note" style="text-align:center;" id="storyMapProgress"></p>
+    <div id="storySyncWarning" style="display:none; margin:0 0 12px; padding:10px 12px; border-radius:10px; background:var(--card-hi); border:1px solid var(--bad); font-size:13px; line-height:1.5; color:var(--ink);"></div>
     <div class="daily-value-summary" style="display:none; text-align:center; font-size:14.5px; color:var(--ink-dim); background:var(--card-hi); border-radius:12px; padding:10px 14px; margin-bottom:12px;"></div>
 
     <div class="story-next-card" id="storyNextCard"></div>
@@ -16170,28 +16171,36 @@ function readLocalStoryProgress(){
   }catch(e){ return { completedLessonIds: [] }; }
 }
 
+let storyProgressRemoteBlocked = false; // true, gdy odczyt z serwera zawiódł (np. Brave Shields blokuje żądania)
+
 async function loadStoryProgress(){
   const local = readLocalStoryProgress();
   let remote = { completedLessonIds: [] };
+  let remoteOk = false;
   try{
     const r = await window.storage.get(STORAGE_KEYS.storyProgress);
+    remoteOk = true; // sam odczyt się udał; brak wartości = user po prostu nic jeszcze nie ma
     if(r && r.value){
       const parsed = JSON.parse(r.value);
       if(parsed && Array.isArray(parsed.completedLessonIds)) remote = parsed;
     }
   }catch(e){
-    // Brak sieci albo kolumny jeszcze nie ma - zostajemy przy lokalnym. Logujemy jawnie,
-    // bo cichy fallback wyglądał identycznie jak "działa poprawnie, po prostu nic nie ma
-    // na serwerze" - to utrudniało diagnozę braku synchronizacji.
+    // Odczyt zawiódł. Najczęstsza realna przyczyna (potwierdzona 2026-08-30): blokady
+    // prywatności w przeglądarce - Brave Shields blokuje żądania do Supabase, przez co
+    // apka pokazuje niepełny postęp, a user nie ma pojęcia dlaczego.
     console.warn('[Story] Nie udało się wczytać postępu z serwera, używam lokalnego:', e);
   }
+  storyProgressRemoteBlocked = !remoteOk;
 
   // Suma zbiorów - ukończona lekcja pozostaje ukończona, niezależnie gdzie ją zapisano.
   const merged = [...new Set([...local.completedLessonIds, ...remote.completedLessonIds])];
   storyProgress = { completedLessonIds: merged };
 
-  // Jeśli scalenie dało coś więcej niż miał serwer, odeślij wynik z powrotem.
-  if(merged.length > remote.completedLessonIds.length){
+  // KLUCZOWE: odsyłamy na serwer TYLKO jeśli odczyt się udał. Gdy odczyt zawiódł,
+  // remote jest pustą tablicą - bez tego warunku uznalibyśmy lokalne dane za "nowsze"
+  // i NADPISALIBYŚMY prawdziwy, bogatszy postęp na serwerze uboższą wersją lokalną.
+  // To byłaby realna utrata danych, nie tylko brak synchronizacji.
+  if(remoteOk && merged.length > remote.completedLessonIds.length){
     try{ await window.storage.set(STORAGE_KEYS.storyProgress, JSON.stringify(storyProgress)); }catch(e){}
   }
   try{ localStorage.setItem(STORY_PROGRESS_KEY, JSON.stringify(storyProgress)); }catch(e){}
@@ -16284,6 +16293,21 @@ function renderStoryMap(){
   const doneCount = storyProgress.completedLessonIds.length;
   document.getElementById('storyMapProgress').textContent =
     `${doneCount} / ${STORY_LESSONS.length} ${uiLang === 'en' ? 'lessons completed' : 'lekcji ukończonych'}`;
+
+  // Ostrzeżenie, gdy odczyt z serwera zawiódł. Bez tego user (typowo: Brave z włączonymi
+  // Shields) widzi po prostu niepełny postęp i uznaje apkę za zepsutą, bez szansy
+  // domyślenia się przyczyny. Potwierdzone realnym przypadkiem 2026-08-30.
+  const syncWarn = document.getElementById('storySyncWarning');
+  if(syncWarn){
+    if(storyProgressRemoteBlocked){
+      syncWarn.innerHTML = uiLang === 'en'
+        ? '⚠️ <b>Progress shown may be incomplete.</b><br>Your browser is blocking the connection to our server, so we can only show progress saved on this device. If you use Brave, tap the 🦁 lion icon in the address bar and turn Shields off for this site.'
+        : '⚠️ <b>Pokazany postęp może być niepełny.</b><br>Przeglądarka blokuje połączenie z naszym serwerem, więc widzisz tylko postęp zapisany na tym urządzeniu. Jeśli używasz Brave, kliknij ikonę lwa 🦁 w pasku adresu i wyłącz Shields dla tej strony.';
+      syncWarn.style.display = 'block';
+    } else {
+      syncWarn.style.display = 'none';
+    }
+  }
 
   const nextCard = document.getElementById('storyNextCard');
   if(nextIndex === -1){
