@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
-  Ostatnia aktualizacja treści klienckiej: 2026-08-30
+  Ostatnia aktualizacja treści klienckiej: 2026-08-31
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
   o obecności funkcji (Premium Pro, moduł hangul, integracja dictionary_words itd.).
@@ -4361,11 +4361,11 @@ const LAUNCH_READINESS = {
     {
       id: 'parity', label: 'Parytet funkcjonalny', weight: 20,
       items: [
-        { label: 'Strukturalna nauka hangul', value: 40, note: 'POTWIERDZONE BRAKI (nie tylko niezweryfikowane): brak kolejności rysowania kresek, przykłady tylko w 1 pozycji na literę',
+        { label: 'Strukturalna nauka hangul', value: 80, note: 'Oba potwierdzone braki naprawione 2026-08-30/31: (1) kolejność kresek - opis tekstowy + animacja SVG dla wszystkich 35 znaków (14 spółgłosek, 10 samogłosek, 11 dyftongów), aktywowana przyciskiem; (2) przykłady pozycyjne - 13 spółgłosek ma parę początek/koniec sylaby z poprawioną fonetyką neutralizacji. Animacja przeszła 5 rund poprawek; ostatecznie zadziałało odrysowanie z rzeczywistej geometrii glifu (współrzędne dziesiętne) zamiast ręcznego zgadywania - zweryfikowane wizualnie przez Damiana.',
           criteria: [
             'Kolejność liter/dwugłosek pedagogicznie uzasadniona',
-            'Kolejność rysowania kresek (stroke order) pokazana dla każdej litery — BRAK, zero danych w kodzie',
-            'Przykład w KAŻDEJ pozycji, gdzie wymowa się różni (np. ㄱ na początku vs na końcu sylaby) — BRAK, obecnie 1 przykład/literę, niemal zawsze pozycja początkowa, różnica opisana tylko słownie bez demonstracji',
+            'Kolejność rysowania kresek pokazana dla każdej litery (SPEŁNIONE - 35/35, opis + animacja)',
+            'Przykład w KAŻDEJ pozycji, gdzie wymowa się różni (SPEŁNIONE - 13 spółgłosek z parą początek/koniec; ㅎ celowo bez, bo jako batchim jest rzadkie i złożone)',
             'Przetestowane na realnym, zupełnie nowym użytkowniku "od zera"',
           ] },
         { label: 'Gramatyka krok-po-kroku przed ćwiczeniem', value: 40, note: 'funkcja działa, ale gęstość za duża (4-13, jeden rozdział aż 73 wzorce/lekcję) - osobny projekt przebudowy, patrz pamięć',
@@ -6166,43 +6166,43 @@ const HANGUL_CONSONANTS = [
     finalExample:'떡', finalExampleRoman:'tteok',
     strokes:['Pozioma kreska w prawo','Zagięcie w dół (jedna, ciągła kreska)'],
     strokesEn:['Horizontal stroke to the right','Bend downward (one continuous stroke)'],
-    strokePaths:[['M20,20 L70,20'],['M70,20 L70,80']],
+    strokePaths:[['M25,22 L75,22'],['M75,22 L75,78']],
     desc:'Jak polskie "g", ale na końcu sylaby brzmi bliżej "k" (bez eksplozji powietrza — dźwięk "urywa się").', descEn:'Like the "g" in "go", but closer to an unreleased "k" at the end of a syllable — the sound stops abruptly, no puff of air.' },
   { char:'ㄴ', name:'니은', romanization:'n', example:'나', exampleRoman:'na',
     finalExample:'손', finalExampleRoman:'son',
     strokes:['Pionowa kreska w dół','Zagięcie w prawo (jedna, ciągła kreska)'],
     strokesEn:['Vertical stroke downward','Bend to the right (one continuous stroke)'],
-    strokePaths:[['M20,20 L20,80'],['M20,80 L70,80']],
+    strokePaths:[['M25,22 L25,78'],['M25,78 L75,78']],
     desc:'Jak polskie "n" — brzmienie nie zmienia się na końcu sylaby.', descEn:'Like the "n" in "no" — the sound stays the same at the end of a syllable.' },
   { char:'ㄷ', name:'디귿', romanization:'d/t', example:'다', exampleRoman:'da',
     finalExample:'곧', finalExampleRoman:'got',
     strokes:['Pozioma kreska u góry','Kształt ㄴ poniżej (pion w dół, potem zagięcie w prawo)'],
     strokesEn:['Horizontal stroke at the top','The ㄴ shape below it (down, then bend right)'],
-    strokePaths:[['M20,20 L70,20'],['M20,20 L20,80 L70,80']],
+    strokePaths:[['M25,22 L75,22'],['M25,22 L25,78 L75,78']],
     desc:'Jak polskie "d", na końcu sylaby bliżej nieartykułowanego "t" (dźwięk "urywa się", bez eksplozji powietrza).', descEn:'Like the "d" in "day", but closer to an unreleased "t" at the end of a syllable — the sound stops abruptly.' },
   { char:'ㄹ', name:'리을', romanization:'r/l', example:'라', exampleRoman:'ra',
     finalExample:'달', finalExampleRoman:'dal',
     strokes:['Kształt ㄱ u góry','Pozioma kreska w środku','Kształt ㄴ u dołu'],
     strokesEn:['The ㄱ shape at the top','Horizontal stroke through the middle','The ㄴ shape at the bottom'],
-    strokePaths:[['M20,15 L70,15 L70,37'],['M20,44 L70,44'],['M20,51 L20,85 L70,85']],
+    strokePaths:[['M25,22 L75,22 L75,43'],['M25,50 L75,50'],['M25,57 L25,78 L75,78']],
     desc:'Coś pomiędzy polskim "r" a "l" na początku sylaby — na końcu brzmi wyraźnie bliżej "l" (język dotyka podniebienia i zostaje, bez "uderzenia" jak przy "r").', descEn:'Something between the English "r" and "l" at the start of a syllable — closer to a clear "l" at the end, where the tongue touches and stays rather than tapping.' },
   { char:'ㅁ', name:'미음', romanization:'m', example:'마', exampleRoman:'ma',
     finalExample:'밤', finalExampleRoman:'bam',
     strokes:['Pionowa kreska po lewej','Pozioma kreska u góry','Pionowa kreska po prawej','Pozioma kreska u dołu'],
     strokesEn:['Left vertical stroke','Top horizontal stroke','Right vertical stroke','Bottom horizontal stroke'],
-    strokePaths:[['M20,20 L20,80'],['M20,20 L70,20'],['M70,20 L70,80'],['M20,80 L70,80']],
+    strokePaths:[['M25,22 L25,78'],['M25,22 L75,22'],['M75,22 L75,78'],['M25,78 L75,78']],
     desc:'Jak polskie "m" — brzmienie nie zmienia się na końcu sylaby.', descEn:'Like the "m" in "mom" — the sound stays the same at the end of a syllable.' },
   { char:'ㅂ', name:'비읍', romanization:'b/p', example:'바', exampleRoman:'ba',
     finalExample:'집', finalExampleRoman:'jip',
     strokes:['Pionowa kreska po lewej','Pionowa kreska po prawej','Pozioma kreska w środku','Pozioma kreska u dołu'],
     strokesEn:['Left vertical stroke','Right vertical stroke','Middle horizontal stroke','Bottom horizontal stroke'],
-    strokePaths:[['M20,20 L20,80'],['M70,20 L70,80'],['M20,50 L70,50'],['M20,80 L70,80']],
+    strokePaths:[['M25,22 L25,78'],['M75,22 L75,78'],['M25,50 L75,50'],['M25,78 L75,78']],
     desc:'Jak polskie "b", na końcu sylaby bliżej nieartykułowanego "p" (dźwięk "urywa się", bez eksplozji powietrza).', descEn:'Like the "b" in "boy", but closer to an unreleased "p" at the end of a syllable — the sound stops abruptly.' },
   { char:'ㅅ', name:'시옷', romanization:'s', example:'사', exampleRoman:'sa',
     finalExample:'옷', finalExampleRoman:'ot',
-    strokes:['Ukośna kreska w dół-lewo','Ukośna kreska w dół-prawo (obie spotykają się u góry)'],
-    strokesEn:['Diagonal stroke down-left','Diagonal stroke down-right (both meet at the top)'],
-    strokePaths:[['M40,15 L15,85'],['M40,45 L78,85']],
+    strokes:['Ukośna kreska w dół-lewo','Ukośna kreska w dół-prawo, odchodząca od pierwszej tuż pod jej szczytem'],
+    strokesEn:['Diagonal stroke down-left','Diagonal stroke down-right, branching off the first one just below its top'],
+    strokePaths:[['M50,22 L25,78'],['M44,36 L75,78']],
     desc:'Jak polskie "s" na początku sylaby — ale UWAGA: na końcu sylaby NIE brzmi jak "s", tylko jak nieartykułowane "t" (tak jak ㄷ i ㅌ na końcu). To częsty błąd początkujących.', descEn:'Like the "s" in "sun" at the start of a syllable — but WATCH OUT: at the end of a syllable it does NOT sound like "s", it sounds like an unreleased "t" (same as ㄷ and ㅌ at the end). A very common beginner mistake.' },
   { char:'ㅇ', name:'이응', romanization:'—/ng', example:'아', exampleRoman:'a',
     finalExample:'강', finalExampleRoman:'gang',
@@ -6210,42 +6210,42 @@ const HANGUL_CONSONANTS = [
     exampleLabelOverrideEn:'START of syllable (ㅇ has NO sound of its own here)',
     strokes:['Okrąg rysowany jednym ruchem, w kierunku przeciwnym do wskazówek zegara, od góry'],
     strokesEn:['Circle drawn in one continuous motion, counter-clockwise, starting from the top'],
-    strokePaths:[['M50,18 A32,32 0 1,0 49.99,18']],
+    strokePaths:[['M50,22 A28,28 0 1,0 50.01,22']],
     desc:'Na początku sylaby NIC nie znaczy (to tylko "wypełniacz" miejsca, dlatego przykład 아 brzmi po prostu jak "a") — na końcu sylaby brzmi jak "ng".', descEn:'Means NOTHING at the start of a syllable (just a placeholder, which is why the example 아 simply sounds like "a") — sounds like "ng" at the end of a syllable.' },
   { char:'ㅈ', name:'지읒', romanization:'j', example:'자', exampleRoman:'ja',
     finalExample:'낮', finalExampleRoman:'nat',
     strokes:['Pozioma kreska u góry','Kształt ㅅ poniżej (dwie ukośne kreski)'],
     strokesEn:['Horizontal stroke at the top','The ㅅ shape below it (two diagonal strokes)'],
-    strokePaths:[['M20,20 L70,20'],['M42,25 L15,88','M42,52 L80,88']],
+    strokePaths:[['M25,22 L75,22'],['M50,22 L27,78','M44,36 L73,78']],
     desc:'Jak angielskie "j" w "job" na początku sylaby — na końcu brzmi jak nieartykułowane "t" (tak jak ㄷ, ㅅ, ㅌ na końcu).', descEn:'Like English "j" in "job" at the start of a syllable — at the end it sounds like an unreleased "t" (same as ㄷ, ㅅ, ㅌ at the end).' },
   { char:'ㅊ', name:'치읓', romanization:'ch', example:'차', exampleRoman:'cha',
     finalExample:'꽃', finalExampleRoman:'kkot',
     strokes:['Krótka ukośna kreska nad literą (jak apostrof)','Pozioma kreska','Kształt ㅅ poniżej (dwie ukośne kreski)'],
     strokesEn:['Short diagonal tick above the letter (like an apostrophe)','Horizontal stroke','The ㅅ shape below it (two diagonal strokes)'],
-    strokePaths:[['M42,8 L50,16'],['M20,25 L70,25'],['M44,30 L15,92','M44,56 L82,92']],
+    strokePaths:[['M44,10 L56,15'],['M25,26 L75,26'],['M50,26 L27,80','M44,40 L73,80']],
     desc:'Jak polskie "cz", z mocnym wydechem, na początku sylaby — na końcu brzmi jak nieartykułowane "t" (tak jak ㄷ, ㅅ, ㅈ na końcu).', descEn:'Like an aspirated "ch" at the start of a syllable — at the end it sounds like an unreleased "t" (same as ㄷ, ㅅ, ㅈ at the end).' },
   { char:'ㅋ', name:'키읔', romanization:'k', example:'카', exampleRoman:'ka',
     finalExample:'부엌', finalExampleRoman:'bueok',
     strokes:['Kształt ㄱ (pozioma kreska + zagięcie w dół, jedna kreska)','Krótka pozioma kreska w poprzek środka'],
     strokesEn:['The ㄱ shape (horizontal stroke + bend down, one stroke)','Short horizontal stroke through the middle'],
-    strokePaths:[['M20,20 L70,20 L70,80'],['M25,50 L65,50']],
+    strokePaths:[['M25,22 L75,22 L75,78'],['M25,50 L75,50']],
     desc:'Jak polskie "k", ale z wyraźnym wydechem, na początku sylaby — na końcu brzmi identycznie jak ㄱ na końcu (nieartykułowane "k").', descEn:'Like the "k" in "kite", with a strong puff of air, at the start of a syllable — at the end it sounds identical to ㄱ at the end (unreleased "k").' },
   { char:'ㅌ', name:'티읕', romanization:'t', example:'타', exampleRoman:'ta',
     finalExample:'밭', finalExampleRoman:'bat',
     strokes:['Pozioma kreska u góry','Krótka pozioma kreska w środku','Kształt ㄴ u dołu'],
     strokesEn:['Horizontal stroke at the top','Short horizontal stroke in the middle','The ㄴ shape at the bottom'],
-    strokePaths:[['M20,15 L70,15'],['M20,45 L66,45'],['M20,15 L20,85 L70,85']],
+    strokePaths:[['M25,22 L75,22'],['M25,50 L70,50'],['M25,22 L25,78 L75,78']],
     desc:'Jak polskie "t", z wyraźnym wydechem, na początku sylaby — na końcu brzmi identycznie jak ㄷ na końcu (nieartykułowane "t").', descEn:'Like the "t" in "top", with a strong puff of air, at the start of a syllable — at the end it sounds identical to ㄷ at the end (unreleased "t").' },
   { char:'ㅍ', name:'피읖', romanization:'p', example:'파', exampleRoman:'pa',
     finalExample:'잎', finalExampleRoman:'ip',
     strokes:['Pozioma kreska u góry','Pionowa kreska po lewej','Pionowa kreska po prawej','Pozioma kreska u dołu'],
     strokesEn:['Top horizontal stroke','Left vertical stroke','Right vertical stroke','Bottom horizontal stroke'],
-    strokePaths:[['M15,20 L75,20'],['M30,20 L30,80'],['M60,20 L60,80'],['M15,85 L75,85']],
+    strokePaths:[['M22,22 L78,22'],['M35,22 L35,78'],['M65,22 L65,78'],['M22,78 L78,78']],
     desc:'Jak polskie "p", z wyraźnym wydechem, na początku sylaby — na końcu brzmi identycznie jak ㅂ na końcu (nieartykułowane "p").', descEn:'Like the "p" in "pie", with a strong puff of air, at the start of a syllable — at the end it sounds identical to ㅂ at the end (unreleased "p").' },
   { char:'ㅎ', name:'히읗', romanization:'h', example:'하', exampleRoman:'ha',
     strokes:['Krótka pozioma kreska u góry','Kolejna pozioma kreska poniżej niej','Okrąg u dołu (jak ㅇ)'],
     strokesEn:['Short horizontal stroke at the top','Another horizontal stroke below it','Circle at the bottom (like ㅇ)'],
-    strokePaths:[['M40,5 L50,12'],['M15,20 L75,20'],['M50,42 A20,20 0 1,0 49.99,42']],
+    strokePaths:[['M40,12 L60,12'],['M25,26 L75,26'],['M50,36 A21,21 0 1,0 50.01,36']],
     desc:'Jak polskie "h" na początku sylaby. Jako końcówka sylaby (받침) zdarza się rzadko i ma skomplikowane zasady — często cichnie albo łączy się z sąsiednim dźwiękiem. Poznasz to szczegółowo na wyższym poziomie, nie na tym etapie.', descEn:'Like the "h" in "hello" at the start of a syllable. As a syllable-final consonant it is rare and follows complex rules — it often goes silent or merges with a neighboring sound. You will learn this in detail at a higher level, not at this stage.' },
 ];
 
@@ -6253,113 +6253,116 @@ const HANGUL_VOWELS = [
   { char:'ㅏ', romanization:'a', example:'아', exampleRoman:'a',
     strokes:['Pionowa kreska od góry do dołu','Krótka pozioma kreska w prawo, w połowie wysokości'],
     strokesEn:['Vertical stroke top to bottom','Short horizontal stroke to the right, at mid-height'],
-    strokePaths:[['M35,15 L35,85'],['M35,50 L62,50']],
+    strokePaths:[['M48.8,24.3 L48.7,82.1'],['M48.8,51.4 L62.4,51.3']],
     desc:'Jak polskie "a".', descEn:'Like the "a" in "father".' },
   { char:'ㅑ', romanization:'ya', example:'야', exampleRoman:'ya',
     strokes:['Pionowa kreska od góry do dołu','Dwie krótkie poziome kreski w prawo'],
     strokesEn:['Vertical stroke top to bottom','Two short horizontal strokes to the right'],
-    strokePaths:[['M35,15 L35,85'],['M35,38 L58,38','M35,60 L58,60']],
+    strokePaths:[['M48.8,24.3 L48.7,82.1'],['M48.8,42.7 L62.4,42.7','M48.8,59.3 L62.4,59.2']],
     desc:'Jak polskie "ja".', descEn:'Like "ya" in "yard".' },
   { char:'ㅓ', romanization:'eo', example:'어', exampleRoman:'eo',
     strokes:['Krótka pozioma kreska w lewo','Pionowa kreska od góry do dołu'],
     strokesEn:['Short horizontal stroke to the left','Vertical stroke top to bottom'],
-    strokePaths:[['M65,50 L38,50'],['M65,15 L65,85']],
+    strokePaths:[['M35.3,49.2 L52.5,49'],['M52.5,24.3 L52.5,82.1']],
     desc:'Krótkie "o" wymawiane z ustami jak do "a" — nie ma dokładnego odpowiednika w polskim.', descEn:'Similar to the vowel in "law" — no exact English equivalent.' },
   { char:'ㅕ', romanization:'yeo', example:'여', exampleRoman:'yeo',
     strokes:['Dwie krótkie poziome kreski w lewo','Pionowa kreska od góry do dołu'],
     strokesEn:['Two short horizontal strokes to the left','Vertical stroke top to bottom'],
-    strokePaths:[['M65,38 L42,38','M65,60 L42,60'],['M65,15 L65,85']],
+    strokePaths:[['M35.5,41.4 L52.6,41.4','M35.5,59.1 L52.6,58.9'],['M52.6,24.3 L52.6,82.1']],
     desc:'To samo co ㅓ, tylko z "j" na początku.', descEn:'Same as ㅓ, with a "y" glide at the start.' },
   { char:'ㅗ', romanization:'o', example:'오', exampleRoman:'o',
     strokes:['Krótka pionowa kreska w górę, u góry','Pozioma kreska od lewej do prawej'],
     strokesEn:['Short vertical stroke upward, at the top','Horizontal stroke left to right'],
-    strokePaths:[['M45,60 L45,25'],['M20,60 L80,60']],
+    strokePaths:[['M49.8,41.5 L49.8,62.8'],['M21.6,63.3 L78.6,62.5']],
     desc:'Jak polskie "o".', descEn:'Like the "o" in "go".' },
   { char:'ㅛ', romanization:'yo', example:'요', exampleRoman:'yo',
     strokes:['Dwie krótkie pionowe kreski u góry','Pozioma kreska od lewej do prawej'],
     strokesEn:['Two short vertical strokes at the top','Horizontal stroke left to right'],
-    strokePaths:[['M35,60 L35,25','M60,60 L60,25'],['M20,60 L80,60']],
+    strokePaths:[['M39.8,44.3 L40.2,63.8','M60.5,40.8 L59.9,63.8'],['M21.6,64.3 L78.6,63.5']],
     desc:'Jak polskie "jo".', descEn:'Like "yo" in "yo-yo".' },
   { char:'ㅜ', romanization:'u', example:'우', exampleRoman:'u',
     strokes:['Pozioma kreska od lewej do prawej','Krótka pionowa kreska w dół, na środku'],
     strokesEn:['Horizontal stroke left to right','Short vertical stroke downward, at the center'],
-    strokePaths:[['M20,40 L80,40'],['M50,40 L50,70']],
+    strokePaths:[['M21.6,42.3 L78.6,41.5'],['M50.7,41.8 L50.4,69.5']],
     desc:'Jak polskie "u".', descEn:'Like the "oo" in "moon".' },
   { char:'ㅠ', romanization:'yu', example:'유', exampleRoman:'yu',
     strokes:['Pozioma kreska od lewej do prawej','Dwie krótkie pionowe kreski w dół'],
     strokesEn:['Horizontal stroke left to right','Two short vertical strokes downward'],
-    strokePaths:[['M20,40 L80,40'],['M35,40 L35,70','M60,40 L60,70']],
+    strokePaths:[['M21.6,42.3 L78.6,41.5'],['M39.9,41.8 L39.8,69','M60.2,41.8 L60.1,70.2']],
     desc:'Jak polskie "ju".', descEn:'Like "yu" in "yule".' },
   { char:'ㅡ', romanization:'eu', example:'으', exampleRoman:'eu',
     strokes:['Jedna pozioma kreska od lewej do prawej'],
-    strokePaths:[['M20,50 L80,50']],
+    strokePaths:[['M21.6,50.7 L78.6,49.9']],
     strokesEn:['One horizontal stroke left to right'],
     desc:'Jak polskie "y", ale z ustami szeroko rozciągniętymi na boki.', descEn:'Similar to the "oo" in "book", but said with lips stretched wide and unrounded — no exact English equivalent.' },
   { char:'ㅣ', romanization:'i', example:'이', exampleRoman:'i',
     strokes:['Jedna pionowa kreska od góry do dołu'],
     strokesEn:['One vertical stroke top to bottom'],
-    strokePaths:[['M50,15 L50,85']],
+    strokePaths:[['M50,24.3 L50,82.1']],
     desc:'Jak polskie "i".', descEn:'Like the "ee" in "see".' },
 ];
 
 // Złożone samogłoski (이중모음) — powstają z połączenia dwóch prostych samogłosek uczonych
 // wyżej. Pole composedFrom jest opcjonalne i celowo nieużywane w HANGUL_VOWELS powyżej —
 // renderHangulLetterStage() pokazuje je tylko wtedy, gdy istnieje, nie psując starszych wpisów.
+// Współrzędne strokePaths (tu i w HANGUL_VOWELS) są ZMIERZONE z realnego glifu Noto Serif KR
+// w tej samej ramce, w jakiej rysuje go .hg-stage (130x130 px, font-size 88px), a nie rysowane
+// na oko - patrz komentarz przy buildStrokeOrderSvg().
 const HANGUL_DIPHTHONGS = [
   { char:'ㅐ', romanization:'ae', composedFrom:'ㅏ + ㅣ', example:'애', exampleRoman:'ae',
     strokes:['Pionowa kreska (jak w ㅏ)','Krótka pozioma kreska w prawo (jak w ㅏ)','Druga pionowa kreska po prawej (ㅣ)'],
     strokesEn:['Vertical stroke (as in ㅏ)','Short horizontal stroke to the right (as in ㅏ)','Second vertical stroke on the right (ㅣ)'],
-    strokePaths:[['M28,15 L28,85'],['M28,50 L50,50'],['M62,15 L62,85']],
+    strokePaths:[['M43.8,28.8 L43.8,77.2'],['M43.8,49.8 L57.1,49.8'],['M57.1,24.2 L57.1,82.1']],
     desc:'Jak polskie "e", usta szeroko otwarte.', descEn:'Like the "e" in "bed", with the mouth opened a bit wider.' },
   { char:'ㅒ', romanization:'yae', composedFrom:'ㅑ + ㅣ', example:'얘', exampleRoman:'yae',
     strokes:['Pionowa kreska (jak w ㅑ)','Dwie krótkie poziome kreski w prawo (jak w ㅑ)','Druga pionowa kreska po prawej (ㅣ)'],
     strokesEn:['Vertical stroke (as in ㅑ)','Two short horizontal strokes to the right (as in ㅑ)','Second vertical stroke on the right (ㅣ)'],
-    strokePaths:[['M25,15 L25,85'],['M25,38 L47,38','M25,60 L47,60'],['M60,15 L60,85']],
+    strokePaths:[['M43.8,28.8 L43.8,77.2'],['M43.8,42.5 L57.1,42.5','M43.8,57.9 L57.1,57.9'],['M57.1,24.2 L57.1,82.1']],
     desc:'To samo co ㅐ, tylko z "j" na początku. Rzadko używane.', descEn:'Same as ㅐ, with a "y" glide. Rarely used.' },
   { char:'ㅔ', romanization:'e', composedFrom:'ㅓ + ㅣ', example:'에', exampleRoman:'e',
     strokes:['Krótka pozioma kreska w lewo (jak w ㅓ)','Pionowa kreska (jak w ㅓ)','Druga pionowa kreska po prawej (ㅣ)'],
     strokesEn:['Short horizontal stroke to the left (as in ㅓ)','Vertical stroke (as in ㅓ)','Second vertical stroke on the right (ㅣ)'],
-    strokePaths:[['M45,50 L25,50'],['M45,15 L45,85'],['M60,15 L60,85']],
+    strokePaths:[['M29.3,49.4 L45.5,49.4'],['M45.5,28.8 L45.5,77.2'],['M58.4,24.2 L58.4,82.1']],
     desc:'Jak polskie "e" — w mowie wielu Koreańczyków brzmi tak samo jak ㅐ.', descEn:'Like the "e" in "bed" — in many speakers\' speech, sounds identical to ㅐ.' },
   { char:'ㅖ', romanization:'ye', composedFrom:'ㅕ + ㅣ', example:'예', exampleRoman:'ye',
     strokes:['Dwie krótkie poziome kreski w lewo (jak w ㅕ)','Pionowa kreska (jak w ㅕ)','Druga pionowa kreska po prawej (ㅣ)'],
     strokesEn:['Two short horizontal strokes to the left (as in ㅕ)','Vertical stroke (as in ㅕ)','Second vertical stroke on the right (ㅣ)'],
-    strokePaths:[['M45,38 L25,38','M45,60 L25,60'],['M45,15 L45,85'],['M60,15 L60,85']],
+    strokePaths:[['M32.2,42.9 L46.4,42.9','M32.2,57.8 L46.4,57.8'],['M46.4,28.8 L46.4,77.2'],['M58.7,24.2 L58.7,82.1']],
     desc:'To samo co ㅔ, tylko z "j" na początku.', descEn:'Same as ㅔ, with a "y" glide.' },
   { char:'ㅘ', romanization:'wa', composedFrom:'ㅗ + ㅏ', example:'와', exampleRoman:'wa',
     strokes:['Krótka pionowa kreska w górę (jak w ㅗ)','Pozioma kreska (jak w ㅗ)','Pionowa kreska (jak w ㅏ)','Krótka pozioma kreska w prawo (jak w ㅏ)'],
     strokesEn:['Short vertical stroke upward (as in ㅗ)','Horizontal stroke (as in ㅗ)','Vertical stroke (as in ㅏ)','Short horizontal stroke to the right (as in ㅏ)'],
-    strokePaths:[['M25,60 L25,30'],['M8,60 L42,60'],['M55,15 L55,85'],['M55,50 L78,50']],
+    strokePaths:[['M41.8,48.5 L41.9,65.2'],['M21.3,67.2 L65.6,63.1'],['M65.6,24.3 L65.6,82.1'],['M65.6,50.3 L79,50.3']],
     desc:'Połączenie "ł" i "a" — jak angielskie "wa" w "watch".', descEn:'Combination of "w" and "a" — like English "wa" in "watch".' },
   { char:'ㅙ', romanization:'wae', composedFrom:'ㅗ + ㅐ', example:'왜', exampleRoman:'wae',
     strokes:['Krótka pionowa kreska w górę (ㅗ)','Pozioma kreska (ㅗ)','Pionowa kreska (ㅏ)','Krótka pozioma kreska w prawo (ㅏ)','Druga pionowa kreska po prawej (ㅣ)'],
     strokesEn:['Short vertical stroke upward (ㅗ)','Horizontal stroke (ㅗ)','Vertical stroke (ㅏ)','Short horizontal stroke to the right (ㅏ)','Second vertical stroke on the right (ㅣ)'],
-    strokePaths:[['M17,60 L17,30'],['M5,60 L28,60'],['M40,15 L40,85'],['M40,50 L58,50'],['M70,15 L70,85']],
+    strokePaths:[['M40.5,48.4 L40.7,64.4'],['M23.6,66 L60.5,62.6'],['M60.5,28.8 L60.5,77.2'],['M60.5,49.5 L72.9,49.5'],['M72.9,24.2 L72.9,82.1']],
     desc:'Połączenie "ł" i "e" — jak angielskie "we" w "wet".', descEn:'Combination of "w" and "e" — like English "we" in "wet".' },
   { char:'ㅚ', romanization:'oe', composedFrom:'ㅗ + ㅣ', example:'외', exampleRoman:'oe',
     strokes:['Krótka pionowa kreska w górę (jak w ㅗ)','Pozioma kreska (jak w ㅗ)','Pionowa kreska po prawej (ㅣ)'],
     strokesEn:['Short vertical stroke upward (as in ㅗ)','Horizontal stroke (as in ㅗ)','Vertical stroke on the right (ㅣ)'],
-    strokePaths:[['M30,60 L30,30'],['M12,60 L48,60'],['M62,15 L62,85']],
+    strokePaths:[['M46.4,48.6 L46.5,65.3'],['M25.3,67.4 L71.4,63.2'],['M71.4,24.3 L71.4,82.1']],
     desc:'W nowoczesnej wymowie brzmi podobnie do ㅙ/ㅞ — "łe".', descEn:'In modern pronunciation, sounds similar to ㅙ/ㅞ — "we".' },
   { char:'ㅝ', romanization:'wo', composedFrom:'ㅜ + ㅓ', example:'워', exampleRoman:'wo',
     strokes:['Pozioma kreska (jak w ㅜ)','Krótka pionowa kreska w dół (jak w ㅜ)','Krótka pozioma kreska w lewo (jak w ㅓ)','Pionowa kreska (jak w ㅓ)'],
     strokesEn:['Horizontal stroke (as in ㅜ)','Short vertical stroke downward (as in ㅜ)','Short horizontal stroke to the left (as in ㅓ)','Vertical stroke (as in ㅓ)'],
-    strokePaths:[['M8,35 L35,35'],['M20,35 L20,58'],['M58,50 L40,50'],['M58,15 L58,85']],
+    strokePaths:[['M24.3,54.8 L63.2,52.7'],['M43.8,53.6 L43.6,79.9'],['M55.9,63.1 L72.7,62.9'],['M72.7,24.3 L72.7,82.1']],
     desc:'Połączenie "ł" i samogłoski ㅓ — jak angielskie "wo" w "won".', descEn:'Combination of "w" and the ㅓ sound — like English "wo" in "won".' },
   { char:'ㅞ', romanization:'we', composedFrom:'ㅜ + ㅔ', example:'웨', exampleRoman:'we',
     strokes:['Pozioma kreska (ㅜ)','Krótka pionowa kreska w dół (ㅜ)','Krótka pozioma kreska w lewo (ㅓ)','Pionowa kreska (ㅓ)','Druga pionowa kreska po prawej (ㅣ)'],
     strokesEn:['Horizontal stroke (ㅜ)','Short vertical stroke downward (ㅜ)','Short horizontal stroke to the left (ㅓ)','Vertical stroke (ㅓ)','Second vertical stroke on the right (ㅣ)'],
-    strokePaths:[['M5,32 L26,32'],['M15,32 L15,54'],['M40,48 L24,48'],['M40,15 L40,85'],['M55,15 L55,85']],
+    strokePaths:[['M23.5,54.8 L62.3,52.3'],['M39.5,53.6 L39.3,77.1'],['M49.2,61.4 L62.3,61.4'],['M62.3,28.4 L62.3,78.1'],['M73.8,24.2 L73.8,82.1']],
     desc:'Połączenie "ł" i "e" — jak angielskie "we" w "wet".', descEn:'Combination of "w" and "e" — like English "we" in "wet".' },
   { char:'ㅟ', romanization:'wi', composedFrom:'ㅜ + ㅣ', example:'위', exampleRoman:'wi',
     strokes:['Pozioma kreska (jak w ㅜ)','Krótka pionowa kreska w dół (jak w ㅜ)','Pionowa kreska po prawej (ㅣ)'],
     strokesEn:['Horizontal stroke (as in ㅜ)','Short vertical stroke downward (as in ㅜ)','Vertical stroke on the right (ㅣ)'],
-    strokePaths:[['M8,35 L35,35'],['M20,35 L20,58'],['M52,15 L52,85']],
+    strokePaths:[['M25.5,56 L72.7,52.8'],['M48.2,54.1 L47.9,80'],['M72.7,24.3 L72.7,82.1']],
     desc:'Połączenie "ł" i "i" — jak angielskie "wee".', descEn:'Combination of "w" and "i" — like English "wee".' },
   { char:'ㅢ', romanization:'ui', composedFrom:'ㅡ + ㅣ', example:'의', exampleRoman:'ui',
     strokes:['Pozioma kreska (ㅡ)','Pionowa kreska przy prawym końcu (ㅣ)'],
     strokesEn:['Horizontal stroke (ㅡ)','Vertical stroke at the right end (ㅣ)'],
-    strokePaths:[['M15,45 L72,54'],['M75,15 L75,85']],
+    strokePaths:[['M25.4,66.8 L71.4,63.1'],['M71.4,24.3 L71.4,82.1']],
     desc:'Szybkie przejście od "y" do "i". Na końcu słów (np. jako "-ego") często wymawiane po prostu jako "e" albo "i".', descEn:'A quick glide from "eu" to "i". At the end of words (e.g. as a possessive marker), often simplified to just "e" or "i".' },
 ];
 
@@ -15888,19 +15891,37 @@ function buildStrokeOrderSvg(strokePaths){
   // tablica 1+ ścieżek SVG (np. "dwie krótkie kreski" dla ㅑ/ㅕ/ㅛ/ㅠ). Animacja: efekt
   // "rysowania" przez stroke-dasharray/dashoffset.
   //
-  // WAŻNE (naprawione 2026-08-30): KAŻDA pojedyncza ścieżka dostaje WŁASNE, osobne
-  // opóźnienie - nawet te należące do tego samego kroku tekstowego (np. dwie kreski ㅑ).
-  // Wcześniej całe kroki dostawały jedno wspólne opóźnienie, więc "dwie kreski" rysowały
-  // się dosłownie naraz - fizycznie niemożliwe do napisania jedną ręką. Między krokami
-  // jest dodatkowa, nieco większa przerwa (extraStepGap), żeby wciąż było widać
-  // grupowanie z listą tekstową poniżej.
+  // KAŻDA pojedyncza ścieżka dostaje WŁASNE, osobne opóźnienie - nawet te należące do tego
+  // samego kroku tekstowego (np. dwie kreski ㅑ), bo inaczej "dwie kreski" rysowałyby się
+  // dosłownie naraz, czyli tak, jak nie da się napisać jedną ręką. Między krokami jest
+  // dodatkowa, nieco większa przerwa (extraStepGap), żeby wciąż było widać grupowanie
+  // z listą tekstową poniżej.
+  //
+  // GEOMETRIA (przeliczona 2026-08-31): współrzędne w HANGUL_VOWELS i HANGUL_DIPHTHONGS nie są
+  // rysowane na oko - zostały ZMIERZONE z rastra realnych glifów Noto Serif KR wyrenderowanych
+  // w dokładnie tej samej ramce co .hg-stage (130x130 px, font-size 88px, viewBox 0 0 100 100,
+  // czyli 1 jednostka SVG = 1,3 px). Dla każdego znaku wykryto belki pionowe i poziome i wzięto
+  // ich OŚ. Wcześniejsze, ręcznie dobierane współrzędne mijały się z glifem nawet o 19 jednostek
+  // SVG (najgorsze były dyftongi ㅐ/ㅒ/ㅔ/ㅖ, przesunięte w prawo o ~1/4 szerokości znaku).
+  //
+  // KOŃCE KRESEK są liczone dwojako, bo to dwie różne sytuacje:
+  //  - koniec WOLNY (nigdzie nie dotyka): skrócony o 2,6 jednostki, czyli mniej więcej o promień
+  //    zaokrąglonego zakończenia (stroke-width 6, stroke-linecap round), żeby narysowana kreska
+  //    pokrywała dokładnie ten sam zakres co tusz glifu, a nie wystawała poza niego;
+  //  - koniec STYKAJĄCY SIĘ z inną kreską: DOCIĄGNIĘTY dokładnie do jej osi, bez skracania.
+  //    Bez tego zostawało widoczne puste pole w miejscach, gdzie w foncie kreski się schodzą -
+  //    najbardziej przy pochylonej belce ㅗ/ㅜ/ㅡ w ㅘ/ㅙ/ㅚ/ㅟ/ㅢ, która dobiega do prawej laski.
+  //    O tym, który to przypadek, decyduje pomiar: koniec jest "stykający się" tylko wtedy, gdy
+  //    tusz glifu faktycznie dobiega do sąsiedniej belki (np. w ㅝ belka ㅜ kończy się w foncie
+  //    przed laską ㅓ, więc tam celowo NIE ma dociągnięcia).
+  //
+  // Lekkie pochylenie kresek "poziomych" jest zamierzone - tak są narysowane w foncie
+  // (i tak też pisze się je ręcznie), więc pochodzi z pomiaru, nie z błędu.
   //
   // WARSTWA "WZORU" (hg-stroke-guide): te same ścieżki, wszystkie naraz, bez animacji,
-  // w jasnym kolorze pod spodem - to jedyny sposób na PRAWDZIWE dopasowanie 1:1, bo wzór
-  // i animacja pochodzą z DOKŁADNIE tych samych współrzędnych. Nakładanie na realny glif
-  // czcionki (Noto Serif KR) nigdy nie dałoby gwarancji dopasowania, bo nie kontroluję
-  // wewnętrznej geometrii glifu - stąd realny znak jest ukryty na czas tej animacji
-  // (patrz renderHangulLetterStage), a nie tylko "przyciemniony".
+  // w jasnym kolorze pod spodem - wzór i animacja pochodzą z DOKŁADNIE tych samych
+  // współrzędnych, więc są nierozjeżdżalne. Realny glif czcionki jest na czas animacji ukryty
+  // (patrz renderHangulLetterStage), żeby nie dublował się z jaskrawymi kreskami.
   let guidePaths = '';
   let paths = '';
   let dots = '';
