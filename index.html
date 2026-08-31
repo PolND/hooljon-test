@@ -4344,11 +4344,17 @@ const LAUNCH_READINESS = {
     {
       id: 'content', label: 'Objętość treści', weight: 40,
       items: [
-        { label: 'Godziny materiału prowadzonego (Story+Akademia)', value: 37, note: '~37h (SZACUNEK, nie pomiar) / cel 100h. Skok z ~22h po przebudowie 2026-08-30: Tryb Opowieści urósł z 54 do 136 lekcji.',
+        { label: 'Godziny materiału prowadzonego (Story+Akademia)', value: 41, note: '~37h (SZACUNEK, nie pomiar). Cel skorygowany 2026-08-30 ze 100h na ~90h pełnego pokrycia A1-B2 - patrz model dwuwarstwowy w pozycji niżej. Skok z ~22h po przebudowie: Tryb Opowieści urósł z 54 do 136 lekcji.',
           criteria: [
-            'Osiągnięte min. 100h łącznie',
+            'Ścieżka prowadzona pokrywa pełne A1-B2 (~90h)',
             'Czas per lekcja zmierzony realnie na testerach, nie szacowany',
             'Godziny rozłożone sensownie między moduły, nie skupione w jednym miejscu',
+          ] },
+        { label: 'Pokrycie treścią horyzontu systemu nagród', value: 40, note: 'MODEL DWUWARSTWOWY (ustalony 2026-08-30). Warstwa 1 - ścieżka PROWADZONA (Tryb Opowieści, treść autorska): cel ~90h pokrywających A1-B2 i mniej więcej pierwszy rok użytkowania; obecnie ~37h. Warstwa 2 - treść SKALOWALNA, już istniejąca: Sandbox (39 446 słów = 3,6-10,8 lat samego wprowadzania), Czytanka dnia (generowana codziennie), Haksa AI, powtórki SRS - te pokrywają drugi rok i dalej. Wniosek: nie trzeba pisać 183h treści autorskiej; trzeba doprowadzić ścieżkę prowadzoną do końca B2 i zadbać, żeby przejście na warstwę skalowalną nie było odczuwane jako "koniec apki". Poziom C1-C2 (mamy 15 lekcji, Duolingo NIE oferuje go wcale) zostaje jako wyróżnik dla wąskiej grupy - obsługiwany warstwą skalowalną, nie ręcznym pisaniem 150h+ treści dla kilku procent userów.',
+          criteria: [
+            'Ścieżka prowadzona pokrywa pełne A1-B2 (~90h) - obecnie ~37h',
+            'Przejście z prowadzonej ścieżki na Sandbox/Czytankę/SRS zaprojektowane tak, by nie wyglądało na "koniec treści"',
+            'Wyższe rangi (dzień 200+) odblokowują coś jakościowo nowego, nie tylko odznaki - inaczej drugi rok jest pusty mimo nagród',
           ] },
       ],
     },
@@ -4415,6 +4421,12 @@ const LAUNCH_READINESS = {
             '175/175 wzorców z conjHtml i conjHtmlEn (SPEŁNIONE)',
             'Poprawność lingwistyczna zweryfikowana przez native speakera',
             'Zero błędów zgłoszonych przez testerów/userów',
+          ] },
+        { label: 'Poziom zaawansowany C1-C2 (Duolingo NIE oferuje go w żadnym kursie)', value: 60, note: 'Potwierdzone researchem 2026-08-30: główne kursy Duolingo kończą się na B2, C1-C2 nie istnieje u nich wcale. Mamy 15 lekcji na poziomie zaawansowanym (TOPIK 5-6) po przebudowie. To realny wyróżnik, trudny do szybkiego skopiowania - ale obsługuje wąską grupę, więc nie warto w niego inwestować dziesiątek godzin ręcznego pisania. Uwaga: źródła sprzeczne co do tego, czy koreański Duolingo faktycznie osiągnął już B2 (ich blog: tak, kwiecień 2026; blog konkurenta: nadal A2, czerwiec 2026 - ale to źródło stronnicze).',
+          criteria: [
+            'Treść C1-C2 istnieje w apce (SPEŁNIONE - 15 lekcji, TOPIK 5-6)',
+            'Wyeksponowane w komunikacji/marketingu jako przewaga, nie tylko obecne w kodzie',
+            'Poprawność zweryfikowana przez native speakera (na tym poziomie błędy są najbardziej kosztowne wizerunkowo)',
           ] },
         { label: 'Czytanka dnia (żaden porównywany konkurent tego nie ma)', value: 55, note: 'pipeline zbudowany i zweryfikowany end-to-end na poziomie backendu (baza, logi); NIEZWERYFIKOWANE jeszcze jako realna funkcja w apce - nikt tego jeszcze nie przetestował jako user',
           criteria: [
@@ -16697,17 +16709,23 @@ function collectPracticePoolForPattern(patternName){
 
 let gpQueue = [];
 let gpIndex = 0;
-const GP_TARGET_ROUNDS = 8; // tyle rund dążymy osiągnąć, cyklicznie powtarzając pulę jeśli jest mniejsza
+const GP_TARGET_ROUNDS = 8;  // górny pułap rund
+const GP_MAX_REPEATS = 2;    // ile razy MAKSYMALNIE może się powtórzyć to samo zdanie
 
 function renderGrammarPracticeSession(patternName){
   const basePool = collectPracticePoolForPattern(patternName);
+  // Liczba rund skalowana do wielkości puli. Wcześniej zawsze dążyliśmy do 8 rund, co przy
+  // puli jednozdaniowej (a tak jest dla 169 ze 175 wzorców - patrz kolejka treści) oznaczało
+  // pokazanie TEGO SAMEGO zdania osiem razy pod rząd. To nie uczy wzorca, tylko odpowiedzi -
+  // user zapamiętuje "wpisz X", nie regułę. Zgłoszone przez usera 2026-08-30.
+  const rounds = Math.min(GP_TARGET_ROUNDS, Math.max(1, basePool.length * GP_MAX_REPEATS));
   gpQueue = [];
-  // Okrążenie za okrążeniem, każde przetasowane na nowo - żeby przy małej puli (często
-  // tylko 1-4 unikalne zdania) kolejność się nie powtarzała identycznie co rundę.
-  while(gpQueue.length < GP_TARGET_ROUNDS){
+  // Okrążenie za okrążeniem, każde przetasowane na nowo - żeby przy małej puli
+  // kolejność się nie powtarzała identycznie co rundę.
+  while(gpQueue.length < rounds){
     gpQueue.push(...shuffle([...basePool]));
   }
-  gpQueue = gpQueue.slice(0, Math.max(GP_TARGET_ROUNDS, basePool.length));
+  gpQueue = gpQueue.slice(0, rounds);
   gpIndex = 0;
 
   document.getElementById('gpTitle').textContent = patternName;
