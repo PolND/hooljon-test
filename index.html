@@ -1485,6 +1485,11 @@
   }
   .report-flag-btn:hover{opacity:1;}
   .report-reason-list{display:flex; flex-direction:column; gap:8px; margin-top:14px;}
+  .report-group-label{
+    font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-dim); margin-top:6px;
+  }
+  .report-group-label:first-child{ margin-top:0; }
   .report-reason-btn{
     padding:11px 14px;
     border-radius:12px;
@@ -3020,10 +3025,18 @@
         <h3 data-i18n="reportPanelTitle">Zgłoś błąd</h3>
         <p class="hint-note" id="reportPanelWord"></p>
         <div class="report-reason-list" id="reportReasonList">
+          <div class="report-group-label" data-i18n="reportGroupContent">Treść</div>
           <button class="report-reason-btn" data-reason="translation" data-i18n="reportReasonTranslation">Złe tłumaczenie</button>
           <button class="report-reason-btn" data-reason="category" data-i18n="reportReasonCategory">Zły dział tematyczny</button>
-          <button class="report-reason-btn" data-reason="audio" data-i18n="reportReasonAudio">Zła wymowa/dźwięk</button>
           <button class="report-reason-btn" data-reason="example" data-i18n="reportReasonExample">Błąd w przykładowym zdaniu</button>
+          <button class="report-reason-btn" data-reason="grammar" data-i18n="reportReasonGrammar">Błąd w gramatyce/koniugacji</button>
+          <div class="report-group-label" data-i18n="reportGroupMechanism">Działanie aplikacji</div>
+          <button class="report-reason-btn" data-reason="broken" data-i18n="reportReasonBroken">Coś nie działa / nie reaguje</button>
+          <button class="report-reason-btn" data-reason="stuck" data-i18n="reportReasonStuck">Zawiesiło się / nie mogę przejść dalej</button>
+          <button class="report-reason-btn" data-reason="wrong-result" data-i18n="reportReasonWrongResult">Aplikacja źle oceniła moją odpowiedź</button>
+          <button class="report-reason-btn" data-reason="audio" data-i18n="reportReasonAudio">Problem z dźwiękiem lub mikrofonem</button>
+          <button class="report-reason-btn" data-reason="visual" data-i18n="reportReasonVisual">Coś źle wygląda / nachodzi na siebie</button>
+          <button class="report-reason-btn" data-reason="confusing" data-i18n="reportReasonConfusing">Niezrozumiałe / mylące</button>
           <button class="report-reason-btn" data-reason="other" data-i18n="reportReasonOther">Coś innego</button>
         </div>
         <textarea id="reportComment" class="report-comment-input" rows="3" data-i18n-placeholder="reportCommentPlaceholder" placeholder="Opcjonalnie: opisz dokładniej (nieobowiązkowe)"></textarea>
@@ -3031,6 +3044,7 @@
         <div class="feedback" id="reportFeedback" style="margin-top:10px;"></div>
       </div>
     </div>
+    <button class="theme-toggle-btn" id="globalReportBtn" title="Zgłoś błąd" aria-label="Zgłoś błąd">🐞</button>
     <button class="theme-toggle-btn" id="soundToggleBtn" title="Dźwięki" aria-label="Włącz/wyłącz dźwięki">🔊</button>
     <button class="theme-toggle-btn" id="accountBtn" title="Moje konto" aria-label="Moje konto">👤</button>
     <button class="premium-badge-btn" id="premiumBtn">⭐ Premium</button>
@@ -13268,9 +13282,17 @@ const I18N = {
   backDictLevel: { pl: 'Wybór poziomu', en: 'Choose level' },
   dictLoading: { pl: 'Ładowanie…', en: 'Loading…' },
   reportPanelTitle: { pl: 'Zgłoś błąd', en: 'Report an issue' },
+  reportGroupContent: { pl: 'Treść', en: 'Content' },
+  reportGroupMechanism: { pl: 'Działanie aplikacji', en: 'How the app behaves' },
+  reportReasonGrammar: { pl: 'Błąd w gramatyce/koniugacji', en: 'Grammar or conjugation error' },
+  reportReasonBroken: { pl: 'Coś nie działa / nie reaguje', en: 'Something does not work / no response' },
+  reportReasonStuck: { pl: 'Zawiesiło się / nie mogę przejść dalej', en: 'Stuck / cannot continue' },
+  reportReasonWrongResult: { pl: 'Aplikacja źle oceniła moją odpowiedź', en: 'The app graded my answer wrong' },
+  reportReasonVisual: { pl: 'Coś źle wygląda / nachodzi na siebie', en: 'Something looks broken / overlaps' },
+  reportReasonConfusing: { pl: 'Niezrozumiałe / mylące', en: 'Confusing or unclear' },
   reportReasonTranslation: { pl: 'Złe tłumaczenie', en: 'Wrong translation' },
   reportReasonCategory: { pl: 'Zły dział tematyczny', en: 'Wrong category' },
-  reportReasonAudio: { pl: 'Zła wymowa/dźwięk', en: 'Wrong pronunciation/audio' },
+  reportReasonAudio: { pl: 'Problem z dźwiękiem lub mikrofonem', en: 'Audio or microphone problem' },
   reportReasonExample: { pl: 'Błąd w przykładowym zdaniu', en: 'Error in the example sentence' },
   reportReasonOther: { pl: 'Coś innego', en: 'Something else' },
   reportSubmitBtn: { pl: 'Wyślij zgłoszenie', en: 'Send report' },
@@ -13725,6 +13747,43 @@ document.getElementById('langToggleBtn').addEventListener('click', ()=>{
 let currentReportTarget = null; // { ko, pl, category, context } - migawka w momencie zgłoszenia
 let currentReportReason = null;
 
+/* Automatycznie zbierany kontekst techniczny. Tester nie musi opisywać, na jakim był
+   ekranie ani czego używa - i tak zwykle tego nie poda, a bez tego zgłoszenie
+   "nie działa" jest bezużyteczne. Wszystko ląduje w polu komentarza, więc nie wymaga
+   zmian w bazie. Dodane 2026-09-01, przed testami ze studentami koreanistyki. */
+function collectReportContext(){
+  const parts = [];
+  try{
+    parts.push('ekran: ' + (currentScreen || '?'));
+    parts.push('tryb: ' + (typeof mode !== 'undefined' ? mode : '?'));
+    parts.push('poziom: ' + (typeof selectedLevel !== 'undefined' && selectedLevel !== null ? selectedLevel : 'wszystkie'));
+    parts.push('plan: ' + (typeof premiumTier !== 'undefined' ? premiumTier : '?'));
+    parts.push('jezyk: ' + (typeof uiLang !== 'undefined' ? uiLang : '?'));
+    parts.push('motyw: ' + (typeof currentTheme !== 'undefined' ? currentTheme : '?'));
+    parts.push('ekran px: ' + window.innerWidth + 'x' + window.innerHeight);
+    parts.push('standalone: ' + (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true));
+    parts.push('online: ' + navigator.onLine);
+    parts.push('ua: ' + navigator.userAgent);
+  }catch(e){ parts.push('(kontekst niepelny: ' + e.message + ')'); }
+  return parts.join(' | ');
+}
+
+// Otwarcie panelu BEZ konkretnego słówka - zgłoszenie dotyczy mechanizmu, nie treści.
+function openGeneralReport(){
+  currentReportTarget = { ko: null, pl: null, category: null, context: currentScreen || 'unknown' };
+  currentReportReason = null;
+  document.getElementById('reportPanelWord').textContent = uiLang === 'en'
+    ? 'Reporting from: ' + (currentScreen || 'unknown')
+    : 'Zgłoszenie z ekranu: ' + (currentScreen || 'nieznany');
+  document.querySelectorAll('.report-reason-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('reportComment').value = '';
+  document.getElementById('reportFeedback').innerHTML = '';
+  document.getElementById('reportFeedback').className = 'feedback';
+  document.getElementById('reportSubmitBtn').disabled = false;
+  document.getElementById('reportSubmitBtn').style.display = '';
+  document.getElementById('reportPanel').classList.add('open');
+}
+
 function openReportPanel(word, context){
   // zawsze zapisujemy word.pl wprost (nie tr(word)) - kolumna word_pl w bazie ma być
   // stabilną migawką po polsku niezależnie od tego, w jakim języku user ma UI w danym momencie
@@ -13739,6 +13798,11 @@ function openReportPanel(word, context){
   document.getElementById('reportSubmitBtn').style.display = '';
   document.getElementById('reportPanel').classList.add('open');
 }
+
+document.getElementById('globalReportBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  openGeneralReport();
+});
 
 document.getElementById('vocabReportBtn').addEventListener('click', (e)=>{
   e.stopPropagation(); // nie odpalaj odsłuchu karty pod spodem
@@ -13771,7 +13835,11 @@ document.getElementById('reportSubmitBtn').addEventListener('click', async ()=>{
       word_category: currentReportTarget.category,
       word_pl: currentReportTarget.pl,
       reason: currentReportReason,
-      comment: document.getElementById('reportComment').value.trim() || null,
+      comment: (() => {
+        const userText = document.getElementById('reportComment').value.trim();
+        // Kontekst doklejamy ZAWSZE - to on czyni zgłoszenie "nie działa" użytecznym.
+        return (userText ? userText + '\n\n' : '') + '--- kontekst ---\n' + collectReportContext();
+      })(),
       screen_context: currentReportTarget.context,
     });
     if(error) throw error;
