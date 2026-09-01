@@ -17638,8 +17638,7 @@ function openDictWordCardFrom(queue, index, returnScreen){
   dictWordCardReturnScreen = returnScreen || 'dictWordList';
   setScreen('dictWordList');
   document.getElementById('dictWordListLoading').style.display = 'none';
-  document.getElementById('dictWordListView').style.display = 'none';
-  document.getElementById('dictWordCardView').style.display = 'block';
+  showDictWordCardView(); // hoisted (function declaration) - też chowa zewnętrzny back-btn
   renderDictWordCard();
 }
 
@@ -17850,10 +17849,17 @@ document.getElementById('dictWordFilterInput').addEventListener('input', (e)=>{
 function showDictWordListView(){
   document.getElementById('dictWordListView').style.display = 'block';
   document.getElementById('dictWordCardView').style.display = 'none';
+  document.getElementById('dictWordListBackBtn').style.display = '';
 }
 function showDictWordCardView(){
   document.getElementById('dictWordListView').style.display = 'none';
   document.getElementById('dictWordCardView').style.display = 'block';
+  // Ukryj zewnętrzny back-btn ekranu ("Wybór poziomu") - dubluje się z
+  // wewnętrznym "Wróć do listy" NIEZALEŻNIE od tego, skąd user wszedł do
+  // fiszki (v3 §2). Bez tego, wejście z dictBrowseScreen prowadziłoby też
+  // do martwego dictLevelScreen (selectedDictDept nigdy nie ustawiane przez
+  // nową ścieżkę) - złapane wizualnie przy teście w przeglądarce, nie zgadywane.
+  document.getElementById('dictWordListBackBtn').style.display = 'none';
 }
 // Kontekstowy powrót: fiszka jest teraz otwierana z dwóch miejsc (starej listy
 // wewnątrz dictWordListScreen ORAZ nowego dictBrowseScreen) - dictWordCardReturnScreen
