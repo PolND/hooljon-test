@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.20
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.22
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -403,11 +403,12 @@
   @keyframes hj-neon{ 0%,100%{filter:brightness(1)} 50%{filter:brightness(1.35)} }
 
   /* PANEL WYBORU MOTYWU (rozwijany pod ikoną 🌙) */
-  .theme-axis-label{
+  .scheme-label{
     font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
-    color:var(--ink-dim); margin:12px 0 6px; font-family:var(--font-ui);
+    color:var(--ink-dim); margin:14px 0 6px; font-family:var(--font-ui);
   }
-  .theme-axis-label:first-child{ margin-top:0; }
+  /* Wcięcie pokazuje, że paleta należy do motywu wyżej, a nie jest kolejnym motywem. */
+  .scheme-row{ margin-left:14px; }
   .theme-row{
     display:flex; align-items:center; gap:10px;
     padding:9px 10px; border-radius:10px;
@@ -13571,7 +13572,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.20';
+const APP_VERSION = '2026-09-01.22';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15338,17 +15339,47 @@ document.getElementById('soundToggleBtn').addEventListener('click', async ()=>{
 // Kolejność w panelu = kolejność tutaj. pro:true => wiersz widoczny
 // tylko dla premiumTier === 'pro'. Pakiet od Claude Design, wdrożony 2026-08-30.
 const THEMES = [
-  // Próbki (sw) i kolor paska systemowego (meta) zgodne z tokenami motywu - patrz
-  // theme-tokens.json z pakietu wdrożeniowego. Kolejność = kolejność w panelu wyboru.
-  { id:'light',  name:'Jasny',  ko:'종이 · papier i tusz', icon:'🌙',  pro:false, mode:'line', sw:['#F6F3EE','#C1512F'], meta:'#F6F3EE' },
-  { id:'dark',   name:'Ciemny', ko:'먹 · tusz',            icon:'☀️',  pro:false, mode:'line', sw:['#151311','#E0714A'], meta:'#151311' },
-  { id:'oldstyle', name:'Klasyczny', ko:'옛 · pierwotny Hooljon', icon:'🕰️', pro:false, mode:'map', sw:['#F8F9FA','#E63946'], meta:'#F8F9FA' },
-  { id:'jade',   name:'Jadeit', ko:'옥 · grafit i jadeit', icon:'🟢',  pro:true, mode:'emoji',  sw:['#0D100F','#46B79A'], meta:'#0D100F' },
-  { id:'kobalt', name:'Kobalt', ko:'청 · grafit i kobalt', icon:'🔷',  pro:true, mode:'glyph',  sw:['#FFFFFF','#3355E8'], meta:'#FFFFFF' },
-  { id:'hanji',  name:'Hanji',  ko:'한지 · tusz i papier',  icon:'🖌️', pro:true, mode:'map',  sw:['#F1EADB','#8C2F27'], meta:'#F1EADB' },
-  { id:'neon',   name:'Neon',   ko:'네온 · Seoul night',   icon:'⚡',  pro:true, mode:'map',  sw:['#0A0810','#FF2E88'], meta:'#0A0810' }
+  /* CZTERY motywy. Trzy od Claude Design mają po jednej, własnej kolorystyce -
+     nie mieszamy ich palet, bo każda była projektowana razem ze swoją strukturą.
+     KLASYCZNY (nasza apka sprzed redesignu) jako jedyny ma wybór palety, bo to
+     nasze własne kolorystyki i historycznie zawsze dało się między nimi przełączać.
+     Ustalone 2026-09-01.
+
+     'layout'  -> data-theme  (struktura, typografia, proporcje)
+     'scheme'  -> data-scheme (kolory), domyślna paleta motywu
+     'schemes' -> lista alternatywnych palet; brak = motyw ma tylko swoją */
+  { id:'papier', name:'Papier', ko:'종이 · papier i tusz', icon:'📄', pro:false,
+    mode:'line',  layout:'papier', scheme:'light',  sw:['#F6F3EE','#C1512F'], meta:'#F6F3EE' },
+
+  { id:'jade',   name:'Jadeit', ko:'옥 · grafit i jadeit', icon:'🟢', pro:true,
+    mode:'emoji', layout:'jade',   scheme:'jade',   sw:['#0D100F','#46B79A'], meta:'#0D100F' },
+
+  { id:'kobalt', name:'Kobalt', ko:'청 · grafit i kobalt', icon:'🔷', pro:true,
+    mode:'glyph', layout:'kobalt', scheme:'kobalt', sw:['#FFFFFF','#3355E8'], meta:'#FFFFFF' },
+
+  { id:'oldstyle', name:'Klasyczny', ko:'옛 · pierwotny Hooljon', icon:'🕰️', pro:false,
+    mode:'map',   layout:'oldstyle', scheme:'oldstyle', sw:['#F8F9FA','#E63946'], meta:'#F8F9FA',
+    schemes:[
+      { id:'oldstyle', name:'Jasny',  ko:'밝음',          pro:false, sw:['#F8F9FA','#E63946'], meta:'#F8F9FA' },
+      { id:'dark',     name:'Ciemny', ko:'먹 · tusz',      pro:false, sw:['#151311','#E0714A'], meta:'#151311' },
+      { id:'hanji',    name:'Hanji',  ko:'한지 · papier',  pro:true,  sw:['#F1EADB','#8C2F27'], meta:'#F1EADB' },
+      { id:'neon',     name:'Neon',   ko:'네온 · Seoul',   pro:true,  sw:['#0A0810','#FF2E88'], meta:'#0A0810' },
+    ] },
 ];
 const PRO_THEME_IDS = THEMES.filter(t => t.pro).map(t => t.id);
+
+// Wybrana paleta w obrębie motywu (dotyczy tylko Klasycznego - reszta ma jedną).
+let currentScheme = null;
+const SCHEME_KEY = 'hooljon_scheme';
+
+// Paleta, którą faktycznie stosujemy: wybrana przez usera, jeśli motyw na to pozwala
+// i uprawnienia się zgadzają; inaczej domyślna paleta motywu.
+function resolveScheme(themeMeta){
+  if(!themeMeta.schemes) return themeMeta.scheme;
+  const wanted = themeMeta.schemes.find(x => x.id === currentScheme);
+  if(wanted && (!wanted.pro || premiumTier === 'pro')) return wanted.id;
+  return themeMeta.scheme;
+}
 
 function iconSvg(d){
   return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
@@ -15442,81 +15473,45 @@ function applyThemeIcons(theme){
 
    Hanji i Neon są PALETAMI, nie układami - ich charakterystyczne cechy (brak cieni,
    ostre krawędzie, mono-wersaliki) da się wyrazić tokenami i regułami przy palecie. */
-const LAYOUTS = [
-  // Opcjonalne pole 'schemes' ogranicza palety dostępne dla danego układu. Gdy go brak -
-  // dozwolone wszystkie. To zawór bezpieczeństwa: jeśli któraś kombinacja wypadnie źle
-  // (np. ostra siatka Kobaltu z papierowymi kolorami Hanji), wystarczy dopisać tu listę
-  // zamiast przebudowywać cokolwiek. Przykład: schemes:['light','dark','kobalt']
-  { id:'papier',   name:'Papier',    ko:'종이 · lekki, papierowy',  pro:false },
-  { id:'jade',     name:'Jadeit',    ko:'옥 · duże miękkie kafle',  pro:true  },
-  { id:'kobalt',   name:'Kobalt',    ko:'청 · ostra siatka',        pro:true  },
-  { id:'oldstyle', name:'Klasyczny', ko:'옛 · pierwotny Hooljon',   pro:false },
-];
-
-// Palety dozwolone dla bieżącego układu (z uwzględnieniem uprawnień Premium).
-function schemesForLayout(layoutId, isPro){
-  const layout = LAYOUTS.find(l => l.id === layoutId);
-  let list = THEMES.filter(t => !t.pro || isPro);
-  if(layout && Array.isArray(layout.schemes)){
-    list = list.filter(t => layout.schemes.includes(t.id));
-  }
-  // Nigdy nie zwracaj pustej listy - to zablokowałoby zmianę kolorystyki.
-  return list.length ? list : THEMES.filter(t => !t.pro);
-}
-const PRO_LAYOUT_IDS = LAYOUTS.filter(l => l.pro).map(l => l.id);
-let currentLayout = 'papier';
-
-function applyLayout(layout){
-  // Układ Pro po utracie subskrypcji → wróć do domyślnego, bez komunikatu.
-  if(PRO_LAYOUT_IDS.includes(layout) && premiumTier !== 'pro') layout = 'papier';
-  currentLayout = layout;
-  document.documentElement.setAttribute('data-theme', layout === 'papier' ? '' : layout);
-  // Jeśli układ ogranicza palety, a bieżąca do nich nie należy - przełącz na pierwszą
-  // dozwoloną, żeby user nie został z kombinacją, której sami nie dopuszczamy.
-  const allowed = schemesForLayout(layout, premiumTier === 'pro');
-  if(!allowed.some(t => t.id === currentTheme)) applyTheme(allowed[0].id);
-  applyThemeIcons(currentTheme);
-  try{ applyOldstyleLabels(layout); }catch(e){ /* etykiety to dodatek */ }
-}
+let currentLayout = 'papier'; // wynika z wybranego motywu, nie z osobnego wyboru
 
 function applyTheme(theme){
-  // Paleta Pro po utracie subskrypcji → cofnij do ciemnej, bez komunikatu
-  if(PRO_THEME_IDS.includes(theme) && premiumTier !== 'pro') theme = 'dark';
-  currentTheme = theme;
-  document.documentElement.setAttribute('data-scheme', theme === 'light' ? '' : theme);
+  // Motyw Pro po utracie subskrypcji -> Papier, bez komunikatu.
+  if(PRO_THEME_IDS.includes(theme) && premiumTier !== 'pro') theme = 'papier';
   const meta = THEMES.find(t => t.id === theme) || THEMES[0];
+  currentTheme = meta.id;
+  currentLayout = meta.layout;
+
+  const scheme = resolveScheme(meta);
+  document.documentElement.setAttribute('data-theme', meta.layout === 'papier' ? '' : meta.layout);
+  document.documentElement.setAttribute('data-scheme', scheme === 'light' ? '' : scheme);
+
   const btn = document.getElementById('themeToggleBtn');
   if(btn) btn.textContent = meta.icon;
-  // Kolor paska systemowego przeglądarki/PWA - bez tego przy ciemnym motywie zostaje
-  // jasna belka u góry i apka wygląda jak wklejona w cudzy interfejs.
+  // Kolor paska systemowego - bierzemy z PALETY, nie z motywu, bo to ona
+  // decyduje o tym, czy góra ekranu jest jasna czy ciemna.
+  const schemeMeta = (meta.schemes && meta.schemes.find(x => x.id === scheme)) || meta;
   const metaTag = document.querySelector('meta[name="theme-color"]');
-  if(metaTag && meta.meta) metaTag.setAttribute('content', meta.meta);
-  applyThemeIcons(theme);
-  try{ applyOldstyleLabels(currentLayout); }catch(e){ /* etykiety to dodatek */ }
+  if(metaTag && schemeMeta.meta) metaTag.setAttribute('content', schemeMeta.meta);
+
+  applyThemeIcons(meta.id);
+  try{ applyOldstyleLabels(meta.layout); }catch(e){ /* etykiety to dodatek */ }
   renderThemePanel();
+}
+
+function applyScheme(schemeId){
+  currentScheme = schemeId;
+  try{ localStorage.setItem(SCHEME_KEY, schemeId); }catch(e){}
+  applyTheme(currentTheme);
 }
 
 function renderThemePanel(){
   const wrap = document.getElementById('themeRows');
   if(!wrap) return;
   const isPro = premiumTier === 'pro';
+  const visible = THEMES.filter(t => !t.pro || isPro);
 
-  // Dwie osie w jednym panelu: najpierw UKŁAD, potem PALETA. Kolejność nieprzypadkowa -
-  // układ zmienia więcej (proporcje, typografia), więc user wybiera go pierwszy.
-  const layouts = LAYOUTS.filter(l => !l.pro || isPro);
-  const schemes = schemesForLayout(currentLayout, isPro);
-
-  const layoutRows = layouts.map(l => `
-    <button class="theme-row ${l.id === currentLayout ? 'active' : ''}" data-layout-id="${l.id}">
-      <span style="flex:1; min-width:0;">
-        <span class="tr-name" style="display:block;">${l.name}</span>
-        <span class="tr-ko" style="display:block;">${l.ko}</span>
-      </span>
-      ${l.pro ? '<span class="tr-pro">PRO</span>' : ''}
-      ${l.id === currentLayout ? '<span class="tr-check">✓</span>' : ''}
-    </button>`).join('');
-
-  const schemeRows = schemes.map(t => `
+  let html = visible.map(t => `
     <button class="theme-row ${t.id === currentTheme ? 'active' : ''}" data-theme-id="${t.id}">
       <span class="tr-swatch" style="background:linear-gradient(135deg,${t.sw[0]} 50%,${t.sw[1]} 50%);"></span>
       <span style="flex:1; min-width:0;">
@@ -15527,33 +15522,34 @@ function renderThemePanel(){
       ${t.id === currentTheme ? '<span class="tr-check">✓</span>' : ''}
     </button>`).join('');
 
-  wrap.innerHTML =
-    `<div class="theme-axis-label">${uiLang === 'en' ? 'Layout' : 'Układ'}</div>` + layoutRows +
-    `<div class="theme-axis-label">${uiLang === 'en' ? 'Colours' : 'Kolorystyka'}</div>` + schemeRows;
+  // Podlista palet - tylko dla motywu, który je oferuje (dziś: Klasyczny).
+  const meta = THEMES.find(t => t.id === currentTheme);
+  if(meta && meta.schemes){
+    const active = resolveScheme(meta);
+    const schemes = meta.schemes.filter(x => !x.pro || isPro);
+    html += `<div class="scheme-label">${uiLang === 'en' ? 'Colours' : 'Kolorystyka'}</div>` +
+      schemes.map(x => `
+        <button class="theme-row scheme-row ${x.id === active ? 'active' : ''}" data-scheme-id="${x.id}">
+          <span class="tr-swatch" style="background:linear-gradient(135deg,${x.sw[0]} 50%,${x.sw[1]} 50%);"></span>
+          <span style="flex:1; min-width:0;">
+            <span class="tr-name" style="display:block;">${x.name}</span>
+            <span class="tr-ko" style="display:block;">${x.ko}</span>
+          </span>
+          ${x.pro ? '<span class="tr-pro">PRO</span>' : ''}
+          ${x.id === active ? '<span class="tr-check">✓</span>' : ''}
+        </button>`).join('');
+  }
 
+  wrap.innerHTML = html;
   const hint = document.getElementById('themeProHint');
   if(hint) hint.style.display = isPro ? 'block' : 'none';
 }
 
-/* Układ trzymamy LOKALNIE (localStorage), paletę na serwerze (STORAGE_KEYS.theme).
-   Powód: paleta to preferencja osobista, którą warto przenosić między urządzeniami;
-   układ bywa zależny od ekranu (siatka Kobaltu inaczej działa na małym telefonie),
-   więc lepiej, żeby został przy urządzeniu. Dzięki temu też nie trzeba migrować
-   bazy - zapisany wcześniej motyw działa dalej bez zmian. */
-const LAYOUT_KEY = 'hooljon_layout';
-
-function loadLayout(){
-  let saved = null;
-  try{ saved = localStorage.getItem(LAYOUT_KEY); }catch(e){}
-  const known = LAYOUTS.some(l => l.id === saved);
-  applyLayout(known ? saved : 'papier');
-}
-function saveLayout(){
-  try{ localStorage.setItem(LAYOUT_KEY, currentLayout); }catch(e){}
-}
-
 async function loadTheme(){
-  loadLayout(); // układ najpierw - applyTheme woła applyThemeIcons, które go potrzebuje
+  // Paleta w obrębie motywu - lokalnie, bo dotyczy tylko Klasycznego i jest
+  // drobną preferencją; sam motyw idzie na serwer jak dotąd.
+  try{ currentScheme = localStorage.getItem(SCHEME_KEY); }catch(e){}
+
   try{
     const t = await window.storage.get(STORAGE_KEYS.theme);
     if(t && t.value){
@@ -15563,7 +15559,7 @@ async function loadTheme(){
   }catch(e){}
   // brak zapisanej preferencji — dopasuj do ustawień systemowych
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  applyTheme(prefersDark ? 'dark' : 'light');
+  applyTheme(prefersDark ? 'dark' : 'papier');
 }
 
 document.getElementById('themeToggleBtn').addEventListener('click', (e) => {
@@ -15577,12 +15573,9 @@ document.getElementById('themeToggleBtn').addEventListener('click', (e) => {
 document.getElementById('themePanel').addEventListener('click', async (e) => {
   const row = e.target.closest('.theme-row');
   if(!row) return;
-  // Panel obsługuje obie osie. Po wyborze UKŁADU zostajemy otwarci - user zwykle
-  // chce od razu dobrać do niego kolorystykę. Po wyborze PALETY zamykamy.
-  if(row.dataset.layoutId){
-    applyLayout(row.dataset.layoutId);
-    saveLayout();
-    renderThemePanel();
+  // Wybór PALETY: zostajemy w panelu, bo user zwykle porównuje kilka.
+  if(row.dataset.schemeId){
+    applyScheme(row.dataset.schemeId);
     return;
   }
   applyTheme(row.dataset.themeId);
