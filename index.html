@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.12
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.13
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -140,6 +140,60 @@
     animation:hj-ink 4s ease-in-out infinite;
   }
   @keyframes hj-ink{ 0%,100%{opacity:.85} 50%{opacity:1} }
+
+  /* ── OLDSTYLE · pierwotna paleta Hooljon ────────────────────────────────
+     Wygląd sprzed redesignu 2026-09-01, zachowany jako opcja dla osób, które się
+     do niego przyzwyczaiły. Darmowy - to preferencja, nie dodatek Premium.
+     Czcionki zostają nowe: przywracanie Song Myung i IBM Plex Sans oznaczałoby
+     doładowanie dwóch rodzin dla wszystkich userów, także tych, którzy tego motywu
+     nie używają. Kolor niesie tu 90% rozpoznawalności. */
+  [data-theme="oldstyle"]{
+    --bg:#F8F9FA; --bg-glow:#EAF1F6; --card:#FFFFFF; --card-hi:#F3F6F9;
+    --ink:#1D3557; --ink-dim:#6C757D; --border:#E1E6EA; --surface-2:#F1F4F7;
+    --primary:#1B3A57; --hwang:#E63946;
+    --heuk:#1B3A57; --jeok:#E63946; --cheong:#457B9D; --baek:#2A9D8F;
+    --good:#2A9D8F; --bad:#E76F51;
+    --radius:18px; --radius-lg:22px;
+    --shadow-card:0 4px 14px -10px rgba(29,53,87,.28);
+  }
+  /* Pierwotny wygląd miał lżejszy nagłówek i mocniejsze cienie kart. */
+  [data-theme="oldstyle"] .home-head .hh-title{
+    font-size:30px; font-weight:400; letter-spacing:-.01em;
+  }
+  [data-theme="oldstyle"] .home-card:hover{
+    box-shadow:0 12px 26px -14px rgba(29,53,87,.35);
+  }
+
+  /* ── KARTY ZE SŁÓWKAMI W MOTYWACH PRO ──────────────────────────────────
+     Jadeit i Kobalt nie ruszały dotąd kart nauki i quizu, więc te ekrany wyglądały
+     identycznie we wszystkich motywach - a to właśnie na nich user spędza najwięcej
+     czasu. Hanji i Neon miały to od początku; wyrównuję. */
+  [data-theme="jade"] .center-card{
+    border-radius:var(--radius-lg);
+    background:linear-gradient(160deg,#1D2321,#141817);
+    border:1px solid var(--border);
+    box-shadow:var(--shadow-card);
+  }
+  [data-theme="jade"] .ans-btn{
+    border-radius:20px;
+    border-width:1px;
+    background:var(--card-hi);
+  }
+  [data-theme="jade"] .study-rate-btn{ border-radius:20px; }
+
+  [data-theme="kobalt"] .center-card{
+    border-radius:var(--radius);
+    border:1px solid var(--border);
+    box-shadow:none;
+  }
+  [data-theme="kobalt"] .ans-btn{
+    border-radius:var(--radius);
+    border-width:1px;
+    font-weight:600;
+  }
+  [data-theme="kobalt"] .study-rate-btn{ border-radius:var(--radius); }
+  /* Kobalt: mocna typografia także na słowie w karcie. */
+  [data-theme="kobalt"] .center-word{ font-weight:700; letter-spacing:-.02em; }
 
   /* ── JADEIT (PRO) · grafit i jadeit ─────────────────────────────────── */
   [data-theme="jade"]{
@@ -13116,7 +13170,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.12';
+const APP_VERSION = '2026-09-01.13';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14802,6 +14856,7 @@ const THEMES = [
   // theme-tokens.json z pakietu wdrożeniowego. Kolejność = kolejność w panelu wyboru.
   { id:'light',  name:'Jasny',  ko:'종이 · papier i tusz', icon:'🌙',  pro:false, mode:'line', sw:['#F6F3EE','#C1512F'], meta:'#F6F3EE' },
   { id:'dark',   name:'Ciemny', ko:'먹 · tusz',            icon:'☀️',  pro:false, mode:'line', sw:['#151311','#E0714A'], meta:'#151311' },
+  { id:'oldstyle', name:'Klasyczny', ko:'옛 · pierwotny Hooljon', icon:'🕰️', pro:false, mode:'map', sw:['#F8F9FA','#E63946'], meta:'#F8F9FA' },
   { id:'jade',   name:'Jadeit', ko:'옥 · grafit i jadeit', icon:'🟢',  pro:true, mode:'emoji',  sw:['#0D100F','#46B79A'], meta:'#0D100F' },
   { id:'kobalt', name:'Kobalt', ko:'청 · grafit i kobalt', icon:'🔷',  pro:true, mode:'glyph',  sw:['#FFFFFF','#3355E8'], meta:'#FFFFFF' },
   { id:'hanji',  name:'Hanji',  ko:'한지 · tusz i papier',  icon:'🖌️', pro:true, mode:'map',  sw:['#F1EADB','#8C2F27'], meta:'#F1EADB' },
