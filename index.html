@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.13
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.14
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -1106,6 +1106,18 @@
   .study-rate-hard:hover{background:#E9A23B; color:#FFFFFF; border-color:#E9A23B;}
   .study-rate-easy{color:var(--good); border-color:var(--good);}
   .study-rate-easy:hover{background:var(--good); color:#FFFFFF;}
+  /* Pasek kontekstu nad kartą (układ z makiety: dział po lewej, postęp po prawej).
+     Wcześniej był tu sam licznik "Powtórka 3 / 20" - user nie widział, z jakiego
+     działu jest słowo, co przy nauce z wielu działów naraz gubiło orientację. */
+  .study-context{
+    display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    font-size:12px; color:var(--ink-dim); margin-bottom:14px;
+    font-family:var(--font-ui);
+  }
+  .study-rate-prompt{
+    font-size:13px; color:var(--ink-dim); text-align:center;
+    margin-top:18px; font-family:var(--font-ui);
+  }
   .srb-when{
     font-size:11px;
     font-weight:500;
@@ -3777,7 +3789,10 @@
 
   <div id="vocabStudyScreen" style="display:none;">
     <button class="back-btn" id="vocabStudyBackBtn" data-back="vocabLevel" data-i18n="backVocabLevel">Wybór poziomu</button>
-    <div class="ai-chat-status" id="vocabStudyProgress"></div>
+    <div class="study-context">
+      <span id="vocabStudyContext"></span>
+      <span id="vocabStudyProgress"></span>
+    </div>
 
     <div class="center-card sb-tappable" id="vocabStudyCard" style="max-width:420px; margin:0 auto;">
       <button class="report-flag-btn" id="vocabReportBtn" aria-label="Zgłoś błąd" title="Zgłoś błąd">🚩</button>
@@ -3792,7 +3807,8 @@
       <div class="study-tap-hint">🔊 <span data-i18n="tapToHear">Dotknij, żeby usłyszeć</span></div>
     </div>
 
-    <div class="ai-chat-controls" id="vocabStudyControls" style="margin-top:18px;">
+    <div class="study-rate-prompt" id="vocabStudyRatePrompt" data-i18n="studyRatePrompt">Jak dobrze pamiętasz?</div>
+    <div class="ai-chat-controls" id="vocabStudyControls" style="margin-top:10px;">
       <button class="study-rate-btn study-rate-again" id="vocabStudyAgainBtn"><span class="srb-icon">❌</span><span data-i18n="dontKnowBtn2">Nie znam</span><span class="srb-when" id="srbWhenAgain"></span></button>
       <button class="study-rate-btn study-rate-hard" id="vocabStudyHardBtn"><span class="srb-icon">😐</span><span data-i18n="hardBtn2">Trudne</span><span class="srb-when" id="srbWhenHard"></span></button>
       <button class="study-rate-btn study-rate-easy" id="vocabStudyEasyBtn"><span class="srb-icon">✅</span><span data-i18n="easyBtn2">Łatwe</span><span class="srb-when" id="srbWhenEasy"></span></button>
@@ -13170,7 +13186,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.13';
+const APP_VERSION = '2026-09-01.14';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -13778,6 +13794,7 @@ const I18N = {
   dictLoading: { pl: 'Ładowanie…', en: 'Loading…' },
   reportPanelTitle: { pl: 'Zgłoś błąd', en: 'Report an issue' },
   navLearn: { pl: 'Nauka', en: 'Learn' },
+  studyRatePrompt: { pl: 'Jak dobrze pamiętasz?', en: 'How well do you remember?' },
   settingsTitle: { pl: 'Ustawienia', en: 'Settings' },
   settingsSound: { pl: 'Dźwięki w aplikacji', en: 'App sounds' },
   settingsLang: { pl: 'Język tłumaczeń', en: 'Translation language' },
@@ -15616,6 +15633,17 @@ function showVocabStudyCard(){
     ? (uiLang === 'en' ? ` (of ${vocabStudyTotalDueAtStart} due today)` : ` (z ${vocabStudyTotalDueAtStart} zaległych)`)
     : '';
   document.getElementById('vocabStudyProgress').textContent = `${prefix}${vocabStudyIndex + 1} / ${vocabStudyQueue.length}${cappedNote}`;
+  // Lewa strona paska: skąd jest to słowo. Przy nauce z wielu działów naraz sam licznik
+  // nie mówił nic o kontekście. Poziom dokładamy tylko gdy jest znany - własne słówka
+  // usera go nie mają i lepiej pokazać sam dział niż zmyślony poziom.
+  const ctxEl = document.getElementById('vocabStudyContext');
+  if(ctxEl){
+    const cat = w.category || (uiLang === 'en' ? 'Your own' : 'Własne');
+    const lvlMeta = (typeof LEVEL_META !== 'undefined' && w.level)
+      ? LEVEL_META.find(m => m.level === w.level) : null;
+    const lvl = lvlMeta ? (uiLang === 'en' ? lvlMeta.labelEn : lvlMeta.label) : '';
+    ctxEl.textContent = lvl ? `${cat} · ${lvl}` : cat;
+  }
 
   const imgEl = document.getElementById('vocabStudyImg');
   const emojiEl = document.getElementById('vocabStudyEmoji');
