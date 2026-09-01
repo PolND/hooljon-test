@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.10
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.12
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -158,15 +158,42 @@
     background:linear-gradient(160deg,#14332C,#101815);
     border-color:rgba(70,183,154,.22);
   }
-  [data-theme="jade"] .home-card .icon{
-    width:44px; height:44px; border-radius:15px;
-    background:rgba(233,238,236,.06);
-    display:flex; align-items:center; justify-content:center; font-size:21px;
-  }
   [data-theme="jade"] .bottom-nav{
     margin:14px 18px calc(22px + env(safe-area-inset-bottom));
     border-radius:var(--radius-lg); border:1px solid var(--border); background:var(--card);
     left:0; right:0; bottom:0; width:auto;
+  }
+
+  /* Pojemnik sekcji "Nauka". display:contents sprawia, że we WSZYSTKICH motywach
+     poza Kobaltem jest przezroczysty dla układu - karty zostają bezpośrednimi
+     elementami flexa .home-screen i zachowują odstępy. Kobalt nadpisuje go na siatkę. */
+  .home-section-learn{ display:contents; }
+
+  /* Typografia One UI - wspólna dla Jadeitu i Kobaltu. Wg type_scale z pakietu:
+     "screen-title-oneui": 36px / 800, letter-spacing -.03em. To NIE jest kosmetyka,
+     tylko jedna z rzeczy, które odróżniają te warianty od domyślnego (34px/300 -
+     lekki, papierowy) - bez tego oba wyglądałyby jak 1a w innych kolorach. */
+  [data-theme="jade"] .home-head .hh-title,
+  [data-theme="kobalt"] .home-head .hh-title{
+    font-size:36px; font-weight:800; letter-spacing:-.03em;
+  }
+  /* Nagłówek w tych wariantach niesie kontekst (seria/postęp), nie nazwę marki -
+     dlatego jest zwykłym tekstem, nie drobnymi wersalikami. */
+  [data-theme="jade"] .home-head .hh-brand,
+  [data-theme="kobalt"] .home-head .hh-brand{
+    font-size:13px; font-weight:600; letter-spacing:.02em; text-transform:none;
+  }
+
+  /* Jadeit: duże miękkie kafle One UI - większe niż w 1a, z płytką pod ikoną. */
+  [data-theme="jade"] .home-card{ padding:20px; gap:16px; }
+  [data-theme="jade"] .home-card.variant-row{ padding:18px 20px; }
+  [data-theme="jade"] .home-card .icon{
+    width:52px; height:52px; border-radius:18px;
+    background:rgba(233,238,236,.06);
+    display:flex; align-items:center; justify-content:center; font-size:24px;
+  }
+  [data-theme="jade"] .home-card[data-vocab-flow="review"] .icon{
+    background:rgba(70,183,154,.16);
   }
 
   /* ── KOBALT (PRO) · grafit i kobalt ─────────────────────────────────── */
@@ -180,6 +207,15 @@
     --font-ui:'Public Sans', system-ui, sans-serif;
     --font-ko:'Public Sans', 'Noto Serif KR', serif;
   }
+  [data-theme="kobalt"] .home-section-learn{
+    display:grid; grid-template-columns:1fr 1fr; gap:1px;
+    background:var(--border); border-block:1px solid var(--border);
+  }
+  [data-theme="kobalt"] .home-section-learn .home-card{
+    background:var(--card); border:0; border-radius:0; min-height:118px; align-items:flex-start;
+  }
+  /* W siatce chevron z variant-row nie ma sensu - karty nie są już wierszami listy. */
+  [data-theme="kobalt"] .home-section-learn .home-card.variant-row::after{ content:none; }
   [data-theme="kobalt"] .home-card[data-vocab-flow="review"]{
     background:var(--hwang); color:#fff; border-radius:0; border:0;
   }
@@ -3487,6 +3523,7 @@
     </button>
 
     <div class="achv-section-title" style="margin-top:4px;" data-i18n="homeSectionLearn">Nauka</div>
+      <div class="home-section-learn">
     <button class="home-card variant-row" data-target="hangul" id="hangulSandboxCard">
       <span class="icon">한</span>
       <span>
@@ -3530,6 +3567,7 @@
       </span>
     </button>
 
+      </div>
     <div class="achv-section-title" data-i18n="homeSectionPractice">Praktyka</div>
     <button class="home-card variant-row" data-target="aiChat">
       <span class="icon">🎙️</span>
@@ -13078,7 +13116,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.10';
+const APP_VERSION = '2026-09-01.12';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
