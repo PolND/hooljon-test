@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.18
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.20
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -56,6 +56,13 @@
     --nav-h: 64px;
     --font-ui: 'Outfit', system-ui, sans-serif;
     --font-ko: 'Outfit', 'Gowun Batang', 'Noto Serif KR', serif;
+    /* Tokeny komponentowe (v2 §1): motyw ustawia je raz, korzystają z nich
+       logowanie, subskrypcja i fiszka. Bez tego trzeba by pisać reguły
+       per motyw × per ekran - 7 × 3 zamiast czterech zmiennych. */
+    --field-radius: 0px;   /* 0 = pole "podkreślenie", >0 = pole "pudełko" */
+    --field-bg: transparent;
+    --btn-radius: var(--radius-pill);
+    --mark-radius: 18px;   /* kwadrat znaku marki 훈 */
   }
   [data-scheme="dark"]{
     --bg: #151311;
@@ -156,6 +163,16 @@
     --radius:18px; --radius-lg:22px;
     --shadow-card:0 4px 14px -10px rgba(29,53,87,.28);
   }
+  /* Tokeny komponentowe per układ i paleta (v2 §1). Przypisanie rozdzielone
+     zgodnie z naszą dwuosiową architekturą: jade/kobalt/oldstyle to układy,
+     hanji/neon to palety - w oryginale v2 wszystkie były jedną osią. */
+  [data-theme="jade"]{   --field-radius:20px; --field-bg:var(--card); --btn-radius:24px; --mark-radius:22px; }
+  [data-theme="kobalt"]{ --field-radius:14px; --field-bg:var(--surface-2); --btn-radius:14px; --mark-radius:0px; }
+  [data-theme="oldstyle"]{ --field-radius:var(--radius); --field-bg:var(--card); --btn-radius:var(--radius); --mark-radius:var(--radius); }
+  [data-scheme="hanji"], [data-scheme="neon"]{
+    --field-radius:var(--radius); --field-bg:var(--card); --btn-radius:var(--radius); --mark-radius:var(--radius);
+  }
+
   /* ── KLASYCZNY: przywrócenie STRUKTURY sprzed redesignu ─────────────────
      To nie jest "motyw kolorystyczny", tylko zachowany wygląd apki, na której
      pracowaliśmy do 2026-09-01. Redesign nadpisał kilka rzeczy globalnie -
@@ -567,13 +584,31 @@
 
   /* COMPASS */
   .compass{
+    /* Środek tarczy przesunięty na ~58% wysokości ekranu (v2 §4.2). Powód: przy
+       wyśrodkowaniu górna odpowiedź wypadała poza wygodny zasięg kciuka. Kompas
+       ZOSTAJE (to nasz wyróżnik) - zmienia się tylko jego położenie w pionie.
+
+       Bezpiecznik w min() jest KONIECZNY: przy niskim ekranie (640px) samo 58%
+       zsuwa dolną odpowiedź pod nawigację. Wtedy drugi argument przejmuje
+       sterowanie i tarcza siada tak wysoko, jak trzeba.
+
+       UWAGA: --head-h i --foot-h to wartości z makiety (86px). Jeśli nasz układ
+       ma inne, trzeba je ZMIERZYĆ i podstawić - reguła jest wrażliwa na te dwie
+       liczby i na nic więcej. Do sprawdzenia wizualnego. */
+    --dial: min(316px, 88vw);
+    --head-h: 86px;
+    --foot-h: 86px;
     position:relative;
     flex:1;
     display:flex;
-    align-items:center;
+    align-items:flex-start;
     justify-content:center;
     min-height:420px;
     margin-bottom:18px;
+    padding-top:max(0px, min(
+      calc(58dvh - var(--dial) / 2 - var(--head-h)),
+      calc(100dvh - var(--nav-h) - var(--foot-h) - var(--dial) - var(--head-h))
+    ));
   }
   .grid{
     position:relative;
@@ -918,6 +953,54 @@
   }
   .settings-row:last-of-type{ border-bottom:none; }
   .settings-row .sr-label{ font-size:16px; color:var(--ink); }
+
+  /* ══ WZORCE v3 · wiersz listy i lepki nagłówek ═══════════════════════════
+     UWAGA: pakiet v3 nazywa ten wzorzec `.row`, ale ta klasa jest już w apce
+     zajęta (35 użyć jako rząd przycisków, display:flex; gap:8px). Wdrożenie pod
+     tamtą nazwą rozwaliłoby wszystkie te miejsca, więc używamy prefiksu `dr-`.
+     Reszta reguł 1:1 z v3 §1. */
+  .dr-row{
+    display:flex; align-items:center; gap:14px; padding:14px 0;
+    border-bottom:1px solid var(--border); min-height:56px;
+    /* Wydajność przy 5872 wierszach - przeglądarka pomija renderowanie tego,
+       co poza ekranem. Bez kroku budowania to najprostsze wyjście (v3 §2). */
+    content-visibility:auto;
+    contain-intrinsic-size:auto 56px;
+  }
+  .dr-row:last-child{ border-bottom:0; }
+  /* min-width:0 jest OBOWIĄZKOWE - bez niego długie polskie znaczenie rozpycha
+     flex i wypycha odznakę poziomu za krawędź ekranu. */
+  .dr-row-main{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+  .dr-row-ko{
+    font-family:var(--font-ko); font-size:20px; color:var(--ink);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .dr-row-pl{
+    font-size:13px; color:var(--ink-dim);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .dr-row-badge{
+    flex:none; font-size:10.5px; letter-spacing:.1em; color:var(--ink-dim);
+    border:1px solid var(--border); padding:3px 7px; border-radius:6px;
+  }
+
+  /* Lepki nagłówek grupy. background jest KONIECZNE - bez tła treść przewija się pod nim. */
+  .section-sticky{
+    position:sticky; top:0; z-index:1;
+    padding:10px 0 8px; font-family:var(--font-ko); font-size:14px;
+    color:var(--hwang); background:var(--bg);
+    border-bottom:1px solid var(--border);
+  }
+
+  /* Wyjątki układów (v3 §1.1) */
+  [data-theme="kobalt"] .dr-row{ padding:15px 22px; }
+  [data-theme="kobalt"] .dr-row-badge{ border:0; padding:0; font-weight:800; color:var(--hwang); }
+  [data-theme="kobalt"] .dr-row-ko{ font-weight:600; font-size:19px; }
+  [data-theme="kobalt"] .section-sticky{ padding:9px 22px; background:var(--surface-2); font-size:13px; font-weight:600; }
+  [data-theme="jade"] .dr-row{
+    padding:14px 18px; border-bottom:0; margin-bottom:8px;
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  }
 
   /* ── DOLNA NAWIGACJA (redesign, krok 3) ───────────────────────────────
      Cztery stałe zakładki. Wysokość i promienie sterowane tokenami motywu, żeby
@@ -13229,7 +13312,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.18';
+const APP_VERSION = '2026-09-01.20';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
