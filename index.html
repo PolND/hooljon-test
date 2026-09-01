@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.7
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.10
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -19,7 +19,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Hooljon">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#E63946">
+<meta name="theme-color" content="#F6F3EE">
 <title>Hooljon · 훈련</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -140,6 +140,52 @@
     animation:hj-ink 4s ease-in-out infinite;
   }
   @keyframes hj-ink{ 0%,100%{opacity:.85} 50%{opacity:1} }
+
+  /* ── JADEIT (PRO) · grafit i jadeit ─────────────────────────────────── */
+  [data-theme="jade"]{
+    --bg:#0D100F; --bg-glow:#14332C; --card:#171B1A; --card-hi:#1D2321;
+    --ink:#E9EEEC; --ink-dim:#8C9A96; --border:#262C2A; --surface-2:#141817;
+    --primary:#46B79A; --hwang:#46B79A;
+    --heuk:#46B79A; --jeok:#E4785C; --cheong:#5AA9C4; --baek:#46B79A;
+    --good:#46B79A; --bad:#E4785C;
+    --radius:26px; --radius-lg:30px; --nav-h:72px;
+    --shadow-card:0 10px 30px -22px #000;
+    --font-ui:'Manrope', system-ui, sans-serif;
+    --font-ko:'Noto Serif KR', serif;
+  }
+  /* Karta "Powtórki" - jedyne miejsce z gradientem w tym motywie */
+  [data-theme="jade"] .home-card[data-vocab-flow="review"]{
+    background:linear-gradient(160deg,#14332C,#101815);
+    border-color:rgba(70,183,154,.22);
+  }
+  [data-theme="jade"] .home-card .icon{
+    width:44px; height:44px; border-radius:15px;
+    background:rgba(233,238,236,.06);
+    display:flex; align-items:center; justify-content:center; font-size:21px;
+  }
+  [data-theme="jade"] .bottom-nav{
+    margin:14px 18px calc(22px + env(safe-area-inset-bottom));
+    border-radius:var(--radius-lg); border:1px solid var(--border); background:var(--card);
+    left:0; right:0; bottom:0; width:auto;
+  }
+
+  /* ── KOBALT (PRO) · grafit i kobalt ─────────────────────────────────── */
+  [data-theme="kobalt"]{
+    --bg:#FFFFFF; --bg-glow:#F2F4F8; --card:#FFFFFF; --card-hi:#F3F5F9;
+    --ink:#0F1215; --ink-dim:#6A7078; --border:#E2E5EA; --surface-2:#F3F5F9;
+    --primary:#3355E8; --hwang:#3355E8;
+    --heuk:#0F1215; --jeok:#3355E8; --cheong:#3355E8; --baek:#14875F;
+    --good:#14875F; --bad:#C8462F;
+    --radius:14px; --radius-lg:20px; --nav-h:64px; --shadow-card:none;
+    --font-ui:'Public Sans', system-ui, sans-serif;
+    --font-ko:'Noto Serif KR', serif;
+  }
+  [data-theme="kobalt"] .home-card[data-vocab-flow="review"]{
+    background:var(--hwang); color:#fff; border-radius:0; border:0;
+  }
+  [data-theme="kobalt"] h1, [data-theme="kobalt"] h3, [data-theme="kobalt"] .home-card .title{
+    font-weight:800; letter-spacing:-.03em;
+  }
 
   /* NEON — Seoul night; najdalej od obecnej identyfikacji */
   [data-theme="neon"]{
@@ -970,6 +1016,12 @@
   .study-rate-hard:hover{background:#E9A23B; color:#FFFFFF; border-color:#E9A23B;}
   .study-rate-easy{color:var(--good); border-color:var(--good);}
   .study-rate-easy:hover{background:var(--good); color:#FFFFFF;}
+  .srb-when{
+    font-size:11px;
+    font-weight:500;
+    opacity:.7;
+    letter-spacing:.01em;
+  }
   .study-srs-info{font-size:14px; color:var(--ink-dim); text-align:center; margin-top:10px; min-height:16px;}
 
   /* CELEBRACJA OSIĄGNIĘĆ */
@@ -1052,9 +1104,30 @@
   .slot-e .ans-btn{--seal:var(--cheong);}
   .slot-w .ans-btn{--seal:var(--baek);}
 
-  .ans-btn.correct{background:var(--good); color:#FFFFFF; border-color:var(--good);}
+  /* ── STANY ODPOWIEDZI (redesign, krok 6) ──────────────────────────────
+     Wg pakietu: obramowanie 1.5px + tło 10%, zamiast pełnego wypełnienia kolorem.
+     Tekst zostaje w kolorze semantycznym (nie biały), więc kontrast nie zależy od
+     tego, czy tło zdąży się wyrenderować. Rozmiar przycisku NIE zmienia się -
+     skakanie układu przy odpowiedzi było męczące przy dłuższych sesjach. */
+  .ans-btn.correct{
+    background:color-mix(in srgb, var(--good) 10%, transparent);
+    border-color:var(--good);
+    border-width:1.5px;
+    color:var(--good);
+  }
+  .ans-btn.wrong{
+    background:color-mix(in srgb, var(--bad) 10%, transparent);
+    border-color:var(--bad);
+    border-width:1.5px;
+    color:var(--bad);
+  }
+  /* Zapas dla przeglądarek bez color-mix - pełny, czytelny kolor zamiast przezroczystości. */
+  @supports not (background: color-mix(in srgb, red 10%, transparent)){
+    .ans-btn.correct{ background:var(--good); color:#fff; }
+    .ans-btn.wrong{ background:var(--bad); color:#fff; }
+  }
   .ans-btn.correct::before{border-color:rgba(255,255,255,0.6);}
-  .ans-btn.wrong{background:var(--bad); color:#FFFFFF; border-color:var(--bad);}
+
   .ans-btn.wrong::before{border-color:rgba(255,255,255,0.6);}
   .ans-btn.dim{opacity:0.35; filter:grayscale(0.35);}
 
@@ -1086,7 +1159,10 @@
     60%{transform:translateX(-4px);}
     80%{transform:translateX(3px);}
   }
-  .ans-btn.correct{animation:ansCorrectPop .45s ease;}
+  /* Animacja powiększenia WYŁĄCZONA (redesign, krok 6): pakiet wymaga, żeby przycisk
+     nie zmieniał rozmiaru przy odpowiedzi - skakanie układu męczy przy dłuższych sesjach.
+     Zamiast tego stan poprawny sygnalizuje obramowanie i tło. Keyframes zostawione,
+     bo wstrząs przy błędnej odpowiedzi (ansWrongShake) nie zmienia rozmiaru, tylko pozycję. */
   .ans-btn.wrong{animation:ansWrongShake .4s ease;}
   @media (prefers-reduced-motion: reduce){
     .ans-btn.correct, .ans-btn.wrong{animation:none !important;}
@@ -3520,9 +3596,9 @@
     </div>
 
     <div class="ai-chat-controls" id="vocabStudyControls" style="margin-top:18px;">
-      <button class="study-rate-btn study-rate-again" id="vocabStudyAgainBtn"><span class="srb-icon">❌</span><span data-i18n="dontKnowBtn2">Nie znam</span></button>
-      <button class="study-rate-btn study-rate-hard" id="vocabStudyHardBtn"><span class="srb-icon">😐</span><span data-i18n="hardBtn2">Trudne</span></button>
-      <button class="study-rate-btn study-rate-easy" id="vocabStudyEasyBtn"><span class="srb-icon">✅</span><span data-i18n="easyBtn2">Łatwe</span></button>
+      <button class="study-rate-btn study-rate-again" id="vocabStudyAgainBtn"><span class="srb-icon">❌</span><span data-i18n="dontKnowBtn2">Nie znam</span><span class="srb-when" id="srbWhenAgain"></span></button>
+      <button class="study-rate-btn study-rate-hard" id="vocabStudyHardBtn"><span class="srb-icon">😐</span><span data-i18n="hardBtn2">Trudne</span><span class="srb-when" id="srbWhenHard"></span></button>
+      <button class="study-rate-btn study-rate-easy" id="vocabStudyEasyBtn"><span class="srb-icon">✅</span><span data-i18n="easyBtn2">Łatwe</span><span class="srb-when" id="srbWhenEasy"></span></button>
     </div>
     <div class="study-srs-info" id="vocabStudySrsInfo"></div>
 
@@ -12897,7 +12973,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.7';
+const APP_VERSION = '2026-09-01.10';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -13532,7 +13608,7 @@ const I18N = {
   homeCultureDesc: { pl: 'Szamanizm, tradycje, święta — kontekst za językiem.', en: 'Shamanism, traditions, holidays - the context behind the language.' },
   langPanelTitle: { pl: 'Język interfejsu', en: 'Interface language' },
   themePanelTitle: { pl: 'Motyw', en: 'Theme' },
-  themeProHint: { pl: 'Motywy Hanji i Neon są częścią Premium Pro.', en: 'Hanji and Neon themes are part of Premium Pro.' },
+  themeProHint: { pl: 'Motywy Jadeit, Kobalt, Hanji i Neon są częścią Premium Pro.', en: 'Jade, Cobalt, Hanji and Neon themes are part of Premium Pro.' },
   langPanelDesc: { pl: 'Docelowo Hooljon ma wspierać uczących się z różnych stron świata — każdy język ojczysty inaczej "mapuje się" na koreański, więc plany na przyszłość obejmują też dopasowane wskazówki gramatyczne, nie tylko tłumaczenie interfejsu.', en: 'Hooljon aims to support learners from around the world — every native language "maps" onto Korean differently, so future plans include tailored grammar hints too, not just interface translation.' },
   listenFullBtn: { pl: 'Odsłuchaj', en: 'Listen' },
   aiCheckLoading: { pl: '🤔 AI sprawdza, czy to jednak nie jest poprawne…', en: "🤔 AI is checking whether this might be correct after all…" },
@@ -14567,10 +14643,14 @@ document.getElementById('soundToggleBtn').addEventListener('click', async ()=>{
 // Kolejność w panelu = kolejność tutaj. pro:true => wiersz widoczny
 // tylko dla premiumTier === 'pro'. Pakiet od Claude Design, wdrożony 2026-08-30.
 const THEMES = [
-  { id:'light', name:'Jasny',  ko:'밝음',              icon:'🌙', pro:false, sw:['#F8F9FA','#E63946'] },
-  { id:'dark',  name:'Ciemny', ko:'어두움',            icon:'☀️', pro:false, sw:['#12151C','#E63946'] },
-  { id:'hanji', name:'Hanji',  ko:'한지 · tusz i papier', icon:'🖌️', pro:true,  sw:['#F1EADB','#8C2F27'] },
-  { id:'neon',  name:'Neon',   ko:'네온 · Seoul night',  icon:'⚡', pro:true,  sw:['#0A0810','#FF2E88'] }
+  // Próbki (sw) i kolor paska systemowego (meta) zgodne z tokenami motywu - patrz
+  // theme-tokens.json z pakietu wdrożeniowego. Kolejność = kolejność w panelu wyboru.
+  { id:'light',  name:'Jasny',  ko:'종이 · papier i tusz', icon:'🌙',  pro:false, sw:['#F6F3EE','#C1512F'], meta:'#F6F3EE' },
+  { id:'dark',   name:'Ciemny', ko:'먹 · tusz',            icon:'☀️',  pro:false, sw:['#151311','#E0714A'], meta:'#151311' },
+  { id:'jade',   name:'Jadeit', ko:'옥 · grafit i jadeit', icon:'🟢',  pro:true,  sw:['#0D100F','#46B79A'], meta:'#0D100F' },
+  { id:'kobalt', name:'Kobalt', ko:'청 · grafit i kobalt', icon:'🔷',  pro:true,  sw:['#FFFFFF','#3355E8'], meta:'#FFFFFF' },
+  { id:'hanji',  name:'Hanji',  ko:'한지 · tusz i papier',  icon:'🖌️', pro:true,  sw:['#F1EADB','#8C2F27'], meta:'#F1EADB' },
+  { id:'neon',   name:'Neon',   ko:'네온 · Seoul night',   icon:'⚡',  pro:true,  sw:['#0A0810','#FF2E88'], meta:'#0A0810' }
 ];
 const PRO_THEME_IDS = THEMES.filter(t => t.pro).map(t => t.id);
 
@@ -14599,6 +14679,10 @@ function applyTheme(theme){
   const meta = THEMES.find(t => t.id === theme) || THEMES[0];
   const btn = document.getElementById('themeToggleBtn');
   if(btn) btn.textContent = meta.icon;
+  // Kolor paska systemowego przeglądarki/PWA - bez tego przy ciemnym motywie zostaje
+  // jasna belka u góry i apka wygląda jak wklejona w cudzy interfejs.
+  const metaTag = document.querySelector('meta[name="theme-color"]');
+  if(metaTag && meta.meta) metaTag.setAttribute('content', meta.meta);
   applyThemeIcons(theme);
   renderThemePanel();
 }
@@ -14801,6 +14885,32 @@ function loadLatencyBaselines(){
       latencyBaselines[k] = (Number.isFinite(v) && v > 200 && v < LAT_OUTLIER_MS) ? v : LAT_SEED_MS;
     });
   }catch(e){ latencyBaselines = { 'ko-pl': LAT_SEED_MS, 'pl-ko': LAT_SEED_MS }; }
+}
+
+/* Podgląd interwału dla każdej oceny - user widzi konsekwencję wyboru ZANIM kliknie
+   ("za 1 dzień / za 6 dni / za 15 dni"). To CZYSTA funkcja: powiela obliczenia z srsRate,
+   ale niczego nie zapisuje. Świadomie zduplikowana zamiast refaktoru - sekcja "czego nie
+   ruszać" w pakiecie wdrożeniowym wymienia logikę SRS, więc jej nie tykam.
+   UWAGA przy zmianach: jeśli kiedykolwiek zmieni się srsRate, TĘ funkcję trzeba poprawić
+   razem z nią, inaczej podpisy zaczną kłamać. */
+function previewSrsInterval(ko, rating){
+  const prev = srsData[ko] || {interval:0, ease:2.5, reps:0, due:0, lapses:0};
+  let {interval, ease, reps} = prev;
+  if(rating === 0) return 1;
+  if(rating === 1){
+    reps += 1;
+    return reps <= 1 ? 1 : (Math.round(interval * 1.2) || 1);
+  }
+  reps += 1;
+  if(reps === 1) return 1;
+  if(reps === 2) return 6;
+  return Math.round(interval * ease) || 6;
+}
+
+function formatIntervalShort(days){
+  if(uiLang === 'en') return days === 1 ? '1 day' : days + ' days';
+  // Po polsku tylko liczba 1 ma osobną formę; 2-4 i 5+ to jednakowo "dni".
+  return days === 1 ? '1 dzień' : days + ' dni';
 }
 
 function srsRate(ko, rating, direction){
@@ -15237,6 +15347,14 @@ async function renderVocabStudyList(){
 function showVocabStudyCard(){
   const w = vocabStudyQueue[vocabStudyIndex];
   markQuestionShown(); // start pomiaru czasu odpowiedzi (ważenie SRS)
+  // Podpisy "kiedy wróci" pod każdą oceną - user wie, co wybiera, zanim kliknie.
+  try{
+    const map = { srbWhenAgain: 0, srbWhenHard: 1, srbWhenEasy: 2 };
+    Object.entries(map).forEach(([id, rating]) => {
+      const el = document.getElementById(id);
+      if(el) el.textContent = formatIntervalShort(previewSrsInterval(w.ko, rating));
+    });
+  }catch(e){ /* podpis to dodatek - jego brak nie może zablokować nauki */ }
   const prefix = vocabStudySource === 'review' ? (uiLang === 'en' ? 'Review ' : 'Powtórka ') : '';
   const cappedNote = vocabStudyWasCapped
     ? (uiLang === 'en' ? ` (of ${vocabStudyTotalDueAtStart} due today)` : ` (z ${vocabStudyTotalDueAtStart} zaległych)`)
