@@ -55,7 +55,7 @@
     --shadow-card: 0 1px 2px rgba(23,20,18,.04);
     --nav-h: 64px;
     --font-ui: 'Outfit', system-ui, sans-serif;
-    --font-ko: 'Gowun Batang', var(--font-ko);
+    --font-ko: 'Outfit', 'Gowun Batang', 'Noto Serif KR', serif;
   }
   [data-theme="dark"]{
     --bg: #151311;
@@ -151,7 +151,7 @@
     --radius:26px; --radius-lg:30px; --nav-h:72px;
     --shadow-card:0 10px 30px -22px #000;
     --font-ui:'Manrope', system-ui, sans-serif;
-    --font-ko:'Noto Serif KR', serif;
+    --font-ko:'Manrope', 'Noto Serif KR', serif;
   }
   /* Karta "Powtórki" - jedyne miejsce z gradientem w tym motywie */
   [data-theme="jade"] .home-card[data-vocab-flow="review"]{
@@ -178,7 +178,7 @@
     --good:#14875F; --bad:#C8462F;
     --radius:14px; --radius-lg:20px; --nav-h:64px; --shadow-card:none;
     --font-ui:'Public Sans', system-ui, sans-serif;
-    --font-ko:'Noto Serif KR', serif;
+    --font-ko:'Public Sans', 'Noto Serif KR', serif;
   }
   [data-theme="kobalt"] .home-card[data-vocab-flow="review"]{
     background:var(--hwang); color:#fff; border-radius:0; border:0;
@@ -3189,6 +3189,101 @@
   .conj-legend .dot.ending{background:var(--hwang);}
   #centerSourceBadge, #vocabSourceBadgeTyped{margin-top:8px;}
   .word-list-row .wl-badge-slot{flex:none;}
+
+  /* ═══ REDESIGN 1a — to, czego brakowało między pakietem a apką ═══════════
+     Trzy rzeczy z README, które nie weszły w 201: duży nagłówek w treści
+     zamiast paska "Wynik/Seria", ikony liniowe zamiast emoji oraz lista
+     pozycji zamiast osobnych kart. Bez nich redesign był "tą samą stroną
+     w innych kolorach" - dokładnie tak, jak ostrzegał §2 pakietu. */
+
+  /* Karta-bohater ma własne tokeny, żeby nie wywracała się w ciemnym motywie:
+     w jasnym jest odwrócona (tusz na papierze -> papier na tuszu), w ciemnym
+     tylko wyraźnie podniesiona, bo odwrócenie dałoby oślepiająco jasny kafel. */
+  :root{ --hero-bg:#171412; --hero-ink:#F6F3EE; --hero-accent:#E8A08A; }
+  [data-theme="dark"]{ --hero-bg:#2A2420; --hero-ink:#F2EFEA; --hero-accent:#E0714A; }
+
+  /* stary pasek marki + Wynik/Seria: zastąpiony nagłówkiem w treści */
+  .wrap > header{ display:none; }
+  .header-tools{ justify-content:flex-end; margin:2px 0 6px; }
+  .home-screen > .back-btn{ display:none !important; }
+
+  .home-head{ margin:2px 0 4px; }
+  .home-head .hh-brand{
+    font-size:11px; font-weight:500; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--ink-dim);
+  }
+  .home-head .hh-title{
+    font-size:34px; font-weight:300; letter-spacing:-.02em;
+    line-height:1.1; margin:6px 0 0; color:var(--ink);
+  }
+  .home-head .hh-title b{ font-weight:600; }
+
+  .home-today{
+    border:1px solid var(--border); border-radius:var(--radius);
+    background:var(--card); box-shadow:var(--shadow-card);
+    padding:15px 20px; margin:14px 0 6px;
+    display:grid; grid-template-columns:1fr 1fr; gap:14px 0; align-items:end;
+  }
+  .home-today .ht-lab{ display:block; font-size:12px; color:var(--ink-dim); }
+  .home-today .ht-val{
+    display:block; font-size:28px; font-weight:600;
+    letter-spacing:-.02em; color:var(--ink); line-height:1.15;
+  }
+  .home-today .ht-val small{ font-size:15px; font-weight:400; color:var(--ink-dim); }
+  .home-today .ht-right{ text-align:right; }
+  .home-today .ht-right .ht-val{ color:var(--hwang); }
+  .home-today .ht-bar{
+    grid-column:1 / -1; height:3px; border-radius:2px;
+    background:var(--border); overflow:hidden;
+  }
+  .home-today .ht-bar i{
+    display:block; height:100%; width:0;
+    background:var(--hwang); transition:width .35s ease;
+  }
+
+  /* Karta "Powtórki" - jedyny mocny akcent na ekranie */
+  .home-card.variant-hero{
+    background:var(--hero-bg); color:var(--hero-ink);
+    border:0; box-shadow:none;
+  }
+  .home-card.variant-hero .title, .home-card.variant-hero .desc{ color:inherit; }
+  .home-card.variant-hero .desc{ opacity:.62; }
+  .home-card.variant-hero .icon{
+    width:40px; height:40px; border-radius:50%; flex:none;
+    border:1px solid rgba(255,255,255,.28);
+    display:flex; align-items:center; justify-content:center; font-size:19px;
+  }
+  .home-card.variant-hero .title{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .home-card.variant-hero .level-badge{
+    background:transparent; border:0; padding:0 0 0 6px;
+    color:var(--hero-accent); font-size:20px; font-weight:600;
+  }
+
+  /* Sekcje jako jedna lista z włosowymi separatorami */
+  .home-group{
+    border:1px solid var(--border); border-radius:var(--radius);
+    background:var(--card); box-shadow:var(--shadow-card);
+    overflow:hidden; margin:0 0 12px;
+  }
+  .home-group .home-card.variant-row{
+    border:0; border-radius:0; background:transparent;
+    box-shadow:none; margin:0; width:100%;
+    border-bottom:1px solid var(--border);
+  }
+  .home-group .home-card.variant-row.is-last{ border-bottom:0; }
+
+  /* Ikony: hangul/hanja krojem koreańskim, rysunki liniowe dziedziczą kolor tekstu */
+  .home-card .icon{ font-family:var(--font-ko); }
+  .home-card .title, .home-card .desc,
+  .home-screen .achv-section-title,
+  .home-head .hh-title, .home-head .hh-brand,
+  .bn-tab .bn-lab{ font-family:var(--font-ui); }
+  .home-card .icon svg{ display:block; }
+  .bn-tab .bn-ico svg{ display:block; margin:0 auto; }
+  .bn-tab .bn-ico{ display:block; }
+  [data-theme="kobalt"] .bn-tab .bn-ico{ display:none; }
 </style>
 </head>
 <body>
@@ -3362,6 +3457,16 @@
 
   <div class="home-screen" id="homeScreen">
     <button class="back-btn" id="sandboxToStoryBtn" data-back="modeSelect" data-i18n="backModeSelect">Wybór trybu</button>
+
+    <div class="home-head">
+      <div class="hh-brand">Hooljon · 훈련</div>
+      <div class="hh-title"><b data-i18n="navLearn">Nauka</b></div>
+      <div class="home-today">
+        <div><span class="ht-lab" data-i18n="homeStatStreak">Seria</span><span class="ht-val" id="homeStreakVal">0</span></div>
+        <div class="ht-right"><span class="ht-lab" data-i18n="homeStatToday">Dziś</span><span class="ht-val" id="homeTodayVal">0<small>/30</small></span></div>
+        <div class="ht-bar"><i id="homeTodayBar"></i></div>
+      </div>
+    </div>
 
     <div class="daily-value-summary" style="display:none; text-align:center; font-size:14.5px; color:var(--ink-dim); background:var(--card-hi); border-radius:12px; padding:10px 14px; margin-bottom:12px;"></div>
 
@@ -13009,6 +13114,10 @@ const NAV_OWNS = {
   progress: ['achievements'],
 };
 
+function refreshHomeChrome(){
+  try{ groupHomeRows(); markLastHomeRows(); renderHomeToday(); }catch(e){}
+}
+
 function updateBottomNav(screen){
   const bar = document.getElementById('bottomNav');
   if(!bar) return;
@@ -13020,6 +13129,11 @@ function updateBottomNav(screen){
   bar.querySelectorAll('.bn-tab').forEach(t => {
     t.classList.toggle('is-active', t.dataset.nav === active);
   });
+  const firstIco = bar.querySelector('.bn-ico');
+  if(firstIco && !firstIco.dataset.origIcon){
+    try{ applyThemeIcons(typeof currentTheme !== 'undefined' && currentTheme ? currentTheme : 'light'); }catch(e){}
+  }
+  if(screen === 'home') refreshHomeChrome();
 }
 
 document.getElementById('settingsBtn').addEventListener('click', () => setScreen('settings'));
@@ -13740,6 +13854,9 @@ const I18N = {
   wordListTitle2: { pl: 'Lista słówek', en: 'Word list' },
   yearlyLabel: { pl: 'Rocznie', en: 'Yearly' },
   statScore: { pl: 'Wynik', en: 'Score' },
+  homeStatStreak: { pl: 'Seria', en: 'Streak' },
+  homeStatToday: { pl: 'Dziś', en: 'Today' },
+  homeTodayUnit: { pl: 'słówek dziś', en: 'words today' },
   statStreak: { pl: 'Seria', en: 'Streak' },
   wordListTitle: { pl: 'Lista słówek', en: 'Word list' },
   loginTagline: { pl: 'Trening zaczyna się tu', en: 'Training starts here' },
@@ -14645,14 +14762,47 @@ document.getElementById('soundToggleBtn').addEventListener('click', async ()=>{
 const THEMES = [
   // Próbki (sw) i kolor paska systemowego (meta) zgodne z tokenami motywu - patrz
   // theme-tokens.json z pakietu wdrożeniowego. Kolejność = kolejność w panelu wyboru.
-  { id:'light',  name:'Jasny',  ko:'종이 · papier i tusz', icon:'🌙',  pro:false, sw:['#F6F3EE','#C1512F'], meta:'#F6F3EE' },
-  { id:'dark',   name:'Ciemny', ko:'먹 · tusz',            icon:'☀️',  pro:false, sw:['#151311','#E0714A'], meta:'#151311' },
-  { id:'jade',   name:'Jadeit', ko:'옥 · grafit i jadeit', icon:'🟢',  pro:true,  sw:['#0D100F','#46B79A'], meta:'#0D100F' },
-  { id:'kobalt', name:'Kobalt', ko:'청 · grafit i kobalt', icon:'🔷',  pro:true,  sw:['#FFFFFF','#3355E8'], meta:'#FFFFFF' },
-  { id:'hanji',  name:'Hanji',  ko:'한지 · tusz i papier',  icon:'🖌️', pro:true,  sw:['#F1EADB','#8C2F27'], meta:'#F1EADB' },
-  { id:'neon',   name:'Neon',   ko:'네온 · Seoul night',   icon:'⚡',  pro:true,  sw:['#0A0810','#FF2E88'], meta:'#0A0810' }
+  { id:'light',  name:'Jasny',  ko:'종이 · papier i tusz', icon:'🌙',  pro:false, mode:'line', sw:['#F6F3EE','#C1512F'], meta:'#F6F3EE' },
+  { id:'dark',   name:'Ciemny', ko:'먹 · tusz',            icon:'☀️',  pro:false, mode:'line', sw:['#151311','#E0714A'], meta:'#151311' },
+  { id:'jade',   name:'Jadeit', ko:'옥 · grafit i jadeit', icon:'🟢',  pro:true, mode:'emoji',  sw:['#0D100F','#46B79A'], meta:'#0D100F' },
+  { id:'kobalt', name:'Kobalt', ko:'청 · grafit i kobalt', icon:'🔷',  pro:true, mode:'glyph',  sw:['#FFFFFF','#3355E8'], meta:'#FFFFFF' },
+  { id:'hanji',  name:'Hanji',  ko:'한지 · tusz i papier',  icon:'🖌️', pro:true, mode:'map',  sw:['#F1EADB','#8C2F27'], meta:'#F1EADB' },
+  { id:'neon',   name:'Neon',   ko:'네온 · Seoul night',   icon:'⚡',  pro:true, mode:'map',  sw:['#0A0810','#FF2E88'], meta:'#0A0810' }
 ];
 const PRO_THEME_IDS = THEMES.filter(t => t.pro).map(t => t.id);
+
+function iconSvg(d){
+  return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+       + 'stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+}
+
+// Ikony liniowe (motyw domyślny 1a). Brak wpisu = zostaje oryginalny znak, np. 한 / 漢,
+// które w tym motywie i tak renderują się krojem koreańskim (--font-ko).
+const LINE_ICONS = {
+  '🔁':'<path d="M4 12a8 8 0 0 1 13.7-5.6M20 12a8 8 0 0 1-13.7 5.6"/><path d="M17 3v4h-4M7 21v-4h4"/>',
+  '📚':'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 17.5A2.5 2.5 0 0 1 6.5 15H19"/>',
+  '📐':'<path d="M3 20 12 4l9 16z"/><path d="M7.5 14h9"/>',
+  '📖':'<path d="M12 6c-2-1.6-4.5-2-8-2v14c3.5 0 6 .4 8 2 2-1.6 4.5-2 8-2V4c-3.5 0-6 .4-8 2z"/><path d="M12 6v14"/>',
+  '🎙️':'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  '🔍':'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
+  '🏮':'<path d="M12 3v2M12 19v2"/><ellipse cx="12" cy="12" rx="6" ry="7"/><path d="M8 7h8M8 17h8"/>',
+  '🏢':'<rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/>',
+  '🏫':'<path d="M4 20v-8l8-5 8 5v8z"/><path d="M10 20v-5h4v5"/>',
+  '🗺️':'<path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/>',
+  '📜':'<path d="M6 4h10a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2z"/><path d="M9 8h6M9 12h6"/>',
+  '🔥':'<path d="M12 3c3 4 6 5.5 6 9a6 6 0 0 1-12 0c0-2 1-3.5 2.5-5C9 9 10 8 10 6c1 .8 2 1.8 2 3 0-2 0-4 0-6z"/>',
+  '🧩':'<path d="M4 8h4a2 2 0 1 1 4 0h4v4a2 2 0 1 1 0 4v4H8a2 2 0 1 0-4 0z"/>',
+  '🔤':'<path d="M4 18 8 6l4 12M5.5 14h5"/><path d="M15 18V9h3a2.5 2.5 0 0 1 0 5h-3"/>',
+  '📊':'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  '🏠':'<path d="M4 11 12 4l8 7v9H4z"/>'
+};
+
+// Kobalt: ikoną jest sam znak koreański/hanja - zero emoji, zero rysunków.
+const GLYPH_ICONS = { '🔁':'復','한':'한','📚':'낱','📐':'문','漢':'漢','📖':'讀','🗺️':'圖',
+  '📜':'學','🏮':'燈','🏢':'業','🎙️':'話','🏫':'班','🔍':'索','🔤':'字','🧩':'組','🔥':'熱' };
+
+// Dolna nawigacja - w trybie liniowym te same cienkie ikony co na kartach.
+const NAV_LINE_ICONS = { learn:'🏠', dict:'🔍', chat:'🎙️', progress:'📊' };
 
 // Ikony kart: Hanji podmienia emoji na hanja, Neon na numery.
 // Oryginał trzymamy w dataset, więc powrót do light/dark jest bezstratny.
@@ -14662,12 +14812,25 @@ const THEME_ICONS = {
   neon:  { '🔁':'RE','한':'한','📚':'VO','📐':'GR','漢':'漢','📖':'RD','🗺️':'MP','📜':'AC',
            '🏮':'CU','🏢':'BZ','🎙️':'AI','🏫':'SC','🔍':'FD','🔤':'CJ','🧩':'GX','🔥':'HT' }
 };
+
 function applyThemeIcons(theme){
-  const map = THEME_ICONS[theme];
+  const meta = THEMES.find(t => t.id === theme) || THEMES[0];
+  const mode = meta.mode || 'map';
   document.querySelectorAll('.home-card .icon').forEach(el => {
     if(!el.dataset.origIcon) el.dataset.origIcon = el.textContent.trim();
-    const orig = el.dataset.origIcon;
-    el.textContent = (map && map[orig]) || orig;
+    const o = el.dataset.origIcon;
+    if(mode === 'line' && LINE_ICONS[o])                  el.innerHTML = iconSvg(LINE_ICONS[o]);
+    else if(mode === 'glyph')                             el.textContent = GLYPH_ICONS[o] || o;
+    else if(THEME_ICONS[theme] && THEME_ICONS[theme][o])  el.textContent = THEME_ICONS[theme][o];
+    else                                                  el.textContent = o;
+  });
+  document.querySelectorAll('#bottomNav .bn-tab').forEach(tab => {
+    const ico = tab.querySelector('.bn-ico');
+    if(!ico) return;
+    if(!ico.dataset.origIcon) ico.dataset.origIcon = ico.textContent.trim();
+    const key = NAV_LINE_ICONS[tab.dataset.nav];
+    if(mode === 'line' && key && LINE_ICONS[key]) ico.innerHTML = iconSvg(LINE_ICONS[key]);
+    else ico.textContent = ico.dataset.origIcon;
   });
 }
 
@@ -15611,6 +15774,53 @@ async function saveStats(){
 function renderStats(){
   els.scoreVal.textContent = score;
   els.streakVal.textContent = streak;
+  renderHomeToday();
+}
+
+// Karta "dziś" na górze ekranu głównego - przejmuje to, co wcześniej stało w pasku
+// nagłówka (Wynik/Seria). Licznik dzienny pokazuje słówka, bo to ta sama pula, na
+// której działa DAILY_LIMIT.
+function renderHomeToday(){
+  const s = document.getElementById('homeStreakVal');
+  if(s) s.textContent = streak;
+  const done = (typeof dailyCounts === 'object' && dailyCounts) ? (dailyCounts.vocab || 0) : 0;
+  const v = document.getElementById('homeTodayVal');
+  if(v) v.innerHTML = done + '<small>/' + DAILY_LIMIT + '</small>';
+  const bar = document.getElementById('homeTodayBar');
+  if(bar) bar.style.width = Math.min(100, Math.round(done / DAILY_LIMIT * 100)) + '%';
+}
+
+// Sekcje ekranu głównego jako jedna lista z włosowymi separatorami zamiast osobnych
+// kart - to jest ten element makiety, który najbardziej decyduje o "spokojnym" układzie.
+// Karty ukryte (display:none) zostają w grupie, ale nie dostają separatora na końcu.
+function groupHomeRows(){
+  const home = document.getElementById('homeScreen');
+  if(!home || home.dataset.grouped) return;
+  home.dataset.grouped = '1';
+  let group = null;
+  [...home.children].forEach(el => {
+    const isRow = el.classList && el.classList.contains('home-card') && el.classList.contains('variant-row');
+    if(isRow){
+      if(!group){
+        group = document.createElement('div');
+        group.className = 'home-group';
+        home.insertBefore(group, el);
+      }
+      group.appendChild(el);
+    } else if(!(el.classList && el.classList.contains('home-group'))){
+      group = null;
+    }
+  });
+  markLastHomeRows();
+}
+
+function markLastHomeRows(){
+  document.querySelectorAll('#homeScreen .home-group').forEach(g => {
+    const visible = [...g.children].filter(c => getComputedStyle(c).display !== 'none');
+    g.querySelectorAll('.is-last').forEach(c => c.classList.remove('is-last'));
+    if(visible.length) visible[visible.length - 1].classList.add('is-last');
+    g.style.display = visible.length ? '' : 'none';
+  });
 }
 
 function renderMissedPanel(){
