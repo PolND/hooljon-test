@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.22
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.24
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -269,10 +269,22 @@
     background:linear-gradient(160deg, var(--bg-glow), var(--accent-deep));
     border-color:rgba(70,183,154,.22);
   }
-  [data-theme="jade"] .bottom-nav{
-    margin:14px 18px calc(22px + env(safe-area-inset-bottom));
-    border-radius:var(--radius-lg); border:1px solid var(--border); background:var(--card);
-    left:0; right:0; bottom:0; width:auto;
+  /* Jadeit: pasek pływający, oderwany od krawędzi (v1 §3).
+     Zakres ograniczony do wąskich ekranów - powyżej 900px obowiązuje wspólna reguła
+     wyśrodkowanej kolumny. Bez tego ograniczenia ta reguła (wyższa specyficzność niż
+     media query) wymuszała na desktopie pełną szerokość i pasek się rozjeżdżał.
+     padding-bottom zerowany, bo bazowy pasek dokłada tam safe-area, a tutaj ten sam
+     odstęp jest już w marginesie - inaczej na telefonach z wcięciem liczy się dwa razy. */
+  @media (max-width:899px){
+    [data-theme="jade"] .bottom-nav{
+      left:0; right:0; bottom:0; width:auto;
+      margin:0 18px calc(14px + env(safe-area-inset-bottom));
+      padding-bottom:0;
+      height:var(--nav-h);
+      border-radius:var(--radius-lg);
+      border:1px solid var(--border);
+      background:var(--card);
+    }
   }
 
   /* Pojemnik sekcji "Nauka". display:contents sprawia, że we WSZYSTKICH motywach
@@ -1236,14 +1248,12 @@
   .scenario-role .sr-phrase-pl{font-size:14px; color:var(--ink-dim); margin-bottom:8px;}
 
   .study-rate-btn{
-    flex:1;
+    /* Układ (flex, padding, promień, ramka) przejmuje .sc-rate z pakietu v2 -
+       tutaj zostaje tylko to, czego tamten nie ustawia. Duplikowanie prowadziło
+       do rozjechanego ekranu, bo obie reguły walczyły o te same właściwości. */
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:5px;
-    padding:14px 6px;
-    border-radius:16px;
-    border:1.5px solid transparent;
     cursor:pointer;
     font-family:var(--font-ui);
     font-size:14px;
@@ -1268,10 +1278,6 @@
     font-size:12px; color:var(--ink-dim); margin-bottom:14px;
     font-family:var(--font-ui);
   }
-  .study-rate-prompt{
-    font-size:13px; color:var(--ink-dim); text-align:center;
-    margin-top:18px; font-family:var(--font-ui);
-  }
   .srb-when{
     font-size:11px;
     font-weight:500;
@@ -1291,6 +1297,14 @@
        bez odjęcia --ad-h oceny chowały się pod nim */
     min-height:calc(100dvh - var(--ad-h) - 24px);
   }
+  /* Kontener fiszki wg v2 §4.1 (.sc-screen): kolumna na pełną wysokość, żeby karta
+     mogła rosnąć, a oceny trzymały się dołu (zasięg kciuka). Wysokość liczona z
+     odjęciem dolnej nawigacji, inaczej oceny chowają się pod paskiem. */
+  #vocabStudyScreen{
+    flex-direction:column;
+    min-height:calc(100dvh - var(--nav-h) - 24px);
+  }
+  #vocabStudyScreen .center-card{ margin:0 auto; }
   #vocabStudyScreen .sc-progress{
     height:3px; border-radius:2px; background:var(--surface-2);
     overflow:hidden; margin:-8px 0 4px;
@@ -4192,8 +4206,8 @@
       <div class="study-tap-hint">🔊 <span data-i18n="tapToHear">Dotknij, żeby usłyszeć</span></div>
     </div>
 
-    <div class="study-rate-prompt sc-rate-label" id="vocabStudyRatePrompt" data-i18n="studyRatePrompt">Jak dobrze pamiętasz?</div>
-    <div class="ai-chat-controls sc-rates" id="vocabStudyControls" style="margin-top:10px;">
+    <div class="sc-rate-label" id="vocabStudyRatePrompt" data-i18n="studyRatePrompt">Jak dobrze pamiętasz?</div>
+    <div class="sc-rates" id="vocabStudyControls">
       <button class="study-rate-btn sc-rate study-rate-again" id="vocabStudyAgainBtn"><span class="srb-icon">❌</span><span data-i18n="dontKnowBtn2">Nie znam</span><span class="srb-when" id="srbWhenAgain"></span></button>
       <button class="study-rate-btn sc-rate study-rate-hard" id="vocabStudyHardBtn"><span class="srb-icon">😐</span><span data-i18n="hardBtn2">Trudne</span><span class="srb-when" id="srbWhenHard"></span></button>
       <button class="study-rate-btn sc-rate sc-rate--yes study-rate-easy" id="vocabStudyEasyBtn"><span class="srb-icon">✅</span><span data-i18n="easyBtn2">Łatwe</span><span class="srb-when" id="srbWhenEasy"></span></button>
@@ -13572,7 +13586,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.22';
+const APP_VERSION = '2026-09-01.24';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -13714,7 +13728,10 @@ function setScreen(screen){
 
   const targetId = SCREEN_IDS[screen];
   const targetEl = document.getElementById(targetId);
-  const isFlexScreen = (screen === 'home' || screen === 'login' || screen === 'loading' || screen === 'modeSelect' || screen === 'hangulGate');
+  // vocabStudy dołączony 2026-09-01: układ fiszki z pakietu v2 zakłada kolumnę flex
+  // na pełną wysokość (.sc-screen). Bez tego 'margin-top:auto' na podpisie ocen i
+  // 'flex:1' na karcie nie mają na czym działać - ekran się rozjeżdża.
+  const isFlexScreen = (screen === 'home' || screen === 'login' || screen === 'loading' || screen === 'modeSelect' || screen === 'hangulGate' || screen === 'vocabStudy');
   const targetDisplay = isFlexScreen ? 'flex' : 'block';
 
   let prevEl = null;
