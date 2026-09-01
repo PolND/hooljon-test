@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.16
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.17
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -57,7 +57,7 @@
     --font-ui: 'Outfit', system-ui, sans-serif;
     --font-ko: 'Outfit', 'Gowun Batang', 'Noto Serif KR', serif;
   }
-  [data-theme="dark"]{
+  [data-scheme="dark"]{
     --bg: #151311;
     --bg-glow: #1D1916;
     --card: #211D1A;
@@ -84,7 +84,7 @@
      Pakiet od Claude Design, zweryfikowany i wdrożony 2026-08-30. */
 
   /* HANJI — papier, tusz, pieczęć */
-  [data-theme="hanji"]{
+  [data-scheme="hanji"]{
     --bg: #F1EADB;
     --bg-glow: #E6DBC4;
     --card: #FBF6EA;
@@ -103,39 +103,39 @@
     --bad: #A85A2E;
     --radius: 3px;        /* papier ma krawędzie, nie zaokrąglenia */
   }
-  [data-theme="hanji"] body{
+  [data-scheme="hanji"] body{
     background:
       repeating-linear-gradient(90deg, rgba(120,100,70,.055) 0 1px, transparent 1px 4px),
       radial-gradient(circle at 50% -10%, var(--bg-glow) 0%, var(--bg) 55%);
   }
   /* zero cieni — kluczowe dla wrażenia papieru */
-  [data-theme="hanji"] .home-card,
-  [data-theme="hanji"] .ans-btn,
-  [data-theme="hanji"] .center-card,
-  [data-theme="hanji"] .bottom-nav,
-  [data-theme="hanji"] .hanja-card,
-  [data-theme="hanji"] .achv-streak-card{ box-shadow:none; }
-  [data-theme="hanji"] .home-card,
-  [data-theme="hanji"] .ans-btn,
-  [data-theme="hanji"] .center-card,
-  [data-theme="hanji"] .price-card,
-  [data-theme="hanji"] .dict-word-row,
-  [data-theme="hanji"] .story-chapter,
-  [data-theme="hanji"] .achv-badge,
-  [data-theme="hanji"] .limit-lock,
-  [data-theme="hanji"] .back-btn{ border-radius:3px; }
-  [data-theme="hanji"] .theme-toggle-btn,
-  [data-theme="hanji"] .premium-badge-btn,
-  [data-theme="hanji"] .tier-tab,
-  [data-theme="hanji"] .category-chip{ border-radius:3px; }
-  [data-theme="hanji"] .home-card .icon{
+  [data-scheme="hanji"] .home-card,
+  [data-scheme="hanji"] .ans-btn,
+  [data-scheme="hanji"] .center-card,
+  [data-scheme="hanji"] .bottom-nav,
+  [data-scheme="hanji"] .hanja-card,
+  [data-scheme="hanji"] .achv-streak-card{ box-shadow:none; }
+  [data-scheme="hanji"] .home-card,
+  [data-scheme="hanji"] .ans-btn,
+  [data-scheme="hanji"] .center-card,
+  [data-scheme="hanji"] .price-card,
+  [data-scheme="hanji"] .dict-word-row,
+  [data-scheme="hanji"] .story-chapter,
+  [data-scheme="hanji"] .achv-badge,
+  [data-scheme="hanji"] .limit-lock,
+  [data-scheme="hanji"] .back-btn{ border-radius:3px; }
+  [data-scheme="hanji"] .theme-toggle-btn,
+  [data-scheme="hanji"] .premium-badge-btn,
+  [data-scheme="hanji"] .tier-tab,
+  [data-scheme="hanji"] .category-chip{ border-radius:3px; }
+  [data-scheme="hanji"] .home-card .icon{
     font-family:var(--font-ko);
     color:var(--hwang);
     font-size:25px;
   }
-  [data-theme="hanji"] .sc-progress-fill,
-  [data-theme="hanji"] .grammar-dot.active,
-  [data-theme="hanji"] .grammar-dot.done{
+  [data-scheme="hanji"] .sc-progress-fill,
+  [data-scheme="hanji"] .grammar-dot.active,
+  [data-scheme="hanji"] .grammar-dot.done{
     border-radius:0;
     animation:hj-ink 4s ease-in-out infinite;
   }
@@ -147,7 +147,7 @@
      Czcionki zostają nowe: przywracanie Song Myung i IBM Plex Sans oznaczałoby
      doładowanie dwóch rodzin dla wszystkich userów, także tych, którzy tego motywu
      nie używają. Kolor niesie tu 90% rozpoznawalności. */
-  [data-theme="oldstyle"]{
+  [data-scheme="oldstyle"]{
     --bg:#F8F9FA; --bg-glow:#EAF1F6; --card:#FFFFFF; --card-hi:#F3F6F9;
     --ink:#1D3557; --ink-dim:#6C757D; --border:#E1E6EA; --surface-2:#F1F4F7;
     --primary:#1B3A57; --hwang:#E63946;
@@ -233,7 +233,7 @@
   [data-theme="kobalt"] .center-word{ font-weight:700; letter-spacing:-.02em; }
 
   /* ── JADEIT (PRO) · grafit i jadeit ─────────────────────────────────── */
-  [data-theme="jade"]{
+  [data-scheme="jade"]{
     --bg:#0D100F; --bg-glow:#14332C; --card:#171B1A; --card-hi:#1D2321;
     --ink:#E9EEEC; --ink-dim:#8C9A96; --border:#262C2A; --surface-2:#141817;
     --primary:#46B79A; --hwang:#46B79A;
@@ -289,7 +289,7 @@
   }
 
   /* ── KOBALT (PRO) · grafit i kobalt ─────────────────────────────────── */
-  [data-theme="kobalt"]{
+  [data-scheme="kobalt"]{
     --bg:#FFFFFF; --bg-glow:#F2F4F8; --card:#FFFFFF; --card-hi:#F3F5F9;
     --ink:#0F1215; --ink-dim:#6A7078; --border:#E2E5EA; --surface-2:#F3F5F9;
     --primary:#3355E8; --hwang:#3355E8;
@@ -316,7 +316,7 @@
   }
 
   /* NEON — Seoul night; najdalej od obecnej identyfikacji */
-  [data-theme="neon"]{
+  [data-scheme="neon"]{
     --bg: #0A0810;
     --bg-glow: #1B0F26;
     --card: #141020;
@@ -335,7 +335,7 @@
     --bad: #FF7A4B;
     --radius: 22px;
   }
-  [data-theme="neon"] body{
+  [data-scheme="neon"] body{
     background:
       linear-gradient(rgba(255,46,136,.05) 1px, transparent 1px) 0 0 / 100% 26px,
       radial-gradient(120% 70% at 80% -10%, rgba(59,232,224,.12), transparent 65%),
@@ -343,47 +343,52 @@
   }
   /* nagłówki: mono wersalikami — ale TYLKO łacinka.
      Hangul zostaje w Noto Serif KR, mono-caps psuje czytelność koreańskiego. */
-  [data-theme="neon"] .academy-title,
-  [data-theme="neon"] .home-card .title,
-  [data-theme="neon"] h1, [data-theme="neon"] h3{
+  [data-scheme="neon"] .academy-title,
+  [data-scheme="neon"] .home-card .title,
+  [data-scheme="neon"] h1, [data-scheme="neon"] h3{
     font-family:'IBM Plex Mono', monospace;
     text-transform:uppercase;
     letter-spacing:1.4px;
     font-weight:600;
     font-size:0.86em;
   }
-  [data-theme="neon"] .dict-word-ko,
-  [data-theme="neon"] .sce-ko,
-  [data-theme="neon"] .hanja-card,
-  [data-theme="neon"] .study-card-example{
+  [data-scheme="neon"] .dict-word-ko,
+  [data-scheme="neon"] .sce-ko,
+  [data-scheme="neon"] .hanja-card,
+  [data-scheme="neon"] .study-card-example{
     font-family:var(--font-ko);
     text-transform:none;
     letter-spacing:normal;
   }
-  [data-theme="neon"] .home-card .icon{
+  [data-scheme="neon"] .home-card .icon{
     font-family:'IBM Plex Mono', monospace;
     color:var(--primary);
     font-size:17px;
     font-weight:600;
   }
-  [data-theme="neon"] .home-card{
+  [data-scheme="neon"] .home-card{
     box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 18px 36px -26px #000;
   }
-  [data-theme="neon"] .home-card:hover{ box-shadow:0 0 22px -8px rgba(255,46,136,.55); }
-  [data-theme="neon"] .ans-btn.selected,
-  [data-theme="neon"] .ans-btn:active{ box-shadow:0 0 0 3px rgba(255,46,136,.25); }
-  [data-theme="neon"] .sc-progress-fill,
-  [data-theme="neon"] .grammar-dot.active{
+  [data-scheme="neon"] .home-card:hover{ box-shadow:0 0 22px -8px rgba(255,46,136,.55); }
+  [data-scheme="neon"] .ans-btn.selected,
+  [data-scheme="neon"] .ans-btn:active{ box-shadow:0 0 0 3px rgba(255,46,136,.25); }
+  [data-scheme="neon"] .sc-progress-fill,
+  [data-scheme="neon"] .grammar-dot.active{
     background:linear-gradient(90deg, var(--hwang), var(--primary));
     animation:hj-neon 2.2s ease-in-out infinite;
   }
-  [data-theme="neon"] .premium-badge-btn{
+  [data-scheme="neon"] .premium-badge-btn{
     background:linear-gradient(90deg, var(--hwang), var(--primary));
     color:var(--bg);
   }
   @keyframes hj-neon{ 0%,100%{filter:brightness(1)} 50%{filter:brightness(1.35)} }
 
   /* PANEL WYBORU MOTYWU (rozwijany pod ikoną 🌙) */
+  .theme-axis-label{
+    font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-dim); margin:12px 0 6px; font-family:var(--font-ui);
+  }
+  .theme-axis-label:first-child{ margin-top:0; }
   .theme-row{
     display:flex; align-items:center; gap:10px;
     padding:9px 10px; border-radius:10px;
@@ -404,8 +409,8 @@
     background:var(--hwang); color:#fff;
   }
   .theme-row .tr-check{ color:var(--hwang); font-size:14px; }
-  [data-theme="hanji"] .theme-row,
-  [data-theme="hanji"] .theme-row .tr-swatch{ border-radius:3px; }
+  [data-scheme="hanji"] .theme-row,
+  [data-scheme="hanji"] .theme-row .tr-swatch{ border-radius:3px; }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   html{
@@ -3340,7 +3345,7 @@
      w jasnym jest odwrócona (tusz na papierze -> papier na tuszu), w ciemnym
      tylko wyraźnie podniesiona, bo odwrócenie dałoby oślepiająco jasny kafel. */
   :root{ --hero-bg:#171412; --hero-ink:#F6F3EE; --hero-accent:#E8A08A; }
-  [data-theme="dark"]{ --hero-bg:#2A2420; --hero-ink:#F2EFEA; --hero-accent:#E0714A; }
+  [data-scheme="dark"]{ --hero-bg:#2A2420; --hero-ink:#F2EFEA; --hero-accent:#E0714A; }
 
   /* stary pasek marki + Wynik/Seria: zastąpiony nagłówkiem w treści */
   .wrap > header{ display:none; }
@@ -13224,7 +13229,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.16';
+const APP_VERSION = '2026-09-01.17';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15001,11 +15006,39 @@ function applyThemeIcons(theme){
   });
 }
 
+/* ═══ MOTYWY DWUOSIOWE ═══════════════════════════════════════════════════
+   UKŁAD (data-theme) i PALETA (data-scheme) są niezależne: struktura, typografia
+   i proporcje idą z układu, kolory z palety. Dzięki temu do każdego układu można
+   dobrać dowolną kolorystykę. Ustalone 2026-09-01.
+
+   UKŁADY:  papier (domyślny, brak atrybutu) · jade · kobalt · oldstyle
+   PALETY:  light (domyślna, :root) · dark · jade · kobalt · hanji · neon · oldstyle
+
+   Hanji i Neon są PALETAMI, nie układami - ich charakterystyczne cechy (brak cieni,
+   ostre krawędzie, mono-wersaliki) da się wyrazić tokenami i regułami przy palecie. */
+const LAYOUTS = [
+  { id:'papier',   name:'Papier',    ko:'종이 · lekki, papierowy',  pro:false },
+  { id:'jade',     name:'Jadeit',    ko:'옥 · duże miękkie kafle',  pro:true  },
+  { id:'kobalt',   name:'Kobalt',    ko:'청 · ostra siatka',        pro:true  },
+  { id:'oldstyle', name:'Klasyczny', ko:'옛 · pierwotny Hooljon',   pro:false },
+];
+const PRO_LAYOUT_IDS = LAYOUTS.filter(l => l.pro).map(l => l.id);
+let currentLayout = 'papier';
+
+function applyLayout(layout){
+  // Układ Pro po utracie subskrypcji → wróć do domyślnego, bez komunikatu.
+  if(PRO_LAYOUT_IDS.includes(layout) && premiumTier !== 'pro') layout = 'papier';
+  currentLayout = layout;
+  document.documentElement.setAttribute('data-theme', layout === 'papier' ? '' : layout);
+  applyThemeIcons(currentTheme);
+  try{ applyOldstyleLabels(layout); }catch(e){ /* etykiety to dodatek */ }
+}
+
 function applyTheme(theme){
-  // motyw Pro po utracie subskrypcji → cofnij do ciemnego, bez komunikatu
+  // Paleta Pro po utracie subskrypcji → cofnij do ciemnej, bez komunikatu
   if(PRO_THEME_IDS.includes(theme) && premiumTier !== 'pro') theme = 'dark';
   currentTheme = theme;
-  document.documentElement.setAttribute('data-theme', theme === 'light' ? '' : theme);
+  document.documentElement.setAttribute('data-scheme', theme === 'light' ? '' : theme);
   const meta = THEMES.find(t => t.id === theme) || THEMES[0];
   const btn = document.getElementById('themeToggleBtn');
   if(btn) btn.textContent = meta.icon;
@@ -15014,7 +15047,7 @@ function applyTheme(theme){
   const metaTag = document.querySelector('meta[name="theme-color"]');
   if(metaTag && meta.meta) metaTag.setAttribute('content', meta.meta);
   applyThemeIcons(theme);
-  try{ applyOldstyleLabels(theme); }catch(e){ /* etykiety to dodatek, nie mogą psuć zmiany motywu */ }
+  try{ applyOldstyleLabels(currentLayout); }catch(e){ /* etykiety to dodatek */ }
   renderThemePanel();
 }
 
@@ -15022,8 +15055,23 @@ function renderThemePanel(){
   const wrap = document.getElementById('themeRows');
   if(!wrap) return;
   const isPro = premiumTier === 'pro';
-  const visible = THEMES.filter(t => !t.pro || isPro);
-  wrap.innerHTML = visible.map(t => `
+
+  // Dwie osie w jednym panelu: najpierw UKŁAD, potem PALETA. Kolejność nieprzypadkowa -
+  // układ zmienia więcej (proporcje, typografia), więc user wybiera go pierwszy.
+  const layouts = LAYOUTS.filter(l => !l.pro || isPro);
+  const schemes = THEMES.filter(t => !t.pro || isPro);
+
+  const layoutRows = layouts.map(l => `
+    <button class="theme-row ${l.id === currentLayout ? 'active' : ''}" data-layout-id="${l.id}">
+      <span style="flex:1; min-width:0;">
+        <span class="tr-name" style="display:block;">${l.name}</span>
+        <span class="tr-ko" style="display:block;">${l.ko}</span>
+      </span>
+      ${l.pro ? '<span class="tr-pro">PRO</span>' : ''}
+      ${l.id === currentLayout ? '<span class="tr-check">✓</span>' : ''}
+    </button>`).join('');
+
+  const schemeRows = schemes.map(t => `
     <button class="theme-row ${t.id === currentTheme ? 'active' : ''}" data-theme-id="${t.id}">
       <span class="tr-swatch" style="background:linear-gradient(135deg,${t.sw[0]} 50%,${t.sw[1]} 50%);"></span>
       <span style="flex:1; min-width:0;">
@@ -15033,11 +15081,34 @@ function renderThemePanel(){
       ${t.pro ? '<span class="tr-pro">PRO</span>' : ''}
       ${t.id === currentTheme ? '<span class="tr-check">✓</span>' : ''}
     </button>`).join('');
+
+  wrap.innerHTML =
+    `<div class="theme-axis-label">${uiLang === 'en' ? 'Layout' : 'Układ'}</div>` + layoutRows +
+    `<div class="theme-axis-label">${uiLang === 'en' ? 'Colours' : 'Kolorystyka'}</div>` + schemeRows;
+
   const hint = document.getElementById('themeProHint');
   if(hint) hint.style.display = isPro ? 'block' : 'none';
 }
 
+/* Układ trzymamy LOKALNIE (localStorage), paletę na serwerze (STORAGE_KEYS.theme).
+   Powód: paleta to preferencja osobista, którą warto przenosić między urządzeniami;
+   układ bywa zależny od ekranu (siatka Kobaltu inaczej działa na małym telefonie),
+   więc lepiej, żeby został przy urządzeniu. Dzięki temu też nie trzeba migrować
+   bazy - zapisany wcześniej motyw działa dalej bez zmian. */
+const LAYOUT_KEY = 'hooljon_layout';
+
+function loadLayout(){
+  let saved = null;
+  try{ saved = localStorage.getItem(LAYOUT_KEY); }catch(e){}
+  const known = LAYOUTS.some(l => l.id === saved);
+  applyLayout(known ? saved : 'papier');
+}
+function saveLayout(){
+  try{ localStorage.setItem(LAYOUT_KEY, currentLayout); }catch(e){}
+}
+
 async function loadTheme(){
+  loadLayout(); // układ najpierw - applyTheme woła applyThemeIcons, które go potrzebuje
   try{
     const t = await window.storage.get(STORAGE_KEYS.theme);
     if(t && t.value){
@@ -15061,6 +15132,14 @@ document.getElementById('themeToggleBtn').addEventListener('click', (e) => {
 document.getElementById('themePanel').addEventListener('click', async (e) => {
   const row = e.target.closest('.theme-row');
   if(!row) return;
+  // Panel obsługuje obie osie. Po wyborze UKŁADU zostajemy otwarci - user zwykle
+  // chce od razu dobrać do niego kolorystykę. Po wyborze PALETY zamykamy.
+  if(row.dataset.layoutId){
+    applyLayout(row.dataset.layoutId);
+    saveLayout();
+    renderThemePanel();
+    return;
+  }
   applyTheme(row.dataset.themeId);
   document.getElementById('themePanel').classList.remove('open');
   try{ await window.storage.set(STORAGE_KEYS.theme, currentTheme); }catch(err){}
