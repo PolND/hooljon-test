@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.24
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.25
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -1297,14 +1297,15 @@
        bez odjęcia --ad-h oceny chowały się pod nim */
     min-height:calc(100dvh - var(--ad-h) - 24px);
   }
-  /* Kontener fiszki wg v2 §4.1 (.sc-screen): kolumna na pełną wysokość, żeby karta
-     mogła rosnąć, a oceny trzymały się dołu (zasięg kciuka). Wysokość liczona z
-     odjęciem dolnej nawigacji, inaczej oceny chowają się pod paskiem. */
-  #vocabStudyScreen{
-    flex-direction:column;
-    min-height:calc(100dvh - var(--nav-h) - 24px);
-  }
-  #vocabStudyScreen .center-card{ margin:0 auto; }
+  /* USUNIĘTO 2026-09-02: duplikat #vocabStudyScreen dopisany po bloku powyżej.
+     Wygrywał kolejnością i cofał dwie poprawki z v2 §4.1:
+       1) odejmował --nav-h zamiast --ad-h - a pasek nawigacji jest na tym ekranie
+          ukryty (NAV_HIDDEN_SCREENS), więc rezerwa szła na coś, czego nie ma,
+          a baner (85px) znów przycinał oceny o ~22px razem z interwałami SRS;
+       2) `#vocabStudyScreen .center-card{margin:0 auto}` to id+klasa, więc biło
+          `#vocabStudyCard{margin-top:auto}` na samym id i karta wracała pod górną
+          krawędź zamiast centrować się w wolnej przestrzeni.
+     Wyśrodkowanie w poziomie daje już `align-self:center` w regule #vocabStudyCard. */
   #vocabStudyScreen .sc-progress{
     height:3px; border-radius:2px; background:var(--surface-2);
     overflow:hidden; margin:-8px 0 4px;
@@ -3642,6 +3643,128 @@
   .bn-tab .bn-ico{ display:block; }
   [data-theme="kobalt"] .bn-tab .bn-ico{ display:none; }
 
+
+
+  /* ══ v3 §4 · ROZMOWA AI ══════════════════════════════════════════════════
+     Trzy zasady układu: koreański jest treścią (polski przypisem), mikrofon jest
+     jedynym dużym elementem u dołu, bąbelek użytkownika nie pokazuje tłumaczenia.
+     Silnik rozmowy i limit minut są nietknięte - to tylko prezentacja. */
+  #aiChatBody{ display:flex; flex-direction:column; min-height:calc(100dvh - var(--nav-h) - var(--ad-h) - 40px); }
+  .chat-head{
+    display:flex; align-items:center; gap:12px; padding:2px 0 14px;
+    border-bottom:1px solid var(--border); margin-bottom:14px;
+  }
+  .chat-avatar{
+    width:38px; height:38px; flex:none; border-radius:var(--mark-radius, 14px);
+    display:grid; place-items:center; font-family:var(--font-ko); font-size:17px;
+    background:var(--surface-2); color:var(--hwang);
+  }
+  @supports (background: color-mix(in oklab, red 16%, transparent)){
+    .chat-avatar{ background:color-mix(in oklab, var(--hwang) 16%, transparent); }
+  }
+  .chat-hint{ font-size:11.5px; color:var(--ink-dim); }
+  .chat-log{ flex:1; min-height:0; max-height:none; overflow-y:auto; overscroll-behavior:contain; gap:14px; }
+
+  /* Bąbelki renderuje istniejący JS jako .ai-bubble.bot/.user - stąd te nazwy
+     zamiast .msg--bot/.msg--me z pakietu. Zachowanie 1:1 z v3 §4. */
+  .chat-log .ai-bubble{
+    max-width:82%; padding:15px 18px; display:flex; flex-direction:column; gap:7px;
+    font-size:inherit; line-height:1.5;
+  }
+  .chat-log .ai-bubble .ai-ko{ font-family:var(--font-ko); font-size:18px; line-height:1.5; font-weight:400; }
+  .chat-log .ai-bubble .ai-pl{ font-size:12.5px; color:var(--ink-dim); opacity:1; margin:0; }
+  .chat-log .ai-bubble.bot{
+    align-self:flex-start; background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius) var(--radius) var(--radius) 8px; color:var(--ink);
+  }
+  .chat-log .ai-bubble.user{
+    align-self:flex-end; background:var(--hwang); color:var(--bg); border:0;
+    border-radius:var(--radius) var(--radius) 8px var(--radius);
+  }
+  .chat-log .ai-bubble.user .ai-pl{ display:none; }   /* user wie, co powiedział */
+
+  .typing{
+    align-self:flex-start; display:flex; gap:5px; padding:14px 18px; margin-bottom:10px;
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    width:max-content;
+  }
+  .typing i{ width:6px; height:6px; border-radius:50%; background:var(--hwang); animation:typing 1.2s infinite; }
+  .typing i:nth-child(2){ animation-delay:.15s }
+  .typing i:nth-child(3){ animation-delay:.3s }
+  @keyframes typing{ 0%,60%,100%{opacity:.25} 30%{opacity:1} }
+  @media (prefers-reduced-motion:reduce){ .typing i{ animation:none; opacity:.6 } }
+
+  .chat-bar{
+    display:flex; align-items:center; justify-content:center; gap:14px;
+    padding:14px 0 calc(6px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--border); margin-top:auto; flex-wrap:nowrap;
+  }
+  .chat-bar .chat-side{
+    width:46px; height:46px; flex:none; padding:0; border-radius:16px;
+    background:var(--card); border:1px solid var(--border);
+    display:grid; place-items:center; font-size:18px;
+  }
+  .chat-bar .chat-mic{
+    width:68px; height:68px; flex:none; padding:0; border-radius:50%;
+    border:0; background:var(--hwang); color:var(--bg);
+    display:grid; place-items:center; font-size:26px;
+  }
+  #geminiMicBtn.chat-mic.ai-chat-mic-active{
+    background:var(--bad);
+    box-shadow:0 0 0 8px var(--surface-2);
+  }
+  @supports (box-shadow: 0 0 0 8px color-mix(in oklab, red 14%, transparent)){
+    #geminiMicBtn.chat-mic.ai-chat-mic-active{ box-shadow:0 0 0 8px color-mix(in oklab, var(--hwang) 14%, transparent); }
+  }
+  /* Kobalt: bąbelek bota jako cytat z lewą krawędzią, spójnie z brakiem zaokrągleń */
+  [data-theme="kobalt"] .chat-log .ai-bubble.bot{
+    background:0; border:0; border-radius:0;
+    border-left:2px solid var(--hwang); padding:2px 0 2px 14px;
+  }
+  [data-theme="kobalt"] .chat-log .ai-bubble.user{ border-radius:var(--radius); }
+  [data-theme="kobalt"] .typing{ background:0; border:0; padding-left:16px; }
+  [data-theme="kobalt"] .chat-bar .chat-side, [data-theme="kobalt"] .chat-avatar{ border-radius:12px; }
+  [data-theme="kobalt"] .chat-avatar{ background:var(--hwang); color:var(--bg); }
+
+  /* ══ v3 §2 · SŁOWNIK ═════════════════════════════════════════════════════
+     Litera alfabetu (u nas 초성 - spółgłoska początkowa) przestaje być osobnym
+     krokiem i staje się lepkim nagłówkiem w jednej przewijanej liście.
+     Poziom zostaje, ale jako filtr obok wyszukiwarki. */
+  .dict-head{ display:flex; flex-direction:column; gap:12px; padding:2px 0 4px; }
+  .dict-search{
+    display:flex; align-items:center; gap:10px; min-height:48px;
+    padding:12px 16px; border-radius:var(--field-radius, var(--radius-pill));
+    background:var(--card); border:1px solid var(--border);
+    color:var(--ink-dim); box-sizing:border-box;
+  }
+  .dict-search input{
+    flex:1; min-width:0; border:0; background:0; outline:none;
+    font:400 16px var(--font-ui); color:var(--ink);  /* 16px - bez zoomu iOS */
+  }
+  .dict-filters{ display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; }
+  .dict-filters::-webkit-scrollbar{ display:none; }
+  .dict-filters .chip{
+    flex:none; min-height:34px; padding:7px 14px; border-radius:var(--radius-pill);
+    border:1px solid var(--border); background:0; color:var(--ink-dim);
+    font:400 12.5px var(--font-ui); cursor:pointer; white-space:nowrap;
+  }
+  .dict-filters .chip[aria-pressed="true"]{
+    background:var(--primary); color:var(--bg); border-color:transparent;
+  }
+  .dict-list{ margin-top:10px; overscroll-behavior:contain; }
+  .dict-list .section-sticky{ text-transform:none; }
+
+  /* Kobalt zamienia chipsy na zakładki i zdejmuje boczny padding listy -
+     spójnie z jego logowaniem i menu (v3 §2). */
+  [data-theme="kobalt"] .dict-filters{ gap:0; border-bottom:1px solid var(--border); }
+  [data-theme="kobalt"] .dict-filters .chip{
+    flex:1; border:0; border-radius:0; min-height:44px; font-weight:700;
+  }
+  [data-theme="kobalt"] .dict-filters .chip[aria-pressed="true"]{
+    background:0; color:var(--hwang); box-shadow:inset 0 -2px 0 var(--hwang);
+  }
+  [data-theme="kobalt"] .dict-list{ margin-inline:-22px; }
+
   /* ══ v2 §2 · LOGOWANIE ═══════════════════════════════════════════════════
      Jeden zestaw reguł dla wszystkich siedmiu motywów. Różnice wizualne
      niosą tokeny komponentowe (--field-radius/--field-bg/--btn-radius/
@@ -4157,9 +4280,19 @@
     <div id="dictWordListLoading" style="text-align:center; padding:30px; color:var(--ink-dim);" data-i18n="dictLoading">Ładowanie…</div>
 
     <div id="dictWordListView">
-      <input type="text" id="dictWordFilterInput" class="report-comment-input" style="width:100%; box-sizing:border-box;" data-i18n-placeholder="dictFilterPlaceholder" placeholder="Szukaj w tym dziale…">
+      <div class="dict-head">
+        <label class="dict-search">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <input type="text" id="dictWordFilterInput" data-i18n-placeholder="dictFilterPlaceholder" placeholder="Szukaj w tym dziale…">
+        </label>
+        <!-- Poziom jako FILTR, nie obowiązkowy krok (v3 §2). Ekran wyboru poziomu
+             zostaje osiągalny, ale nie trzeba przez niego wracać, żeby zmienić poziom.
+             Każdy chip woła to samo fetchDictionaryWords co dotąd - źródło danych
+             słownika jest na liście "czego nie ruszać". -->
+        <div class="dict-filters" id="dictLevelChips" role="tablist"></div>
+      </div>
       <p class="hint-note" id="dictWordFilterCount" style="margin-top:8px;"></p>
-      <div id="dictWordListRows" style="margin-top:10px;"></div>
+      <div id="dictWordListRows" class="dict-list"></div>
     </div>
 
     <div id="dictWordCardView" style="display:none;">
@@ -4492,23 +4625,32 @@
     </div>
 
     <div id="aiChatBody">
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
-        <span style="font-size:14.5px; font-weight:600;" data-i18n="geminiVoiceLabel">🎙️ Rozmowa głosowa na żywo</span>
+      <div class="chat-head">
+        <span class="chat-avatar" aria-hidden="true">학</span>
+        <span style="flex:1; min-width:0;">
+          <span style="display:block; font-size:14.5px; font-weight:600;" data-i18n="geminiVoiceLabel">🎙️ Rozmowa głosowa na żywo</span>
+          <span class="chat-hint" id="geminiHeadHint"></span>
+        </span>
         <span class="ai-usage-badge" id="geminiUsageBadge" style="display:none;"></span>
         <span class="ai-usage-badge" id="geminiSessionTimer" style="display:none;"></span>
       </div>
       <div id="geminiTargetBanner" class="ai-chat-target-banner" style="display:none;"></div>
       <div id="geminiLevelSelector" class="category-chips" style="margin-bottom:10px;"></div>
       <div class="ai-chat-status" id="geminiVoiceStatus" data-i18n="geminiVoiceDefault">Dotknij „Połącz”, żeby rozpocząć rozmowę głosową.</div>
-      <div class="ai-chat-transcript" id="geminiVoiceTranscript"></div>
-      <div class="ai-chat-controls">
+      <div class="ai-chat-transcript chat-log" id="geminiVoiceTranscript"></div>
+      <!-- Trzy kropki "pisze". Jedyna nieustanna animacja w apce, więc
+           prefers-reduced-motion ją wyłącza (v3 §4). -->
+      <div class="typing" id="geminiTyping" style="display:none;" aria-hidden="true"><i></i><i></i><i></i></div>
+      <!-- Pasek dolny wg v3 §4: mikrofon 68px to JEDYNY duży element, po bokach
+           kwadraty 46px. Rozmowa głosowa jest sednem funkcji Premium, więc nie
+           chowamy jej za ikoną obok pola tekstowego. -->
+      <div class="ai-chat-controls chat-bar" id="geminiChatBar">
+        <button class="tool-btn chat-side" id="geminiTranslateBtn" title="Nie rozumiem — przetłumacz" aria-label="Nie rozumiem — przetłumacz" style="display:none;">🔤</button>
         <button class="primary" id="geminiConnectBtn" style="flex:1;">🔌 <span data-i18n="geminiConnectBtn">Połącz</span></button>
-        <button class="primary" id="geminiMicBtn" style="flex:1; display:none;" disabled>🎤 <span data-i18n="speakBtn">Mów</span></button>
-        <button class="tool-btn" id="geminiDisconnectBtn" style="display:none;">🔌 <span data-i18n="geminiDisconnectBtn">Rozłącz</span></button>
+        <button class="primary chat-mic" id="geminiMicBtn" style="display:none;" disabled aria-label="Mów">🎤</button>
+        <button class="tool-btn chat-side" id="geminiDisconnectBtn" title="Rozłącz" aria-label="Rozłącz" style="display:none;">🔌</button>
       </div>
-      <div class="ai-chat-controls" id="geminiHelpControls" style="display:none; margin-top:8px;">
-        <button class="tool-btn" id="geminiTranslateBtn" style="flex:1;">🔤 <span data-i18n="geminiTranslateBtn">Nie rozumiem — przetłumacz</span></button>
-      </div>
+      <div class="ai-chat-controls" id="geminiHelpControls" style="display:none;"></div>
       <div id="geminiHelpArea" style="display:none; margin-top:10px; padding:12px; border-radius:12px; background:var(--card-hi); border:1px solid var(--border); font-size:14.5px; line-height:1.5;"></div>
       <div class="hint-note" style="text-align:left; margin-top:10px;" data-i18n="geminiVoiceNote">
         Rozmowa odbywa się na głos, w czasie rzeczywistym — mów naturalnie, bot odpowie od razu.
@@ -5993,7 +6135,7 @@ async function connectGeminiRelay(isRetry){
       document.getElementById('geminiDisconnectBtn').style.display = '';
       document.getElementById('geminiMicBtn').style.display = '';
       document.getElementById('geminiMicBtn').disabled = false;
-      document.getElementById('geminiHelpControls').style.display = 'flex';
+      document.getElementById('geminiTranslateBtn').style.display = '';
       document.getElementById('geminiLevelSelector').style.display = 'none';
       startGeminiSessionTimer();
       setGeminiVoiceStatus(uiLang === 'en' ? 'Connected — tap to speak' : 'Połączono — dotknij, żeby mówić');
@@ -6064,7 +6206,7 @@ async function connectGeminiRelay(isRetry){
     document.getElementById('geminiConnectBtn').disabled = false;
     document.getElementById('geminiDisconnectBtn').style.display = 'none';
     document.getElementById('geminiMicBtn').style.display = 'none';
-    document.getElementById('geminiHelpControls').style.display = 'none';
+    document.getElementById('geminiTranslateBtn').style.display = 'none';
     document.getElementById('geminiHelpArea').style.display = 'none';
     document.getElementById('geminiLevelSelector').style.display = '';
     // Kod zamknięcia (event.code) trafiał dotąd TYLKO do konsoli przeglądarki - user
@@ -6397,81 +6539,81 @@ document.getElementById('geminiMicBtn').addEventListener('click', ()=>{
 // i przymiotniki"), żeby pojawił się też w Słówkach (Nauka/Ćwiczenia), nie tylko w Koniugacji.
 const KOREAN_VERBS = [
   // czasowniki (akcja) — Poziom 1
-  {ko:"먹다", pl:"jeść", en:"to eat", pos:"verb", level:1, present:"먹어요", past:"먹었어요", future:"먹을 거예요", formal:"먹습니다"},
-  {ko:"마시다", pl:"pić", en:"to drink", pos:"verb", level:1, present:"마셔요", past:"마셨어요", future:"마실 거예요", formal:"마십니다"},
-  {ko:"가다", pl:"iść / jechać", en:"to go", pos:"verb", level:1, present:"가요", past:"갔어요", future:"갈 거예요", formal:"갑니다"},
-  {ko:"오다", pl:"przychodzić", en:"to come", pos:"verb", level:1, present:"와요", past:"왔어요", future:"올 거예요", formal:"옵니다"},
-  {ko:"보다", pl:"widzieć / oglądać", en:"to see / to watch", pos:"verb", level:1, present:"봐요", past:"봤어요", future:"볼 거예요", formal:"봅니다"},
-  {ko:"자다", pl:"spać", en:"to sleep", pos:"verb", level:1, present:"자요", past:"잤어요", future:"잘 거예요", formal:"잡니다"},
-  {ko:"공부하다", pl:"uczyć się", en:"to study", pos:"verb", level:1, present:"공부해요", past:"공부했어요", future:"공부할 거예요", formal:"공부합니다"},
-  {ko:"일하다", pl:"pracować", en:"to work", pos:"verb", level:1, present:"일해요", past:"일했어요", future:"일할 거예요", formal:"일합니다"},
-  {ko:"하다", pl:"robić", en:"to do", pos:"verb", level:1, present:"해요", past:"했어요", future:"할 거예요", formal:"합니다"},
-  {ko:"있다", pl:"być / mieć / istnieć", en:"to be / to have / to exist", pos:"verb", level:1, present:"있어요", past:"있었어요", future:"있을 거예요", formal:"있습니다"},
-  {ko:"없다", pl:"nie być / nie mieć / nie istnieć", en:"to not be / to not have / to not exist", pos:"verb", level:1, present:"없어요", past:"없었어요", future:"없을 거예요", formal:"없습니다"},
-  {ko:"되다", pl:"stawać się", en:"to become", pos:"verb", level:1, present:"돼요", past:"됐어요", future:"될 거예요", formal:"됩니다"},
-  {ko:"알다", pl:"wiedzieć / znać", en:"to know", pos:"verb", level:1, present:"알아요", past:"알았어요", future:"알 거예요", formal:"압니다"},
-  {ko:"모르다", pl:"nie wiedzieć / nie znać", en:"to not know", pos:"verb", level:1, present:"몰라요", past:"몰랐어요", future:"모를 거예요", formal:"모릅니다"},
-  {ko:"살다", pl:"żyć / mieszkać", en:"to live", pos:"verb", level:1, present:"살아요", past:"살았어요", future:"살 거예요", formal:"삽니다"},
-  {ko:"생각하다", pl:"myśleć", en:"to think", pos:"verb", level:1, present:"생각해요", past:"생각했어요", future:"생각할 거예요", formal:"생각합니다"},
-  {ko:"만들다", pl:"robić / tworzyć", en:"to make", pos:"verb", level:1, present:"만들어요", past:"만들었어요", future:"만들 거예요", formal:"만듭니다"},
-  {ko:"앉다", pl:"siadać", en:"to sit", pos:"verb", level:1, present:"앉아요", past:"앉았어요", future:"앉을 거예요", formal:"앉습니다"},
-  {ko:"서다", pl:"stawać / stać", en:"to stand", pos:"verb", level:1, present:"서요", past:"섰어요", future:"설 거예요", formal:"섭니다"},
-  {ko:"걷다", pl:"chodzić / iść pieszo", en:"to walk", pos:"verb", level:1, present:"걸어요", past:"걸었어요", future:"걸을 거예요", formal:"걷습니다"},
-  {ko:"듣다", pl:"słuchać / słyszeć", en:"to listen / to hear", pos:"verb", level:1, present:"들어요", past:"들었어요", future:"들을 거예요", formal:"듣습니다"},
-  {ko:"웃다", pl:"śmiać się", en:"to laugh", pos:"verb", level:1, present:"웃어요", past:"웃었어요", future:"웃을 거예요", formal:"웃습니다"},
-  {ko:"울다", pl:"płakać", en:"to cry", pos:"verb", level:1, present:"울어요", past:"울었어요", future:"울 거예요", formal:"웁니다"},
+  {ko:"먹다", pl:"jeść", en:"to eat", pos:"verb", level:1, present:"먹어요", past:"먹었어요", future:"먹을 거예요", formal:"먹습니다", formalPast:"먹었습니다", formalFuture:"먹을 겁니다", casualPresent:"먹어", casualPast:"먹었어", casualFuture:"먹을 거야"},
+  {ko:"마시다", pl:"pić", en:"to drink", pos:"verb", level:1, present:"마셔요", past:"마셨어요", future:"마실 거예요", formal:"마십니다", formalPast:"마셨습니다", formalFuture:"마실 겁니다", casualPresent:"마셔", casualPast:"마셨어", casualFuture:"마실 거야"},
+  {ko:"가다", pl:"iść / jechać", en:"to go", pos:"verb", level:1, present:"가요", past:"갔어요", future:"갈 거예요", formal:"갑니다", formalPast:"갔습니다", formalFuture:"갈 겁니다", casualPresent:"가", casualPast:"갔어", casualFuture:"갈 거야"},
+  {ko:"오다", pl:"przychodzić", en:"to come", pos:"verb", level:1, present:"와요", past:"왔어요", future:"올 거예요", formal:"옵니다", formalPast:"왔습니다", formalFuture:"올 겁니다", casualPresent:"와", casualPast:"왔어", casualFuture:"올 거야"},
+  {ko:"보다", pl:"widzieć / oglądać", en:"to see / to watch", pos:"verb", level:1, present:"봐요", past:"봤어요", future:"볼 거예요", formal:"봅니다", formalPast:"봤습니다", formalFuture:"볼 겁니다", casualPresent:"봐", casualPast:"봤어", casualFuture:"볼 거야"},
+  {ko:"자다", pl:"spać", en:"to sleep", pos:"verb", level:1, present:"자요", past:"잤어요", future:"잘 거예요", formal:"잡니다", formalPast:"잤습니다", formalFuture:"잘 겁니다", casualPresent:"자", casualPast:"잤어", casualFuture:"잘 거야"},
+  {ko:"공부하다", pl:"uczyć się", en:"to study", pos:"verb", level:1, present:"공부해요", past:"공부했어요", future:"공부할 거예요", formal:"공부합니다", formalPast:"공부했습니다", formalFuture:"공부할 겁니다", casualPresent:"공부해", casualPast:"공부했어", casualFuture:"공부할 거야"},
+  {ko:"일하다", pl:"pracować", en:"to work", pos:"verb", level:1, present:"일해요", past:"일했어요", future:"일할 거예요", formal:"일합니다", formalPast:"일했습니다", formalFuture:"일할 겁니다", casualPresent:"일해", casualPast:"일했어", casualFuture:"일할 거야"},
+  {ko:"하다", pl:"robić", en:"to do", pos:"verb", level:1, present:"해요", past:"했어요", future:"할 거예요", formal:"합니다", formalPast:"했습니다", formalFuture:"할 겁니다", casualPresent:"해", casualPast:"했어", casualFuture:"할 거야"},
+  {ko:"있다", pl:"być / mieć / istnieć", en:"to be / to have / to exist", pos:"verb", level:1, present:"있어요", past:"있었어요", future:"있을 거예요", formal:"있습니다", formalPast:"있었습니다", formalFuture:"있을 겁니다", casualPresent:"있어", casualPast:"있었어", casualFuture:"있을 거야"},
+  {ko:"없다", pl:"nie być / nie mieć / nie istnieć", en:"to not be / to not have / to not exist", pos:"verb", level:1, present:"없어요", past:"없었어요", future:"없을 거예요", formal:"없습니다", formalPast:"없었습니다", formalFuture:"없을 겁니다", casualPresent:"없어", casualPast:"없었어", casualFuture:"없을 거야"},
+  {ko:"되다", pl:"stawać się", en:"to become", pos:"verb", level:1, present:"돼요", past:"됐어요", future:"될 거예요", formal:"됩니다", formalPast:"됐습니다", formalFuture:"될 겁니다", casualPresent:"돼", casualPast:"됐어", casualFuture:"될 거야"},
+  {ko:"알다", pl:"wiedzieć / znać", en:"to know", pos:"verb", level:1, present:"알아요", past:"알았어요", future:"알 거예요", formal:"압니다", formalPast:"알았습니다", formalFuture:"알 겁니다", casualPresent:"알아", casualPast:"알았어", casualFuture:"알 거야"},
+  {ko:"모르다", pl:"nie wiedzieć / nie znać", en:"to not know", pos:"verb", level:1, present:"몰라요", past:"몰랐어요", future:"모를 거예요", formal:"모릅니다", formalPast:"몰랐습니다", formalFuture:"모를 겁니다", casualPresent:"몰라", casualPast:"몰랐어", casualFuture:"모를 거야"},
+  {ko:"살다", pl:"żyć / mieszkać", en:"to live", pos:"verb", level:1, present:"살아요", past:"살았어요", future:"살 거예요", formal:"삽니다", formalPast:"살았습니다", formalFuture:"살 겁니다", casualPresent:"살아", casualPast:"살았어", casualFuture:"살 거야"},
+  {ko:"생각하다", pl:"myśleć", en:"to think", pos:"verb", level:1, present:"생각해요", past:"생각했어요", future:"생각할 거예요", formal:"생각합니다", formalPast:"생각했습니다", formalFuture:"생각할 겁니다", casualPresent:"생각해", casualPast:"생각했어", casualFuture:"생각할 거야"},
+  {ko:"만들다", pl:"robić / tworzyć", en:"to make", pos:"verb", level:1, present:"만들어요", past:"만들었어요", future:"만들 거예요", formal:"만듭니다", formalPast:"만들었습니다", formalFuture:"만들 겁니다", casualPresent:"만들어", casualPast:"만들었어", casualFuture:"만들 거야"},
+  {ko:"앉다", pl:"siadać", en:"to sit", pos:"verb", level:1, present:"앉아요", past:"앉았어요", future:"앉을 거예요", formal:"앉습니다", formalPast:"앉았습니다", formalFuture:"앉을 겁니다", casualPresent:"앉아", casualPast:"앉았어", casualFuture:"앉을 거야"},
+  {ko:"서다", pl:"stawać / stać", en:"to stand", pos:"verb", level:1, present:"서요", past:"섰어요", future:"설 거예요", formal:"섭니다", formalPast:"섰습니다", formalFuture:"설 겁니다", casualPresent:"서", casualPast:"섰어", casualFuture:"설 거야"},
+  {ko:"걷다", pl:"chodzić / iść pieszo", en:"to walk", pos:"verb", level:1, present:"걸어요", past:"걸었어요", future:"걸을 거예요", formal:"걷습니다", formalPast:"걸었습니다", formalFuture:"걸을 겁니다", casualPresent:"걸어", casualPast:"걸었어", casualFuture:"걸을 거야"},
+  {ko:"듣다", pl:"słuchać / słyszeć", en:"to listen / to hear", pos:"verb", level:1, present:"들어요", past:"들었어요", future:"들을 거예요", formal:"듣습니다", formalPast:"들었습니다", formalFuture:"들을 겁니다", casualPresent:"들어", casualPast:"들었어", casualFuture:"들을 거야"},
+  {ko:"웃다", pl:"śmiać się", en:"to laugh", pos:"verb", level:1, present:"웃어요", past:"웃었어요", future:"웃을 거예요", formal:"웃습니다", formalPast:"웃었습니다", formalFuture:"웃을 겁니다", casualPresent:"웃어", casualPast:"웃었어", casualFuture:"웃을 거야"},
+  {ko:"울다", pl:"płakać", en:"to cry", pos:"verb", level:1, present:"울어요", past:"울었어요", future:"울 거예요", formal:"웁니다", formalPast:"울었습니다", formalFuture:"울 겁니다", casualPresent:"울어", casualPast:"울었어", casualFuture:"울 거야"},
   // czasowniki — Poziom 2
-  {ko:"만나다", pl:"spotykać", en:"to meet", pos:"verb", level:2, present:"만나요", past:"만났어요", future:"만날 거예요", formal:"만납니다"},
-  {ko:"배우다", pl:"uczyć się (czegoś)", en:"to learn", pos:"verb", level:2, present:"배워요", past:"배웠어요", future:"배울 거예요", formal:"배웁니다"},
-  {ko:"가르치다", pl:"uczyć (kogoś)", en:"to teach", pos:"verb", level:2, present:"가르쳐요", past:"가르쳤어요", future:"가르칠 거예요", formal:"가르칩니다"},
-  {ko:"도와주다", pl:"pomagać", en:"to help", pos:"verb", level:2, present:"도와줘요", past:"도와줬어요", future:"도와줄 거예요", formal:"도와줍니다"},
-  {ko:"기다리다", pl:"czekać", en:"to wait", pos:"verb", level:2, present:"기다려요", past:"기다렸어요", future:"기다릴 거예요", formal:"기다립니다"},
-  {ko:"시작하다", pl:"zaczynać", en:"to start", pos:"verb", level:2, present:"시작해요", past:"시작했어요", future:"시작할 거예요", formal:"시작합니다"},
+  {ko:"만나다", pl:"spotykać", en:"to meet", pos:"verb", level:2, present:"만나요", past:"만났어요", future:"만날 거예요", formal:"만납니다", formalPast:"만났습니다", formalFuture:"만날 겁니다", casualPresent:"만나", casualPast:"만났어", casualFuture:"만날 거야"},
+  {ko:"배우다", pl:"uczyć się (czegoś)", en:"to learn", pos:"verb", level:2, present:"배워요", past:"배웠어요", future:"배울 거예요", formal:"배웁니다", formalPast:"배웠습니다", formalFuture:"배울 겁니다", casualPresent:"배워", casualPast:"배웠어", casualFuture:"배울 거야"},
+  {ko:"가르치다", pl:"uczyć (kogoś)", en:"to teach", pos:"verb", level:2, present:"가르쳐요", past:"가르쳤어요", future:"가르칠 거예요", formal:"가르칩니다", formalPast:"가르쳤습니다", formalFuture:"가르칠 겁니다", casualPresent:"가르쳐", casualPast:"가르쳤어", casualFuture:"가르칠 거야"},
+  {ko:"도와주다", pl:"pomagać", en:"to help", pos:"verb", level:2, present:"도와줘요", past:"도와줬어요", future:"도와줄 거예요", formal:"도와줍니다", formalPast:"도와줬습니다", formalFuture:"도와줄 겁니다", casualPresent:"도와줘", casualPast:"도와줬어", casualFuture:"도와줄 거야"},
+  {ko:"기다리다", pl:"czekać", en:"to wait", pos:"verb", level:2, present:"기다려요", past:"기다렸어요", future:"기다릴 거예요", formal:"기다립니다", formalPast:"기다렸습니다", formalFuture:"기다릴 겁니다", casualPresent:"기다려", casualPast:"기다렸어", casualFuture:"기다릴 거야"},
+  {ko:"시작하다", pl:"zaczynać", en:"to start", pos:"verb", level:2, present:"시작해요", past:"시작했어요", future:"시작할 거예요", formal:"시작합니다", formalPast:"시작했습니다", formalFuture:"시작할 겁니다", casualPresent:"시작해", casualPast:"시작했어", casualFuture:"시작할 거야"},
   // czasowniki — Poziom 3 (w tym nieregularne na ㅅ: 짓다, 긋다, 붓다 — ㅅ znika przed samogłoską)
-  {ko:"짓다", pl:"budować / tworzyć", en:"to build / to make", pos:"verb", level:3, present:"지어요", past:"지었어요", future:"지을 거예요", formal:"짓습니다"},
-  {ko:"긋다", pl:"kreślić (linię)", en:"to draw a line", pos:"verb", level:3, present:"그어요", past:"그었어요", future:"그을 거예요", formal:"긋습니다"},
-  {ko:"붓다", pl:"nalewać", en:"to pour", pos:"verb", level:3, present:"부어요", past:"부었어요", future:"부을 거예요", formal:"붓습니다"},
-  {ko:"도착하다", pl:"przybywać", en:"to arrive", pos:"verb", level:3, present:"도착해요", past:"도착했어요", future:"도착할 거예요", formal:"도착합니다"},
-  {ko:"이해하다", pl:"rozumieć", en:"to understand", pos:"verb", level:3, present:"이해해요", past:"이해했어요", future:"이해할 거예요", formal:"이해합니다"},
-  {ko:"설명하다", pl:"wyjaśniać", en:"to explain", pos:"verb", level:3, present:"설명해요", past:"설명했어요", future:"설명할 거예요", formal:"설명합니다"},
-  {ko:"결정하다", pl:"decydować", en:"to decide", pos:"verb", level:3, present:"결정해요", past:"결정했어요", future:"결정할 거예요", formal:"결정합니다"},
-  {ko:"준비하다", pl:"przygotowywać", en:"to prepare", pos:"verb", level:3, present:"준비해요", past:"준비했어요", future:"준비할 거예요", formal:"준비합니다"},
+  {ko:"짓다", pl:"budować / tworzyć", en:"to build / to make", pos:"verb", level:3, present:"지어요", past:"지었어요", future:"지을 거예요", formal:"짓습니다", formalPast:"지었습니다", formalFuture:"지을 겁니다", casualPresent:"지어", casualPast:"지었어", casualFuture:"지을 거야"},
+  {ko:"긋다", pl:"kreślić (linię)", en:"to draw a line", pos:"verb", level:3, present:"그어요", past:"그었어요", future:"그을 거예요", formal:"긋습니다", formalPast:"그었습니다", formalFuture:"그을 겁니다", casualPresent:"그어", casualPast:"그었어", casualFuture:"그을 거야"},
+  {ko:"붓다", pl:"nalewać", en:"to pour", pos:"verb", level:3, present:"부어요", past:"부었어요", future:"부을 거예요", formal:"붓습니다", formalPast:"부었습니다", formalFuture:"부을 겁니다", casualPresent:"부어", casualPast:"부었어", casualFuture:"부을 거야"},
+  {ko:"도착하다", pl:"przybywać", en:"to arrive", pos:"verb", level:3, present:"도착해요", past:"도착했어요", future:"도착할 거예요", formal:"도착합니다", formalPast:"도착했습니다", formalFuture:"도착할 겁니다", casualPresent:"도착해", casualPast:"도착했어", casualFuture:"도착할 거야"},
+  {ko:"이해하다", pl:"rozumieć", en:"to understand", pos:"verb", level:3, present:"이해해요", past:"이해했어요", future:"이해할 거예요", formal:"이해합니다", formalPast:"이해했습니다", formalFuture:"이해할 겁니다", casualPresent:"이해해", casualPast:"이해했어", casualFuture:"이해할 거야"},
+  {ko:"설명하다", pl:"wyjaśniać", en:"to explain", pos:"verb", level:3, present:"설명해요", past:"설명했어요", future:"설명할 거예요", formal:"설명합니다", formalPast:"설명했습니다", formalFuture:"설명할 겁니다", casualPresent:"설명해", casualPast:"설명했어", casualFuture:"설명할 거야"},
+  {ko:"결정하다", pl:"decydować", en:"to decide", pos:"verb", level:3, present:"결정해요", past:"결정했어요", future:"결정할 거예요", formal:"결정합니다", formalPast:"결정했습니다", formalFuture:"결정할 겁니다", casualPresent:"결정해", casualPast:"결정했어", casualFuture:"결정할 거야"},
+  {ko:"준비하다", pl:"przygotowywać", en:"to prepare", pos:"verb", level:3, present:"준비해요", past:"준비했어요", future:"준비할 거예요", formal:"준비합니다", formalPast:"준비했습니다", formalFuture:"준비할 겁니다", casualPresent:"준비해", casualPast:"준비했어", casualFuture:"준비할 거야"},
   // przymiotniki (stan / cecha) — Poziom 1
-  {ko:"크다", pl:"być dużym", en:"to be big", pos:"adjective", level:1, present:"커요", past:"컸어요", future:"클 거예요", formal:"큽니다"},
-  {ko:"작다", pl:"być małym", en:"to be small", pos:"adjective", level:1, present:"작아요", past:"작았어요", future:"작을 거예요", formal:"작습니다"},
-  {ko:"좋다", pl:"być dobrym", en:"to be good", pos:"adjective", level:1, present:"좋아요", past:"좋았어요", future:"좋을 거예요", formal:"좋습니다"},
-  {ko:"예쁘다", pl:"być ładnym", en:"to be pretty", pos:"adjective", level:1, present:"예뻐요", past:"예뻤어요", future:"예쁠 거예요", formal:"예쁩니다"},
-  {ko:"맛있다", pl:"być smacznym", en:"to be tasty", pos:"adjective", level:1, present:"맛있어요", past:"맛있었어요", future:"맛있을 거예요", formal:"맛있습니다"},
+  {ko:"크다", pl:"być dużym", en:"to be big", pos:"adjective", level:1, present:"커요", past:"컸어요", future:"클 거예요", formal:"큽니다", formalPast:"컸습니다", formalFuture:"클 겁니다", casualPresent:"커", casualPast:"컸어", casualFuture:"클 거야"},
+  {ko:"작다", pl:"być małym", en:"to be small", pos:"adjective", level:1, present:"작아요", past:"작았어요", future:"작을 거예요", formal:"작습니다", formalPast:"작았습니다", formalFuture:"작을 겁니다", casualPresent:"작아", casualPast:"작았어", casualFuture:"작을 거야"},
+  {ko:"좋다", pl:"być dobrym", en:"to be good", pos:"adjective", level:1, present:"좋아요", past:"좋았어요", future:"좋을 거예요", formal:"좋습니다", formalPast:"좋았습니다", formalFuture:"좋을 겁니다", casualPresent:"좋아", casualPast:"좋았어", casualFuture:"좋을 거야"},
+  {ko:"예쁘다", pl:"być ładnym", en:"to be pretty", pos:"adjective", level:1, present:"예뻐요", past:"예뻤어요", future:"예쁠 거예요", formal:"예쁩니다", formalPast:"예뻤습니다", formalFuture:"예쁠 겁니다", casualPresent:"예뻐", casualPast:"예뻤어", casualFuture:"예쁠 거야"},
+  {ko:"맛있다", pl:"być smacznym", en:"to be tasty", pos:"adjective", level:1, present:"맛있어요", past:"맛있었어요", future:"맛있을 거예요", formal:"맛있습니다", formalPast:"맛있었습니다", formalFuture:"맛있을 겁니다", casualPresent:"맛있어", casualPast:"맛있었어", casualFuture:"맛있을 거야"},
   // przymiotniki — Poziom 2 (w tym dwa nieregularne na ㅂ: 어렵다, 쉽다)
-  {ko:"바쁘다", pl:"być zajętym", en:"to be busy", pos:"adjective", level:2, present:"바빠요", past:"바빴어요", future:"바쁠 거예요", formal:"바쁩니다"},
-  {ko:"피곤하다", pl:"być zmęczonym", en:"to be tired", pos:"adjective", level:2, present:"피곤해요", past:"피곤했어요", future:"피곤할 거예요", formal:"피곤합니다"},
-  {ko:"재미있다", pl:"być interesującym/zabawnym", en:"to be fun/interesting", pos:"adjective", level:2, present:"재미있어요", past:"재미있었어요", future:"재미있을 거예요", formal:"재미있습니다"},
-  {ko:"어렵다", pl:"być trudnym", en:"to be difficult", pos:"adjective", level:2, present:"어려워요", past:"어려웠어요", future:"어려울 거예요", formal:"어렵습니다"},
-  {ko:"쉽다", pl:"być łatwym", en:"to be easy", pos:"adjective", level:2, present:"쉬워요", past:"쉬웠어요", future:"쉬울 거예요", formal:"쉽습니다"},
+  {ko:"바쁘다", pl:"być zajętym", en:"to be busy", pos:"adjective", level:2, present:"바빠요", past:"바빴어요", future:"바쁠 거예요", formal:"바쁩니다", formalPast:"바빴습니다", formalFuture:"바쁠 겁니다", casualPresent:"바빠", casualPast:"바빴어", casualFuture:"바쁠 거야"},
+  {ko:"피곤하다", pl:"być zmęczonym", en:"to be tired", pos:"adjective", level:2, present:"피곤해요", past:"피곤했어요", future:"피곤할 거예요", formal:"피곤합니다", formalPast:"피곤했습니다", formalFuture:"피곤할 겁니다", casualPresent:"피곤해", casualPast:"피곤했어", casualFuture:"피곤할 거야"},
+  {ko:"재미있다", pl:"być interesującym/zabawnym", en:"to be fun/interesting", pos:"adjective", level:2, present:"재미있어요", past:"재미있었어요", future:"재미있을 거예요", formal:"재미있습니다", formalPast:"재미있었습니다", formalFuture:"재미있을 겁니다", casualPresent:"재미있어", casualPast:"재미있었어", casualFuture:"재미있을 거야"},
+  {ko:"어렵다", pl:"być trudnym", en:"to be difficult", pos:"adjective", level:2, present:"어려워요", past:"어려웠어요", future:"어려울 거예요", formal:"어렵습니다", formalPast:"어려웠습니다", formalFuture:"어려울 겁니다", casualPresent:"어려워", casualPast:"어려웠어", casualFuture:"어려울 거야"},
+  {ko:"쉽다", pl:"być łatwym", en:"to be easy", pos:"adjective", level:2, present:"쉬워요", past:"쉬웠어요", future:"쉬울 거예요", formal:"쉽습니다", formalPast:"쉬웠습니다", formalFuture:"쉬울 겁니다", casualPresent:"쉬워", casualPast:"쉬웠어", casualFuture:"쉬울 거야"},
   // przymiotniki — Poziom 3
-  {ko:"화려하다", pl:"być wystawnym/olśniewającym", en:"to be splendid/gorgeous", pos:"adjective", level:3, present:"화려해요", past:"화려했어요", future:"화려할 거예요", formal:"화려합니다"},
-  {ko:"조용하다", pl:"być cichym/spokojnym", en:"to be quiet", pos:"adjective", level:3, present:"조용해요", past:"조용했어요", future:"조용할 거예요", formal:"조용합니다"},
-  {ko:"진지하다", pl:"być poważnym", en:"to be serious", pos:"adjective", level:3, present:"진지해요", past:"진지했어요", future:"진지할 거예요", formal:"진지합니다"},
-  {ko:"특별하다", pl:"być szczególnym", en:"to be special", pos:"adjective", level:3, present:"특별해요", past:"특별했어요", future:"특별할 거예요", formal:"특별합니다"},
-  {ko:"완벽하다", pl:"być doskonałym", en:"to be perfect", pos:"adjective", level:3, present:"완벽해요", past:"완벽했어요", future:"완벽할 거예요", formal:"완벽합니다"},
+  {ko:"화려하다", pl:"być wystawnym/olśniewającym", en:"to be splendid/gorgeous", pos:"adjective", level:3, present:"화려해요", past:"화려했어요", future:"화려할 거예요", formal:"화려합니다", formalPast:"화려했습니다", formalFuture:"화려할 겁니다", casualPresent:"화려해", casualPast:"화려했어", casualFuture:"화려할 거야"},
+  {ko:"조용하다", pl:"być cichym/spokojnym", en:"to be quiet", pos:"adjective", level:3, present:"조용해요", past:"조용했어요", future:"조용할 거예요", formal:"조용합니다", formalPast:"조용했습니다", formalFuture:"조용할 겁니다", casualPresent:"조용해", casualPast:"조용했어", casualFuture:"조용할 거야"},
+  {ko:"진지하다", pl:"być poważnym", en:"to be serious", pos:"adjective", level:3, present:"진지해요", past:"진지했어요", future:"진지할 거예요", formal:"진지합니다", formalPast:"진지했습니다", formalFuture:"진지할 겁니다", casualPresent:"진지해", casualPast:"진지했어", casualFuture:"진지할 거야"},
+  {ko:"특별하다", pl:"być szczególnym", en:"to be special", pos:"adjective", level:3, present:"특별해요", past:"특별했어요", future:"특별할 거예요", formal:"특별합니다", formalPast:"특별했습니다", formalFuture:"특별할 겁니다", casualPresent:"특별해", casualPast:"특별했어", casualFuture:"특별할 거야"},
+  {ko:"완벽하다", pl:"być doskonałym", en:"to be perfect", pos:"adjective", level:3, present:"완벽해요", past:"완벽했어요", future:"완벽할 거예요", formal:"완벽합니다", formalPast:"완벽했습니다", formalFuture:"완벽할 겁니다", casualPresent:"완벽해", casualPast:"완벽했어", casualFuture:"완벽할 거야"},
   // rzeczowniki + 이다 — Poziom 1 (np. "być uczniem" — baza pod przydawki i zdania orzecznikowe)
-  {ko:"학생", pl:"uczeń / uczennica", en:"student", pos:"noun", level:1, present:"학생이에요", past:"학생이었어요", future:"학생일 거예요", formal:"학생입니다"},
-  {ko:"선생님", pl:"nauczyciel/ka", en:"teacher", pos:"noun", level:1, present:"선생님이에요", past:"선생님이었어요", future:"선생님일 거예요", formal:"선생님입니다"},
-  {ko:"의사", pl:"lekarz/lekarka", en:"doctor", pos:"noun", level:1, present:"의사예요", past:"의사였어요", future:"의사일 거예요", formal:"의사입니다"},
-  {ko:"회사원", pl:"pracownik biurowy", en:"office worker", pos:"noun", level:1, present:"회사원이에요", past:"회사원이었어요", future:"회사원일 거예요", formal:"회사원입니다"},
-  {ko:"가수", pl:"piosenkarz/arka", en:"singer", pos:"noun", level:1, present:"가수예요", past:"가수였어요", future:"가수일 거예요", formal:"가수입니다"},
+  {ko:"학생", pl:"uczeń / uczennica", en:"student", pos:"noun", level:1, present:"학생이에요", past:"학생이었어요", future:"학생일 거예요", formal:"학생입니다", formalPast:"학생이었습니다", formalFuture:"학생일 겁니다", casualPresent:"학생이야", casualPast:"학생이었어", casualFuture:"학생일 거야"},
+  {ko:"선생님", pl:"nauczyciel/ka", en:"teacher", pos:"noun", level:1, present:"선생님이에요", past:"선생님이었어요", future:"선생님일 거예요", formal:"선생님입니다", formalPast:"선생님이었습니다", formalFuture:"선생님일 겁니다", casualPresent:"선생님이야", casualPast:"선생님이었어", casualFuture:"선생님일 거야"},
+  {ko:"의사", pl:"lekarz/lekarka", en:"doctor", pos:"noun", level:1, present:"의사예요", past:"의사였어요", future:"의사일 거예요", formal:"의사입니다", formalPast:"의사였습니다", formalFuture:"의사일 겁니다", casualPresent:"의사야", casualPast:"의사였어", casualFuture:"의사일 거야"},
+  {ko:"회사원", pl:"pracownik biurowy", en:"office worker", pos:"noun", level:1, present:"회사원이에요", past:"회사원이었어요", future:"회사원일 거예요", formal:"회사원입니다", formalPast:"회사원이었습니다", formalFuture:"회사원일 겁니다", casualPresent:"회사원이야", casualPast:"회사원이었어", casualFuture:"회사원일 거야"},
+  {ko:"가수", pl:"piosenkarz/arka", en:"singer", pos:"noun", level:1, present:"가수예요", past:"가수였어요", future:"가수일 거예요", formal:"가수입니다", formalPast:"가수였습니다", formalFuture:"가수일 겁니다", casualPresent:"가수야", casualPast:"가수였어", casualFuture:"가수일 거야"},
   // rzeczowniki — Poziom 2
-  {ko:"기자", pl:"dziennikarz/arka", en:"journalist", pos:"noun", level:2, present:"기자예요", past:"기자였어요", future:"기자일 거예요", formal:"기자입니다"},
-  {ko:"경찰", pl:"policjant/ka", en:"police officer", pos:"noun", level:2, present:"경찰이에요", past:"경찰이었어요", future:"경찰일 거예요", formal:"경찰입니다"},
-  {ko:"요리사", pl:"kucharz/arka", en:"cook / chef", pos:"noun", level:2, present:"요리사예요", past:"요리사였어요", future:"요리사일 거예요", formal:"요리사입니다"},
-  {ko:"변호사", pl:"prawnik/prawniczka", en:"lawyer", pos:"noun", level:2, present:"변호사예요", past:"변호사였어요", future:"변호사일 거예요", formal:"변호사입니다"},
-  {ko:"배우", pl:"aktor/aktorka", en:"actor", pos:"noun", level:2, present:"배우예요", past:"배우였어요", future:"배우일 거예요", formal:"배우입니다"},
+  {ko:"기자", pl:"dziennikarz/arka", en:"journalist", pos:"noun", level:2, present:"기자예요", past:"기자였어요", future:"기자일 거예요", formal:"기자입니다", formalPast:"기자였습니다", formalFuture:"기자일 겁니다", casualPresent:"기자야", casualPast:"기자였어", casualFuture:"기자일 거야"},
+  {ko:"경찰", pl:"policjant/ka", en:"police officer", pos:"noun", level:2, present:"경찰이에요", past:"경찰이었어요", future:"경찰일 거예요", formal:"경찰입니다", formalPast:"경찰이었습니다", formalFuture:"경찰일 겁니다", casualPresent:"경찰이야", casualPast:"경찰이었어", casualFuture:"경찰일 거야"},
+  {ko:"요리사", pl:"kucharz/arka", en:"cook / chef", pos:"noun", level:2, present:"요리사예요", past:"요리사였어요", future:"요리사일 거예요", formal:"요리사입니다", formalPast:"요리사였습니다", formalFuture:"요리사일 겁니다", casualPresent:"요리사야", casualPast:"요리사였어", casualFuture:"요리사일 거야"},
+  {ko:"변호사", pl:"prawnik/prawniczka", en:"lawyer", pos:"noun", level:2, present:"변호사예요", past:"변호사였어요", future:"변호사일 거예요", formal:"변호사입니다", formalPast:"변호사였습니다", formalFuture:"변호사일 겁니다", casualPresent:"변호사야", casualPast:"변호사였어", casualFuture:"변호사일 거야"},
+  {ko:"배우", pl:"aktor/aktorka", en:"actor", pos:"noun", level:2, present:"배우예요", past:"배우였어요", future:"배우일 거예요", formal:"배우입니다", formalPast:"배우였습니다", formalFuture:"배우일 겁니다", casualPresent:"배우야", casualPast:"배우였어", casualFuture:"배우일 거야"},
   // rzeczowniki — Poziom 3
-  {ko:"예술가", pl:"artysta/artystka", en:"artist", pos:"noun", level:3, present:"예술가예요", past:"예술가였어요", future:"예술가일 거예요", formal:"예술가입니다"},
-  {ko:"사업가", pl:"przedsiębiorca", en:"businessperson", pos:"noun", level:3, present:"사업가예요", past:"사업가였어요", future:"사업가일 거예요", formal:"사업가입니다"},
-  {ko:"공무원", pl:"urzędnik", en:"civil servant", pos:"noun", level:3, present:"공무원이에요", past:"공무원이었어요", future:"공무원일 거예요", formal:"공무원입니다"},
-  {ko:"연구원", pl:"badacz/badaczka", en:"researcher", pos:"noun", level:3, present:"연구원이에요", past:"연구원이었어요", future:"연구원일 거예요", formal:"연구원입니다"},
-  {ko:"디자이너", pl:"projektant/ka", en:"designer", pos:"noun", level:3, present:"디자이너예요", past:"디자이너였어요", future:"디자이너일 거예요", formal:"디자이너입니다"},
+  {ko:"예술가", pl:"artysta/artystka", en:"artist", pos:"noun", level:3, present:"예술가예요", past:"예술가였어요", future:"예술가일 거예요", formal:"예술가입니다", formalPast:"예술가였습니다", formalFuture:"예술가일 겁니다", casualPresent:"예술가야", casualPast:"예술가였어", casualFuture:"예술가일 거야"},
+  {ko:"사업가", pl:"przedsiębiorca", en:"businessperson", pos:"noun", level:3, present:"사업가예요", past:"사업가였어요", future:"사업가일 거예요", formal:"사업가입니다", formalPast:"사업가였습니다", formalFuture:"사업가일 겁니다", casualPresent:"사업가야", casualPast:"사업가였어", casualFuture:"사업가일 거야"},
+  {ko:"공무원", pl:"urzędnik", en:"civil servant", pos:"noun", level:3, present:"공무원이에요", past:"공무원이었어요", future:"공무원일 거예요", formal:"공무원입니다", formalPast:"공무원이었습니다", formalFuture:"공무원일 겁니다", casualPresent:"공무원이야", casualPast:"공무원이었어", casualFuture:"공무원일 거야"},
+  {ko:"연구원", pl:"badacz/badaczka", en:"researcher", pos:"noun", level:3, present:"연구원이에요", past:"연구원이었어요", future:"연구원일 거예요", formal:"연구원입니다", formalPast:"연구원이었습니다", formalFuture:"연구원일 겁니다", casualPresent:"연구원이야", casualPast:"연구원이었어", casualFuture:"연구원일 거야"},
+  {ko:"디자이너", pl:"projektant/ka", en:"designer", pos:"noun", level:3, present:"디자이너예요", past:"디자이너였어요", future:"디자이너일 거예요", formal:"디자이너입니다", formalPast:"디자이너였습니다", formalFuture:"디자이너일 겁니다", casualPresent:"디자이너야", casualPast:"디자이너였어", casualFuture:"디자이너일 거야"},
 ];
 
 const READING_TEXTS = [
@@ -13586,7 +13728,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.24';
+const APP_VERSION = '2026-09-01.25';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -17155,6 +17297,32 @@ function renderDictLevelCards(){
   });
 }
 
+// Chipsy poziomu w widoku listy. Nie zmieniają sposobu pobierania danych -
+// wołają dokładnie to samo fetchDictionaryWords(level, dept) co karty na ekranie
+// wyboru poziomu. Zmienia się tylko to, że nie trzeba po nie wracać wstecz.
+function renderDictLevelChips(){
+  const wrap = document.getElementById('dictLevelChips');
+  if(!wrap) return;
+  wrap.innerHTML = LEVEL_META.map(m => `
+    <button type="button" class="chip" role="tab" data-level="${m.level}"
+      aria-pressed="${m.level === selectedDictLevel ? 'true' : 'false'}">${uiLang === 'en' ? m.labelEn : m.label}</button>
+  `).join('');
+  wrap.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', async () => {
+      const lvl = parseInt(chip.dataset.level, 10);
+      if(lvl === selectedDictLevel) return;
+      selectedDictLevel = lvl;
+      dictWordContextLabel = `${selectedDictDept} — ${meta_label(lvl)}`;
+      document.getElementById('dictWordListStatus').textContent = dictWordContextLabel;
+      document.getElementById('dictWordListLoading').style.display = 'block';
+      document.getElementById('dictWordListView').style.display = 'none';
+      const list = await fetchDictionaryWords(lvl, selectedDictDept);
+      document.getElementById('dictWordListLoading').style.display = 'none';
+      renderDictWordList(list);
+    });
+  });
+}
+
 function meta_label(level){
   const meta = LEVEL_META.find(m => m.level === level);
   return meta ? (uiLang === 'en' ? meta.labelEn : meta.label) : '';
@@ -17169,19 +17337,35 @@ let dictWordFlipped = false;
 // swój własny ekran wyboru, żeby "wstecz" nie prowadziło przez cały, niezwiązany
 // łańcuch poziom->dział->tryb->menu.
 function renderDictWordList(words, backTarget, backLabel){
-  dictWordQueue = words;
+  // Sortujemy SAMĄ KOLEJKĘ, nie tylko widok - inaczej "Następne" w karcie
+  // chodziłoby w innej kolejności niż to, co user widzi na liście.
+  // To porządek wyświetlania, nie zmiana źródła danych.
+  dictWordQueue = [...words].sort((a, b) => (a.ko || '').localeCompare(b.ko || '', 'ko'));
   dictWordIndex = 0;
   document.getElementById('dictWordFilterInput').value = '';
   const backBtn = document.getElementById('dictWordListBackBtn');
   backBtn.dataset.back = backTarget || 'dictLevel';
   backBtn.textContent = backLabel || (uiLang === 'en' ? 'Choose level' : 'Wybór poziomu');
   showDictWordListView();
+  renderDictLevelChips();
   renderDictWordListRows(dictWordQueue);
   document.getElementById('dictWordListStatus').textContent = dictWordContextLabel;
 }
 
 // Widok listy: zwięzłe wiersze (ko + krótkie tłumaczenie), filtrowalne bez ponownego
 // zapytania sieciowego - filtrujemy to, co już mamy w pamięci z dictWordQueue.
+// Spółgłoska początkowa (초성) sylaby - koreański odpowiednik "litery alfabetu"
+// z v3 §2. Wyliczana z bloku hangul: (kod - 0xAC00) / 588 daje indeks w tablicy.
+const CHOSEONG = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+function choseongOf(text){
+  const s = (text || '').trim();
+  if(!s) return '#';
+  const c = s.charCodeAt(0);
+  if(c >= 0xAC00 && c <= 0xD7A3) return CHOSEONG[Math.floor((c - 0xAC00) / 588)];
+  if(c >= 0x3131 && c <= 0x314E) return s[0];   // samo jamo, np. hasło typu "ㄱ"
+  return '#';                                    // cyfry, łacinka, znaki
+}
+
 function renderDictWordListRows(words){
   const wrap = document.getElementById('dictWordListRows');
   const countLabel = uiLang === 'en' ? `${words.length} of ${dictWordQueue.length} words` : `${words.length} z ${dictWordQueue.length} słów`;
@@ -17191,13 +17375,23 @@ function renderDictWordListRows(words){
     wrap.innerHTML = `<p class="hint-note" style="text-align:center; padding:20px;">${uiLang === 'en' ? 'No matches.' : 'Brak dopasowań.'}</p>`;
     return;
   }
-  wrap.innerHTML = words.map((w, i) => `
-    <div class="dict-word-row sb-tappable" data-idx="${i}">
-      <div class="dict-word-ko">${escapeHtml(w.ko)}${w.emoji ? ' ' + w.emoji : ''}</div>
-      <div class="dict-word-tr">${escapeHtml(uiLang === 'en' ? w.en : w.pl)}</div>
-    </div>
-  `).join('');
-  wrap.querySelectorAll('.dict-word-row').forEach(row=>{
+  // Nagłówek wstawiamy TYLKO przy zmianie 초성 - lista jest już posortowana
+  // koreańsko w renderDictWordList(), więc grupy wychodzą same.
+  let lastGroup = null;
+  wrap.innerHTML = words.map((w, i) => {
+    const g = choseongOf(w.ko);
+    const head = g !== lastGroup ? `<div class="section-sticky">${escapeHtml(g)}</div>` : '';
+    lastGroup = g;
+    return head + `
+    <div class="dr-row sb-tappable" data-idx="${i}">
+      <div class="dr-row-main">
+        <div class="dr-row-ko">${escapeHtml(w.ko)}${w.emoji ? ' ' + w.emoji : ''}</div>
+        <div class="dr-row-pl">${escapeHtml(uiLang === 'en' ? w.en : w.pl)}</div>
+      </div>
+      ${w.pos ? `<span class="dr-row-badge">${escapeHtml(w.pos)}</span>` : ''}
+    </div>`;
+  }).join('');
+  wrap.querySelectorAll('.dr-row').forEach(row=>{
     row.addEventListener('click', ()=>{
       // Indeks w PRZEFILTROWANEJ liście trzeba zamienić na indeks w pełnej kolejce,
       // bo dictWordQueue (Poprzednie/Następne) zawsze operuje na całości, nie na filtrze.
