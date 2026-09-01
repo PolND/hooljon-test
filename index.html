@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.2
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.3
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -23,7 +23,7 @@
 <title>Hooljon · 훈련</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Public+Sans:wght@400;500;600;700;800&family=Gowun+Batang:wght@400;700&family=Song+Myung&family=Noto+Serif+KR:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Public+Sans:wght@400;500;600;700;800&family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -55,7 +55,7 @@
     --shadow-card: 0 1px 2px rgba(23,20,18,.04);
     --nav-h: 64px;
     --font-ui: 'Outfit', system-ui, sans-serif;
-    --font-ko: 'Gowun Batang', 'Noto Serif KR', serif;
+    --font-ko: 'Gowun Batang', var(--font-ko);
   }
   [data-theme="dark"]{
     --bg: #151311;
@@ -129,7 +129,7 @@
   [data-theme="hanji"] .tier-tab,
   [data-theme="hanji"] .category-chip{ border-radius:3px; }
   [data-theme="hanji"] .home-card .icon{
-    font-family:'Song Myung', serif;
+    font-family:var(--font-ko);
     color:var(--hwang);
     font-size:25px;
   }
@@ -182,7 +182,7 @@
   [data-theme="neon"] .sce-ko,
   [data-theme="neon"] .hanja-card,
   [data-theme="neon"] .study-card-example{
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
     text-transform:none;
     letter-spacing:normal;
   }
@@ -215,7 +215,7 @@
     padding:9px 10px; border-radius:10px;
     border:1px solid transparent; background:transparent;
     width:100%; text-align:left; cursor:pointer; color:var(--ink);
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
   }
   .theme-row.active{ background:var(--card-hi); border-color:var(--border); }
   .theme-row .tr-swatch{
@@ -285,7 +285,7 @@
       position:fixed;
       pointer-events:none;
       z-index:0;
-      font-family:'Song Myung', serif;
+      font-family:var(--font-ko);
       color:var(--ink);
       line-height:1;
     }
@@ -326,7 +326,7 @@
     margin-bottom:6px;
   }
   .brand{
-    font-family:'Song Myung', serif;
+    font-family:var(--font-ko);
     font-size:22px;
     letter-spacing:0.5px;
     color:var(--ink);
@@ -369,7 +369,7 @@
     background:var(--card);
     border:1px solid var(--border);
     color:var(--ink-dim);
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     font-size:14.5px;
     font-weight:500;
     padding:9px 8px;
@@ -451,7 +451,7 @@
   }
   .teach-pattern-chip{
     display:block;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     font-size:13.5px;
     font-weight:600;
     letter-spacing:0.3px;
@@ -483,13 +483,13 @@
     border:1px solid var(--border);
     border-radius:12px;
     color:var(--ink);
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     font-size:16px;
     text-align:center;
     padding:14px;
   }
   .story-typed-input:focus{outline:none; border-color:var(--hwang);}
-  .teach-main-tr{font-size:15.5px; color:var(--ink-dim); font-family:'IBM Plex Sans', sans-serif; line-height:1.5; margin-bottom:24px;}
+  .teach-main-tr{font-size:15.5px; color:var(--ink-dim); font-family:var(--font-ui); line-height:1.5; margin-bottom:24px;}
   .teach-try-progress{
     font-size:13.5px;
     font-weight:600;
@@ -509,7 +509,7 @@
     font-size:16px;
     color:var(--ink);
     margin-bottom:10px;
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
   }
   .teach-try-choices{
     display:grid;
@@ -544,7 +544,7 @@
     display:flex;
     align-items:center;
     gap:8px;
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
     font-size:17px;
     color:var(--ink);
   }
@@ -569,7 +569,7 @@
     border:1px solid var(--border);
     margin-bottom:8px;
   }
-  .gp-result-pattern{font-size:14.5px; color:var(--ink); font-family:'Noto Serif KR', serif; flex:1; min-width:0;}
+  .gp-result-pattern{font-size:14.5px; color:var(--ink); font-family:var(--font-ko); flex:1; min-width:0;}
   .gp-result-btn{
     flex:none;
     padding:7px 12px;
@@ -579,7 +579,7 @@
     color:#fff;
     font-size:14px;
     font-weight:600;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     cursor:pointer;
   }
 
@@ -596,7 +596,7 @@
     color:var(--ink-dim);
     font-size:14.5px;
     font-weight:600;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     cursor:pointer;
   }
   .grammar-nav-btn:disabled{opacity:0.4; cursor:default;}
@@ -616,7 +616,7 @@
     background:var(--surface-2);
     color:var(--ink);
     font-size:14.5px;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
   }
   .teach-ask-ai-input:disabled{opacity:0.6;}
   .teach-ask-ai-send{
@@ -648,7 +648,7 @@
     align-items:flex-start;
   }
   .teach-explain-box .icon{flex:none; font-size:14.5px; line-height:1.6; opacity:0.7;}
-  .teach-explain-box .txt{font-size:14.5px; color:var(--ink-dim); font-family:'IBM Plex Sans', sans-serif; line-height:1.7; opacity:0.9; white-space:pre-line;}
+  .teach-explain-box .txt{font-size:14.5px; color:var(--ink-dim); font-family:var(--font-ui); line-height:1.7; opacity:0.9; white-space:pre-line;}
   .teach-mode .study-tap-hint{margin-top:20px; justify-content:flex-start;}
   .vocab-word-center{text-align:center;}
   .teach-main-ko.vocab-word-center{font-size:34px; font-weight:600; margin-top:10px; margin-bottom:16px;}
@@ -680,12 +680,12 @@
     margin-bottom:6px;
   }
   .center-word{
-    font-family:'Song Myung', serif;
+    font-family:var(--font-ko);
     font-size:clamp(20px, 5.4vw, 30px);
     line-height:1.15;
     word-break:break-word;
   }
-  .center-word.ko{font-family:'Noto Serif KR', serif; font-weight:600;}
+  .center-word.ko{font-family:var(--font-ko); font-weight:600;}
   .center-emoji{font-size:30px; margin-bottom:4px;}
   .study-card-img{
     display:block;
@@ -719,7 +719,7 @@
     border-top:1px dashed var(--border);
   }
   .study-card-example .sce-ko{
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
     font-size:16px;
     color:var(--ink);
     line-height:1.5;
@@ -773,14 +773,14 @@
     align-items:center;
     justify-content:center;
     margin:0 auto 12px;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
   }
   .story-next-card .snc-label{font-size:13.5px; color:var(--hwang); font-weight:600; text-transform:uppercase; letter-spacing:0.4px;}
-  .story-next-card .snc-title{font-family:'Song Myung', serif; font-size:20px; color:var(--ink); margin:6px 0 4px;}
+  .story-next-card .snc-title{font-family:var(--font-ko); font-size:20px; color:var(--ink); margin:6px 0 4px;}
   .story-next-card .snc-desc{font-size:14.5px; color:var(--ink-dim); margin-bottom:16px;}
   .level-inline{
     display:inline-block;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     font-size:11px;
     font-weight:600;
     letter-spacing:0.02em;
@@ -797,7 +797,7 @@
   /* AKADEMIA — osobny filar, inny charakter wizualny niż Sandbox (wariant 1: siatka) */
   .academy-header{text-align:center; padding:8px 16px 20px; border-bottom:1px solid var(--border); margin-bottom:18px;}
   .academy-glyph{font-size:32px; margin-bottom:6px;}
-  .academy-title{font-family:'Song Myung', serif; font-size:22px; letter-spacing:0.02em;}
+  .academy-title{font-family:var(--font-ko); font-size:22px; letter-spacing:0.02em;}
   .academy-subtitle{font-size:14px; color:var(--ink-dim); margin-top:6px; line-height:1.5;}
   .academy-level-note{
     display:inline-block; margin-top:10px; font-size:13.5px; color:var(--hwang);
@@ -870,7 +870,7 @@
     background:var(--surface-2);
     color:var(--ink-dim);
     cursor:pointer;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
   }
   .sc-node.sc-done{background:var(--hwang); border-color:var(--hwang); color:#fff;}
   .sc-node.sc-current{border-color:var(--hwang); color:var(--hwang); box-shadow:0 0 0 4px rgba(230,57,70,0.15);}
@@ -884,10 +884,10 @@
     padding:16px;
     margin-bottom:14px;
   }
-  .scenario-card .sc-title{font-family:'Song Myung', serif; font-size:16px; color:var(--hwang); margin-bottom:10px;}
+  .scenario-card .sc-title{font-family:var(--font-ko); font-size:16px; color:var(--hwang); margin-bottom:10px;}
   .scenario-role{margin-bottom:12px; padding-bottom:12px; border-bottom:1px dashed var(--border);}
   .scenario-role:last-child{margin-bottom:0; padding-bottom:0; border-bottom:none;}
-  .scenario-role .sr-name{font-size:14px; font-weight:600; color:var(--ink); font-family:'IBM Plex Sans', sans-serif; margin-bottom:6px;}
+  .scenario-role .sr-name{font-size:14px; font-weight:600; color:var(--ink); font-family:var(--font-ui); margin-bottom:6px;}
   .scenario-role .sr-phrase{font-size:15px; color:var(--ink); margin-bottom:2px;}
   .scenario-role .sr-phrase-pl{font-size:14px; color:var(--ink-dim); margin-bottom:8px;}
 
@@ -901,7 +901,7 @@
     border-radius:16px;
     border:1.5px solid transparent;
     cursor:pointer;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     font-size:14px;
     font-weight:600;
     background:var(--surface-2);
@@ -942,7 +942,7 @@
     opacity:1;
   }
   .celebration-toast .ct-icon{font-size:34px; margin-bottom:4px;}
-  .celebration-toast .ct-title{font-weight:700; font-size:16px; color:var(--ink); font-family:'IBM Plex Sans', sans-serif;}
+  .celebration-toast .ct-title{font-weight:700; font-size:16px; color:var(--ink); font-family:var(--font-ui);}
   .celebration-toast .ct-subtitle{font-size:14px; color:var(--ink-dim); margin-top:3px;}
   @media (prefers-reduced-motion: reduce){
     .celebration-toast{transition:opacity .25s ease;}
@@ -963,7 +963,7 @@
     justify-content:center;
     text-align:center;
     padding:8px 6px;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     font-weight:700;
     font-size:clamp(11px, 3vw, 14.5px);
     overflow-wrap:break-word;
@@ -987,7 +987,7 @@
     pointer-events:none;
     transition:border-color .15s ease;
   }
-  .ans-btn.ko{font-family:'Noto Serif KR', serif; font-weight:600;}
+  .ans-btn.ko{font-family:var(--font-ko); font-weight:600;}
   .ans-btn:hover{background:var(--seal); color:#FFFFFF;}
   .ans-btn:hover::before{border-color:rgba(255,255,255,0.55);}
   .ans-btn:active{transform:scale(0.95);}
@@ -1077,7 +1077,7 @@
     padding:10px 6px;
     border-radius:10px;
     cursor:pointer;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
@@ -1113,7 +1113,7 @@
     margin:0 0 8px;
     padding-right:26px;
     font-size:15px;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     color:var(--hwang);
     font-weight:600;
   }
@@ -1165,7 +1165,7 @@
     font-size:14px;
     padding:4px 9px;
     border-radius:20px;
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
   }
   .empty-note{font-size:14px; color:var(--ink-dim); font-style:italic;}
 
@@ -1248,7 +1248,7 @@
     white-space:nowrap;
     background:none;
     border:none;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
   }
 
   /* INTERSTITIAL — pełnoekranowa przerwa, rzadka i łatwa do zamknięcia */
@@ -1272,7 +1272,7 @@
     display:block;
   }
   .login-anim-text{
-    font-family:'Song Myung', serif;
+    font-family:var(--font-ko);
     font-size:20px;
     color:var(--ink);
     letter-spacing:0.4px;
@@ -1361,7 +1361,7 @@
     padding:6px 11px;
     border-radius:20px;
     cursor:pointer;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     white-space:nowrap;
   }
   .premium-badge-btn.is-active{background:linear-gradient(135deg,#2A9D8F,#1F7A6E);}
@@ -1423,8 +1423,8 @@
     border-radius:10px;
   }
   .price-card .label{font-size:14px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.4px;}
-  .price-card .amount{font-family:'Song Myung', serif; font-size:24px; color:var(--ink);}
-  .price-card .amount small{font-size:14px; color:var(--ink-dim); font-family:'IBM Plex Sans', sans-serif;}
+  .price-card .amount{font-family:var(--font-ko); font-size:24px; color:var(--ink);}
+  .price-card .amount small{font-size:14px; color:var(--ink-dim); font-family:var(--font-ui);}
   .price-card .sub{font-size:13.5px; color:var(--ink-dim); line-height:1.4; min-height:28px;}
   .price-card button{
     margin-top:4px;
@@ -1436,7 +1436,7 @@
     border-radius:8px;
     cursor:pointer;
     font-size:14px;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
   }
   .price-card.recommended button{background:var(--hwang); color:#FFFFFF;}
   .price-card button.owned{background:var(--good); border-color:var(--good); color:#FFFFFF;}
@@ -1464,7 +1464,7 @@
     margin:0 auto;
   }
   .limit-lock .icon{font-size:36px; margin-bottom:10px;}
-  .limit-lock h4{font-family:'Song Myung', serif; font-size:19px; margin:0 0 8px; color:var(--ink);}
+  .limit-lock h4{font-family:var(--font-ko); font-size:19px; margin:0 0 8px; color:var(--ink);}
   .limit-lock p{font-size:14.5px; color:var(--ink-dim); line-height:1.5; margin:0 0 16px;}
   .limit-lock .countdown{
     font-family:'IBM Plex Mono', monospace;
@@ -1493,10 +1493,10 @@
     padding:14px 16px;
     margin-bottom:10px;
   }
-  .dict-word-ko{font-family:'Noto Serif KR', serif; font-size:17px; color:var(--ink);}
+  .dict-word-ko{font-family:var(--font-ko); font-size:17px; color:var(--ink);}
   .dict-word-tr{font-size:14.5px; color:var(--ink-dim); margin-top:2px;}
-  .dict-word-ex{font-size:14px; color:var(--ink-dim); margin-top:8px; padding-top:8px; border-top:1px dashed var(--border); font-family:'Noto Serif KR', serif;}
-  .dict-word-ex-tr{font-family:'IBM Plex Sans', sans-serif; opacity:0.8;}
+  .dict-word-ex{font-size:14px; color:var(--ink-dim); margin-top:8px; padding-top:8px; border-top:1px dashed var(--border); font-family:var(--font-ko);}
+  .dict-word-ex-tr{font-family:var(--font-ui); opacity:0.8;}
 
   .report-flag-btn{
     position:absolute;
@@ -1538,7 +1538,7 @@
     border:1px solid var(--border);
     border-radius:12px;
     color:var(--ink);
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     font-size:14.5px;
     padding:10px;
     resize:vertical;
@@ -1577,7 +1577,7 @@
     padding:7px 12px;
     border-radius:20px;
     cursor:pointer;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     transition:all .15s ease;
     user-select:none;
   }
@@ -1613,8 +1613,8 @@
     margin-bottom:22px;
   }
   .achv-streak-icon{font-size:40px;}
-  .achv-streak-title{font-size:13.5px; color:var(--hwang); font-weight:600; text-transform:uppercase; letter-spacing:0.3px; margin-bottom:8px; font-family:'IBM Plex Sans', sans-serif;}
-  .achv-streak-num{font-size:40px; font-weight:700; color:var(--ink); font-family:'IBM Plex Sans', sans-serif; line-height:1.1;}
+  .achv-streak-title{font-size:13.5px; color:var(--hwang); font-weight:600; text-transform:uppercase; letter-spacing:0.3px; margin-bottom:8px; font-family:var(--font-ui);}
+  .achv-streak-num{font-size:40px; font-weight:700; color:var(--ink); font-family:var(--font-ui); line-height:1.1;}
   .achv-streak-label{font-size:14.5px; color:var(--ink-dim); margin-top:2px;}
   .achv-streak-best{font-size:14px; color:var(--hwang); margin-top:8px; font-weight:600;}
   .achv-section-title{
@@ -1622,7 +1622,7 @@
     font-weight:600;
     color:var(--ink);
     margin:22px 0 4px;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
   }
   .achv-badge-grid{
     display:grid;
@@ -1655,7 +1655,7 @@
     padding:14px;
     text-align:center;
   }
-  .achv-stat .as-num{font-size:22px; font-weight:700; color:var(--ink); font-family:'IBM Plex Sans', sans-serif;}
+  .achv-stat .as-num{font-size:22px; font-weight:700; color:var(--ink); font-family:var(--font-ui);}
   .achv-stat .as-label{font-size:13.5px; color:var(--ink-dim); margin-top:2px;}
 
   /* WIDGET PORÓWNANIA REJESTRÓW */
@@ -1704,6 +1704,11 @@
     justify-content:center;
   }
   .hangul-card .hg-big-char{
+    /* UWAGA: NIE zmieniać na var(--font-ko). Współrzędne animacji kolejności kresek
+       (strokePaths w HANGUL_*) zostały ZMIERZONE z rastra glifów Noto Serif KR przy
+       font-size 88px - przypięcie do innego kroju rozjechałoby wzór względem litery
+       i zmarnowało kilka rund dopracowywania. To jedyne miejsce w apce, gdzie krój
+       jest częścią danych, nie tylko stylu. Złapane przy redesignie 2026-09-01. */
     font-family:'Noto Serif KR', serif;
     font-size:88px;
     line-height:1;
@@ -1725,7 +1730,7 @@
     font-size:17px;
     color:var(--ink-dim);
     margin-top:6px;
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
   }
   .hangul-card .hg-roman{
     font-size:20px;
@@ -1819,7 +1824,7 @@
     background:var(--card);
     color:var(--ink-dim);
     font-size:13px;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     cursor:pointer;
   }
   .hg-example-pair{
@@ -1838,7 +1843,7 @@
     margin-bottom:6px;
   }
   .hangul-card .hg-example-word{
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
     font-size:28px;
     color:var(--ink);
   }
@@ -1863,7 +1868,7 @@
     padding:14px 18px;
     text-align:center;
   }
-  .hg-jamo-piece .jamo-char{font-family:'Noto Serif KR', serif; font-size:24px; color:var(--ink);}
+  .hg-jamo-piece .jamo-char{font-family:var(--font-ko); font-size:24px; color:var(--ink);}
   .hg-jamo-piece .jamo-role{font-size:13px; color:var(--ink-dim); margin-top:4px;}
   .hg-plus{font-size:18px; color:var(--ink-dim);}
   .hg-arrow{font-size:20px; color:var(--hwang);}
@@ -1883,7 +1888,7 @@
   }
   .culture-card .cc-icon{font-size:36px; text-align:center; margin-bottom:12px;}
   .culture-card .cc-title-ko{
-    font-family:'Song Myung', serif;
+    font-family:var(--font-ko);
     font-size:22px;
     text-align:center;
     color:var(--ink);
@@ -1901,11 +1906,11 @@
     color:var(--ink-dim);
     line-height:1.7;
     margin:0 0 12px;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
   }
   .culture-card .cc-body p:last-child{margin-bottom:0;}
   .hanja-card .hc-char{
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
     font-size:80px;
     line-height:1;
     color:var(--ink);
@@ -1940,7 +1945,7 @@
     gap:8px;
     margin-bottom:6px;
   }
-  .hanja-card .hc-word-ko{font-family:'Noto Serif KR', serif; font-size:17px; color:var(--ink);}
+  .hanja-card .hc-word-ko{font-family:var(--font-ko); font-size:17px; color:var(--ink);}
   .hanja-card .hc-word-tr{font-size:14px; color:var(--ink-dim);}
 
   .hanja-section{
@@ -1961,12 +1966,12 @@
   .hanja-notes-list{margin:0; padding-left:18px;}
   .hanja-notes-list li{font-size:14.5px; color:var(--ink-dim); line-height:1.6; margin-bottom:4px;}
   .hanja-notes-list li:last-child{margin-bottom:0;}
-  .hanja-quiz-q{font-size:15px; color:var(--ink); margin-bottom:12px; font-family:'IBM Plex Sans', sans-serif;}
+  .hanja-quiz-q{font-size:15px; color:var(--ink); margin-bottom:12px; font-family:var(--font-ui);}
   .register-card .rc-icon{font-size:22px; flex:none; margin-top:2px;}
   .register-card .rc-body{flex:1; min-width:0;}
   .register-card .rc-label{font-size:13.5px; font-weight:600; color:var(--hwang); text-transform:uppercase; letter-spacing:0.3px;}
   .register-card .rc-desc{font-size:13.5px; color:var(--ink-dim); margin-top:2px; line-height:1.4;}
-  .register-card .rc-sentence{font-family:'Noto Serif KR', serif; font-size:17px; color:var(--ink); margin-top:8px;}
+  .register-card .rc-sentence{font-family:var(--font-ko); font-size:17px; color:var(--ink); margin-top:8px;}
   .register-card .rc-speak{
     flex:none;
     width:32px;
@@ -2015,7 +2020,7 @@
     border:1px solid var(--border);
     border-radius:12px;
     padding:10px 14px;
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
     font-size:17px;
     color:var(--ink);
     cursor:pointer;
@@ -2046,7 +2051,7 @@
   }
   .ob-card .ob-icon{font-size:56px; margin-bottom:16px;}
   .ob-card .ob-title{
-    font-family:'Song Myung', serif;
+    font-family:var(--font-ko);
     font-size:24px;
     color:var(--ink);
     margin-bottom:12px;
@@ -2090,7 +2095,7 @@
     text-align:left;
     cursor:pointer;
     color:var(--ink);
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     transition:border-color .2s ease, transform .2s cubic-bezier(.2,.8,.3,1), box-shadow .25s ease;
     display:flex;
     align-items:center;
@@ -2104,7 +2109,7 @@
   .home-card:active{transform:translateY(-1px) scale(0.98); box-shadow:0 6px 14px -8px rgba(0,0,0,0.25);}
   .home-card .icon{font-size:36px; flex:none; transition:transform .25s cubic-bezier(.34,1.56,.64,1);}
   .home-card:hover .icon{transform:scale(1.12) rotate(-4deg);}
-  .home-card .title{font-family:'Song Myung', serif; font-size:20px; margin-bottom:6px; letter-spacing:0.2px;}
+  .home-card .title{font-family:var(--font-ko); font-size:20px; margin-bottom:6px; letter-spacing:0.2px;}
   .home-card .desc{font-size:14.5px; color:var(--ink-dim); line-height:1.5;}
   .home-hint{font-size:14px; color:var(--ink-dim); text-align:center; margin-top:6px;}
 
@@ -2143,14 +2148,14 @@
     cursor:pointer;
     width:100%;
     color:var(--ink);
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     transition:background .15s ease;
   }
   .reading-row:last-child{ border-bottom:none; }
   .reading-row:hover, .reading-row:active{ background:var(--card-hi); }
   .reading-row .icon{ font-size:19px; flex:none; }
   .reading-row .title{
-    font-family:'Song Myung', serif;
+    font-family:var(--font-ko);
     font-size:15.5px;
     line-height:1.3;
   }
@@ -2185,7 +2190,7 @@
     margin-bottom:10px;
   }
   .login-title{
-    font-family:'Song Myung', serif;
+    font-family:var(--font-ko);
     font-size:30px;
     color:var(--ink);
     letter-spacing:0.5px;
@@ -2225,7 +2230,7 @@
     cursor:pointer;
     background:none;
     border:none;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
   }
   .login-tab.active{background:var(--card); color:var(--ink); box-shadow:0 2px 6px -2px rgba(27,58,87,0.2);}
   .login-field{margin-bottom:12px;}
@@ -2244,9 +2249,9 @@
     padding:11px 12px;
     font-size:15px;
     color:var(--ink);
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
   }
-  .login-field textarea{min-height:100px; resize:vertical; font-family:'Noto Serif KR', serif;}
+  .login-field textarea{min-height:100px; resize:vertical; font-family:var(--font-ko);}
   .reading-char-counter{
     font-size:13.5px;
     color:var(--ink-dim);
@@ -2266,7 +2271,7 @@
     border-radius:10px;
     cursor:pointer;
     font-size:15px;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
   }
   .login-guest{
     display:block;
@@ -2279,7 +2284,7 @@
     background:none;
     border:none;
     width:100%;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
   }
   .login-guest:hover{color:var(--hwang);}
   .login-note{
@@ -2301,7 +2306,7 @@
     background:none;
     border:none;
     width:100%;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
   }
   .login-link:hover{color:var(--hwang);}
   .login-error{
@@ -2336,7 +2341,7 @@
     border-radius:10px;
     cursor:pointer;
     font-size:15px;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     display:flex;
     align-items:center;
     justify-content:center;
@@ -2396,7 +2401,7 @@
     padding:6px 14px 6px 6px;
     border-radius:22px;
     margin-bottom:16px;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     transition:border-color .15s ease, background .15s ease;
   }
   .back-btn::before{
@@ -2423,7 +2428,7 @@
   .tense-chip-group{display:flex; flex-direction:column;}
   .tense-chip-row{display:flex; align-items:center; gap:6px;}
   .tc-construction{
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
     opacity:0.85;
     margin-left:2px;
   }
@@ -2468,7 +2473,7 @@
     border:1px solid var(--border);
     border-radius:12px;
     color:var(--ink);
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
     font-size:18px;
     text-align:center;
     padding:14px;
@@ -2522,7 +2527,7 @@
     border:1px solid var(--border);
     border-radius:8px;
     color:var(--ink);
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
     font-size:16px;
     cursor:pointer;
     display:flex;
@@ -2531,7 +2536,7 @@
     user-select:none;
   }
   .vk-key:active{background:var(--hwang); color:#FFFFFF; transform:scale(0.94);}
-  .vk-key.vk-wide{min-width:64px; font-family:'IBM Plex Sans', sans-serif; font-size:14px; font-weight:600;}
+  .vk-key.vk-wide{min-width:64px; font-family:var(--font-ui); font-size:14px; font-weight:600;}
   .vk-key.vk-double{color:var(--cheong);}
   .hint-note{font-size:14px; color:var(--ink-dim); margin-top:10px; text-align:center;}
 
@@ -2557,7 +2562,7 @@
     font-size:14.5px;
     color:var(--ink);
   }
-  .ai-result-row .ai-field.ko{font-family:'Noto Serif KR', serif;}
+  .ai-result-row .ai-field.ko{font-family:var(--font-ko);}
   .ai-result-row .ai-remove{
     flex:none;
     background:none;
@@ -2612,7 +2617,7 @@
     margin:0 0 8px;
     padding-right:26px;
     font-size:15px;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     color:var(--hwang);
     font-weight:600;
   }
@@ -2651,7 +2656,7 @@
   }
   .word-list-row:last-child{border-bottom:none;}
   .word-list-row .wl-emoji{font-size:17px; flex:none; width:20px; text-align:center;}
-  .word-list-row .wl-ko{font-family:'Noto Serif KR', serif; color:var(--ink); flex:none; min-width:100px;}
+  .word-list-row .wl-ko{font-family:var(--font-ko); color:var(--ink); flex:none; min-width:100px;}
   .word-list-row .wl-pl{color:var(--ink-dim); flex:1;}
 
   /* NAUKA — przeglądanie słówek z wymową */
@@ -2667,7 +2672,7 @@
   }
   .study-row .sr-emoji{font-size:24px; flex:none; width:30px; text-align:center;}
   .study-row .sr-text{flex:1; min-width:0;}
-  .study-row .sr-ko{font-family:'Noto Serif KR', serif; font-size:18px; color:var(--ink); font-weight:600;}
+  .study-row .sr-ko{font-family:var(--font-ko); font-size:18px; color:var(--ink); font-weight:600;}
   .study-row .sr-tr{font-size:14.5px; color:var(--ink-dim); margin-top:2px;}
   .study-row .sr-speak{
     flex:none;
@@ -2705,7 +2710,7 @@
     padding:6px 10px;
     border-radius:8px;
     cursor:pointer;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
   }
   .wl-preview-btn:hover{border-color:var(--hwang); color:var(--hwang);}
 
@@ -2742,7 +2747,7 @@
   }
   .ai-chat-target-banner .atb-body{flex:1; min-width:0;}
   .ai-chat-target-banner .atb-label{font-size:13px; color:var(--hwang); font-weight:600; text-transform:uppercase; letter-spacing:0.3px;}
-  .ai-chat-target-banner .atb-pattern{font-size:15px; color:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-weight:600; margin-top:2px;}
+  .ai-chat-target-banner .atb-pattern{font-size:15px; color:var(--ink); font-family:var(--font-ui); font-weight:600; margin-top:2px;}
   .ai-chat-target-banner .atb-close{
     flex:none;
     background:none;
@@ -2780,7 +2785,7 @@
     color:#FFFFFF;
     border-bottom-right-radius:4px;
   }
-  .ai-bubble .ai-ko{font-family:'Noto Serif KR', serif; font-size:16px; font-weight:500;}
+  .ai-bubble .ai-ko{font-family:var(--font-ko); font-size:16px; font-weight:500;}
   .ai-bubble .ai-pl{font-size:14px; opacity:0.8; margin-top:4px;}
   .ai-bubble .ai-errors{margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.25); font-size:14px;}
   .ai-bubble.bot .ai-errors{border-top-color:var(--border);}
@@ -2797,7 +2802,7 @@
     border:1px solid var(--border);
     border-radius:14px;
     padding:16px;
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
     font-size:19px;
     line-height:2;
     margin-bottom:10px;
@@ -2861,13 +2866,13 @@
     display:flex;
     align-items:center;
     gap:8px;
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
     font-size:15px;
     padding:6px 0;
     flex-wrap:wrap;
   }
   .reading-report-row .rr-expected{color:var(--good); font-weight:600;}
-  .reading-report-row .rr-arrow{color:var(--ink-dim); font-size:13px; font-family:'IBM Plex Sans', sans-serif;}
+  .reading-report-row .rr-arrow{color:var(--ink-dim); font-size:13px; font-family:var(--font-ui);}
   .reading-report-row .rr-heard{color:var(--bad);}
   .reading-report-perfect{
     font-size:14.5px;
@@ -2877,7 +2882,7 @@
     padding:6px 0;
   }
   .rr-verdict-pill{
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     font-size:11px;
     font-weight:600;
     padding:2px 8px;
@@ -2911,7 +2916,7 @@
     line-height:1.5;
   }
   .grammar-explain .ge-pattern{color:var(--hwang); font-weight:600; font-size:13.5px; text-transform:uppercase; letter-spacing:0.3px;}
-  .grammar-explain .ge-full{font-family:'Noto Serif KR', serif; font-size:17px; color:var(--ink); margin-top:4px;}
+  .grammar-explain .ge-full{font-family:var(--font-ko); font-size:17px; color:var(--ink); margin-top:4px;}
   .grammar-explain .ge-pl{color:var(--ink-dim); margin-top:2px;}
   .grammar-explain .ge-explain{
     margin-top:8px;
@@ -2928,9 +2933,9 @@
   }
   .grammar-preview-row:last-child{border-bottom:none;}
   .grammar-preview-row .gp-pattern{color:var(--hwang); font-weight:600; font-size:13.5px; text-transform:uppercase; letter-spacing:0.3px;}
-  .grammar-preview-row .gp-full{font-family:'Noto Serif KR', serif; font-size:17px; color:var(--ink); margin-top:4px;}
+  .grammar-preview-row .gp-full{font-family:var(--font-ko); font-size:17px; color:var(--ink); margin-top:4px;}
   .grammar-preview-row .gp-tr{color:var(--ink-dim); font-size:14.5px; margin-top:2px;}
-  .grammar-preview-row .gp-pattern-name{font-family:'IBM Plex Sans', sans-serif; font-size:15px; font-weight:600; color:var(--ink); padding:2px 0;}
+  .grammar-preview-row .gp-pattern-name{font-family:var(--font-ui); font-size:15px; font-weight:600; color:var(--ink); padding:2px 0;}
   .grammar-preview-row-clickable{
     cursor:pointer;
     border-radius:12px;
@@ -2970,7 +2975,7 @@
     text-transform:uppercase;
     padding:3px 8px;
     border-radius:20px;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:var(--font-ui);
     white-space:nowrap;
   }
   .source-badge.manual{background:rgba(69,123,157,0.14); color:var(--cheong);}
@@ -2991,7 +2996,7 @@
   /* DEKOMPOZYCJA MORFOLOGICZNA — rdzeń vs końcówka gramatyczna (Koniugacja) */
   .conj-breakdown{
     margin-top:10px;
-    font-family:'Noto Serif KR', serif;
+    font-family:var(--font-ko);
     font-size:17px;
     letter-spacing:0.2px;
   }
@@ -3150,7 +3155,7 @@
   </div>
 
   <div class="home-screen" id="modeSelectScreen" style="display:none; justify-content:center;">
-    <h3 style="text-align:center; font-family:'Song Myung', serif; font-size:20px; margin:0 0 4px;" data-i18n="modeSelectTitle">Jak dziś się uczysz?</h3>
+    <h3 style="text-align:center; font-family:var(--font-ko); font-size:20px; margin:0 0 4px;" data-i18n="modeSelectTitle">Jak dziś się uczysz?</h3>
     <p class="hint-note" style="text-align:center; margin-bottom:14px;" data-i18n="modeSelectHint">Możesz przełączać się między trybami w każdej chwili.</p>
     <button class="home-card" id="modeSelectStoryBtn">
       <span class="icon">📖</span>
@@ -3348,7 +3353,7 @@
 
   <div id="dictLevelScreen" style="display:none;">
     <button class="back-btn" data-back="dictBrowse" data-i18n="backDictBrowse">Wybór działu</button>
-    <h3 id="dictLevelTitle" style="text-align:center; font-family:'Song Myung', serif;"></h3>
+    <h3 id="dictLevelTitle" style="text-align:center; font-family:var(--font-ko);"></h3>
     <div class="home-screen" id="dictLevelCards"></div>
   </div>
 
@@ -3773,7 +3778,7 @@
       <!-- AKTYWNE CZYTANIE -->
       <div id="readingActiveWrap" style="display:none;">
         <button class="back-btn" id="readingBackToList" data-i18n="backReadingList">Lista czytanek</button>
-        <h3 id="readingActiveTitle" style="font-family:'Song Myung', serif; font-size:18px; color:var(--ink); margin:0 0 4px;"></h3>
+        <h3 id="readingActiveTitle" style="font-family:var(--font-ko); font-size:18px; color:var(--ink); margin:0 0 4px;"></h3>
         <div class="ai-chat-status" id="readingStatus" data-i18n="readingStatusDefault">Kliknij „🎤 Zacznij czytać” i czytaj tekst na głos.</div>
 
         <div class="reading-text-box" id="readingTextBox"></div>
@@ -3807,7 +3812,7 @@
           <button class="modal-close" data-close="readingQuizPanel" aria-label="Zamknij">✕</button>
           <h3>📝 <span data-i18n="checkComprehension">Wybór a/b/c/d</span></h3>
           <div class="ai-chat-status" id="rqProgress"></div>
-          <div class="center-word ko" id="rqQuestion" style="font-size:17px; font-family:'IBM Plex Sans', sans-serif; text-align:left; line-height:1.5;">...</div>
+          <div class="center-word ko" id="rqQuestion" style="font-size:17px; font-family:var(--font-ui); text-align:left; line-height:1.5;">...</div>
           <div class="grammar-choice-grid" id="rqChoiceGrid" style="margin-top:14px;"></div>
           <div class="feedback" id="rqFeedback"></div>
           <div class="row" id="rqNextRow" style="display:none; margin-top:10px;">
@@ -3815,7 +3820,7 @@
           </div>
           <div id="rqResult" style="display:none; text-align:center; margin-top:16px;">
             <div style="font-size:36px;" id="rqResultIcon">🎉</div>
-            <div id="rqResultText" style="font-size:16px; font-weight:600; margin-top:8px; font-family:'IBM Plex Sans', sans-serif;"></div>
+            <div id="rqResultText" style="font-size:16px; font-weight:600; margin-top:8px; font-family:var(--font-ui);"></div>
           </div>
         </div>
       </div>
@@ -3832,7 +3837,7 @@
 
           <div id="retellBody">
             <p class="hint-note" style="text-align:left;" data-i18n="retellHint">Napisz kilka zdań (po polsku albo po koreańsku) o tym, o czym był tekst — nie musi być dokładne, liczy się ogólne zrozumienie.</p>
-            <textarea id="retellInput" rows="4" placeholder="..." style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-size:14.5px; resize:vertical;"></textarea>
+            <textarea id="retellInput" rows="4" placeholder="..." style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-family:var(--font-ui); font-size:14.5px; resize:vertical;"></textarea>
             <div class="row" style="margin-top:10px;">
               <button class="primary" id="retellSubmitBtn" style="flex:1;" data-i18n="retellSubmit">Sprawdź</button>
             </div>
@@ -3897,7 +3902,7 @@
 
     <div id="topikTestResult" style="display:none; text-align:center; margin-top:20px;">
       <div style="font-size:44px; margin-bottom:8px;" id="topikTestResultIcon">🎉</div>
-      <div style="font-size:28px; font-weight:700; font-family:'IBM Plex Sans', sans-serif;" id="topikTestResultScore"></div>
+      <div style="font-size:28px; font-weight:700; font-family:var(--font-ui);" id="topikTestResultScore"></div>
       <p class="hint-note" id="topikTestResultMsg"></p>
       <button class="primary" id="topikTestRetryBtn" data-i18n="restartStudyBtn">🔁 Od nowa</button>
     </div>
@@ -3997,7 +4002,7 @@
     </div>
 
     <div id="scenarioBody">
-      <h3 style="font-family:'Song Myung', serif; font-size:18px; color:var(--ink); margin:0 0 4px;">🏫 <span data-i18n="homeScenarioTitle">Scenariusze dla grup</span></h3>
+      <h3 style="font-family:var(--font-ko); font-size:18px; color:var(--ink); margin:0 0 4px;">🏫 <span data-i18n="homeScenarioTitle">Scenariusze dla grup</span></h3>
       <p class="hint-note" style="text-align:left;" data-i18n="scenarioHint">Opisz sytuację, a AI przygotuje gotowe karty do odgrywania ról dla Twoich uczniów.</p>
       <span class="ai-usage-badge ai-calls-badge" style="display:none; margin-bottom:10px;"></span>
 
@@ -4014,7 +4019,7 @@
       <div class="login-field" style="margin-top:10px;">
         <label data-i18n="scenarioSituationLabel">Sytuacja</label>
         <div class="tense-chips" id="scenarioSituationChips" style="margin-top:6px;"></div>
-        <input type="text" id="scenarioCustomInput" placeholder="…lub wpisz własną, np. 'w bibliotece'" maxlength="80" style="margin-top:8px; width:100%; box-sizing:border-box; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-size:14.5px;">
+        <input type="text" id="scenarioCustomInput" placeholder="…lub wpisz własną, np. 'w bibliotece'" maxlength="80" style="margin-top:8px; width:100%; box-sizing:border-box; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-family:var(--font-ui); font-size:14.5px;">
       </div>
 
       <div class="login-field" style="margin-top:10px;">
@@ -4072,7 +4077,7 @@
 
   <div id="hangulGateScreen" style="display:none; justify-content:center;" class="home-screen">
     <div style="font-size:44px; text-align:center; margin-bottom:8px;">한글</div>
-    <h3 style="text-align:center; font-family:'Song Myung', serif; font-size:20px; margin:0 0 4px;" data-i18n="hangulGateTitle">Czy znasz już alfabet koreański?</h3>
+    <h3 style="text-align:center; font-family:var(--font-ko); font-size:20px; margin:0 0 4px;" data-i18n="hangulGateTitle">Czy znasz już alfabet koreański?</h3>
     <p class="hint-note" style="text-align:center; margin-bottom:14px;" data-i18n="hangulGateHint">Reszta apki zakłada, że umiesz czytać hangul — jeśli nie, zacznijmy od tego.</p>
     <button class="home-card" id="hangulGateYesBtn">
       <span class="icon">✅</span>
@@ -4144,7 +4149,7 @@
 
     <div id="ptResult" style="display:none; text-align:center; margin-top:20px;">
       <div style="font-size:44px; margin-bottom:8px;" id="ptResultIcon">🎉</div>
-      <div style="font-size:20px; font-weight:700; font-family:'IBM Plex Sans', sans-serif;" id="ptResultTitle"></div>
+      <div style="font-size:20px; font-weight:700; font-family:var(--font-ui);" id="ptResultTitle"></div>
       <p class="hint-note" id="ptResultMsg"></p>
       <div id="ptResultLevels" style="margin:16px 0;"></div>
       <button class="primary" id="ptDoneBtn" data-i18n="ptDoneBtn">Przejdź do nauki</button>
@@ -4198,7 +4203,7 @@
 
     <div id="storyLessonResult" style="display:none; text-align:center; margin-top:20px;">
       <div style="font-size:44px; margin-bottom:8px;">🎉</div>
-      <div style="font-size:20px; font-weight:700; font-family:'IBM Plex Sans', sans-serif;" id="storyResultTitle"></div>
+      <div style="font-size:20px; font-weight:700; font-family:var(--font-ui);" id="storyResultTitle"></div>
       <p class="hint-note" id="storyResultMsg"></p>
       <div id="storyResultPatterns" style="text-align:left; margin:16px 0;"></div>
       <button class="primary" id="storyContinueBtn" data-i18n="storyContinueBtn">Kontynuuj</button>
@@ -4207,7 +4212,7 @@
 
   <div id="grammarPracticeScreen" style="display:none;">
     <button class="back-btn" id="gpBackBtn" data-i18n="backToLesson">Powrót do lekcji</button>
-    <h3 id="gpTitle" style="font-family:'Song Myung', serif; font-size:17px; text-align:center; margin:4px 0 2px;"></h3>
+    <h3 id="gpTitle" style="font-family:var(--font-ko); font-size:17px; text-align:center; margin:4px 0 2px;"></h3>
     <p class="hint-note" id="gpProgress" style="text-align:center;"></p>
     <div class="teach-try-box" id="gpBox" style="margin-top:14px;">
       <div class="teach-try-sentence" id="gpSentence"></div>
@@ -4217,7 +4222,7 @@
     <div class="grammar-nav-row" id="gpNavWrap"></div>
     <div id="gpDoneWrap" style="display:none; text-align:center; margin-top:20px;">
       <div style="font-size:40px; margin-bottom:8px;">💪</div>
-      <div style="font-size:18px; font-weight:700; font-family:'IBM Plex Sans', sans-serif;" id="gpDoneTitle"></div>
+      <div style="font-size:18px; font-weight:700; font-family:var(--font-ui);" id="gpDoneTitle"></div>
       <button class="primary" id="gpDoneBtn" style="margin-top:14px;" data-i18n="backToLesson">Powrót do lekcji</button>
     </div>
   </div>
@@ -12771,7 +12776,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.2';
+const APP_VERSION = '2026-09-01.3';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14065,7 +14070,7 @@ function applyAccountUI(){
   const name = currentProfileDisplayName;
   body.innerHTML = `
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-      <div style="width:44px; height:44px; border-radius:50%; background:var(--hwang); color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-family:'Song Myung', serif; font-size:18px; flex:none;">
+      <div style="width:44px; height:44px; border-radius:50%; background:var(--hwang); color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-family:var(--font-ko); font-size:18px; flex:none;">
         ${(name || email || '?').charAt(0).toUpperCase()}
       </div>
       <div>
