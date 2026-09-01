@@ -203,6 +203,90 @@
      --ink to granat #1D3557, a --hwang czerwień #E63946 - czyli dokładnie
      oryginalna para z pliku źródłowego. Chcesz inną parę? Zmieniasz tu. */
   :root{ --logo-a: var(--hwang); --logo-b: var(--ink); }
+
+  /* ══ v4 §1 · RYNIENKA I --border-strong ══════════════════════════════════
+     README v4 deklaruje "zero nowych tokenów", ale §5 i §6 używają
+     var(--border-strong) - w pliku go nie było. Dokładam go jako mocniejszy
+     wariant --border (kreska, która ma być widoczna sama z siebie: obrys
+     przełącznika, obwódka dnia dzisiejszego). Wartość liczona z palety,
+     więc nie trzeba jej pisać osobno dla każdej. */
+  :root{ --border-strong: #CDC3B6; }
+  [data-scheme="dark"]{   --border-strong:#4A423C; }
+  [data-scheme="hanji"]{  --border-strong:#C6B79E; }
+  [data-scheme="jade"]{   --border-strong:#3A4441; }
+  [data-scheme="kobalt"]{ --border-strong:#C6CBD4; }
+  [data-scheme="neon"]{   --border-strong:#3A2E4E; }
+  [data-scheme="oldstyle"]{ --border-strong:#C2CCD6; }
+
+  /* Wiersz z rynienką: lewa kolumna stała, prawa się zawija. 52px to
+     szerokość czterocyfrowego roku przy 12px z zapasem - zmniejszenie jej
+     rozjeżdża kolumnę lat i cały sens wzorca znika. */
+  .gutter-row{ display:flex; gap:14px; padding:14px 0; border-bottom:1px solid var(--border); }
+  .gutter-row:last-child{ border-bottom:0; }
+  .gutter{ flex:none; width:52px; padding-top:3px;
+    font-size:12px; color:var(--ink-dim); font-variant-numeric:tabular-nums; }
+  .gutter-main{ flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+  .gutter-title{ font-size:16px; line-height:1.3; color:var(--ink); }
+  .gutter-body{ font-size:13px; color:var(--ink-dim); text-wrap:pretty; }
+  [data-theme="jade"] .gutter-row{ padding:14px 18px; border-bottom:0; margin-bottom:9px;
+    background:var(--card); border:1px solid var(--border); border-radius:22px; }
+  [data-theme="jade"] .gutter{ color:var(--hwang); font-weight:700; padding-top:2px; }
+  [data-theme="jade"] .gutter-title{ font-weight:700; }
+  [data-theme="kobalt"] .gutter-row{ padding:15px 22px; }
+  [data-theme="kobalt"] .gutter{ font-weight:700; color:var(--hwang); }
+
+  /* ══ v4 §6 · MOJE KONTO ══════════════════════════════════════════════════ */
+  /* min-width:0 jest tu konieczne: .wrap to kolumna flex, a jej dziecko ma
+     domyślne min-width:auto - najszerszy wiersz (w Kobalcie z paddingiem 22px)
+     rozpychał wtedy cały ekran o 21px poza szerokość okna. Ta sama pułapka co
+     w .row-main z v3 §1.1 i .gutter-main z v4 §1, tylko o poziom wyżej. */
+  /* width:100% jest tu konieczne, nie ozdobne: .wrap to kolumna flex, a
+     margin-inline:auto na elemencie flex WYŁĄCZA rozciąganie (align-self:stretch),
+     więc ekran dostawał szerokość swojej najszerszej treści - w Kobalcie
+     349px na oknie 360px, czyli rząd próbek wychodził poza ekran. */
+  #accountScreen{ width:100%; max-width:520px; margin:0 auto; min-width:0; }
+  .acct-id{ display:flex; align-items:center; gap:14px; margin:4px 0 6px; }
+  /* Znak marki bez kolorowej płytki - to logo, nie wycinanka (decyzja z 2026-09-01,
+     ta sama co na logowaniu). §6 mówił o PNG/glifie 훈; jedno i drugie zniknęło. */
+  .acct-mark{ flex:none; width:56px; height:56px; }
+  .acct-mark svg{ width:100%; height:100%; display:block; }
+  .acct-who{ flex:1; min-width:0; }
+  .acct-name{ font:600 15px var(--font-ui); color:var(--ink);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .acct-mail{ font-size:13px; color:var(--ink-dim);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .acct-plan{ font-size:12.5px; color:var(--hwang); margin-top:2px; }
+
+  .acct-label{ font-size:11px; font-weight:500; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--ink-dim); margin:22px 0 10px; }
+
+  .theme-picker{ display:flex; gap:8px; }
+  /* Próbka pokazuje TŁO motywu, nie akcent - user wybiera "jasny czy ciemny",
+     zanim wybierze "jaki akcent" (§6). */
+  .theme-swatch{ flex:1; height:44px; min-width:0; border-radius:10px;
+    border:1px solid var(--border); padding:0; cursor:pointer; }
+  .theme-swatch[aria-pressed="true"]{ border:2px solid var(--hwang); }
+  .theme-swatch[data-locked="true"]{ opacity:.45; }
+  .theme-name{ font-size:12.5px; color:var(--ink-dim); margin-top:8px; }
+  .theme-picker--schemes{ margin-top:10px; }
+  .theme-picker--schemes .theme-swatch{ height:34px; border-radius:8px; }
+
+  /* Przełącznik w wierszu ustawień. --border-strong, żeby wyłączony stan
+     był widoczny sam z siebie, a nie tylko względem tła. */
+  .row-switch{ flex:none; width:48px; height:29px; border-radius:var(--radius-pill);
+    background:var(--border-strong); display:flex; align-items:center; padding:2px;
+    border:0; cursor:pointer; transition:background .15s; }
+  .row-switch[aria-checked="true"]{ background:var(--hwang); justify-content:flex-end; }
+  .row-switch i{ width:25px; height:25px; border-radius:50%; background:var(--card); display:block; }
+  .acct-chevron{ flex:none; color:var(--ink-dim); font-size:18px; line-height:1; }
+  #acctRows .dr-row{ content-visibility:visible; cursor:pointer; }
+  #acctRows .dr-row-ko{ font-family:var(--font-ui); font-size:15px; }
+
+  /* Wyloguj: --hwang, bez ikony i bez czerwieni. Czerwień zostaje dla
+     usuwania konta, które mieszka w subskrypcji (§6). */
+  .acct-logout{ width:100%; min-height:52px; margin-top:18px;
+    border:1px solid var(--border); border-radius:var(--btn-radius);
+    background:0; color:var(--hwang); font:600 15px var(--font-ui); cursor:pointer; }
   /* Hanji ma tusz i akcent zbyt blisko siebie (brąz + ciemna czerwień),
      więc głębsza strzałka bierze ciemniejszy biegun palety. */
   [data-scheme="hanji"]{ --logo-b:#241F1B; }  /* tusz i akcent hanji leżą zbyt blisko siebie */
@@ -1058,6 +1142,14 @@
     contain-intrinsic-size:auto 56px;
   }
   .dr-row:last-child{ border-bottom:0; }
+  /* Działów jest 28 - nie zmieszczą się w jednym rzędzie i nie mają się zawijać
+     w ścianę tekstu nad listą. Jeden rząd, przewijany palcem, bez paska. */
+  .dict-filters--scroll{
+    overflow-x:auto; flex-wrap:nowrap; scrollbar-width:none;
+    -webkit-overflow-scrolling:touch; padding-bottom:2px;
+  }
+  .dict-filters--scroll::-webkit-scrollbar{ display:none; }
+  .dict-filters--scroll .chip{ flex:none; white-space:nowrap; }
   /* min-width:0 jest OBOWIĄZKOWE - bez niego długie polskie znaczenie rozpycha
      flex i wypycha odznakę poziomu za krawędź ekranu. */
   .dr-row-main{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
@@ -3828,6 +3920,18 @@
   }
   .chat-log .ai-bubble.user .ai-pl{ display:none; }   /* user wie, co powiedział */
 
+  /* Chipsik ze słówkiem wyjaśnianym w toku rozmowy (v3 §4). Stoi samodzielnie
+     w logu, nie w bąbelku - to komentarz do rozmowy, nie wypowiedź. */
+  .chat-log .msg-gloss{
+    align-self:flex-start; padding:6px 12px; border-radius:var(--radius-pill);
+    background:var(--surface-2); color:var(--hwang);
+    font-size:11.5px; font-weight:700; max-width:82%;
+  }
+  @supports (background: color-mix(in oklab, red 14%, transparent)){
+    .chat-log .msg-gloss{ background:color-mix(in oklab, var(--hwang) 14%, transparent); }
+  }
+  [data-theme="kobalt"] .chat-log .msg-gloss{ background:0; padding:0; font-weight:800; }
+
   .typing{
     align-self:flex-start; display:flex; gap:5px; padding:14px 18px; margin-bottom:10px;
     background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
@@ -3870,13 +3974,6 @@
   [data-theme="kobalt"] .typing{ background:0; border:0; padding-left:16px; }
   [data-theme="kobalt"] .chat-bar .chat-side, [data-theme="kobalt"] .chat-avatar{ border-radius:12px; }
   [data-theme="kobalt"] .chat-avatar{ background:var(--hwang); color:var(--on-accent); }
-
-  .msg-gloss{
-    align-self:flex-start; padding:6px 12px; border-radius:var(--radius-pill);
-    background:var(--hwang-tint-strong); color:var(--hwang);
-    font-size:11.5px; font-weight:700;
-  }
-  [data-theme="kobalt"] .msg-gloss{ background:0; padding:0; font-weight:800; }
 
   /* ══ v3 §2 · SŁOWNIK ═════════════════════════════════════════════════════
      Litera alfabetu (u nas 초성 - spółgłoska początkowa) przestaje być osobnym
@@ -4398,7 +4495,36 @@
     </div>
   </div>
 
-  <div id="settingsScreen" style="display:none;">
+  <div id="accountScreen" style="display:none;">
+  <button class="back-btn" data-back="modeSelect" data-i18n="backModeSelect">Wróć</button>
+
+  <div class="acct-id">
+    <div class="acct-mark" aria-hidden="true"><svg class="hj-logo" viewBox="0 0 100 100"><use href="#hj-logo"/></svg></div>
+    <div class="acct-who">
+      <div class="acct-name" id="acctName">—</div>
+      <div class="acct-mail" id="acctMail"></div>
+      <div class="acct-plan" id="acctPlan"></div>
+    </div>
+  </div>
+
+  <div class="acct-label" data-i18n="acctAppearance">Wygląd</div>
+  <div class="theme-picker" id="acctThemePicker" role="group"></div>
+  <div class="theme-name" id="acctThemeName"></div>
+  <div class="theme-picker theme-picker--schemes" id="acctSchemePicker" role="group"></div>
+
+  <div class="acct-label" data-i18n="acctSettings">Ustawienia</div>
+  <div id="acctRows"></div>
+
+  <button class="acct-logout" id="acctLogoutBtn" data-i18n="logoutBtn">Wyloguj się</button>
+
+  <div class="premium-note" style="margin-top:14px;" data-i18n="logoutNote">Twój postęp, słówka i status Premium są zapisane na serwerze — po ponownym zalogowaniu (na tym lub innym urządzeniu) wszystko wróci.</div>
+  <div class="premium-note" style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border);" data-i18n="dataSourceNote">Część danych słownikowych pochodzi z 한국어기초사전 (Korean Learner's Dictionary), Narodowy Instytut Języka Koreańskiego (국립국어원), udostępnionych na licencji CC BY-SA 2.0 Korea.</div>
+  <div class="premium-note" style="margin-top:8px; font-family:'IBM Plex Mono', ui-monospace, monospace; font-size:13px; opacity:.75;">
+    <span data-i18n="appVersionLabel">Wersja</span>: <span id="acctVersionText">—</span>
+  </div>
+</div>
+
+<div id="settingsScreen" style="display:none;">
   <button class="back-btn" data-back="modeSelect" data-i18n="backModeSelect">Wróć</button>
   <div style="max-width:520px; margin:0 auto;">
     <h3 style="font-family:var(--font-ko); font-size:20px; margin:0 0 16px; text-align:center;" data-i18n="settingsTitle">Ustawienia</h3>
@@ -4419,21 +4545,22 @@
 </div>
 
   <div id="dictBrowseScreen" style="display:none;">
-    <button class="back-btn" data-back="home" data-i18n="backHome">Menu główne</button>
+    <button class="back-btn" data-back="vocabMode" data-i18n="backVocabMode">Wybór trybu</button>
+    <!-- v3 §2: dział i poziom przestają być obowiązkowym krokiem. Jedna przewijana
+         lista z lepkimi nagłówkami 초성, nad nią szukajka i dwa rzędy filtrów.
+         Ekrany dictLevel i dictWordList zostają - chodzą do nich Akademia i moduły
+         branżowe - ale wejście do słownika już przez nie nie prowadzi. -->
     <div class="dict-head">
       <label class="dict-search">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-        <input type="text" id="dictBrowseSearchInput" data-i18n-placeholder="dictBrowseSearchPlaceholder" placeholder="Szukaj słowa…">
+        <input type="text" id="dictBrowseSearch" data-i18n-placeholder="dictBrowseSearchPlaceholder" placeholder="Szukaj w całym słowniku…">
       </label>
-      <!-- Poziom zawsze widoczny (makieta 4a) - CEFR, nie polska nazwa, bo trzy
-           znaki mieszczą się w chipsie, "Średniozaawansowany" nie. -->
-      <div class="dict-filters" id="dictBrowseLevelChips" role="tablist"></div>
-      <!-- Dział jako DRUGI rząd, NIE chowany - Akademia i moduły branżowe to
-           realna część produktu, znikłyby razem z chipsami (README §2). -->
-      <div class="dict-filters" id="dictBrowseDeptChips" role="tablist"></div>
+      <!-- Też przewijany: "Średniozaawansowany" i "Zaawansowany" nie mieszczą się
+           w 360 px obok siebie, a zawijanie zrobiłoby z filtrów ścianę nad listą. -->
+      <div class="dict-filters dict-filters--scroll" id="dictBrowseLevels" role="tablist"></div>
+      <div class="dict-filters dict-filters--scroll" id="dictBrowseDepts" role="tablist"></div>
     </div>
     <p class="hint-note" id="dictBrowseCount" style="margin-top:8px;"></p>
-    <div id="dictBrowseLoading" style="display:none; text-align:center; padding:30px; color:var(--ink-dim);" data-i18n="dictLoading">Ładowanie…</div>
     <div id="dictBrowseRows" class="dict-list"></div>
   </div>
 
@@ -13984,7 +14111,7 @@ const SCREEN_IDS = {
   conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen', conjRef:'conjRefScreen',
   aiChat:'aiChatScreen', reading:'readingScreen',
   grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
-  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen'
+  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen', account:'accountScreen'
 };
 
 /* ── DOLNA NAWIGACJA — logika (redesign, krok 3) ──────────────────────────
@@ -14195,6 +14322,7 @@ function setScreen(screen){
   if(screen === 'culture') renderCultureScreen();
   if(screen === 'hangul') renderHangulScreen();
   if(screen === 'dictBrowse') renderDictDeptChips();
+  if(screen === 'account') renderAccountScreen();
   if(screen === 'dictLevel') renderDictLevelCards();
   if(screen === 'academy') renderAcademyGrid();
   if(screen === 'aiChat'){ loadAiUsageStatus(); loadGeminiUsageStatus(); }
@@ -14637,12 +14765,12 @@ const I18N = {
   tTypedAi: { pl: 'Inteligentny fallback przy wpisywaniu', en: 'Smart fallback for typed answers' },
   backToList: { pl: '◀ Wróć do listy', en: '◀ Back to list' },
   dictFilterPlaceholder: { pl: 'Szukaj w tym dziale…', en: 'Search in this section…' },
+  dictBrowseSearchPlaceholder: { pl: 'Szukaj w całym słowniku…', en: 'Search the whole dictionary…' },
   homeIndustryTitle: { pl: 'Moduły branżowe', en: 'Industry modules' },
   homeIndustryDesc: { pl: 'K-beauty, wojskowość, IT, prawo, K-pop i więcej.', en: 'K-beauty, military, IT, law, K-pop, and more.' },
   industryModuleHint: { pl: 'Słownictwo specjalistyczne — żargon branżowy, nie codzienna mowa.', en: 'Specialized vocabulary - industry jargon, not everyday speech.' },
   dictBrowseTitle: { pl: 'Przeglądaj pełny słownik', en: 'Browse the full dictionary' },
   dictBrowseDesc: { pl: '27 działów, ponad 51 000 słów z oficjalnego słownika.', en: '27 sections, over 51,000 words from the official dictionary.' },
-  dictBrowseSearchPlaceholder: { pl: 'Szukaj słowa…', en: 'Search a word…' },
   backDictBrowse: { pl: 'Wybór działu', en: 'Choose section' },
   backDictLevel: { pl: 'Wybór poziomu', en: 'Choose level' },
   dictLoading: { pl: 'Ładowanie…', en: 'Loading…' },
@@ -15413,6 +15541,104 @@ document.getElementById('loginGoogleBtn').addEventListener('click', async ()=>{
   }
 });
 
+/* ═══ v4 §6 · MOJE KONTO ══════════════════════════════════════════════════
+   Wybór motywu ma tu swoje miejsce: cztery próbki w jednym rzędzie, próbka
+   pokazuje TŁO motywu. Motywy Pro na darmowym koncie są wyszarzone i wiodą
+   do subskrypcji, zamiast znikać z listy - user ma wiedzieć, że istnieją.
+   Palety (Hanji, Neon...) to drugi rząd i pojawia się tylko dla motywu,
+   który je oferuje, czyli dziś dla Klasycznego. Sterowanie idzie przez
+   applyTheme/applyScheme - żadnej własnej logiki uprawnień. */
+function renderAccountScreen(){
+  const scr = document.getElementById('accountScreen');
+  if(!scr) return;
+  const isPro = premiumTier === 'pro';
+
+  const email = currentAuthUser ? currentAuthUser.email : null;
+  const name = currentProfileDisplayName;
+  document.getElementById('acctName').textContent =
+    name || (uiLang === 'en' ? 'No name set' : 'Bez podanego imienia');
+  document.getElementById('acctMail').textContent = email || '';
+  document.getElementById('acctPlan').textContent =
+    premiumTier === 'pro'   ? 'Premium Pro'
+  : premiumTier === 'basic' ? 'Premium'
+  : (uiLang === 'en' ? 'Free plan' : 'Konto darmowe');
+  const ver = document.getElementById('acctVersionText');
+  if(ver) ver.textContent = APP_VERSION;
+
+  // Motywy
+  const pick = document.getElementById('acctThemePicker');
+  pick.innerHTML = THEMES.map(t => {
+    const locked = t.pro && !isPro;
+    return `<button type="button" class="theme-swatch" data-theme-id="${t.id}"
+      style="background:${t.sw[0]};" ${locked ? 'data-locked="true"' : ''}
+      aria-pressed="${t.id === currentTheme ? 'true' : 'false'}"
+      aria-label="${escapeHtml(t.name)}" title="${escapeHtml(t.name)}"></button>`;
+  }).join('');
+  pick.querySelectorAll('.theme-swatch').forEach(b => b.addEventListener('click', () => {
+    const t = THEMES.find(x => x.id === b.dataset.themeId);
+    if(t && t.pro && !isPro){ document.getElementById('premiumPanel').classList.add('open'); return; }
+    applyTheme(b.dataset.themeId);
+    // Ta sama ścieżka zapisu co panel motywu - motyw idzie na serwer.
+    try{ window.storage.set(STORAGE_KEYS.theme, currentTheme); }catch(err){}
+    renderAccountScreen();
+  }));
+  const meta = THEMES.find(t => t.id === currentTheme) || THEMES[0];
+  document.getElementById('acctThemeName').textContent = meta.name + ' · ' + meta.ko;
+
+  // Palety - tylko dla motywu, który je ma
+  const spick = document.getElementById('acctSchemePicker');
+  if(meta.schemes){
+    const active = resolveScheme(meta);
+    spick.innerHTML = meta.schemes.map(x => {
+      const locked = x.pro && !isPro;
+      return `<button type="button" class="theme-swatch" data-scheme-id="${x.id}"
+        style="background:${x.sw[0]};" ${locked ? 'data-locked="true"' : ''}
+        aria-pressed="${x.id === active ? 'true' : 'false'}"
+        aria-label="${escapeHtml(x.name)}" title="${escapeHtml(x.name)}"></button>`;
+    }).join('');
+    spick.querySelectorAll('.theme-swatch').forEach(b => b.addEventListener('click', () => {
+      const x = meta.schemes.find(y => y.id === b.dataset.schemeId);
+      if(x && x.pro && !isPro){ document.getElementById('premiumPanel').classList.add('open'); return; }
+      applyScheme(b.dataset.schemeId);
+      renderAccountScreen();
+    }));
+    spick.style.display = '';
+  }else{
+    spick.innerHTML = ''; spick.style.display = 'none';
+  }
+
+  // Wiersze ustawień - wzorzec .dr-row z v3 §1.1
+  const rows = [
+    { label: uiLang === 'en' ? '🏆 My achievements' : '🏆 Moje osiągnięcia', go:()=>setScreen('achievements') },
+    { label: uiLang === 'en' ? '⚙️ Sound, language, report a bug' : '⚙️ Dźwięk, język, zgłoszenia', go:()=>setScreen('settings') },
+    { label: uiLang === 'en' ? '⭐ Subscription' : '⭐ Subskrypcja', go:()=>document.getElementById('premiumPanel').classList.add('open') },
+    { label: uiLang === 'en' ? '❓ How to use the app' : '❓ Jak korzystać z apki', go:()=>{ const b=document.getElementById('replayOnboardingBtn'); if(b) b.click(); } },
+    { label: uiLang === 'en' ? '📳 Vibration on answers' : '📳 Wibracje przy odpowiedziach', toggle:true },
+  ];
+  const wrap = document.getElementById('acctRows');
+  wrap.innerHTML = rows.map((r,i) => `
+    <div class="dr-row" data-i="${i}">
+      <div class="dr-row-main"><div class="dr-row-ko">${escapeHtml(r.label)}</div></div>
+      ${r.toggle
+        ? `<button type="button" class="row-switch" role="switch" aria-checked="${hapticsEnabled ? 'true' : 'false'}"
+             aria-label="${uiLang === 'en' ? 'Vibration' : 'Wibracje'}"><i></i></button>`
+        : '<span class="acct-chevron" aria-hidden="true">›</span>'}
+    </div>`).join('');
+  wrap.querySelectorAll('.dr-row').forEach(row => {
+    const r = rows[parseInt(row.dataset.i, 10)];
+    if(r.toggle){
+      row.querySelector('.row-switch').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const btn = document.getElementById('hapticsToggleBtn');
+        if(btn) btn.click();               // jedno źródło prawdy - istniejący przełącznik
+        renderAccountScreen();
+      });
+    }else{
+      row.addEventListener('click', r.go);
+    }
+  });
+}
+
 function applyAccountUI(){
   const body = document.getElementById('accountInfoBody');
   const email = currentAuthUser ? currentAuthUser.email : null;
@@ -15447,10 +15673,18 @@ async function loadAccount(){
 }
 
 document.getElementById('accountBtn').addEventListener('click', ()=>{
-  ['addPanel','missedPanel','categoriesPanel','premiumPanel','aiFlashcardPanel','aiFileImportPanel','wordListPanel'].forEach(id=>{
+  // v4 §6: konto to ekran, nie modal - mieści rząd próbek motywu i listę
+  // ustawień, na co karta modalu jest za wąska. Panel #accountPanel zostaje
+  // w DOM, bo kilkanaście miejsc woła na nim classList.remove('open') przy
+  // nawigacji; nic go już nie otwiera.
+  ['addPanel','missedPanel','categoriesPanel','premiumPanel','aiFlashcardPanel','aiFileImportPanel','wordListPanel','accountPanel'].forEach(id=>{
     document.getElementById(id).classList.remove('open');
   });
-  document.getElementById('accountPanel').classList.toggle('open');
+  setScreen('account');
+});
+
+document.getElementById('acctLogoutBtn').addEventListener('click', ()=>{
+  document.getElementById('logoutBtn').click();   // jedna ścieżka wylogowania
 });
 
 document.getElementById('logoutBtn').addEventListener('click', async ()=>{
@@ -17522,187 +17756,143 @@ function renderIndustryModuleChips(){
   });
 }
 
-// ═══ v3 §2 · dictBrowseScreen jako JEDNA przewijana lista ═══════════════════
-// Zastępuje dawny wymuszony łańcuch dictBrowse(dział)->dictLevel(poziom)->
-// dictWordList(lista). dictLevelScreen ZOSTAJE w DOM (README §2: "można
-// zachować jako filtr, ale nie jako obowiązkowy krok") - po prostu nic już
-// do niego nie prowadzi z tego ekranu. dictWordListScreen też zostaje -
-// jego dictWordCardView (fiszka ze szczegółami słowa) jest tu PONOWNIE
-// UŻYWANA, nie duplikowana (patrz openDictWordCardFrom niżej).
-//
-// Trzy źródła danych, żaden nie ciągnie całego korpusu (39k+ słów) naraz:
-//   1) brak filtrów        -> DEFAULT_WORDS (5872, już w pamięci) - zero fetcha
-//   2) wpisany tekst       -> lokalny filtr DEFAULT_WORDS NATYCHMIAST,
-//                             + searchDictionaryWords() (serwer) dokładane gdy przyjdą
-//   3) wybrany dział       -> fetchDictionaryWords(level, dept), tylko ten dział
+/* ═══ SŁOWNIK: jedna lista zamiast dwóch ekranów wyboru (v3 §2) ═══════════
+   Wcześniej: dictBrowse (28 kafli działów) -> dictLevel (3 karty poziomu) ->
+   dopiero lista. Teraz dział i poziom są filtrami nad listą, a nie bramkami
+   przed nią. Zapytania do bazy są DOKŁADNIE te co dotąd - fetchDictionaryWords
+   i searchDictionaryWords, z tymi samymi argumentami. Źródło danych słownika
+   jest na liście "czego nie ruszać" i nie było ruszane. */
 
-let dictBrowseLevel = null;   // null = "Wszystkie"
-let dictBrowseDept = null;    // null = brak działu -> DEFAULT_WORDS/wyszukiwanie lokalne
-let dictBrowseSearchSeq = 0;  // odrzuca spóźnione odpowiedzi z serwera, gdy user pisze dalej
+let dictBrowseLevel = null;      // null = wszystkie poziomy
+let dictBrowseDept  = null;      // null = wszystkie działy
+let dictBrowseList  = [];        // to, co aktualnie widać (po filtrach i szukaniu)
+let dictBrowseSeq   = 0;         // numer żądania - starsza odpowiedź nie nadpisze nowszej
 
-// "TOPIK 1–2 · CEFR A1–A2" -> "A1". Wyciągane z LEVEL_META, nie duplikowane
-// jako osobna stała - jeśli LEVEL_META się zmieni, chipsy i odznaki podążają same.
-function cefrShort(level){
-  const meta = LEVEL_META.find(m => m.level === level);
-  if(!meta) return '';
-  const m = meta.sub.match(/CEFR (\S+)/);
-  return m ? m[1].split('–')[0] : '';
-}
-
-function renderDictBrowseLevelChips(){
-  const wrap = document.getElementById('dictBrowseLevelChips');
-  const chips = [{level:null, label: uiLang === 'en' ? 'All' : 'Wszystkie'}]
-    .concat(LEVEL_META.map(m => ({level:m.level, label:cefrShort(m.level)})));
-  wrap.innerHTML = chips.map(c => `
-    <button type="button" class="chip" role="tab" data-level="${c.level ?? ''}"
-      aria-pressed="${c.level === dictBrowseLevel ? 'true' : 'false'}">${escapeHtml(c.label)}</button>
+function dictBrowseChipsHTML(){
+  const lvlWrap = document.getElementById('dictBrowseLevels');
+  const depWrap = document.getElementById('dictBrowseDepts');
+  const all = uiLang === 'en' ? 'All' : 'Wszystkie';
+  lvlWrap.innerHTML = [{level:null, label:all, labelEn:all}].concat(LEVEL_META).map(m => `
+    <button type="button" class="chip" role="tab" data-level="${m.level === null ? '' : m.level}"
+      aria-pressed="${m.level === dictBrowseLevel ? 'true' : 'false'}">${escapeHtml(uiLang === 'en' ? m.labelEn : m.label)}</button>
   `).join('');
-  wrap.querySelectorAll('.chip').forEach(chip=>{
-    chip.addEventListener('click', ()=>{
-      const raw = chip.dataset.level;
-      dictBrowseLevel = raw === '' ? null : parseInt(raw, 10);
-      renderDictBrowseLevelChips();
-      loadDictBrowseCurrent();
-    });
-  });
-}
-
-function renderDictBrowseDeptChips(){
-  const wrap = document.getElementById('dictBrowseDeptChips');
-  wrap.innerHTML = DICT_DEPARTMENTS.map(dept => `
-    <button type="button" class="chip" role="tab" data-dept="${escapeHtml(dept)}"
-      aria-pressed="${dept === dictBrowseDept ? 'true' : 'false'}">${escapeHtml(dept)}</button>
+  depWrap.innerHTML = [null].concat(DICT_DEPARTMENTS).map(d => `
+    <button type="button" class="chip" role="tab" data-dept="${d === null ? '' : escapeHtml(d)}"
+      aria-pressed="${d === dictBrowseDept ? 'true' : 'false'}">${escapeHtml(d === null ? (uiLang === 'en' ? 'All sections' : 'Wszystkie działy') : d)}</button>
   `).join('');
-  wrap.querySelectorAll('.chip').forEach(chip=>{
-    chip.addEventListener('click', ()=>{
-      const dept = chip.dataset.dept;
-      // Tapnięcie już aktywnego działu odznacza go - powrót do DEFAULT_WORDS,
-      // ten sam wzorzec toggle co reszta filtrów-chipsów w apce.
-      dictBrowseDept = (dept === dictBrowseDept) ? null : dept;
-      document.getElementById('dictBrowseSearchInput').value = '';
-      renderDictBrowseDeptChips();
-      loadDictBrowseCurrent();
-    });
-  });
+  lvlWrap.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    const v = c.dataset.level;
+    dictBrowseLevel = v === '' ? null : parseInt(v, 10);
+    dictBrowseChipsHTML(); loadDictBrowse();
+  }));
+  depWrap.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    dictBrowseDept = c.dataset.dept === '' ? null : c.dataset.dept;
+    dictBrowseChipsHTML(); loadDictBrowse();
+  }));
 }
 
-// Wspólny renderer wierszy - używany przez wszystkie trzy źródła danych.
-// 초성 liczone z KOREAŃSKIEJ sylaby (w.ko), NIE z polskiej nazwy działu -
-// to grupuje SŁOWA, nie działy (te są już pogrupowane chipsami wyżej).
-function renderDictBrowseRows(words){
+/* Filtry i wyszukiwanie działają RAZEM, nie zamiast siebie (lista odbioru §6).
+   Bez frazy: pobieramy stronę wg filtrów. Z frazą: dokładamy wynik wyszukiwania
+   po całej bazie (bo filtrowana strona to tylko pierwsze N wierszy), scalamy po
+   id i dopiero na tym nakładamy poziom i dział po stronie klienta. */
+async function loadDictBrowse(){
+  const seq = ++dictBrowseSeq;
+  const input = document.getElementById('dictBrowseSearch');
+  const q = (input ? input.value : '').trim();
+  const rows = document.getElementById('dictBrowseRows');
+  const count = document.getElementById('dictBrowseCount');
+  count.textContent = uiLang === 'en' ? 'Loading…' : 'Ładowanie…';
+
+  // Bez filtrów pobieramy 500 (szybkie otwarcie - to strona startowa, a fraza
+  // i tak sięga całej bazy przez searchDictionaryWords). Po zawężeniu działem
+  // lub poziomem bierzemy 2000, żeby wybrany wycinek był kompletny: zmierzone
+  // 2000 wierszy to 46 ms do pierwszej klatki i 16,5 ms na klatkę przy scrollu,
+  // czyli nadal 60 fps. 5872 daje 22 ms na klatkę - stąd ten próg.
+  const limit = (dictBrowseLevel || dictBrowseDept) ? 2000 : 500;
+  let list = await fetchDictionaryWords(dictBrowseLevel, dictBrowseDept, limit);
+  if(q){
+    const hits = await searchDictionaryWords(q, 200);
+    const seen = new Set(list.map(w => w.id));
+    hits.forEach(w => { if(!seen.has(w.id)){ seen.add(w.id); list.push(w); } });
+    const needle = q.toLowerCase();
+    list = list.filter(w =>
+      (w.ko || '').toLowerCase().includes(needle) ||
+      (w.pl || '').toLowerCase().includes(needle) ||
+      (w.en || '').toLowerCase().includes(needle));
+    if(dictBrowseLevel) list = list.filter(w => w.level === dictBrowseLevel);
+    if(dictBrowseDept)  list = list.filter(w => w.category === dictBrowseDept);
+  }
+  if(seq !== dictBrowseSeq) return;   // przyszła już nowsza odpowiedź
+
+  dictBrowseList = list.sort((a, b) => (a.ko || '').localeCompare(b.ko || '', 'ko'));
+  renderDictBrowseRows();
+}
+
+function renderDictBrowseRows(){
   const wrap = document.getElementById('dictBrowseRows');
-  const sorted = [...words].sort((a, b) => (a.ko || '').localeCompare(b.ko || '', 'ko'));
-
-  const countLabel = uiLang === 'en' ? `${sorted.length} words` : `${sorted.length} słówek`;
-  document.getElementById('dictBrowseCount').textContent = countLabel;
-
-  if(!sorted.length){
+  const count = document.getElementById('dictBrowseCount');
+  const words = dictBrowseList;
+  count.textContent = uiLang === 'en'
+    ? `${words.length} word${words.length === 1 ? '' : 's'}`
+    : `${words.length} ${words.length === 1 ? 'słowo' : 'słów'}`;
+  if(!words.length){
     wrap.innerHTML = `<p class="hint-note" style="text-align:center; padding:20px;">${uiLang === 'en' ? 'No matches.' : 'Brak dopasowań.'}</p>`;
     return;
   }
-
+  // Nagłówek 초성 wstawiamy tylko przy zmianie grupy - lista jest już posortowana
+  // koreańsko, więc grupy wychodzą same. Ten sam wzorzec co w liście działu.
   let lastGroup = null;
-  wrap.innerHTML = sorted.map((w, i) => {
+  wrap.innerHTML = words.map((w, i) => {
     const g = choseongOf(w.ko);
     const head = g !== lastGroup ? `<div class="section-sticky">${escapeHtml(g)}</div>` : '';
     lastGroup = g;
-    // Odznaka = POZIOM (CEFR), nie część mowy - w tym widoku dział+poziom są
-    // już filtrami wyżej, więc per-wiersz warto pokazać to, co się MIESZA
-    // (poziom, gdy "Wszystkie" albo DEFAULT_WORDS łączy kilka poziomów naraz).
-    const badge = w.level ? `<span class="dr-row-badge">${escapeHtml(cefrShort(w.level))}</span>` : '';
     return head + `
     <div class="dr-row sb-tappable" data-idx="${i}">
       <div class="dr-row-main">
         <div class="dr-row-ko">${escapeHtml(w.ko)}${w.emoji ? ' ' + w.emoji : ''}</div>
         <div class="dr-row-pl">${escapeHtml(uiLang === 'en' ? w.en : w.pl)}</div>
       </div>
-      ${badge}
+      ${w.pos ? `<span class="dr-row-badge">${escapeHtml(w.pos)}</span>` : ''}
     </div>`;
   }).join('');
-
-  wrap.querySelectorAll('.dr-row').forEach(row=>{
-    row.addEventListener('click', ()=>{
-      openDictWordCardFrom(sorted, parseInt(row.dataset.idx, 10), 'dictBrowse');
-    });
+  wrap.querySelectorAll('.dr-row').forEach(row => {
+    row.addEventListener('click', () => openDictBrowseCard(parseInt(row.dataset.idx, 10)));
   });
 }
 
-// Otwiera istniejącą fiszkę ze szczegółami (dictWordCardView, wewnątrz
-// dictWordListScreen) z DOWOLNEGO źródła listy - dictWordQueue/renderDictWordCard
-// nie są duplikowane, tylko ponownie zasilane. returnScreen pamięta, dokąd ma
-// wrócić przycisk "Wróć do listy" (patrz dictWordCardBackBtn niżej).
-let dictWordCardReturnScreen = 'dictWordList';
-function openDictWordCardFrom(queue, index, returnScreen){
-  dictWordQueue = queue;
-  dictWordIndex = index;
-  dictWordCardReturnScreen = returnScreen || 'dictWordList';
+// Karta słowa to ten sam widok co w liście działu - nie duplikujemy go, tylko
+// podstawiamy kolejkę i wracamy do słownika, a nie do wyboru poziomu.
+function openDictBrowseCard(idx){
+  dictWordQueue = dictBrowseList;
+  dictWordIndex = idx;
+  dictWordContextLabel = uiLang === 'en' ? 'Dictionary' : 'Słownik';
   setScreen('dictWordList');
+  const back = document.getElementById('dictWordListBackBtn');
+  back.dataset.back = 'dictBrowse';
+  back.textContent = uiLang === 'en' ? 'Dictionary' : 'Słownik';
   document.getElementById('dictWordListLoading').style.display = 'none';
-  showDictWordCardView(); // hoisted (function declaration) - też chowa zewnętrzny back-btn
+  showDictWordCardView();
   renderDictWordCard();
 }
 
-async function loadDictBrowseCurrent(){
-  const query = document.getElementById('dictBrowseSearchInput').value.trim();
-  if(query){ handleDictBrowseSearch(query); return; }
-
-  if(dictBrowseDept){
-    document.getElementById('dictBrowseLoading').style.display = 'block';
-    document.getElementById('dictBrowseRows').innerHTML = '';
-    const words = await fetchDictionaryWords(dictBrowseLevel, dictBrowseDept);
-    document.getElementById('dictBrowseLoading').style.display = 'none';
-    renderDictBrowseRows(words);
-    return;
-  }
-
-  // Brak działu, brak wyszukiwania -> DEFAULT_WORDS, filtrowane lokalnie po
-  // poziomie (zero fetcha - to jedyny stan, w którym cokolwiek widać od razu
-  // po wejściu na ekran).
-  const local = dictBrowseLevel ? DEFAULT_WORDS.filter(w => w.level === dictBrowseLevel) : DEFAULT_WORDS;
-  renderDictBrowseRows(local);
-}
-
-// Lokalne dopasowanie od razu (ten sam wielopolowy wzorzec co stary
-// dictWordFilterInput), serwerowe dokładane gdy searchDictionaryWords()
-// odpowie - seq odrzuca odpowiedź, jeśli user zdążył wpisać coś innego.
-function handleDictBrowseSearch(query){
-  const q = query.toLowerCase();
-  const local = DEFAULT_WORDS.filter(w =>
-    w.ko.toLowerCase().includes(q) || (w.pl || '').toLowerCase().includes(q) || (w.en || '').toLowerCase().includes(q)
-  );
-  renderDictBrowseRows(local);
-
-  const seq = ++dictBrowseSearchSeq;
-  searchDictionaryWords(query, 40).then(serverWords => {
-    if(seq !== dictBrowseSearchSeq) return; // user napisał coś innego w międzyczasie
-    if(!serverWords.length) return;
-    const localKos = new Set(local.map(w => w.ko));
-    const merged = local.concat(serverWords.filter(w => !localKos.has(w.ko)));
-    renderDictBrowseRows(merged);
-  });
-}
-
-function renderDictDeptChips(){
-  dictBrowseLevel = null;
-  dictBrowseDept = null;
-  renderDictBrowseLevelChips();
-  renderDictBrowseDeptChips();
-  loadDictBrowseCurrent();
-
-  const searchInput = document.getElementById('dictBrowseSearchInput');
-  searchInput.value = '';
-  // Nie duplikujemy listenera przy każdym wejściu na ekran - podpinamy raz,
-  // flagą na samym elemencie (ten sam wzorzec co reszta apki dla ekranów
-  // wchodzonych wielokrotnie w trakcie sesji).
-  if(!searchInput.dataset.wired){
-    searchInput.dataset.wired = '1';
-    searchInput.addEventListener('input', (e)=>{
-      const q = e.target.value.trim();
-      if(!q){ dictBrowseSearchSeq++; loadDictBrowseCurrent(); return; }
-      handleDictBrowseSearch(q);
+let dictBrowseTimer = null;
+function initDictBrowse(){
+  const input = document.getElementById('dictBrowseSearch');
+  if(input && !input.dataset.bound){
+    input.dataset.bound = '1';
+    // Debounce, bo każde wciśnięcie klawisza to zapytanie do bazy.
+    input.addEventListener('input', () => {
+      clearTimeout(dictBrowseTimer);
+      dictBrowseTimer = setTimeout(loadDictBrowse, 250);
     });
   }
+  dictBrowseChipsHTML();
+  loadDictBrowse();
 }
+
+// Zostawione dla zgodności: dictLevelScreen nadal woła "wybierz dział" z innych
+// ścieżek. Sam ekran kafli działów już nie istnieje.
+function renderDictDeptChips(){ initDictBrowse(); }
 
 function renderDictLevelCards(){
   document.getElementById('dictLevelTitle').textContent = selectedDictDept;
@@ -17849,26 +18039,12 @@ document.getElementById('dictWordFilterInput').addEventListener('input', (e)=>{
 function showDictWordListView(){
   document.getElementById('dictWordListView').style.display = 'block';
   document.getElementById('dictWordCardView').style.display = 'none';
-  document.getElementById('dictWordListBackBtn').style.display = '';
 }
 function showDictWordCardView(){
   document.getElementById('dictWordListView').style.display = 'none';
   document.getElementById('dictWordCardView').style.display = 'block';
-  // Ukryj zewnętrzny back-btn ekranu ("Wybór poziomu") - dubluje się z
-  // wewnętrznym "Wróć do listy" NIEZALEŻNIE od tego, skąd user wszedł do
-  // fiszki (v3 §2). Bez tego, wejście z dictBrowseScreen prowadziłoby też
-  // do martwego dictLevelScreen (selectedDictDept nigdy nie ustawiane przez
-  // nową ścieżkę) - złapane wizualnie przy teście w przeglądarce, nie zgadywane.
-  document.getElementById('dictWordListBackBtn').style.display = 'none';
 }
-// Kontekstowy powrót: fiszka jest teraz otwierana z dwóch miejsc (starej listy
-// wewnątrz dictWordListScreen ORAZ nowego dictBrowseScreen) - dictWordCardReturnScreen
-// (ustawiane w openDictWordCardFrom, v3 §2) pamięta, skąd user faktycznie przyszedł,
-// żeby "Wróć do listy" nie podrzucało innego ekranu niż ten, z którego wszedł.
-document.getElementById('dictWordCardBackBtn').addEventListener('click', ()=>{
-  if(dictWordCardReturnScreen === 'dictBrowse'){ setScreen('dictBrowse'); return; }
-  showDictWordListView();
-});
+document.getElementById('dictWordCardBackBtn').addEventListener('click', showDictWordListView);
 
 function renderDictWordCard(){
   const w = dictWordQueue[dictWordIndex];
@@ -21518,10 +21694,11 @@ function applyPremiumUI(){
   const aiChatBody = document.getElementById('aiChatBody');
   if(aiChatGate && aiChatBody){
     aiChatGate.style.display = isPremiumPro ? 'none' : 'block';
-    // 'flex', nie 'block': #aiChatBody jest kolumną flex (v3 §4), w której .chat-log
-    // ma flex:1, a pasek mikrofonu siada na dole. Styl liniowy wygrywa z arkuszem,
-    // więc 'block' rozsypywał układ - log przestawał się rozciągać, a pasek zjeżdżał pod treść.
-    aiChatBody.style.display = isPremiumPro ? 'flex' : 'none';
+    // 'block' nadpisywało stylem liniowym regułę #aiChatBody{display:flex}, przez co
+    // kolumna się rozsypywała: .chat-log{flex:1} przestawał się rozciągać, a pasek
+    // mikrofonu nie siadał na dole. Czyścimy styl liniowy zamiast go ustawiać -
+    // widocznością steruje arkusz, nie JS. (v3 §4)
+    aiChatBody.style.display = isPremiumPro ? '' : 'none';
     if(!isPremiumPro) stopAiChatMic();
   }
 
