@@ -14659,7 +14659,72 @@ function addDaysMs(days){
 // żeby słowo, które ktoś "prawie opanował", a potem znów zaczęło sprawiać kłopot, nie zniknęło z radaru.
 const LEECH_THRESHOLD = 5;
 
-function srsRate(ko, rating){
+/* ===================== WAŻENIE SRS CZASEM ODPOWIEDZI =====================
+   Klasyczny SM-2 traktuje "wiedziałem od razu" i "trafiłem po namyśle" identycznie.
+   Płynność przypominania jest jednak uznanym sygnałem siły śladu pamięciowego, więc
+   wolna poprawna odpowiedź dostaje krótszy interwał niż natychmiastowa.
+
+   KLUCZOWE DLA KOREAŃSKIEGO: czas odpowiedzi miesza DWIE rzeczy - jak dobrze pamiętasz
+   słowo i jak szybko czytasz hangul. Początkujący czyta 학교 wolno niezależnie od tego,
+   czy pamięta znaczenie. Dlatego trzymamy OSOBNE bazy czasowe dla każdego kierunku
+   pytania: ko->pl wymaga czytania pisma, pl->ko nie. Porównujemy zawsze w obrębie tego
+   samego kierunku, więc "wolno czytam hangul" wypada z równania - liczy się tylko to,
+   czy dziś było wolniej niż zwykle DLA CIEBIE w tym samym typie zadania.
+
+   Baza to wykładnicza średnia ruchoma (EMA): łagodnie nadąża za tym, jak user
+   przyspiesza z czasem, bez gwałtownych skoków po jednej dziwnej odpowiedzi.
+   Dodane 2026-08-31. */
+const LAT_ALPHA = 0.5;        // siła wpływu odchylenia od bazy
+const LAT_BETA = 0.1;         // jak szybko baza nadąża za zmianą tempa usera
+const LAT_SEED_MS = 4000;     // startowa baza, zanim uzbiera się historia
+const LAT_OUTLIER_MS = 20000; // powyżej tego uznajemy, że user odłożył telefon
+const LAT_MIN = 0.55;         // najkrótszy możliwy interwał: 55% neutralnego
+const LAT_MAX = 1.15;         // premia za błyskawiczną odpowiedź
+
+let latencyBaselines = { 'ko-pl': LAT_SEED_MS, 'pl-ko': LAT_SEED_MS };
+let questionShownAt = 0;
+
+function markQuestionShown(){ questionShownAt = Date.now(); }
+
+// Zwraca współczynnik do przemnożenia interwału, albo 1.0 gdy nie mamy wiarygodnego pomiaru.
+function latencyFactor(direction){
+  if(!questionShownAt) return 1;
+  const raw = Date.now() - questionShownAt;
+  questionShownAt = 0; // jednorazowy pomiar - kolejne wywołanie bez nowego pytania nic nie da
+  if(raw < 250) return 1; // nierealnie szybko (przypadkowy dotyk) - ignorujemy
+  const dir = (direction === 'pl-ko') ? 'pl-ko' : 'ko-pl';
+  const capped = Math.min(raw, LAT_OUTLIER_MS);
+  const base = latencyBaselines[dir] || LAT_SEED_MS;
+
+  // Współczynnik liczony względem bazy SPRZED tej odpowiedzi - inaczej ocena
+  // porównywałaby odpowiedź samą ze sobą.
+  const factor = Math.max(LAT_MIN, Math.min(LAT_MAX, 1 - LAT_ALPHA * (capped - base) / base));
+
+  // Bazę przesuwamy tylko pomiarami nieodstającymi.
+  if(raw < LAT_OUTLIER_MS){
+    latencyBaselines[dir] = (1 - LAT_BETA) * base + LAT_BETA * capped;
+    saveLatencyBaselines();
+  }
+  return factor;
+}
+
+function saveLatencyBaselines(){
+  try{ localStorage.setItem('hooljon_latency_baselines', JSON.stringify(latencyBaselines)); }catch(e){}
+}
+function loadLatencyBaselines(){
+  try{
+    const raw = localStorage.getItem('hooljon_latency_baselines');
+    const p = raw ? JSON.parse(raw) : null;
+    // Zabezpieczenie przed uszkodzonym stanem: zła wartość zwija się do wartości startowej,
+    // nigdy do skrajności - popsuty wpis może najwyżej zignorować ważenie, nie rozstroić SRS.
+    ['ko-pl','pl-ko'].forEach(k=>{
+      const v = p && Number(p[k]);
+      latencyBaselines[k] = (Number.isFinite(v) && v > 200 && v < LAT_OUTLIER_MS) ? v : LAT_SEED_MS;
+    });
+  }catch(e){ latencyBaselines = { 'ko-pl': LAT_SEED_MS, 'pl-ko': LAT_SEED_MS }; }
+}
+
+function srsRate(ko, rating, direction){
   const prev = srsData[ko] || {interval:0, ease:2.5, reps:0, due:0, lapses:0};
   let {interval, ease, reps, lapses} = prev;
   lapses = lapses || 0;
@@ -14679,6 +14744,13 @@ function srsRate(ko, rating){
     else if(reps === 2) interval = 6;
     else interval = Math.round(interval * ease) || 6;
     ease = Math.min(3.0, ease + 0.1);
+    // Ważenie czasem TYLKO przy pełnym trafieniu i dopiero od trzeciej powtórki:
+    // pierwsze dwie mają stałe interwały (1 i 6 dni), których nie ma sensu ruszać,
+    // a przy nich user i tak dopiero poznaje słowo, więc czas nic nie mówi.
+    if(reps > 2){
+      const f = latencyFactor(direction);
+      interval = Math.max(1, Math.round(interval * f));
+    }
   }
 
   srsData[ko] = { interval, ease, reps, due: addDaysMs(interval), lapses };
@@ -15094,6 +15166,7 @@ async function renderVocabStudyList(){
 
 function showVocabStudyCard(){
   const w = vocabStudyQueue[vocabStudyIndex];
+  markQuestionShown(); // start pomiaru czasu odpowiedzi (ważenie SRS)
   const prefix = vocabStudySource === 'review' ? (uiLang === 'en' ? 'Review ' : 'Powtórka ') : '';
   const cappedNote = vocabStudyWasCapped
     ? (uiLang === 'en' ? ` (of ${vocabStudyTotalDueAtStart} due today)` : ` (z ${vocabStudyTotalDueAtStart} zaległych)`)
@@ -15181,7 +15254,7 @@ document.getElementById('vocabStudyCard').addEventListener('click', ()=>{
 document.getElementById('vocabStudyEasyBtn').addEventListener('click', ()=>{
   const w = vocabStudyQueue[vocabStudyIndex];
   if(!w) return;
-  srsRate(w.ko, 2);
+  srsRate(w.ko, 2, 'ko-pl');
   if(missedWords[w.ko]){ delete missedWords[w.ko]; saveMissed(); renderMissedPanel(); }
   playCorrectSound();
   registerDailyActivity();
@@ -15191,7 +15264,7 @@ document.getElementById('vocabStudyEasyBtn').addEventListener('click', ()=>{
 document.getElementById('vocabStudyHardBtn').addEventListener('click', ()=>{
   const w = vocabStudyQueue[vocabStudyIndex];
   if(!w) return;
-  srsRate(w.ko, 1);
+  srsRate(w.ko, 1, 'ko-pl');
   registerDailyActivity();
   reinsertIntoQueue(w, 5, 1); // wraca za ~5 kart, maks. 1 raz w tej sesji
   vocabStudyAdvance();
@@ -15200,7 +15273,7 @@ document.getElementById('vocabStudyHardBtn').addEventListener('click', ()=>{
 document.getElementById('vocabStudyAgainBtn').addEventListener('click', ()=>{
   const w = vocabStudyQueue[vocabStudyIndex];
   if(!w) return;
-  srsRate(w.ko, 0);
+  srsRate(w.ko, 0, 'ko-pl');
   missedWords[w.ko] = {ko:w.ko, pl:w.pl, en:w.en, emoji:w.emoji, category:w.category, source:w.source};
   saveMissed();
   renderMissedPanel();
@@ -19424,6 +19497,7 @@ function newRound(){
   bumpDailyQuota('vocab');
 
   direction = typedVocabMode ? 'pl-ko' : resolveDirection();
+  markQuestionShown(); // start pomiaru czasu odpowiedzi (ważenie SRS)
   const idx = Math.floor(Math.random()*pool.length);
   current = pool[idx];
 
@@ -20985,6 +21059,7 @@ async function loadEverythingFromServer(){
   await loadUiLang();
   await loadSoundPref();
   loadHapticsPref();
+  loadLatencyBaselines(); // osobiste bazy czasu odpowiedzi (ważenie SRS) - lokalne, per urządzenie
   await loadSrsData();
   await loadRewardsData();
   await loadDailyValueStats();
