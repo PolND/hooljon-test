@@ -4222,6 +4222,9 @@
       </div>
       <div class="premium-note" style="margin-top:14px;" data-i18n="logoutNote">Twój postęp, słówka i status Premium są zapisane na serwerze — po ponownym zalogowaniu (na tym lub innym urządzeniu) wszystko wróci.</div>
       <div class="premium-note" style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border);" data-i18n="dataSourceNote">Część danych słownikowych pochodzi z 한국어기초사전 (Korean Learner's Dictionary), Narodowy Instytut Języka Koreańskiego (국립국어원), udostępnionych na licencji CC BY-SA 2.0 Korea.</div>
+      <div class="premium-note" style="margin-top:8px; font-family:'IBM Plex Mono', ui-monospace, monospace; font-size:13px; opacity:.75;">
+        <span data-i18n="appVersionLabel">Wersja</span>: <span id="appVersionText">—</span>
+      </div>
     </div>
   </div>
 
@@ -12736,6 +12739,19 @@ const els2 = {
   feedback: document.getElementById('conjFeedback'),
 };
 
+/* Wersja aplikacji. PODBIJAJ przy każdym wdrożeniu - pokazuje się w panelu konta
+   i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
+   czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
+   podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
+const APP_VERSION = '2026-09-01.1';
+
+// Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
+// cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
+(function showAppVersion(){
+  const el = document.getElementById('appVersionText');
+  if(el) el.textContent = APP_VERSION;
+})();
+
 const SCREEN_IDS = {
   login:'loginScreen', loading:'loadingScreen', home:'homeScreen', vocabMode:'vocabModeScreen', vocabDept:'vocabDeptScreen', vocab:'vocabScreen',
   vocabStudy:'vocabStudyScreen', vocabLevel:'vocabLevelScreen',
@@ -13282,6 +13298,7 @@ const I18N = {
   backDictLevel: { pl: 'Wybór poziomu', en: 'Choose level' },
   dictLoading: { pl: 'Ładowanie…', en: 'Loading…' },
   reportPanelTitle: { pl: 'Zgłoś błąd', en: 'Report an issue' },
+  appVersionLabel: { pl: 'Wersja', en: 'Version' },
   reportGroupContent: { pl: 'Treść', en: 'Content' },
   reportGroupMechanism: { pl: 'Działanie aplikacji', en: 'How the app behaves' },
   reportReasonGrammar: { pl: 'Błąd w gramatyce/koniugacji', en: 'Grammar or conjugation error' },
@@ -13754,6 +13771,7 @@ let currentReportReason = null;
 function collectReportContext(){
   const parts = [];
   try{
+    parts.push('wersja: ' + (typeof APP_VERSION !== 'undefined' ? APP_VERSION : '?'));
     parts.push('ekran: ' + (currentScreen || '?'));
     parts.push('tryb: ' + (typeof mode !== 'undefined' ? mode : '?'));
     parts.push('poziom: ' + (typeof selectedLevel !== 'undefined' && selectedLevel !== null ? selectedLevel : 'wszystkie'));
