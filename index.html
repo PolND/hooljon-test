@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.29
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.31
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -3871,6 +3871,13 @@
   [data-theme="kobalt"] .chat-bar .chat-side, [data-theme="kobalt"] .chat-avatar{ border-radius:12px; }
   [data-theme="kobalt"] .chat-avatar{ background:var(--hwang); color:var(--on-accent); }
 
+  .msg-gloss{
+    align-self:flex-start; padding:6px 12px; border-radius:var(--radius-pill);
+    background:var(--hwang-tint-strong); color:var(--hwang);
+    font-size:11.5px; font-weight:700;
+  }
+  [data-theme="kobalt"] .msg-gloss{ background:0; padding:0; font-weight:800; }
+
   /* ══ v3 §2 · SŁOWNIK ═════════════════════════════════════════════════════
      Litera alfabetu (u nas 초성 - spółgłoska początkowa) przestaje być osobnym
      krokiem i staje się lepkim nagłówkiem w jednej przewijanej liście.
@@ -4412,8 +4419,22 @@
 </div>
 
   <div id="dictBrowseScreen" style="display:none;">
-    <button class="back-btn" data-back="vocabMode" data-i18n="backVocabMode">Wybór trybu</button>
-    <div class="category-chips" id="dictDeptChips"></div>
+    <button class="back-btn" data-back="home" data-i18n="backHome">Menu główne</button>
+    <div class="dict-head">
+      <label class="dict-search">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input type="text" id="dictBrowseSearchInput" data-i18n-placeholder="dictBrowseSearchPlaceholder" placeholder="Szukaj słowa…">
+      </label>
+      <!-- Poziom zawsze widoczny (makieta 4a) - CEFR, nie polska nazwa, bo trzy
+           znaki mieszczą się w chipsie, "Średniozaawansowany" nie. -->
+      <div class="dict-filters" id="dictBrowseLevelChips" role="tablist"></div>
+      <!-- Dział jako DRUGI rząd, NIE chowany - Akademia i moduły branżowe to
+           realna część produktu, znikłyby razem z chipsami (README §2). -->
+      <div class="dict-filters" id="dictBrowseDeptChips" role="tablist"></div>
+    </div>
+    <p class="hint-note" id="dictBrowseCount" style="margin-top:8px;"></p>
+    <div id="dictBrowseLoading" style="display:none; text-align:center; padding:30px; color:var(--ink-dim);" data-i18n="dictLoading">Ładowanie…</div>
+    <div id="dictBrowseRows" class="dict-list"></div>
   </div>
 
   <div id="industryModuleScreen" style="display:none;">
@@ -13948,7 +13969,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.29';
+const APP_VERSION = '2026-09-01.31';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14621,6 +14642,7 @@ const I18N = {
   industryModuleHint: { pl: 'Słownictwo specjalistyczne — żargon branżowy, nie codzienna mowa.', en: 'Specialized vocabulary - industry jargon, not everyday speech.' },
   dictBrowseTitle: { pl: 'Przeglądaj pełny słownik', en: 'Browse the full dictionary' },
   dictBrowseDesc: { pl: '27 działów, ponad 51 000 słów z oficjalnego słownika.', en: '27 sections, over 51,000 words from the official dictionary.' },
+  dictBrowseSearchPlaceholder: { pl: 'Szukaj słowa…', en: 'Search a word…' },
   backDictBrowse: { pl: 'Wybór działu', en: 'Choose section' },
   backDictLevel: { pl: 'Wybór poziomu', en: 'Choose level' },
   dictLoading: { pl: 'Ładowanie…', en: 'Loading…' },
@@ -17500,17 +17522,187 @@ function renderIndustryModuleChips(){
   });
 }
 
-function renderDictDeptChips(){
-  const wrap = document.getElementById('dictDeptChips');
-  wrap.innerHTML = DICT_DEPARTMENTS.map(dept => `
-    <button type="button" class="category-chip" data-dept="${escapeHtml(dept)}">${escapeHtml(dept)}</button>
+// ═══ v3 §2 · dictBrowseScreen jako JEDNA przewijana lista ═══════════════════
+// Zastępuje dawny wymuszony łańcuch dictBrowse(dział)->dictLevel(poziom)->
+// dictWordList(lista). dictLevelScreen ZOSTAJE w DOM (README §2: "można
+// zachować jako filtr, ale nie jako obowiązkowy krok") - po prostu nic już
+// do niego nie prowadzi z tego ekranu. dictWordListScreen też zostaje -
+// jego dictWordCardView (fiszka ze szczegółami słowa) jest tu PONOWNIE
+// UŻYWANA, nie duplikowana (patrz openDictWordCardFrom niżej).
+//
+// Trzy źródła danych, żaden nie ciągnie całego korpusu (39k+ słów) naraz:
+//   1) brak filtrów        -> DEFAULT_WORDS (5872, już w pamięci) - zero fetcha
+//   2) wpisany tekst       -> lokalny filtr DEFAULT_WORDS NATYCHMIAST,
+//                             + searchDictionaryWords() (serwer) dokładane gdy przyjdą
+//   3) wybrany dział       -> fetchDictionaryWords(level, dept), tylko ten dział
+
+let dictBrowseLevel = null;   // null = "Wszystkie"
+let dictBrowseDept = null;    // null = brak działu -> DEFAULT_WORDS/wyszukiwanie lokalne
+let dictBrowseSearchSeq = 0;  // odrzuca spóźnione odpowiedzi z serwera, gdy user pisze dalej
+
+// "TOPIK 1–2 · CEFR A1–A2" -> "A1". Wyciągane z LEVEL_META, nie duplikowane
+// jako osobna stała - jeśli LEVEL_META się zmieni, chipsy i odznaki podążają same.
+function cefrShort(level){
+  const meta = LEVEL_META.find(m => m.level === level);
+  if(!meta) return '';
+  const m = meta.sub.match(/CEFR (\S+)/);
+  return m ? m[1].split('–')[0] : '';
+}
+
+function renderDictBrowseLevelChips(){
+  const wrap = document.getElementById('dictBrowseLevelChips');
+  const chips = [{level:null, label: uiLang === 'en' ? 'All' : 'Wszystkie'}]
+    .concat(LEVEL_META.map(m => ({level:m.level, label:cefrShort(m.level)})));
+  wrap.innerHTML = chips.map(c => `
+    <button type="button" class="chip" role="tab" data-level="${c.level ?? ''}"
+      aria-pressed="${c.level === dictBrowseLevel ? 'true' : 'false'}">${escapeHtml(c.label)}</button>
   `).join('');
-  wrap.querySelectorAll('.category-chip').forEach(chip=>{
+  wrap.querySelectorAll('.chip').forEach(chip=>{
     chip.addEventListener('click', ()=>{
-      selectedDictDept = chip.dataset.dept;
-      setScreen('dictLevel');
+      const raw = chip.dataset.level;
+      dictBrowseLevel = raw === '' ? null : parseInt(raw, 10);
+      renderDictBrowseLevelChips();
+      loadDictBrowseCurrent();
     });
   });
+}
+
+function renderDictBrowseDeptChips(){
+  const wrap = document.getElementById('dictBrowseDeptChips');
+  wrap.innerHTML = DICT_DEPARTMENTS.map(dept => `
+    <button type="button" class="chip" role="tab" data-dept="${escapeHtml(dept)}"
+      aria-pressed="${dept === dictBrowseDept ? 'true' : 'false'}">${escapeHtml(dept)}</button>
+  `).join('');
+  wrap.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const dept = chip.dataset.dept;
+      // Tapnięcie już aktywnego działu odznacza go - powrót do DEFAULT_WORDS,
+      // ten sam wzorzec toggle co reszta filtrów-chipsów w apce.
+      dictBrowseDept = (dept === dictBrowseDept) ? null : dept;
+      document.getElementById('dictBrowseSearchInput').value = '';
+      renderDictBrowseDeptChips();
+      loadDictBrowseCurrent();
+    });
+  });
+}
+
+// Wspólny renderer wierszy - używany przez wszystkie trzy źródła danych.
+// 초성 liczone z KOREAŃSKIEJ sylaby (w.ko), NIE z polskiej nazwy działu -
+// to grupuje SŁOWA, nie działy (te są już pogrupowane chipsami wyżej).
+function renderDictBrowseRows(words){
+  const wrap = document.getElementById('dictBrowseRows');
+  const sorted = [...words].sort((a, b) => (a.ko || '').localeCompare(b.ko || '', 'ko'));
+
+  const countLabel = uiLang === 'en' ? `${sorted.length} words` : `${sorted.length} słówek`;
+  document.getElementById('dictBrowseCount').textContent = countLabel;
+
+  if(!sorted.length){
+    wrap.innerHTML = `<p class="hint-note" style="text-align:center; padding:20px;">${uiLang === 'en' ? 'No matches.' : 'Brak dopasowań.'}</p>`;
+    return;
+  }
+
+  let lastGroup = null;
+  wrap.innerHTML = sorted.map((w, i) => {
+    const g = choseongOf(w.ko);
+    const head = g !== lastGroup ? `<div class="section-sticky">${escapeHtml(g)}</div>` : '';
+    lastGroup = g;
+    // Odznaka = POZIOM (CEFR), nie część mowy - w tym widoku dział+poziom są
+    // już filtrami wyżej, więc per-wiersz warto pokazać to, co się MIESZA
+    // (poziom, gdy "Wszystkie" albo DEFAULT_WORDS łączy kilka poziomów naraz).
+    const badge = w.level ? `<span class="dr-row-badge">${escapeHtml(cefrShort(w.level))}</span>` : '';
+    return head + `
+    <div class="dr-row sb-tappable" data-idx="${i}">
+      <div class="dr-row-main">
+        <div class="dr-row-ko">${escapeHtml(w.ko)}${w.emoji ? ' ' + w.emoji : ''}</div>
+        <div class="dr-row-pl">${escapeHtml(uiLang === 'en' ? w.en : w.pl)}</div>
+      </div>
+      ${badge}
+    </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('.dr-row').forEach(row=>{
+    row.addEventListener('click', ()=>{
+      openDictWordCardFrom(sorted, parseInt(row.dataset.idx, 10), 'dictBrowse');
+    });
+  });
+}
+
+// Otwiera istniejącą fiszkę ze szczegółami (dictWordCardView, wewnątrz
+// dictWordListScreen) z DOWOLNEGO źródła listy - dictWordQueue/renderDictWordCard
+// nie są duplikowane, tylko ponownie zasilane. returnScreen pamięta, dokąd ma
+// wrócić przycisk "Wróć do listy" (patrz dictWordCardBackBtn niżej).
+let dictWordCardReturnScreen = 'dictWordList';
+function openDictWordCardFrom(queue, index, returnScreen){
+  dictWordQueue = queue;
+  dictWordIndex = index;
+  dictWordCardReturnScreen = returnScreen || 'dictWordList';
+  setScreen('dictWordList');
+  document.getElementById('dictWordListLoading').style.display = 'none';
+  document.getElementById('dictWordListView').style.display = 'none';
+  document.getElementById('dictWordCardView').style.display = 'block';
+  renderDictWordCard();
+}
+
+async function loadDictBrowseCurrent(){
+  const query = document.getElementById('dictBrowseSearchInput').value.trim();
+  if(query){ handleDictBrowseSearch(query); return; }
+
+  if(dictBrowseDept){
+    document.getElementById('dictBrowseLoading').style.display = 'block';
+    document.getElementById('dictBrowseRows').innerHTML = '';
+    const words = await fetchDictionaryWords(dictBrowseLevel, dictBrowseDept);
+    document.getElementById('dictBrowseLoading').style.display = 'none';
+    renderDictBrowseRows(words);
+    return;
+  }
+
+  // Brak działu, brak wyszukiwania -> DEFAULT_WORDS, filtrowane lokalnie po
+  // poziomie (zero fetcha - to jedyny stan, w którym cokolwiek widać od razu
+  // po wejściu na ekran).
+  const local = dictBrowseLevel ? DEFAULT_WORDS.filter(w => w.level === dictBrowseLevel) : DEFAULT_WORDS;
+  renderDictBrowseRows(local);
+}
+
+// Lokalne dopasowanie od razu (ten sam wielopolowy wzorzec co stary
+// dictWordFilterInput), serwerowe dokładane gdy searchDictionaryWords()
+// odpowie - seq odrzuca odpowiedź, jeśli user zdążył wpisać coś innego.
+function handleDictBrowseSearch(query){
+  const q = query.toLowerCase();
+  const local = DEFAULT_WORDS.filter(w =>
+    w.ko.toLowerCase().includes(q) || (w.pl || '').toLowerCase().includes(q) || (w.en || '').toLowerCase().includes(q)
+  );
+  renderDictBrowseRows(local);
+
+  const seq = ++dictBrowseSearchSeq;
+  searchDictionaryWords(query, 40).then(serverWords => {
+    if(seq !== dictBrowseSearchSeq) return; // user napisał coś innego w międzyczasie
+    if(!serverWords.length) return;
+    const localKos = new Set(local.map(w => w.ko));
+    const merged = local.concat(serverWords.filter(w => !localKos.has(w.ko)));
+    renderDictBrowseRows(merged);
+  });
+}
+
+function renderDictDeptChips(){
+  dictBrowseLevel = null;
+  dictBrowseDept = null;
+  renderDictBrowseLevelChips();
+  renderDictBrowseDeptChips();
+  loadDictBrowseCurrent();
+
+  const searchInput = document.getElementById('dictBrowseSearchInput');
+  searchInput.value = '';
+  // Nie duplikujemy listenera przy każdym wejściu na ekran - podpinamy raz,
+  // flagą na samym elemencie (ten sam wzorzec co reszta apki dla ekranów
+  // wchodzonych wielokrotnie w trakcie sesji).
+  if(!searchInput.dataset.wired){
+    searchInput.dataset.wired = '1';
+    searchInput.addEventListener('input', (e)=>{
+      const q = e.target.value.trim();
+      if(!q){ dictBrowseSearchSeq++; loadDictBrowseCurrent(); return; }
+      handleDictBrowseSearch(q);
+    });
+  }
 }
 
 function renderDictLevelCards(){
@@ -17663,7 +17855,14 @@ function showDictWordCardView(){
   document.getElementById('dictWordListView').style.display = 'none';
   document.getElementById('dictWordCardView').style.display = 'block';
 }
-document.getElementById('dictWordCardBackBtn').addEventListener('click', showDictWordListView);
+// Kontekstowy powrót: fiszka jest teraz otwierana z dwóch miejsc (starej listy
+// wewnątrz dictWordListScreen ORAZ nowego dictBrowseScreen) - dictWordCardReturnScreen
+// (ustawiane w openDictWordCardFrom, v3 §2) pamięta, skąd user faktycznie przyszedł,
+// żeby "Wróć do listy" nie podrzucało innego ekranu niż ten, z którego wszedł.
+document.getElementById('dictWordCardBackBtn').addEventListener('click', ()=>{
+  if(dictWordCardReturnScreen === 'dictBrowse'){ setScreen('dictBrowse'); return; }
+  showDictWordListView();
+});
 
 function renderDictWordCard(){
   const w = dictWordQueue[dictWordIndex];
@@ -21313,7 +21512,10 @@ function applyPremiumUI(){
   const aiChatBody = document.getElementById('aiChatBody');
   if(aiChatGate && aiChatBody){
     aiChatGate.style.display = isPremiumPro ? 'none' : 'block';
-    aiChatBody.style.display = isPremiumPro ? 'block' : 'none';
+    // 'flex', nie 'block': #aiChatBody jest kolumną flex (v3 §4), w której .chat-log
+    // ma flex:1, a pasek mikrofonu siada na dole. Styl liniowy wygrywa z arkuszem,
+    // więc 'block' rozsypywał układ - log przestawał się rozciągać, a pasek zjeżdżał pod treść.
+    aiChatBody.style.display = isPremiumPro ? 'flex' : 'none';
     if(!isPremiumPro) stopAiChatMic();
   }
 
