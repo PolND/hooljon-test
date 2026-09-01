@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.17
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.18
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -13229,7 +13229,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.17';
+const APP_VERSION = '2026-09-01.18';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15017,11 +15017,26 @@ function applyThemeIcons(theme){
    Hanji i Neon są PALETAMI, nie układami - ich charakterystyczne cechy (brak cieni,
    ostre krawędzie, mono-wersaliki) da się wyrazić tokenami i regułami przy palecie. */
 const LAYOUTS = [
+  // Opcjonalne pole 'schemes' ogranicza palety dostępne dla danego układu. Gdy go brak -
+  // dozwolone wszystkie. To zawór bezpieczeństwa: jeśli któraś kombinacja wypadnie źle
+  // (np. ostra siatka Kobaltu z papierowymi kolorami Hanji), wystarczy dopisać tu listę
+  // zamiast przebudowywać cokolwiek. Przykład: schemes:['light','dark','kobalt']
   { id:'papier',   name:'Papier',    ko:'종이 · lekki, papierowy',  pro:false },
   { id:'jade',     name:'Jadeit',    ko:'옥 · duże miękkie kafle',  pro:true  },
   { id:'kobalt',   name:'Kobalt',    ko:'청 · ostra siatka',        pro:true  },
   { id:'oldstyle', name:'Klasyczny', ko:'옛 · pierwotny Hooljon',   pro:false },
 ];
+
+// Palety dozwolone dla bieżącego układu (z uwzględnieniem uprawnień Premium).
+function schemesForLayout(layoutId, isPro){
+  const layout = LAYOUTS.find(l => l.id === layoutId);
+  let list = THEMES.filter(t => !t.pro || isPro);
+  if(layout && Array.isArray(layout.schemes)){
+    list = list.filter(t => layout.schemes.includes(t.id));
+  }
+  // Nigdy nie zwracaj pustej listy - to zablokowałoby zmianę kolorystyki.
+  return list.length ? list : THEMES.filter(t => !t.pro);
+}
 const PRO_LAYOUT_IDS = LAYOUTS.filter(l => l.pro).map(l => l.id);
 let currentLayout = 'papier';
 
@@ -15030,6 +15045,10 @@ function applyLayout(layout){
   if(PRO_LAYOUT_IDS.includes(layout) && premiumTier !== 'pro') layout = 'papier';
   currentLayout = layout;
   document.documentElement.setAttribute('data-theme', layout === 'papier' ? '' : layout);
+  // Jeśli układ ogranicza palety, a bieżąca do nich nie należy - przełącz na pierwszą
+  // dozwoloną, żeby user nie został z kombinacją, której sami nie dopuszczamy.
+  const allowed = schemesForLayout(layout, premiumTier === 'pro');
+  if(!allowed.some(t => t.id === currentTheme)) applyTheme(allowed[0].id);
   applyThemeIcons(currentTheme);
   try{ applyOldstyleLabels(layout); }catch(e){ /* etykiety to dodatek */ }
 }
@@ -15059,7 +15078,7 @@ function renderThemePanel(){
   // Dwie osie w jednym panelu: najpierw UKŁAD, potem PALETA. Kolejność nieprzypadkowa -
   // układ zmienia więcej (proporcje, typografia), więc user wybiera go pierwszy.
   const layouts = LAYOUTS.filter(l => !l.pro || isPro);
-  const schemes = THEMES.filter(t => !t.pro || isPro);
+  const schemes = schemesForLayout(currentLayout, isPro);
 
   const layoutRows = layouts.map(l => `
     <button class="theme-row ${l.id === currentLayout ? 'active' : ''}" data-layout-id="${l.id}">
