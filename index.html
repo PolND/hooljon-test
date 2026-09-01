@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.36
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.37
   Zbudowane na: 6eb5ae90cb7268d2db24670785b2fcea (.32)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -14232,7 +14232,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.36';
+const APP_VERSION = '2026-09-01.37';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -20457,14 +20457,28 @@ async function openWordSheet(rawWord){
   sheet.innerHTML = `<div class="ws-top"><span class="word-ko">${escapeHtml(word)}</span></div>
     <div class="word-meta">${uiLang === 'en' ? 'Looking up…' : 'Szukam…'}</div>`;
 
+  // NAJPIERW LOKALNIE, potem serwer. Wcześniej pytaliśmy tylko bazę serwerową i
+  // arkusz zostawał pusty, gdy sieć zawiodła (Brave Shields blokuje żądania do
+  // Supabase) albo gdy słowo jest w DEFAULT_WORDS, a nie w dictionary_words.
+  // A czytanki składają się głównie ze słów podstawowych, czyli tych lokalnych -
+  // stąd puste arkusze przy najczęstszych wyrazach. Zgłoszone 2026-09-01.
   let hit = null, shown = word;
-  for(const form of readerLookupForms(word)){
-    try{
-      const hits = await searchDictionaryWords(form, 8);
-      const exact = hits.find(w => w.ko === form);
-      if(exact){ hit = exact; shown = form; break; }
-    }catch(e){ /* brak sieci - zachowujemy się jak przy braku trafienia */ }
-    if(token !== wordSheetToken) return;
+  const forms = readerLookupForms(word);
+
+  for(const form of forms){
+    const local = allWords.find(w => w.ko === form);
+    if(local){ hit = local; shown = form; break; }
+  }
+
+  if(!hit){
+    for(const form of forms){
+      try{
+        const hits = await searchDictionaryWords(form, 8);
+        const exact = hits.find(w => w.ko === form);
+        if(exact){ hit = exact; shown = form; break; }
+      }catch(e){ /* brak sieci - lokalne trafienie i tak już sprawdziliśmy */ }
+      if(token !== wordSheetToken) return;
+    }
   }
   if(token !== wordSheetToken) return;   // user tapnął już w inne słowo
 
