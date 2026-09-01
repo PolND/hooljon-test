@@ -2,7 +2,11 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.31
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.36
+  Zbudowane na: 6eb5ae90cb7268d2db24670785b2fcea (.32)
+  Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
+  samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
+  pliki z tym samym .NN są różne. Przy każdym buildzie wpisz sumę pliku wejściowego.
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -234,6 +238,76 @@
   [data-theme="jade"] .gutter-title{ font-weight:700; }
   [data-theme="kobalt"] .gutter-row{ padding:15px 22px; }
   [data-theme="kobalt"] .gutter{ font-weight:700; color:var(--hwang); }
+
+  /* ══ v4 §3 · CICHY CZYTNIK ═══════════════════════════════════════════════
+     Osobny tryb obok czytania na głos - tamten zostaje nietknięty. Tutaj
+     koreański jest treścią, polski nie istnieje, dopóki user o niego nie
+     poprosi tapnięciem w słowo. */
+  #readerScreen{ display:flex; flex-direction:column; width:100%; min-width:0;
+    height:calc(100dvh - var(--bottom-chrome) - 40px); }
+  .reader-bar{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:4px 0 8px; }
+  .reader-meta{ flex:1; min-width:0; text-align:center; font-size:12.5px; color:var(--ink-dim);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .reader-size{ flex:none; min-width:44px; min-height:44px; border:1px solid var(--border);
+    border-radius:var(--btn-radius); background:var(--card); color:var(--ink);
+    font:600 14px var(--font-ui); cursor:pointer; }
+  .reader-progress{ height:2px; background:var(--border); }
+  .reader-progress i{ display:block; height:2px; background:var(--hwang); transition:width .25s; }
+
+  .reader-body{ flex:1; min-height:0; overflow-y:auto; padding:20px 0 0;
+    display:flex; flex-direction:column; gap:16px; overscroll-behavior:contain; }
+  .reader-p{ font-family:var(--font-ko); font-size:var(--reader-size, 21px); line-height:1.85;
+    color:var(--ink); text-wrap:pretty; cursor:pointer; }
+  .reader-p[data-read="true"]{ color:var(--ink-dim); }
+  .reader-w{ cursor:pointer; }
+  .reader-w[aria-selected="true"]{ color:var(--hwang); border-bottom:2px solid var(--hwang); }
+  [data-theme="kobalt"] .reader-w[aria-selected="true"]{ border-bottom:0; border-radius:4px;
+    padding:0 3px; background:var(--surface-2); }
+  @supports (background: color-mix(in oklab, red 12%, transparent)){
+    [data-theme="kobalt"] .reader-w[aria-selected="true"]{ background:color-mix(in oklab, var(--hwang) 12%, transparent); }
+  }
+  [data-theme="kobalt"] .reader-progress{ height:3px; border-radius:var(--radius-pill); }
+  [data-theme="kobalt"] .reader-progress i{ height:3px; border-radius:var(--radius-pill); }
+
+  /* ══ v4 §3.1 · ARKUSZ SŁOWA (wspólny dla obu trybów) ═════════════════════
+     Wysokość STAŁA, nie auto - arkusz o zmiennej wysokości przesuwałby tekst
+     przy każdym tapnięciu i user gubiłby linię. v4 podawało 168px; zmierzone
+     na treści z rozkładem hanja i przykładem wychodzi więcej, więc podnoszę
+     do 232px zamiast ucinać treść (patrz odpowiedź w rozmowie). */
+  .word-sheet{ flex:none; height:232px; border-top:1px solid var(--border);
+    background:var(--card); padding:16px 0 0; margin-top:8px;
+    display:flex; flex-direction:column; gap:8px; }
+  .word-sheet[hidden]{ display:none; }
+
+  /* Para przycisków w liście czytanek: cały wiersz to "Czytaj", mikrofon obok
+     to "Czytaj na głos". Oba mają pełne 44px pola dotyku. */
+  .reading-row-pair{ display:flex; align-items:stretch; gap:8px; }
+  .reading-row-pair .reading-row{ flex:1; min-width:0; }
+  .reading-aloud{ flex:none; width:48px; min-height:44px; border:1px solid var(--border);
+    border-radius:var(--btn-radius); background:var(--card); color:var(--ink-dim);
+    font-size:17px; cursor:pointer; }
+  .ws-top{ display:flex; align-items:baseline; gap:10px; }
+  .word-ko{ font-family:var(--font-ko); font-size:26px; color:var(--ink); }
+  .word-meta{ font-size:12px; color:var(--ink-dim); }
+  .word-def{ font-size:15px; color:var(--ink); text-wrap:pretty;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .word-ex{ font-size:13px; color:var(--ink-dim); line-height:1.5;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .word-ex b{ font-family:var(--font-ko); font-weight:400; color:var(--ink); }
+  /* Rozkład hanja: pokazujemy tylko komplet. deconstructSinoWord zwraca null,
+     gdy brakuje choćby jednej glosy - lepiej nie pokazać nic niż połowę. */
+  .word-hanja{ display:flex; flex-wrap:wrap; gap:6px; }
+  .wh-part{ display:flex; align-items:baseline; gap:4px; padding:3px 8px;
+    border-radius:var(--radius-pill); background:var(--surface-2); font-size:12px; color:var(--ink-dim); }
+  .wh-part b{ font-size:14px; color:var(--hwang); font-weight:600; }
+  .word-actions{ margin-top:auto; display:flex; gap:10px; padding-bottom:2px; }
+  .word-add{ flex:1; min-height:48px; border:0; border-radius:var(--btn-radius);
+    background:var(--hwang); color:var(--on-accent); font:500 14.5px var(--font-ui); cursor:pointer; }
+  .word-tts{ flex:none; width:48px; height:48px; border-radius:var(--btn-radius);
+    border:1px solid var(--border); background:0; color:var(--ink-dim); cursor:pointer; }
+  .word-conj{ flex:none; min-height:48px; padding:0 14px; border-radius:var(--btn-radius);
+    border:1px solid var(--border); background:0; color:var(--ink); font:500 13px var(--font-ui); cursor:pointer; }
+  [data-theme="kobalt"] .word-sheet{ background:var(--surface-2); }
 
   /* ══ v4 §6 · MOJE KONTO ══════════════════════════════════════════════════ */
   /* min-width:0 jest tu konieczne: .wrap to kolumna flex, a jej dziecko ma
@@ -3714,7 +3788,16 @@
   /* stary pasek marki + Wynik/Seria: zastąpiony nagłówkiem w treści */
   .wrap > header{ display:none; }
   .header-tools{ justify-content:flex-end; margin:2px 0 6px; }
+  /* Redesign schował przyciski wstecz na ekranach będących zakładkami - przy dolnej
+     nawigacji były zbędne. Ale wybór Sandbox/Tryb Opowieści NIE jest zakładką, tylko
+     poziomem wyżej, i bez tego przycisku nie dało się do niego wrócić w ogóle.
+     Ukrywamy więc wszystkie POZA tym jednym. Zgłoszone 2026-09-01. */
   .home-screen > .back-btn{ display:none !important; }
+  .home-screen > .back-btn#sandboxToStoryBtn{
+    display:inline-flex !important;
+    align-self:flex-start;
+    margin-bottom:2px;
+  }
 
   .home-head{ margin:2px 0 4px; }
   .home-head .hh-brand{
@@ -4212,7 +4295,7 @@
     </div>
     <button class="theme-toggle-btn" id="settingsBtn" title="Ustawienia" aria-label="Ustawienia">⚙️</button>
     <button class="theme-toggle-btn" id="accountBtn" title="Moje konto" aria-label="Moje konto">👤</button>
-    <button class="premium-badge-btn" id="premiumBtn">⭐ Premium</button>
+    <button class="premium-badge-btn" id="premiumBtn">Premium</button>
   </div>
 
   <div class="modal-overlay" id="wordListPanel">
@@ -4495,7 +4578,19 @@
     </div>
   </div>
 
-  <div id="accountScreen" style="display:none;">
+  <div id="readerScreen" style="display:none;">
+  <button class="back-btn" id="readerBackBtn" data-back="reading" data-i18n="backReadingList">Lista czytanek</button>
+  <div class="reader-bar">
+    <div class="reader-meta" id="readerMeta"></div>
+    <button class="reader-size" id="readerSizeBtn" aria-label="Rozmiar tekstu" title="Rozmiar tekstu">Aa</button>
+  </div>
+  <div class="reader-progress" id="readerProgress"><i id="readerProgressFill" style="width:0%"></i></div>
+  <div class="reader-body" id="readerBody"></div>
+  <!-- Arkusz słowa jest wspólny dla obu trybów - wołany też z czytania na głos. -->
+  <div class="word-sheet" id="wordSheet" hidden></div>
+</div>
+
+<div id="accountScreen" style="display:none;">
   <button class="back-btn" data-back="modeSelect" data-i18n="backModeSelect">Wróć</button>
 
   <div class="acct-id">
@@ -4654,7 +4749,7 @@
       <div style="font-size:40px; margin-bottom:10px;">🎉</div>
       <p data-i18n="studyDoneMsg">Przejrzałeś/aś wszystkie słówka z tego działu!</p>
       <p class="hint-note" id="vocabStudyExtraNote" style="display:none;"></p>
-      <button class="primary" id="vocabStudyRestartBtn" data-i18n="restartStudyBtn">🔁 Od nowa</button>
+      <button class="primary" id="vocabStudyRestartBtn" data-i18n="restartStudyBtn">Od nowa</button>
     </div>
 
     <div id="vocabStudyEmpty" style="display:none;">
@@ -4746,10 +4841,10 @@
 
     <div class="toolbar">
       <button class="tool-btn" id="btnCategories" data-i18n="btnCategories">Działy</button>
-      <button class="tool-btn" id="btnWordList">📋 <span data-i18n="wordListTitle2">Lista słówek</span></button>
+      <button class="tool-btn" id="btnWordList"><span data-i18n="wordListTitle2">Lista słówek</span></button>
       <button class="tool-btn" id="btnAdd">+ <span data-i18n="btnAddWord">Dodaj słówka</span></button>
-      <button class="tool-btn" id="btnAiFlashcards">📷 <span data-i18n="btnFromPhoto">Ze zdjęcia (AI)</span></button>
-      <button class="tool-btn" id="btnAiFileImport">📄 <span data-i18n="btnFromFile">Z pliku (AI)</span></button>
+      <button class="tool-btn" id="btnAiFlashcards"><span data-i18n="btnFromPhoto">Ze zdjęcia (AI)</span></button>
+      <button class="tool-btn" id="btnAiFileImport"><span data-i18n="btnFromFile">Z pliku (AI)</span></button>
       <button class="tool-btn" id="btnMissed" data-i18n="btnMissed">Trudne słówka</button>
       <button class="tool-btn" id="btnReset" data-i18n="btnReset">Wyczyść postęp</button>
     </div>
@@ -4793,7 +4888,7 @@
           <p data-i18n="aiFlashBody">Zrób zdjęcie lub wybierz z galerii — menu, napis, podręcznik. AI odczyta koreańskie słowa i zaproponuje tłumaczenia.</p>
           <input type="file" id="aiImageInput" accept="image/*" capture="environment" style="display:none;">
           <div class="row" style="margin-top:0;">
-            <button class="tool-btn" id="aiPickImageBtn" style="flex:1;">📷 <span data-i18n="takePickPhoto">Zrób / wybierz zdjęcie</span></button>
+            <button class="tool-btn" id="aiPickImageBtn" style="flex:1;"><span data-i18n="takePickPhoto">Zrób / wybierz zdjęcie</span></button>
           </div>
 
           <div id="aiImagePreviewWrap" style="display:none; margin-top:12px; text-align:center;">
@@ -4804,7 +4899,7 @@
             <button class="primary" id="aiAnalyzeBtn" style="flex:1;" data-i18n="analyzePhoto">Analizuj zdjęcie (AI)</button>
           </div>
 
-          <div id="aiLoading" class="hint-note" style="display:none;">🔍 Analizuję zdjęcie…</div>
+          <div id="aiLoading" class="hint-note" style="display:none;">Analizuję zdjęcie…</div>
           <div id="aiErrorMsg" style="display:none; color:var(--bad); font-size:14.5px; margin-top:10px;"></div>
 
           <div id="aiResultsWrap" style="display:none; margin-top:14px;">
@@ -4832,7 +4927,7 @@
           <p data-i18n="aiFileBody">Wgraj plik <b>.docx</b> (Word) lub <b>.pdf</b> ze swoimi zwrotami/powitaniami — AI znajdzie w nim pary koreański-polski.</p>
           <input type="file" id="aiFileInput" accept=".pdf,.docx" style="display:none;">
           <div class="row" style="margin-top:0;">
-            <button class="tool-btn" id="aiPickFileBtn" style="flex:1;">📄 <span data-i18n="pickFile">Wybierz plik (.docx / .pdf)</span></button>
+            <button class="tool-btn" id="aiPickFileBtn" style="flex:1;"><span data-i18n="pickFile">Wybierz plik (.docx / .pdf)</span></button>
           </div>
           <div class="hint-note" style="text-align:left;" data-i18n="docHint">Starsze pliki .doc (nie .docx) nie są obsługiwane — zapisz jako .docx lub .pdf.</div>
 
@@ -4840,13 +4935,13 @@
             📎 <span id="aiFileName"></span>
           </div>
 
-          <div id="aiFileExtracting" class="hint-note" style="display:none;">📖 Odczytuję plik…</div>
+          <div id="aiFileExtracting" class="hint-note" style="display:none;">Odczytuję plik…</div>
 
           <div class="row" id="aiFileAnalyzeRow" style="display:none;">
             <button class="primary" id="aiFileAnalyzeBtn" style="flex:1;" data-i18n="analyzeText">Analizuj tekst (AI)</button>
           </div>
 
-          <div id="aiFileLoading" class="hint-note" style="display:none;">🔍 Szukam par koreański-polski…</div>
+          <div id="aiFileLoading" class="hint-note" style="display:none;">Szukam par koreański-polski…</div>
           <div id="aiFileErrorMsg" style="display:none; color:var(--bad); font-size:14.5px; margin-top:10px;"></div>
 
           <div id="aiFileResultsWrap" style="display:none; margin-top:14px;">
@@ -4950,7 +5045,7 @@
       <div class="chat-head">
         <span class="chat-avatar" aria-hidden="true">학</span>
         <span style="flex:1; min-width:0;">
-          <span style="display:block; font-size:14.5px; font-weight:600;" data-i18n="geminiVoiceLabel">🎙️ Rozmowa głosowa na żywo</span>
+          <span style="display:block; font-size:14.5px; font-weight:600;" data-i18n="geminiVoiceLabel">Rozmowa głosowa na żywo</span>
           <span class="chat-hint" id="geminiHeadHint"></span>
         </span>
         <span class="ai-usage-badge" id="geminiUsageBadge" style="display:none;"></span>
@@ -4968,7 +5063,7 @@
            chowamy jej za ikoną obok pola tekstowego. -->
       <div class="ai-chat-controls chat-bar" id="geminiChatBar">
         <button class="tool-btn chat-side" id="geminiTranslateBtn" title="Nie rozumiem — przetłumacz" aria-label="Nie rozumiem — przetłumacz" style="display:none;">🔤</button>
-        <button class="primary" id="geminiConnectBtn" style="flex:1;">🔌 <span data-i18n="geminiConnectBtn">Połącz</span></button>
+        <button class="primary" id="geminiConnectBtn" style="flex:1;"><span data-i18n="geminiConnectBtn">Połącz</span></button>
         <button class="primary chat-mic" id="geminiMicBtn" style="display:none;" disabled aria-label="Mów">🎤</button>
         <button class="tool-btn chat-side" id="geminiDisconnectBtn" title="Rozłącz" aria-label="Rozłącz" style="display:none;">🔌</button>
       </div>
@@ -4990,9 +5085,9 @@
 
         <div class="ai-chat-controls">
           <button class="primary" id="aiChatStartBtn" style="flex:1;">▶️ <span data-i18n="startConversation">Rozpocznij rozmowę</span></button>
-          <button class="primary" id="aiChatMicBtn" style="flex:1; display:none;">🎤 <span data-i18n="speakBtn">Mów</span></button>
-          <button class="tool-btn" id="aiChatAnalyzeBtn" style="display:none;">📊 <span data-i18n="analyzeSessionBtn">Przeanalizuj sesję</span></button>
-          <button class="tool-btn" id="aiChatResetBtn" style="display:none;">🔁 <span data-i18n="restartBtn2">Od nowa</span></button>
+          <button class="primary" id="aiChatMicBtn" style="flex:1; display:none;"><span data-i18n="speakBtn">Mów</span></button>
+          <button class="tool-btn" id="aiChatAnalyzeBtn" style="display:none;"><span data-i18n="analyzeSessionBtn">Przeanalizuj sesję</span></button>
+          <button class="tool-btn" id="aiChatResetBtn" style="display:none;"><span data-i18n="restartBtn2">Od nowa</span></button>
         </div>
 
         <div id="aiChatSessionReport" style="display:none; margin-top:14px; padding:14px; border-radius:14px; background:var(--card-hi); border:1px solid var(--border);">
@@ -5013,8 +5108,8 @@
     <button class="back-btn" data-back="home" data-i18n="backHome">Menu główne</button>
 
     <div id="readingGateMsg" style="display:none;">
-      <p style="font-size:14.5px; color:var(--ink-dim); line-height:1.5;" data-i18n="readingGateMsg">Czytanie to funkcja Premium — czytaj na głos ze śledzeniem w stylu karaoke i podświetlonymi błędami.</p>
-      <div class="row"><button class="primary" id="readingGoPremiumBtn" style="flex:1;" data-i18n="seePremium4">Zobacz Premium</button></div>
+      <p class="hint-note" style="text-align:left; margin-bottom:10px;" data-i18n="readingGateMsg">Czytanie po cichu jest darmowe. Czytanie na głos — ze śledzeniem w stylu karaoke i podświetlonymi błędami — jest częścią Premium.</p>
+      <div class="row"><button class="tool-btn" id="readingGoPremiumBtn" style="flex:1;" data-i18n="seePremium4">Zobacz Premium</button></div>
     </div>
 
     <div id="readingBody">
@@ -5055,9 +5150,9 @@
         </div>
 
         <div class="ai-chat-controls">
-          <button class="tool-btn" id="readingListenBtn">🔊 <span data-i18n="listenFullBtn">Odsłuchaj</span></button>
-          <button class="primary" id="readingMicBtn" style="flex:1;">🎤 <span data-i18n="startReading">Zacznij czytać</span></button>
-          <button class="tool-btn" id="readingRestartBtn">🔁 <span data-i18n="restartBtn2">Od nowa</span></button>
+          <button class="tool-btn" id="readingListenBtn"><span data-i18n="listenFullBtn">Odsłuchaj</span></button>
+          <button class="primary" id="readingMicBtn" style="flex:1;"><span data-i18n="startReading">Zacznij czytać</span></button>
+          <button class="tool-btn" id="readingRestartBtn"><span data-i18n="restartBtn2">Od nowa</span></button>
         </div>
         <div class="hint-note" id="readingUnsupported" style="display:none; color:var(--bad); text-align:left;" data-i18n="speechUnsupported2">
           Twoja przeglądarka nie obsługuje rozpoznawania mowy (Web Speech API). Ta funkcja działa najlepiej w Chrome na komputerze lub Androidzie.
@@ -5066,8 +5161,8 @@
           Uwaga: to porównanie z tym, co <b>rozpoznał</b> mikrofon, a nie ocena wymowy/akcentu.
         </div>
         <div class="row" id="readingCheckRow" style="margin-top:10px;">
-          <button class="tool-btn" id="readingRetellBtn" style="flex:1;">🗣️ <span data-i18n="retellBtn">Opowiedz swoimi słowami</span></button>
-          <button class="tool-btn" id="readingQuizBtn" style="flex:1; display:none;">📝 <span data-i18n="checkComprehension">Wybór a/b/c/d</span></button>
+          <button class="tool-btn" id="readingRetellBtn" style="flex:1;"><span data-i18n="retellBtn">Opowiedz swoimi słowami</span></button>
+          <button class="tool-btn" id="readingQuizBtn" style="flex:1; display:none;"><span data-i18n="checkComprehension">Wybór a/b/c/d</span></button>
         </div>
         <div id="readingReportBox" class="reading-report-box" style="display:none;"></div>
       </div>
@@ -5106,7 +5201,7 @@
             <div class="row" style="margin-top:10px;">
               <button class="primary" id="retellSubmitBtn" style="flex:1;" data-i18n="retellSubmit">Sprawdź</button>
             </div>
-            <div id="retellLoading" style="display:none; text-align:center; margin-top:12px; color:var(--ink-dim); font-size:14.5px;" data-i18n="retellLoading">🤔 AI czyta Twoją odpowiedź…</div>
+            <div id="retellLoading" style="display:none; text-align:center; margin-top:12px; color:var(--ink-dim); font-size:14.5px;" data-i18n="retellLoading">AI czyta Twoją odpowiedź…</div>
             <div id="retellFeedback" style="display:none; margin-top:12px;"></div>
           </div>
         </div>
@@ -5145,7 +5240,7 @@
 
   <div id="grammarChapterScreen" style="display:none;">
     <button class="back-btn" data-back="grammarLevel" data-i18n="backLevel2">Wybór poziomu</button>
-    <button class="tool-btn" id="topikTestBtn" style="width:100%; margin-bottom:14px;">📝 <span data-i18n="topikTestBtn">Rozwiąż test TOPIK tego poziomu</span></button>
+    <button class="tool-btn" id="topikTestBtn" style="width:100%; margin-bottom:14px;"><span data-i18n="topikTestBtn">Rozwiąż test TOPIK tego poziomu</span></button>
     <div class="home-screen" id="grammarChapterCards"></div>
   </div>
 
@@ -5169,7 +5264,7 @@
       <div style="font-size:44px; margin-bottom:8px;" id="topikTestResultIcon">🎉</div>
       <div style="font-size:28px; font-weight:700; font-family:var(--font-ui);" id="topikTestResultScore"></div>
       <p class="hint-note" id="topikTestResultMsg"></p>
-      <button class="primary" id="topikTestRetryBtn" data-i18n="restartStudyBtn">🔁 Od nowa</button>
+      <button class="primary" id="topikTestRetryBtn" data-i18n="restartStudyBtn">Od nowa</button>
     </div>
   </div>
 
@@ -5203,7 +5298,7 @@
     <button class="back-btn" data-back="home" data-i18n="backHome5">Menu główne</button>
 
     <div class="achv-streak-card">
-      <div class="achv-streak-title" data-i18n="achvStreakBulssi">🔥 Twój Bulssi (불씨)</div>
+      <div class="achv-streak-title" data-i18n="achvStreakBulssi">Twój Bulssi (불씨)</div>
       <div class="achv-streak-icon">🔥</div>
       <div class="achv-streak-num" id="achvStreakNum">0</div>
       <div class="achv-streak-label" data-i18n="achvStreakLabel">dni z rzędu</div>
@@ -5240,7 +5335,7 @@
     <div class="feedback" id="sbFeedback"></div>
 
     <div class="ai-chat-controls" style="margin-top:14px;">
-      <button class="tool-btn" id="sbResetBtn">🔄 <span data-i18n="sbReset">Wyczyść</span></button>
+      <button class="tool-btn" id="sbResetBtn"><span data-i18n="sbReset">Wyczyść</span></button>
       <button class="primary" id="sbCheckBtn" data-i18n="sbCheck">Sprawdź</button>
     </div>
     <div class="row" id="sbNextRow" style="display:none; margin-top:10px;">
@@ -5293,10 +5388,10 @@
       </div>
 
       <div class="row" style="margin-top:14px;">
-        <button class="primary" id="scenarioGenerateBtn" style="flex:1;" data-i18n="scenarioGenerateBtn">✨ Generuj karty</button>
+        <button class="primary" id="scenarioGenerateBtn" style="flex:1;" data-i18n="scenarioGenerateBtn">Generuj karty</button>
       </div>
 
-      <div id="scenarioLoading" style="display:none; text-align:center; margin-top:14px; color:var(--ink-dim); font-size:14.5px;" data-i18n="scenarioLoading">🤔 AI przygotowuje karty…</div>
+      <div id="scenarioLoading" style="display:none; text-align:center; margin-top:14px; color:var(--ink-dim); font-size:14.5px;" data-i18n="scenarioLoading">AI przygotowuje karty…</div>
       <div id="scenarioError" style="display:none; margin-top:12px;"></div>
       <div id="scenarioResults" style="margin-top:16px;"></div>
     </div>
@@ -5318,17 +5413,17 @@
     <div class="hanja-card" id="hanjaCard"></div>
 
     <div class="hanja-section" id="hanjaNotesSection" style="display:none;">
-      <div class="hanja-section-label" data-i18n="hanjaNotesLabel">📝 Notatki kontekstowe</div>
+      <div class="hanja-section-label" data-i18n="hanjaNotesLabel">Notatki kontekstowe</div>
       <ul class="hanja-notes-list" id="hanjaNotesList"></ul>
     </div>
 
     <div class="hanja-section" id="hanjaMoreWordsSection" style="display:none;">
-      <div class="hanja-section-label" data-i18n="hanjaMoreWordsLabel">💬 Więcej słów z tym znakiem</div>
+      <div class="hanja-section-label" data-i18n="hanjaMoreWordsLabel">Więcej słów z tym znakiem</div>
       <div id="hanjaMoreWordsList"></div>
     </div>
 
     <div class="hanja-section" id="hanjaQuizSection">
-      <div class="hanja-section-label" data-i18n="hanjaQuizLabel">✏️ Szybki quiz</div>
+      <div class="hanja-section-label" data-i18n="hanjaQuizLabel">Szybki quiz</div>
       <div class="hanja-quiz-q" id="hanjaQuizQ"></div>
       <div class="grammar-choice-grid" id="hanjaQuizChoices"></div>
       <div class="feedback" id="hanjaQuizFeedback"></div>
@@ -5384,7 +5479,7 @@
     <div class="culture-card" id="cultureCard"></div>
 
     <div class="hanja-section" id="cultureQuizSection">
-      <div class="hanja-section-label" data-i18n="hanjaQuizLabel">✏️ Szybki quiz</div>
+      <div class="hanja-section-label" data-i18n="hanjaQuizLabel">Szybki quiz</div>
       <div class="hanja-quiz-q" id="cultureQuizQ"></div>
       <div class="grammar-choice-grid" id="cultureQuizChoices"></div>
       <div class="feedback" id="cultureQuizFeedback"></div>
@@ -5450,7 +5545,7 @@
       <div class="row" style="margin-top:10px;">
         <button class="primary" id="storyTypedCheckBtn" style="flex:1;" data-i18n="checkBtn">Sprawdź</button>
       </div>
-      <div id="storyTypedAiLoading" style="display:none; text-align:center; margin-top:10px; color:var(--ink-dim); font-size:14px;" data-i18n="aiCheckLoading">🤔 AI sprawdza, czy to jednak nie jest poprawne…</div>
+      <div id="storyTypedAiLoading" style="display:none; text-align:center; margin-top:10px; color:var(--ink-dim); font-size:14px;" data-i18n="aiCheckLoading">AI sprawdza, czy to jednak nie jest poprawne…</div>
     </div>
 
     <div id="storyOrderWrap" style="display:none; margin-top:16px;">
@@ -5506,14 +5601,14 @@
       <h3>👤 <span data-i18n="myAccount">Moje konto</span></h3>
       <div id="accountInfoBody"></div>
       <div class="row">
-        <button class="tool-btn" id="achievementsBtn" style="flex:1;" data-i18n="achievementsBtn">🏆 Moje osiągnięcia</button>
+        <button class="tool-btn" id="achievementsBtn" style="flex:1;" data-i18n="achievementsBtn">Moje osiągnięcia</button>
       </div>
       <div class="row" style="align-items:center; justify-content:space-between; padding:10px 2px;">
-        <span style="font-size:14.5px; color:var(--ink);" data-i18n="hapticsToggleLabel">📳 Wibracje przy odpowiedziach</span>
+        <span style="font-size:14.5px; color:var(--ink);" data-i18n="hapticsToggleLabel">Wibracje przy odpowiedziach</span>
         <button class="theme-toggle-btn" id="hapticsToggleBtn" style="width:auto; padding:0 12px;" title="Wibracje" aria-label="Włącz/wyłącz wibracje">Wł.</button>
       </div>
       <div class="row">
-        <button class="tool-btn" id="replayOnboardingBtn" style="flex:1;" data-i18n="replayOnboardingBtn">❓ Jak korzystać z apki</button>
+        <button class="tool-btn" id="replayOnboardingBtn" style="flex:1;" data-i18n="replayOnboardingBtn">Jak korzystać z apki</button>
       </div>
       <div class="row">
         <button class="primary" id="logoutBtn" style="flex:1; background:var(--bad);" data-i18n="logoutBtn">Wyloguj się</button>
@@ -5636,7 +5731,7 @@
      ═══════════════════════════════════════════════════════════════════════ -->
 <div id="launchReadinessBar" style="position:fixed; left:0; right:0; bottom:0; z-index:40; background:#111; color:#fff; font-family:'IBM Plex Mono',monospace; font-size:13.5px; padding:6px 10px; padding-bottom:calc(6px + env(safe-area-inset-bottom)); cursor:pointer; box-shadow:0 -2px 10px rgba(0,0,0,0.3);">
   <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-    <span id="launchReadinessLabel">🚀 Gotowość do startu: —%</span>
+    <span id="launchReadinessLabel">Gotowość do startu: —%</span>
     <span id="launchReadinessToggleHint" style="opacity:0.6;">▲ szczegóły</span>
   </div>
   <div id="launchReadinessBarTrack" style="height:5px; background:#333; border-radius:3px; margin-top:5px; overflow:hidden;">
@@ -7723,6 +7818,47 @@ const SINO_HANJA = {"친구":"親舊","가족":"家族","학교":"學校","시�
 const HANJA_GLOSS = {"一":["일","jeden","one"],"七":["칠","siedem","seven"],"丈":["장","starszy / teść","elder; father-in-law"],"三":["삼","trzy","three"],"上":["상","góra / na górze","above; top"],"下":["하","dół / pod","below; down"],"不":["불","nie- (przeczenie)","not; un-"],"世":["세","świat / pokolenie","world; generation"],"中":["중","środek","middle; center"],"主":["주","główny / gospodarz","main; master"],"九":["구","dziewięć","nine"],"乳":["유","mleko","milk"],"事":["사","sprawa / praca","affair; matter"],"二":["이","dwa","two"],"于":["우","w / na (partykuła)","at; in (particle)"],"五":["오","pięć","five"],"交":["교","wymieniać / krzyżować","to exchange; to cross"],"亦":["역","także","also"],"人":["인","człowiek","person"],"今":["금","teraz","now"],"介":["개","pośredniczyć","to mediate"],"代":["대","zastępować / era","to substitute; era"],"令":["령","rozkaz","order; command"],"以":["이","za pomocą / od","by means of; from"],"件":["건","sprawa / sztuka (rzeczy)","item; case"],"任":["임","powierzać / obowiązek","to entrust; duty"],"企":["기","planować / przedsięwzięcie","to plan; enterprise"],"但":["단","jednak / tylko","but; only"],"位":["위","pozycja / miejsce","position; rank"],"住":["주","mieszkać","to dwell"],"佛":["불","Budda","Buddha"],"作":["작","robić / tworzyć","to make"],"使":["사","używać / kazać","to use; to make do"],"來":["래","przychodzić","to come"],"例":["례","przykład / zwyczaj","example; custom"],"供":["공","dostarczać","to supply"],"依":["의","opierać się na","to depend on"],"便":["편","wygodny","convenient"],"係":["계","wiązać / dotyczyć","to relate; to bind"],"保":["보","chronić","to protect"],"信":["신","wierzyć / list","to trust; letter"],"俳":["배","aktor","actor"],"個":["개","sztuka / pojedynczy","piece; individual"],"候":["후","pora / czekać","season; to wait"],"値":["치","wartość","value"],"假":["가","tymczasowy / fałszywy","temporary; false"],"健":["건","zdrowy / krzepki","healthy; robust"],"偶":["우","para / przypadek","pair; chance"],"傘":["산","parasol","umbrella"],"備":["비","przygotowywać","to prepare"],"傳":["전","przekazywać","to transmit"],"傷":["상","rana","wound"],"傾":["경","przechylać się","to lean"],"像":["상","obraz / posąg","image; statue"],"價":["가","cena / wartość","price; value"],"優":["우","wyborny / łagodny","excellent; gentle"],"元":["원","początek / pierwotny","origin; first"],"兄":["형","starszy brat","older brother"],"充":["충","wypełniać","to fill"],"先":["선","najpierw / wcześniejszy","first; prior"],"光":["광","światło","light"],"克":["극","przezwyciężać","to overcome"],"兒":["아","dziecko","child"],"入":["입","wchodzić","to enter"],"內":["내","wnętrze","inside"],"全":["전","cały / zupełny","whole; complete"],"八":["팔","osiem","eight"],"公":["공","publiczny / sprawiedliwy","public; fair"],"六":["륙","sześć","six"],"共":["공","wspólny / razem","together; common"],"具":["구","narzędzie / wyposażać","tool; to equip"],"冊":["책","książka","book"],"冷":["랭","zimny","cold"],"出":["출","wychodzić","to go out"],"分":["분","dzielić / część","to divide; part"],"初":["초","początek","beginning"],"判":["판","osądzać","to judge"],"別":["별","oddzielny / rozstanie","separate; to part"],"利":["리","korzyść / ostry","benefit; sharp"],"到":["도","docierać","to arrive"],"券":["권","bilet / dokument","ticket; certificate"],"刻":["각","ryć / chwila","to carve; moment"],"則":["칙","reguła","rule"],"前":["전","przód / przed","front; before"],"剛":["강","twardy / mocny","hard; firm"],"割":["할","ciąć / dzielić","to cut; to divide"],"劃":["획","kreślić / planować","to delineate; to plan"],"劇":["극","sztuka teatralna / gwałtowny","drama; intense"],"力":["력","siła","strength"],"功":["공","zasługa / osiągnięcie","merit; achievement"],"加":["가","dodawać","to add"],"助":["조","pomagać","to help"],"努":["노","wysilać się","to strive"],"勇":["용","odwaga","courage"],"動":["동","ruszać się","to move"],"務":["무","obowiązek / praca","duty; task"],"勝":["승","zwyciężać","to win"],"勞":["로","trud / praca","labor"],"勢":["세","siła / tendencja","force; momentum"],"勤":["근","pilny / pracowity","diligent"],"勸":["권","zachęcać / doradzać","to urge; to advise"],"勿":["물","nie (zakaz)","do not"],"包":["포","owijać / zawierać","to wrap; to include"],"化":["화","zmieniać się / -izacja","to change; -ization"],"區":["구","strefa / dzielić","district; to divide"],"十":["십","dziesięć","ten"],"午":["오","południe (pora dnia)","noon"],"半":["반","połowa","half"],"協":["협","współdziałać","to cooperate"],"南":["남","południe (kierunek)","south"],"博":["박","rozległy / uczony","extensive; learned"],"印":["인","pieczęć / odciskać","seal; to imprint"],"危":["위","niebezpieczny","dangerous"],"卵":["란","jajo","egg"],"原":["원","źródło / pierwotny","origin; original"],"去":["거","odchodzić / usuwać","to go away; to remove"],"參":["참","uczestniczyć","to participate"],"反":["반","przeciwny / odwracać","opposite; to reverse"],"取":["취","brać","to take"],"口":["구","usta / otwór","mouth; opening"],"只":["지","tylko","only"],"可":["가","móc / możliwy","can; possible"],"史":["사","historia / kronika","history; annals"],"各":["각","każdy","each"],"合":["합","łączyć","to combine"],"同":["동","ten sam / razem","same; together"],"名":["명","imię / sławny","name; famous"],"向":["향","kierunek / zwracać się ku","direction; to face"],"否":["부","nie / odmawiać","no; to deny"],"含":["함","zawierać","to contain"],"吸":["흡","wdychać / wciągać","to inhale"],"告":["고","ogłaszać","to announce"],"周":["주","obwód / dokoła","circumference; around"],"味":["미","smak","taste"],"呼":["호","wołać / wydychać","to call; to exhale"],"命":["명","życie / rozkaz","life; command"],"和":["화","zgoda / harmonia","harmony"],"品":["품","przedmiot / towar","article; goods"],"員":["원","członek / pracownik","member; personnel"],"哲":["철","mądry / filozofia","wise; philosophy"],"商":["상","handel","commerce"],"問":["문","pytać","to ask"],"善":["선","dobry / dobro","good"],"單":["단","pojedynczy","single"],"器":["기","naczynie / przyrząd","vessel; instrument"],"四":["사","cztery","four"],"回":["회","wracać / obrót","to return; turn"],"因":["인","przyczyna","cause"],"國":["국","państwo","country"],"圍":["위","otaczać","to surround"],"園":["원","ogród","garden"],"圖":["도","rysunek / plan","drawing; plan"],"團":["단","grupa / zespół","group"],"土":["토","ziemia / gleba","earth; soil"],"在":["재","istnieć / być w","to exist; to be at"],"地":["지","ziemia / miejsce","earth; place"],"均":["균","równy / jednakowy","even; equal"],"型":["형","typ / forma","type; mold"],"域":["역","obszar","area"],"基":["기","podstawa / fundament","base; foundation"],"堂":["당","sala / budynek","hall"],"報":["보","donosić / odpłacać","to report; to repay"],"場":["장","miejsce / plac","place; field"],"境":["경","granica / sytuacja","boundary; situation"],"增":["증","zwiększać","to increase"],"壓":["압","naciskać","to press"],"士":["사","uczony / rycerz","scholar; knight"],"外":["외","zewnętrzny","outside"],"多":["다","dużo / liczny","many"],"大":["대","duży / wielki","big"],"太":["태","wielki / nadmierny","great; excessive"],"夫":["부","mąż / mężczyzna","husband; man"],"央":["앙","środek","center"],"失":["실","tracić / błąd","to lose; mistake"],"契":["계","umowa","contract"],"女":["녀","kobieta","woman"],"妊":["임","być w ciąży","to be pregnant"],"妬":["투","zazdrościć","to envy"],"妹":["매","młodsza siostra","younger sister"],"姉":["자","starsza siostra","older sister"],"始":["시","zaczynać","to begin"],"姑":["고","ciotka / teściowa","paternal aunt; mother-in-law"],"姓":["성","nazwisko rodowe","family name"],"委":["위","powierzać","to entrust"],"姿":["자","postawa / wygląd","posture; figure"],"威":["위","powaga / groźba","dignity; menace"],"娠":["신","być w ciąży","pregnancy"],"婚":["혼","małżeństwo","marriage"],"婦":["부","kobieta / żona","woman; wife"],"媒":["매","pośredniczyć","to mediate"],"媤":["시","rodzina męża (znak koreański)","husband's family (Korean-made)"],"嫂":["수","bratowa","sister-in-law"],"嫉":["질","zazdrościć","to be jealous"],"子":["자","dziecko / syn","child; son"],"字":["자","znak pisma / litera","character; letter"],"存":["존","istnieć","to exist"],"孝":["효","synowska miłość","filial piety"],"孫":["손","wnuk","grandchild"],"學":["학","uczyć się","to learn"],"宅":["택","dom / rezydencja","house; residence"],"宇":["우","przestrzeń / dach świata","space; eaves"],"安":["안","spokojny / bezpieczny","peaceful; safe"],"宗":["종","ród / główny nurt","ancestry; sect"],"官":["관","urzędnik","official"],"宙":["주","przestworza / czas","cosmos"],"定":["정","ustalać / pewny","to fix; certain"],"客":["객","gość","guest"],"室":["실","pokój / sala","room"],"害":["해","szkoda","harm"],"家":["가","dom / rodzina","house; family"],"容":["용","mieścić / wygląd","to contain; appearance"],"宿":["숙","nocować","to lodge"],"密":["밀","gęsty / tajny","dense; secret"],"察":["찰","badać / obserwować","to examine"],"寢":["침","spać","to sleep"],"實":["실","prawdziwy / owoc","real; fruit"],"寫":["사","przepisywać / odwzorowywać","to copy; to depict"],"寸":["촌","cal / stopień pokrewieństwa","inch; degree of kinship"],"將":["장","dowódca / zamierzać","general; to intend"],"專":["전","wyłączny / skupiony","exclusive; devoted"],"對":["대","naprzeciw / odpowiadać","to face; to reply"],"導":["도","prowadzić","to guide"],"小":["소","mały","small"],"少":["소","mało / młody","few; young"],"局":["국","urząd / sytuacja / partia (gry)","bureau; situation"],"居":["거","mieszkać","to reside"],"屋":["옥","dom / dach","house; roof"],"展":["전","rozwijać / rozpościerać","to unfold; to expand"],"層":["층","warstwa / piętro","layer; floor"],"屬":["속","należeć","to belong"],"山":["산","góra","mountain"],"島":["도","wyspa","island"],"嶽":["악","wysoka góra","high mountain"],"州":["주","prowincja","province"],"工":["공","praca / rzemiosło","work; craft"],"差":["차","różnica","difference"],"己":["기","ja / siebie","self"],"市":["시","miasto / targ","city; market"],"布":["포","płótno / rozpościerać","cloth; to spread"],"希":["희","pragnąć / rzadki","to hope; rare"],"師":["사","mistrz / nauczyciel","master; teacher"],"席":["석","miejsce siedzące","seat"],"帳":["장","zasłona / notes","curtain; notebook"],"帶":["대","pas / strefa","belt; zone"],"常":["상","zwykły / stały","usual; constant"],"干":["간","tarcza / dotyczyć / trochę","shield; to concern"],"平":["평","płaski / spokojny","flat; peaceful"],"年":["년","rok","year"],"幸":["행","szczęście","fortune"],"幹":["간","pień / trzon","trunk; core"],"床":["상","stół / łóżko","table; bed"],"序":["서","kolejność / wstęp","order; preface"],"店":["점","sklep","shop"],"府":["부","urząd / siedziba","government office"],"度":["도","stopień / miara","degree; measure"],"庫":["고","magazyn","storehouse"],"庭":["정","dziedziniec / ogród","courtyard; garden"],"康":["강","zdrowy / spokojny","healthy; peaceful"],"廣":["광","szeroki","wide"],"建":["건","budować","to build"],"弄":["롱","bawić się / żartować","to play; to jest"],"式":["식","wzór / ceremonia","style; ceremony"],"引":["인","ciągnąć","to pull"],"弟":["제","młodszy brat","younger brother"],"張":["장","rozciągać / arkusz","to stretch; sheet"],"強":["강","silny","strong"],"形":["형","kształt","shape"],"影":["영","cień / obraz","shadow; image"],"役":["역","służba / rola","service; role"],"待":["대","czekać / traktować","to wait; to treat"],"律":["률","prawo / rytm","law; rhythm"],"後":["후","tył / po","back; after"],"得":["득","zyskiwać","to gain"],"徙":["사","przenosić się","to move house"],"復":["복","wracać / przywracać","to return; to restore"],"微":["미","drobny / subtelny","tiny; subtle"],"徵":["징","oznaka / pobierać","sign; to levy"],"心":["심","serce / umysł","heart; mind"],"必":["필","koniecznie","necessarily"],"志":["지","wola / zamiar","will; intention"],"念":["념","myśl / pamiętać","thought; to recall"],"怖":["포","bać się","to fear"],"性":["성","natura / płeć","nature; gender"],"恐":["공","strach","fear"],"恒":["항","stały / trwały","constant"],"息":["식","oddech / potomek","breath; offspring"],"患":["환","choroba / cierpieć","illness; to suffer"],"悲":["비","smutek","sorrow"],"悶":["민","dręczyć się","to agonize"],"情":["정","uczucie","feeling"],"想":["상","myśleć / wyobrażać","to think; to imagine"],"意":["의","zamysł / znaczenie","intention; meaning"],"愛":["애","kochać","to love"],"感":["감","czuć","to feel"],"態":["태","postać / stan","form; state"],"慣":["관","przyzwyczajenie","habit"],"慧":["혜","mądrość","wisdom"],"慮":["려","rozważać / troska","to ponder; concern"],"慶":["경","świętować / radość","to celebrate; joy"],"憂":["우","troska / smutek","worry; grief"],"憶":["억","pamiętać","to remember"],"應":["응","odpowiadać / reagować","to respond"],"成":["성","stawać się / dokonać","to become; to accomplish"],"或":["혹","może / albo","perhaps; or"],"戰":["전","wojna / walczyć","war; to fight"],"房":["방","pokój","room"],"所":["소","miejsce / to co","place; that which"],"手":["수","ręka","hand"],"批":["비","oceniać / krytykować","to critique"],"技":["기","umiejętność / technika","skill; technique"],"把":["파","chwytać","to grasp"],"投":["투","rzucać / wkładać","to throw; to invest"],"折":["절","łamać / zginać","to break; to fold"],"抛":["포","porzucać","to abandon"],"拏":["라","chwytać (w nazwie 한라산)","to seize (in Hallasan)"],"拒":["거","odmawiać / odpierać","to refuse; to resist"],"拘":["구","zatrzymywać / krępować","to detain; to restrain"],"持":["지","trzymać / utrzymywać","to hold; to maintain"],"指":["지","palec / wskazywać","finger; to point"],"掃":["소","zamiatać","to sweep"],"授":["수","nadawać / nauczać","to confer; to teach"],"接":["접","stykać się / przyjmować","to contact; to receive"],"推":["추","pchać / wnioskować","to push; to infer"],"提":["제","podnosić / przedkładać","to raise; to present"],"換":["환","wymieniać","to exchange"],"握":["악","ściskać / chwytać","to grip"],"援":["원","wspierać / ratować","to aid"],"摘":["적","zrywać / wytykać","to pluck; to point out"],"撮":["촬","fotografować / ujmować","to photograph"],"擇":["택","wybierać","to choose"],"擊":["격","uderzać","to strike"],"操":["조","trzymać / ćwiczyć","to handle; to drill"],"擔":["담","dźwigać / brać na siebie","to shoulder; to bear"],"據":["거","opierać się na / dowód","to base on; evidence"],"擧":["거","podnosić / wybierać","to raise; to elect"],"支":["지","podpierać / gałąź","to support; branch"],"收":["수","zbierać / przyjmować","to collect; to receive"],"改":["개","poprawiać / zmieniać","to correct; to reform"],"攻":["공","atakować","to attack"],"放":["방","puszczać / uwalniać","to release"],"政":["정","rządzić / polityka","to govern; politics"],"故":["고","powód / dawny / zmarły","reason; former; deceased"],"效":["효","skutek","effect"],"敎":["교","nauczać","to teach"],"散":["산","rozpraszać","to scatter"],"整":["정","porządkować","to arrange"],"數":["수","liczba / liczyć","number; to count"],"文":["문","pismo / literatura","writing; literature"],"料":["료","materiał / opłata","material; fee"],"新":["신","nowy","new"],"斷":["단","przecinać / rozstrzygać","to cut; to decide"],"方":["방","strona / metoda","direction; method"],"施":["시","wykonywać / stosować","to carry out; to apply"],"旅":["려","podróżować","to travel"],"族":["족","ród / plemię","clan; tribe"],"旣":["기","już","already"],"日":["일","dzień / słońce","day; sun"],"旦":["단","poranek","morning"],"明":["명","jasny","bright"],"易":["역","zmieniać / handel","to change; trade"],"映":["영","odbijać / wyświetlać","to reflect; to project"],"昨":["작","wczorajszy","yesterday"],"是":["시","być / właśnie / słuszny","to be; right"],"時":["시","czas / godzina","time; hour"],"普":["보","powszechny","universal"],"景":["경","widok / sceneria","scenery"],"智":["지","mądrość","wisdom"],"暫":["잠","chwilowy","momentary"],"暴":["폭","gwałtowny","violent"],"曆":["력","kalendarz","calendar"],"曜":["요","dzień tygodnia / jaśnieć","day of week; to shine"],"書":["서","pisać / księga","to write; book"],"最":["최","naj- (najbardziej)","most"],"會":["회","spotykać się / zgromadzenie","to meet; assembly"],"月":["월","księżyc / miesiąc","moon; month"],"有":["유","mieć / istnieć","to have; to exist"],"服":["복","ubranie / poddawać się","clothes; to submit"],"望":["망","wypatrywać / nadzieja","to gaze; hope"],"期":["기","okres / oczekiwać","period; to expect"],"未":["미","jeszcze nie","not yet"],"末":["말","koniec","end"],"本":["본","korzeń / podstawa / ten","root; origin; this"],"材":["재","drewno / materiał","timber; material"],"村":["촌","wieś","village"],"束":["속","wiązać","to bind"],"析":["석","rozszczepiać / analizować","to split; to analyze"],"果":["과","owoc / rezultat","fruit; result"],"染":["염","barwić / kazić","to dye; to taint"],"査":["사","badać / sprawdzać","to inspect"],"校":["교","szkoła","school"],"株":["주","pień / udział (akcja)","stump; stock share"],"核":["핵","jądro / pestka","nucleus; core"],"根":["근","korzeń","root"],"格":["격","wzorzec / ranga","pattern; status"],"案":["안","projekt / propozycja","proposal; plan"],"條":["조","gałąź / artykuł (przepisu)","branch; clause"],"械":["계","maszyna / przyrząd","machine"],"棄":["기","porzucać","to discard"],"植":["식","sadzić","to plant"],"業":["업","zajęcie / przemysł","occupation; industry"],"極":["극","kraniec / skrajny","extreme; pole"],"構":["구","budować / konstrukcja","to construct"],"樂":["악","muzyka (też: 락 radość)","music (also: pleasure)"],"標":["표","znak / cel","mark; target"],"模":["모","wzór / naśladować","model; to imitate"],"樣":["양","kształt / wygląd","appearance; pattern"],"樹":["수","drzewo","tree"],"機":["기","maszyna / sposobność","machine; opportunity"],"檢":["검","sprawdzać","to inspect"],"權":["권","władza / prawo (do czegoś)","authority; right"],"次":["차","kolejność / następny","order; next"],"歌":["가","pieśń / śpiewać","song; to sing"],"歐":["구","Europa","Europe"],"止":["지","zatrzymywać","to stop"],"正":["정","prosty / właściwy","straight; correct"],"武":["무","wojskowy / waleczny","military; martial"],"歲":["세","rok / wiek (lat)","year; age"],"歷":["력","przechodzić przez / dzieje","to pass through; history"],"歸":["귀","wracać","to return"],"段":["단","stopień / odcinek","step; section"],"母":["모","matka","mother"],"每":["매","każdy","every"],"比":["비","porównywać","to compare"],"民":["민","lud","people"],"氣":["기","energia / powietrze / duch","energy; air; spirit"],"水":["수","woda","water"],"求":["구","szukać / prosić","to seek; to request"],"汚":["오","brudny / kazić","dirty; to pollute"],"江":["강","rzeka","river"],"決":["결","rozstrzygać","to decide"],"汽":["기","para (wodna)","steam"],"治":["치","rządzić / leczyć","to govern; to cure"],"況":["황","sytuacja / tym bardziej","situation"],"法":["법","prawo / metoda","law; method"],"波":["파","fala","wave"],"洋":["양","ocean / zachodni","ocean; Western"],"洗":["세","myć","to wash"],"活":["활","żyć / żywy","to live; lively"],"流":["류","płynąć","to flow"],"浴":["욕","kąpać się","to bathe"],"海":["해","morze","sea"],"消":["소","gasić / znikać","to extinguish; to vanish"],"深":["심","głęboki","deep"],"淸":["청","czysty / klarowny","clear; pure"],"湖":["호","jezioro","lake"],"湯":["탕","wywar / zupa / wrzątek","soup; hot water"],"源":["원","źródło","source"],"準":["준","norma / przygotowany","standard; to prepare"],"溫":["온","ciepły","warm"],"滿":["만","pełny","full"],"漁":["어","łowić ryby","to fish"],"演":["연","odgrywać / przedstawiać","to perform"],"漢":["한","Chiny / rzeka Han","Chinese; Han"],"漫":["만","rozlewny / swobodny","loose; rambling"],"漸":["점","stopniowo","gradually"],"濟":["제","przeprawiać / ratować","to cross; to relieve"],"濤":["도","wielka fala","billow"],"濯":["탁","prać","to launder"],"瀑":["폭","wodospad","waterfall"],"無":["무","brak / bez","without; none"],"焦":["초","przypalać / skupiać","to scorch; to focus"],"然":["연","tak / właśnie taki","so; thus"],"營":["영","prowadzić / obóz","to manage; camp"],"爭":["쟁","spierać się / walczyć","to contend"],"爲":["위","czynić / dla","to do; for"],"父":["부","ojciec","father"],"牛":["우","krowa / wół","cow; ox"],"物":["물","rzecz","thing"],"特":["특","szczególny","special"],"犯":["범","popełniać / naruszać","to commit; to violate"],"狀":["상","stan / kształt","state; form"],"獅":["사","lew","lion"],"獨":["독","sam / samotny","alone"],"玄":["현","ciemny / tajemny","dark; profound"],"班":["반","grupa / klasa","group; class"],"現":["현","obecny / ukazywać się","present; to appear"],"球":["구","kula / piłka","sphere; ball"],"理":["리","zasada / porządkować","principle; to manage"],"琉":["류","lazuryt / szkliwo","lapis; glaze"],"璃":["리","szkło","glass"],"環":["환","pierścień / otaczać","ring; to encircle"],"甚":["심","nadmierny / bardzo","extreme; very"],"生":["생","rodzić się / życie","to be born; life"],"産":["산","rodzić / wytwarzać","to produce"],"用":["용","używać","to use"],"由":["유","powód / poprzez","reason; from"],"申":["신","oświadczać / zgłaszać","to state; to report"],"男":["남","mężczyzna","man"],"界":["계","granica / świat (sfera)","boundary; realm"],"異":["이","inny / odmienny","different"],"畵":["화","obraz / rysować","picture; to draw"],"當":["당","właściwy / trafiać","proper; to face"],"疑":["의","wątpić","to doubt"],"病":["병","choroba","illness"],"痛":["통","ból","pain"],"療":["료","leczyć","to heal"],"登":["등","wspinać się / wpisywać","to climb; to register"],"發":["발","wypuszczać / rozwijać","to emit; to develop"],"白":["백","biały","white"],"百":["백","sto","hundred"],"的":["적","cel / -owy (przyrostek)","target; -ic (suffix)"],"皮":["피","skóra","skin"],"益":["익","korzyść","benefit"],"盞":["잔","czarka / kieliszek","small cup"],"監":["감","nadzorować","to supervise"],"目":["목","oko / pozycja (listy)","eye; item"],"直":["직","prosty / bezpośredni","straight; direct"],"相":["상","wzajemny / oblicze","mutual; aspect"],"眞":["진","prawdziwy","true"],"督":["독","nadzorować / ponaglać","to oversee; to urge"],"瞬":["순","mgnienie oka","blink"],"知":["지","wiedzieć","to know"],"石":["석","kamień","stone"],"硏":["연","szlifować / zgłębiać","to grind; to study"],"確":["확","pewny / mocny","certain; firm"],"礎":["초","kamień węgielny","cornerstone"],"礙":["애","przeszkadzać","to hinder"],"示":["시","pokazywać","to show"],"社":["사","wspólnota / firma","society; company"],"祀":["사","składać ofiarę","to sacrifice"],"祕":["비","tajny","secret"],"祖":["조","przodek","ancestor"],"神":["신","duch / bóstwo","spirit; god"],"祭":["제","obrzęd / ofiara","rite; sacrifice"],"福":["복","szczęście / błogosławieństwo","blessing; fortune"],"禮":["례","etykieta / obrzęd","propriety; ritual"],"科":["과","dział / dyscyplina","branch; discipline"],"秩":["질","porządek / ranga","order; rank"],"移":["이","przenosić","to move"],"稅":["세","podatek","tax"],"程":["정","odcinek drogi / zakres","journey; extent"],"種":["종","ziarno / gatunek","seed; kind"],"積":["적","gromadzić / iloczyn","to accumulate"],"究":["구","zgłębiać","to investigate"],"空":["공","pusty / niebo","empty; sky"],"突":["돌","uderzać / nagły / wystawać","to dash; sudden"],"窓":["창","okno","window"],"立":["립","stać / ustanawiać","to stand; to establish"],"競":["경","współzawodniczyć","to compete"],"笑":["소","śmiać się","to laugh"],"第":["제","kolejność / numer","ordinal; number"],"筆":["필","pędzel / pióro","brush; pen"],"等":["등","stopień / równy / itp.","grade; equal; etc."],"答":["답","odpowiadać","to answer"],"策":["책","plan / bat","scheme; whip"],"算":["산","liczyć","to calculate"],"管":["관","rura / zarządzać","pipe; to manage"],"節":["절","węzeł / pora / umiar","joint; season; moderation"],"範":["범","wzór / zakres","model; scope"],"簡":["간","prosty / list","simple; letter"],"籠":["롱","kosz","basket"],"粧":["장","stroić / upiększać","to adorn"],"精":["정","esencja / wyborny / duch","essence; refined; spirit"],"糧":["량","prowiant / zboże","provisions; grain"],"紀":["기","zapis / era","record; era"],"約":["약","umawiać się / w przybliżeniu","to promise; approximately"],"紅":["홍","czerwony","red"],"純":["순","czysty / nieskażony","pure"],"紙":["지","papier","paper"],"級":["급","stopień / klasa","grade; class"],"素":["소","pierwotny / prosty / pierwiastek","plain; element"],"紹":["소","przedstawiać / łączyć","to introduce"],"組":["조","splatać / zespół","to assemble; group"],"結":["결","wiązać / kończyć","to tie; to conclude"],"給":["급","dawać / zaopatrywać","to give; to supply"],"統":["통","łączyć w całość / rządzić","to unify; to rule"],"絶":["절","przerywać / skrajny","to sever; utmost"],"經":["경","przechodzić / zarządzać / księga","to pass; to manage; classic"],"綜":["종","zestawiać razem","to synthesize"],"綠":["록","zielony","green"],"維":["유","utrzymywać / włókno","to maintain; fiber"],"線":["선","linia / nić","line; thread"],"緣":["연","więź / los","tie; affinity"],"練":["련","ćwiczyć","to practice"],"總":["총","ogólny / zbiorczy","general; total"],"織":["직","tkać","to weave"],"繼":["계","kontynuować","to continue"],"續":["속","ciągnąć dalej","to continue"],"罪":["죄","wina / przestępstwo","crime; guilt"],"置":["치","umieszczać","to place"],"美":["미","piękny","beautiful"],"義":["의","sprawiedliwość / znaczenie","righteousness; meaning"],"習":["습","ćwiczyć / nawyk","to practice; habit"],"老":["로","stary","old"],"考":["고","rozważać / badać","to consider"],"者":["자","osoba / ten kto","person; one who"],"聞":["문","słyszeć","to hear"],"聯":["련","łączyć","to link"],"職":["직","stanowisko / zawód","post; occupation"],"肉":["육","mięso / ciało","flesh; meat"],"育":["육","wychowywać","to rear"],"背":["배","plecy / tył","back"],"胎":["태","łono / płód","womb; fetus"],"能":["능","móc / zdolność","can; ability"],"膚":["부","skóra","skin"],"膳":["선","dar / posiłek","gift; meal"],"臟":["장","narząd wewnętrzny","internal organ"],"自":["자","sam / siebie / od","self; from"],"臺":["대","podest / stojak","platform; stand"],"與":["여","dawać / uczestniczyć / i","to give; to join; and"],"舊":["구","dawny / stary","old; former"],"舞":["무","tańczyć","to dance"],"般":["반","rodzaj / ogólny","sort; general"],"若":["약","jeśli / jak / młody","if; like"],"苦":["고","gorzki / cierpienie","bitter; suffering"],"英":["영","wybitny / kwiat / Anglia","outstanding; England"],"茶":["다","herbata (czyt. też 차)","tea (also read 차)"],"菓":["과","słodycze / ciastko","confectionery"],"菜":["채","warzywo","vegetable"],"萄":["도","winogrono","grape"],"萬":["만","dziesięć tysięcy","ten thousand"],"葛":["갈","pnącze kudzu","kudzu vine"],"葡":["포","winogrono","grape"],"蓄":["축","gromadzić","to store up"],"蔘":["삼","żeń-szeń","ginseng"],"蔬":["소","warzywo / jarzyna","greens"],"藏":["장","przechowywać / kryć","to store; to hide"],"藝":["예","sztuka / kunszt","art; craft"],"藤":["등","glicynia / pnącze","wisteria; vine"],"處":["처","miejsce / załatwiać","place; to handle"],"號":["호","numer / znak","number; sign"],"衆":["중","tłum","multitude"],"行":["행","iść / czynić","to go; to act"],"術":["술","sztuka / technika","art; technique"],"街":["가","ulica","street"],"衝":["충","zderzać się","to collide"],"衡":["형","waga / równowaga","balance"],"衣":["의","ubranie","clothing"],"表":["표","powierzchnia / wyrażać / tabela","surface; to express; table"],"被":["피","doznawać / okrycie","to suffer; covering"],"裁":["재","kroić / rozstrzygać","to cut; to adjudicate"],"裕":["유","dostatni / obfity","abundant"],"補":["보","uzupełniać / łatać","to supplement"],"裝":["장","wyposażać / stroić","to equip; to dress"],"製":["제","wytwarzać","to manufacture"],"複":["복","podwójny / złożony","double; complex"],"西":["서","zachód","west"],"要":["요","istotny / żądać","essential; to demand"],"見":["견","widzieć / pogląd","to see; view"],"規":["규","norma / cyrkiel","rule; compass"],"視":["시","patrzeć","to look"],"親":["친","bliski / rodzic","intimate; parent"],"覺":["각","postrzegać / budzić się","to perceive; to awaken"],"觀":["관","oglądać / pogląd","to observe; view"],"角":["각","róg / kąt","horn; angle"],"解":["해","rozwiązywać / rozumieć","to untie; to understand"],"言":["언","mowa / słowo","speech; word"],"計":["계","liczyć / plan","to count; plan"],"討":["토","roztrząsać / karać","to discuss; to punish"],"訓":["훈","pouczać","to instruct"],"記":["기","zapisywać","to record"],"訪":["방","odwiedzać","to visit"],"設":["설","ustanawiać / urządzać","to establish; to install"],"評":["평","oceniać","to evaluate"],"試":["시","próbować / egzamin","to try; exam"],"詩":["시","wiersz / poezja","poem"],"話":["화","mówić / opowieść","to speak; tale"],"該":["해","ów / dotyczący","the said; pertaining"],"誌":["지","zapis / czasopismo","record; magazine"],"認":["인","uznawać / rozpoznawać","to acknowledge; to recognize"],"語":["어","język / słowa","language; words"],"說":["설","objaśniać / teoria","to explain; theory"],"課":["과","lekcja / wydział","lesson; section"],"調":["조","stroić / regulować / badać","to tune; to adjust"],"談":["담","rozmowa","talk"],"請":["청","prosić","to request"],"論":["론","omawiać / rozprawa","to discuss; treatise"],"謝":["사","dziękować / przepraszać","to thank; to apologize"],"證":["증","dowodzić / świadectwo","to prove; certificate"],"識":["식","znać / rozeznanie","to know; knowledge"],"警":["경","ostrzegać / czuwać","to warn; to guard"],"議":["의","obradować","to deliberate"],"護":["호","osłaniać","to guard"],"變":["변","zmieniać się","to change"],"象":["상","słoń / zjawisko / postać","elephant; phenomenon"],"豫":["예","zawczasu","in advance"],"負":["부","dźwigać / przegrywać","to carry; to lose"],"財":["재","majątek","wealth"],"貨":["화","towar / pieniądz","goods; currency"],"販":["판","sprzedawać","to sell"],"責":["책","obarczać / powinność","to blame; duty"],"費":["비","wydawać / koszt","to spend; expense"],"貿":["무","handlować","to trade"],"賃":["임","wynajmować / płaca","to hire; wages"],"資":["자","zasoby / kapitał","resources; capital"],"賣":["매","sprzedawać","to sell"],"質":["질","istota / jakość","substance; quality"],"足":["족","stopa / wystarczać","foot; to suffice"],"路":["로","droga","road"],"踊":["용","podskakiwać / tańczyć","to leap; to dance"],"踐":["천","deptać / wypełniać (czyn)","to tread; to fulfill"],"蹴":["축","kopać","to kick"],"身":["신","ciało","body"],"車":["차","pojazd / wóz (czyt. też 거)","vehicle (also read 거)"],"軍":["군","wojsko","army"],"較":["교","porównywać","to compare"],"輛":["량","klasyfikator pojazdów","counter for vehicles"],"輩":["배","pokolenie / grono","generation; cohort"],"輸":["수","przewozić","to transport"],"輿":["여","lektyka / ogół (opinii)","palanquin; public"],"轉":["전","obracać się","to revolve"],"農":["농","rolnictwo","agriculture"],"近":["근","bliski","near"],"追":["추","gonić / dodawać","to chase; to add"],"送":["송","wysyłać","to send"],"途":["도","droga / szlak","route"],"通":["통","przechodzić / łączyć się","to pass through; to communicate"],"速":["속","szybki","fast"],"造":["조","wytwarzać","to build; to create"],"連":["련","łączyć / ciągnąć się","to connect"],"週":["주","tydzień / obieg","week; cycle"],"進":["진","postępować naprzód","to advance"],"遂":["수","dokonać / spełnić","to accomplish"],"遇":["우","napotykać / traktować","to encounter; to treat"],"運":["운","przewozić / los","to transport; fortune"],"過":["과","przechodzić / przekraczać","to pass; to exceed"],"道":["도","droga / zasada","way; principle"],"達":["달","osiągać / docierać","to reach"],"違":["위","naruszać / rozmijać się","to violate"],"選":["선","wybierać","to select"],"避":["피","unikać","to avoid"],"邊":["변","brzeg / krawędź","edge; side"],"邱":["구","wzgórze (w nazwie 대구)","hill (in Daegu)"],"部":["부","część / dział","part; section"],"都":["도","stolica / wszystko","capital; all"],"鄕":["향","strony rodzinne","hometown"],"配":["배","przydzielać / dobierać w pary","to allot; to pair"],"酒":["주","alkohol / wino","liquor"],"醫":["의","leczyć / medycyna","to heal; medicine"],"重":["중","ciężki / ważny","heavy; important"],"野":["야","pole / dziki","field; wild"],"金":["금","złoto / metal (nazwisko: 김)","gold; metal (surname: Kim)"],"銀":["은","srebro","silver"],"錄":["록","zapisywać","to record"],"錢":["전","pieniądz","money"],"鍊":["련","hartować / ćwiczyć","to temper; to train"],"鐵":["철","żelazo","iron"],"長":["장","długi / starszy / szef","long; senior; chief"],"門":["문","brama / drzwi","gate; door"],"開":["개","otwierać","to open"],"間":["간","przestrzeń między / przedział","interval; between"],"關":["관","brama graniczna / dotyczyć","barrier; to concern"],"防":["방","bronić / zapobiegać","to defend; to prevent"],"附":["부","przylegać / dołączać","to attach"],"限":["한","granica / ograniczać","limit"],"院":["원","instytucja / dziedziniec","institution; courtyard"],"除":["제","usuwać / wyłączać","to remove; to exclude"],"陰":["음","cień / pierwiastek yin","shade; yin"],"陽":["양","słońce / pierwiastek yang","sunlight; yang"],"隊":["대","oddział","squad"],"階":["계","schody / szczebel","stairs; rank"],"際":["제","styk / pomiędzy","juncture; between"],"障":["장","przegroda / przeszkoda","barrier; obstacle"],"險":["험","niebezpieczny / stromy","perilous; steep"],"集":["집","zbierać","to gather"],"雜":["잡","mieszany / rozmaity","mixed; miscellaneous"],"雨":["우","deszcz","rain"],"雪":["설","śnieg","snow"],"雰":["분","mgiełka / aura","mist; atmosphere"],"電":["전","elektryczność / błyskawica","electricity; lightning"],"需":["수","potrzebować","to need"],"震":["진","wstrząsać / grzmieć","to quake"],"靑":["청","niebieskozielony / młody","blue-green; young"],"面":["면","twarz / strona","face; side"],"音":["음","dźwięk","sound"],"響":["향","pogłos / oddźwięk","echo; resonance"],"頂":["정","wierzchołek","summit"],"順":["순","posłuszny / kolejność","obedient; sequence"],"預":["예","powierzać / z góry","to deposit; beforehand"],"領":["령","przewodzić / obszar","to lead; territory"],"頭":["두","głowa","head"],"題":["제","temat / tytuł","topic; title"],"願":["원","pragnąć / życzyć sobie","to wish"],"類":["류","rodzaj / podobny","kind; similar"],"顧":["고","oglądać się / dbać","to look back; to regard"],"飛":["비","latać","to fly"],"食":["식","jeść / pokarm","to eat; food"],"飮":["음","pić","to drink"],"養":["양","żywić / pielęgnować","to nourish"],"餘":["여","nadmiar / reszta","surplus; remainder"],"館":["관","budynek publiczny / gmach","public building"],"首":["수","głowa / pierwszy","head; chief"],"馬":["마","koń","horse"],"驗":["험","sprawdzać / doświadczać","to test; to experience"],"驛":["역","stacja / poczta konna","station"],"體":["체","ciało / forma","body; form"],"高":["고","wysoki","high"],"鮮":["선","świeży / jaskrawy","fresh; vivid"],"鷄":["계","kura","chicken"],"麥":["맥","jęczmień / zboże","barley"],"黑":["흑","czarny","black"],"點":["점","punkt / kropka","point; dot"],"黨":["당","stronnictwo / partia","faction; party"]};
 
 /* Zwraca rozkład albo null. Null, gdy słowa nie ma w danych - nie zgadujemy. */
+/* ═══ PODZIAŁ TEKSTU NA ZDANIA ════════════════════════════════════════════
+   Osobna funkcja, nie inline w czytniku - ten sam podział przyda się w trybie
+   głośnym do śledzenia karaoke. Dzieli WIDOK, nie dane: READING_TEXTS zostaje
+   nietknięte (v4 §9).
+
+   Trzy pułapki, przez które naiwne /[.!?]/ nie wystarcza:
+   - "3.5 kg", "14.30" - kropka bez spacji po niej to nie koniec zdania;
+   - "…" - wielokropek jako jeden znak, ma kończyć zdanie tak jak kropka;
+   - dialog - zdanie kończy się CUDZYSŁOWEM po kropce, więc zamykający znak
+     musi zostać przy zdaniu, a nie otworzyć następne.
+   Znak interpunkcyjny zawsze zostaje przy swoim zdaniu. */
+const SENTENCE_END = /[.!?…]/;
+const CLOSING_MARKS = '"\'\u201d\u2019\u00bb\u300d\u300f\uff09)]';
+
+function splitSentencesKo(text){
+  const src = (text || '').replace(/\s+/g, ' ').trim();
+  if(!src) return [];
+  const out = [];
+  let start = 0;
+  for(let i = 0; i < src.length; i++){
+    const ch = src[i];
+    if(!SENTENCE_END.test(ch)) continue;
+    // Ciąg znaków końcowych traktujemy jako jeden (np. "?!", "..." zapisane kropkami)
+    let end = i;
+    while(end + 1 < src.length && SENTENCE_END.test(src[end + 1])) end++;
+    // Zamykające cudzysłowy i nawiasy dokleja do zdania, nie do następnego
+    while(end + 1 < src.length && CLOSING_MARKS.includes(src[end + 1])) end++;
+    const next = src[end + 1];
+    // Kropka bez spacji po niej to liczba albo godzina, nie koniec zdania.
+    // Wykrzyknik i pytajnik kończą zdanie zawsze - w liczbach nie występują.
+    if(next !== undefined && next !== ' ' && src[i] === '.'){ i = end; continue; }
+    const piece = src.slice(start, end + 1).trim();
+    if(piece) out.push(piece);
+    start = end + 1;
+    i = end;
+  }
+  const rest = src.slice(start).trim();
+  if(rest) out.push(rest);
+  return out;
+}
+
 function deconstructSinoWord(ko){
   if(!ko || typeof ko !== 'string') return null;
   const word = ko.trim();
@@ -14096,7 +14232,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.31';
+const APP_VERSION = '2026-09-01.36';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14111,7 +14247,7 @@ const SCREEN_IDS = {
   conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen', conjRef:'conjRefScreen',
   aiChat:'aiChatScreen', reading:'readingScreen',
   grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
-  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen', account:'accountScreen'
+  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen', account:'accountScreen', reader:'readerScreen'
 };
 
 /* ── DOLNA NAWIGACJA — logika (redesign, krok 3) ──────────────────────────
@@ -14736,7 +14872,7 @@ const I18N = {
   nextBtn2: { pl: 'Dalej →', en: 'Next →' },
   nextBtn3: { pl: 'Dalej →', en: 'Next →' },
   onlyPlan: { pl: 'Jedyny plan', en: 'Only plan' },
-  geminiVoiceLabel: { pl: '🎙️ Rozmowa głosowa na żywo (beta)', en: '🎙️ Live voice conversation (beta)' },
+  geminiVoiceLabel: { pl: 'Rozmowa głosowa na żywo (beta)', en: 'Live voice conversation (beta)' },
   geminiVoiceDefault: { pl: 'Dotknij „Połącz”, żeby rozpocząć rozmowę głosową.', en: 'Tap "Connect" to start a voice conversation.' },
   geminiVoiceNote: { pl: 'Rozmowa odbywa się na głos, w czasie rzeczywistym — mów naturalnie, bot odpowie od razu.', en: 'The conversation happens by voice, in real time — speak naturally, the bot will respond right away.' },
   geminiTranslateBtn: { pl: 'Nie rozumiem — przetłumacz', en: "I don't understand — translate" },
@@ -14816,7 +14952,7 @@ const I18N = {
   themeProHint: { pl: 'Motywy Jadeit, Kobalt, Hanji i Neon są częścią Premium Pro.', en: 'Jade, Cobalt, Hanji and Neon themes are part of Premium Pro.' },
   langPanelDesc: { pl: 'Docelowo Hooljon ma wspierać uczących się z różnych stron świata — każdy język ojczysty inaczej "mapuje się" na koreański, więc plany na przyszłość obejmują też dopasowane wskazówki gramatyczne, nie tylko tłumaczenie interfejsu.', en: 'Hooljon aims to support learners from around the world — every native language "maps" onto Korean differently, so future plans include tailored grammar hints too, not just interface translation.' },
   listenFullBtn: { pl: 'Odsłuchaj', en: 'Listen' },
-  aiCheckLoading: { pl: '🤔 AI sprawdza, czy to jednak nie jest poprawne…', en: "🤔 AI is checking whether this might be correct after all…" },
+  aiCheckLoading: { pl: 'AI sprawdza, czy to jednak nie jest poprawne…', en: "AI is checking whether this might be correct after all…" },
   tapToFlip: { pl: 'Dotknij karty, żeby zobaczyć znaczenie i usłyszeć', en: 'Tap the card to see the meaning and hear it' },
   homeSectionQuick: { pl: 'Szybki dostęp', en: 'Quick access' },
   homeReviewDesc: { pl: 'Słówka gotowe do powtórki, bez wybierania działu.', en: 'Words ready for review, no department to pick.' },
@@ -14825,16 +14961,16 @@ const I18N = {
   homeSectionPractice: { pl: 'Praktyka', en: 'Practice' },
   leechModeTitle: { pl: 'Trudne słowa', en: 'Tricky words' },
   leechModeDesc: { pl: 'Słowa, które regularnie Ci umykają.', en: 'Words that keep slipping away.' },
-  hapticsToggleLabel: { pl: '📳 Wibracje przy odpowiedziach', en: '📳 Vibration on answers' },
+  hapticsToggleLabel: { pl: 'Wibracje przy odpowiedziach', en: 'Vibration on answers' },
   modeSelectTitle: { pl: 'Jak dziś się uczysz?', en: 'How are you learning today?' },
   modeSelectHint: { pl: 'Możesz przełączać się między trybami w każdej chwili.', en: 'You can switch between modes at any time.' },
   modeSelectStoryTitle: { pl: 'Tryb opowieści', en: 'Story mode' },
   modeSelectStoryDesc: { pl: 'Prowadzeni krok po kroku — lekcja po lekcji, bez zgadywania co wybrać.', en: 'Guided step by step - lesson by lesson, no guessing what to pick.' },
   modeSelectSandboxTitle: { pl: 'Tryb Sandbox', en: 'Sandbox mode' },
   modeSelectSandboxDesc: { pl: 'Pełne menu, swobodna nawigacja — dla obytych z apką.', en: 'Full menu, free navigation - for those already familiar with the app.' },
-  hanjaNotesLabel: { pl: '📝 Notatki kontekstowe', en: '📝 Context notes' },
-  hanjaMoreWordsLabel: { pl: '💬 Więcej słów z tym znakiem', en: '💬 More words with this character' },
-  hanjaQuizLabel: { pl: '✏️ Szybki quiz', en: '✏️ Quick quiz' },
+  hanjaNotesLabel: { pl: 'Notatki kontekstowe', en: 'Context notes' },
+  hanjaMoreWordsLabel: { pl: 'Więcej słów z tym znakiem', en: 'More words with this character' },
+  hanjaQuizLabel: { pl: 'Szybki quiz', en: 'Quick quiz' },
   homeHanjaTitle: { pl: 'Hanja', en: 'Hanja' },
   homeHanjaDesc: { pl: 'Chińskie znaki-rdzenie za słowami, które już znasz.', en: 'The Chinese-character roots behind words you already know.' },
   homeScenarioTitle: { pl: 'Scenariusze dla grup', en: 'Group Scenarios' },
@@ -14845,12 +14981,12 @@ const I18N = {
   scenarioLevelLabel: { pl: 'Poziom', en: 'Level' },
   scenarioSituationLabel: { pl: 'Sytuacja', en: 'Situation' },
   scenarioCountLabel: { pl: 'Liczba różnych kart', en: 'Number of different cards' },
-  scenarioGenerateBtn: { pl: '✨ Generuj karty', en: '✨ Generate cards' },
-  scenarioLoading: { pl: '🤔 AI przygotowuje karty…', en: '🤔 AI is preparing the cards…' },
+  scenarioGenerateBtn: { pl: 'Generuj karty', en: 'Generate cards' },
+  scenarioLoading: { pl: 'AI przygotowuje karty…', en: 'AI is preparing the cards…' },
   retellBtn: { pl: 'Opowiedz swoimi słowami', en: 'Tell it in your own words' },
   retellHint: { pl: 'Napisz kilka zdań (po polsku albo po koreańsku) o tym, o czym był tekst — nie musi być dokładne, liczy się ogólne zrozumienie.', en: 'Write a few sentences (in your language or Korean) about what the text was about - it does not need to be exact, general understanding is what matters.' },
   retellSubmit: { pl: 'Sprawdź', en: 'Check' },
-  retellLoading: { pl: '🤔 AI czyta Twoją odpowiedź…', en: '🤔 AI is reading your answer…' },
+  retellLoading: { pl: 'AI czyta Twoją odpowiedź…', en: 'AI is reading your answer…' },
   checkComprehension: { pl: 'Sprawdź zrozumienie', en: 'Check comprehension' },
   storyModeTitle: { pl: 'Tryb opowieści', en: 'Story mode' },
   storyBackMap: { pl: 'Mapa programu', en: 'Lesson map' },
@@ -14860,17 +14996,17 @@ const I18N = {
   ptDoneBtn: { pl: 'Przejdź do nauki', en: 'Go to learning' },
   obSkip: { pl: 'Pomiń', en: 'Skip' },
   obNext: { pl: 'Dalej ▶', en: 'Next ▶' },
-  replayOnboardingBtn: { pl: '❓ Jak korzystać z apki', en: '❓ How to use the app' },
+  replayOnboardingBtn: { pl: 'Jak korzystać z apki', en: 'How to use the app' },
   sbHint: { pl: 'Ułóż słowa w poprawnej kolejności, dotykając ich po kolei.', en: 'Arrange the words in the correct order by tapping them.' },
   sbReset: { pl: 'Wyczyść', en: 'Reset' },
   sbCheck: { pl: 'Sprawdź', en: 'Check' },
   topikTestBtn: { pl: 'Przystąp do Gwageo (test TOPIK tego poziomu)', en: 'Take the Gwageo (TOPIK test for this level)' },
   registerPrev: { pl: 'Poprzednie', en: 'Previous' },
   registerNext: { pl: 'Następne', en: 'Next' },
-  achievementsBtn: { pl: '🏆 Moje osiągnięcia', en: '🏆 My achievements' },
+  achievementsBtn: { pl: 'Moje osiągnięcia', en: 'My achievements' },
   backHome5: { pl: 'Menu główne', en: 'Main menu' },
   achvStreakLabel: { pl: 'dni z rzędu', en: 'days in a row' },
-  achvStreakBulssi: { pl: '🔥 Twój Bulssi (불씨)', en: '🔥 Your Bulssi (불씨)' },
+  achvStreakBulssi: { pl: 'Twój Bulssi (불씨)', en: 'Your Bulssi (불씨)' },
   achvBadgesTitle: { pl: 'Odznaki działów', en: 'Section badges' },
   achvBadgesHint: { pl: 'Ukończ wszystkie słówka danego działu w trybie Nauka, żeby odblokować odznakę.', en: 'Finish all words in a section in Study mode to unlock its badge.' },
   achvStatsTitle: { pl: 'Statystyki', en: 'Statistics' },
@@ -14881,9 +15017,9 @@ const I18N = {
   backVocabLevel: { pl: 'Wybór poziomu', en: 'Choose level' },
   backVocabLevel2: { pl: 'Wybór poziomu', en: 'Choose level' },
   dontKnowBtn2: { pl: 'Nie znam', en: 'Do not know' },
-  alreadyKnowBtn: { pl: '✅ Już znam', en: '✅ Already know' },
+  alreadyKnowBtn: { pl: 'Już znam', en: 'Already know' },
   studyDoneMsg: { pl: 'Przejrzałeś/aś wszystkie słówka z tego działu!', en: 'You have gone through all the words in this section!' },
-  restartStudyBtn: { pl: '🔁 Od nowa', en: '🔁 Restart' },
+  restartStudyBtn: { pl: 'Od nowa', en: 'Restart' },
   studyEmptyMsg: { pl: 'W wybranych działach nie ma jeszcze słówek.', en: 'There are no words in the selected sections yet.' },
   backVocabMode: { pl: 'Wybór trybu', en: 'Choose mode' },
   exerciseModeTitle: { pl: 'Ćwiczenia', en: 'Exercises' },
@@ -15023,7 +15159,7 @@ const I18N = {
   aiChatStatusDefault: { pl: 'Kliknij „Rozpocznij rozmowę” — bot przywita się pierwszy.', en: 'Tap "Start conversation" — the bot will greet you first.' },
   aiChatUnsupported: { pl: 'Twoja przeglądarka nie obsługuje rozpoznawania mowy (Web Speech API). Ta funkcja działa najlepiej w Chrome na komputerze lub Androidzie.', en: 'Your browser does not support speech recognition (Web Speech API). This feature works best in Chrome on desktop or Android.' },
   aiChatNote: { pl: 'Uwaga: bot wykrywa błędy gramatyczne i słownikowe w tym, co rozpoznał mikrofon — to nie jest ocena wymowy/akcentu, tylko analiza tekstu.', en: 'Note: the bot detects grammar and vocabulary errors in what the microphone recognized — this is not a pronunciation/accent assessment, just text analysis.' },
-  readingGateMsg: { pl: 'Czytanie to funkcja Premium — czytaj na głos ze śledzeniem w stylu karaoke i podświetlonymi błędami.', en: 'Reading is a Premium feature — read aloud with karaoke-style tracking and highlighted mistakes.' },
+  readingGateMsg: { pl: 'Czytanie po cichu jest darmowe. Czytanie na głos — ze śledzeniem w stylu karaoke i podświetlonymi błędami — jest częścią Premium.', en: 'Silent reading is free. Reading aloud — with karaoke-style tracking and highlighted mistakes — is part of Premium.' },
   readingListHint: { pl: 'Wybierz czytankę albo wgraj własny tekst po koreańsku.', en: 'Choose a reading or upload your own Korean text.' },
   btnAddReading: { pl: 'Dodaj własną czytankę', en: 'Add your own reading' },
   readingBackToList: { pl: '← Lista czytanek', en: '← Reading list' },
@@ -16026,6 +16162,42 @@ function iconSvg(d){
 
 // Ikony liniowe (motyw domyślny 1a). Brak wpisu = zostaje oryginalny znak, np. 한 / 漢,
 // które w tym motywie i tak renderują się krojem koreańskim (--font-ko).
+/* Ikony liniowe dla działów, poziomów i modułów. Zamiast rysować 58 osobnych
+   symboli, mapujemy je na 12 kształtów uniwersalnych - dział "Jedzenie" i "Zakupy"
+   nie muszą mieć własnego piktogramu, wystarczy że są rozróżnialne i spójne.
+   Kolejność w mapie nie ma znaczenia; brak wpisu = ikona zapasowa (kropka).
+   Dodane 2026-09-01 przy usuwaniu emoji z interfejsu. */
+const LINE_SHAPES = {
+  circle:  '<circle cx="12" cy="12" r="8"/>',
+  square:  '<rect x="4.5" y="4.5" width="15" height="15" rx="3"/>',
+  diamond: '<path d="M12 3.5 20.5 12 12 20.5 3.5 12z"/>',
+  triangle:'<path d="M12 4.5 20 19H4z"/>',
+  person:  '<circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/>',
+  book:    '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 17.5A2.5 2.5 0 0 1 6.5 15H19"/>',
+  leaf:    '<path d="M5 19c0-8 5-13 14-14 1 9-4 14-12 14z"/><path d="M7 17 17 7"/>',
+  flask:   '<path d="M10 3v6L4.5 18.5A2 2 0 0 0 6.3 21.5h11.4a2 2 0 0 0 1.8-3L14 9V3"/><path d="M9 3h6"/>',
+  bag:     '<path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+  chart:   '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  star:    '<path d="m12 3.8 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 10l5.9-.8z"/>',
+  globe:   '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c4 4.5 4 12.5 0 17-4-4.5-4-12.5 0-17"/>',
+};
+/* Emoji z danych -> kształt. Grupujemy po sensie, nie po wyglądzie emoji. */
+const ICON_SHAPE_MAP = {
+  '👋':'person','🙂':'person','😊':'person','👨‍👩‍👧':'person','👘':'person','👕':'person','💄':'person',
+  '📄':'book','📘':'book','📕':'book','📝':'book','🎓':'book','🏛️':'book','🏺':'book',
+  '🌱':'leaf','🌿':'leaf','🌳':'leaf','🦕':'leaf','🍜':'leaf','🐶':'leaf',
+  '🔬':'flask','🧬':'flask','⚗️':'flask','⚛️':'flask','🧠':'flask','🔭':'flask','⚕️':'flask',
+  '🛍️':'bag','💼':'bag','📱':'bag','💻':'bag','🎣':'bag','⚽':'bag',
+  '📈':'chart','🔢':'chart','⚖️':'chart','🏆':'chart','🎖️':'chart',
+  '⭐':'star','🎉':'star','🎭':'star','🎨':'star','🎤':'star','🖼️':'star','🕯️':'star','🎩':'star',
+  '🧭':'globe','🚀':'globe','🌕':'globe','⛰️':'globe','🌋':'globe','☁️':'globe','🔔':'globe',
+  '🟢':'circle','🔷':'diamond','🕰️':'circle','📁':'square','🔓':'square',
+};
+function shapeIconFor(orig){
+  const key = ICON_SHAPE_MAP[orig];
+  return key ? LINE_SHAPES[key] : LINE_SHAPES.circle;
+}
+
 const LINE_ICONS = {
   '🔁':'<path d="M4 12a8 8 0 0 1 13.7-5.6M20 12a8 8 0 0 1-13.7 5.6"/><path d="M17 3v4h-4M7 21v-4h4"/>',
   '📚':'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 17.5A2.5 2.5 0 0 1 6.5 15H19"/>',
@@ -16086,7 +16258,10 @@ function applyThemeIcons(theme){
   document.querySelectorAll('.home-card .icon').forEach(el => {
     if(!el.dataset.origIcon) el.dataset.origIcon = el.textContent.trim();
     const o = el.dataset.origIcon;
-    if(mode === 'line' && LINE_ICONS[o])                  el.innerHTML = iconSvg(LINE_ICONS[o]);
+    // Tryb liniowy NIGDY nie spada z powrotem na emoji: gdy brak dokładnej ikony,
+    // bierze kształt tematyczny (patrz ICON_SHAPE_MAP). Dzięki temu nie ma ani
+    // emoji, ani pustych miejsc - to był warunek przy usuwaniu emotek z interfejsu.
+    if(mode === 'line')                                   el.innerHTML = iconSvg(LINE_ICONS[o] || shapeIconFor(o));
     else if(mode === 'glyph')                             el.textContent = GLYPH_ICONS[o] || o;
     else if(THEME_ICONS[theme] && THEME_ICONS[theme][o])  el.textContent = THEME_ICONS[theme][o];
     else                                                  el.textContent = o;
@@ -16891,8 +17066,10 @@ function showVocabStudyCard(){
     emojiEl.style.display = 'none';
   } else {
     imgEl.style.display = 'none';
-    emojiEl.textContent = w.emoji || '';
-    emojiEl.style.display = w.emoji ? '' : 'none';
+    // Emoji przy słowie wyłączone 2026-09-01 (decyzja: czysty interfejs).
+    // Pole w danych ZOSTAJE - gdyby wracać, wystarczy odkomentować.
+    emojiEl.textContent = '';
+    emojiEl.style.display = 'none';
   }
 
   document.getElementById('vocabStudyWord').textContent = w.ko;
@@ -17046,7 +17223,7 @@ function renderWordListPanel(categories){
         <h4>${trCat(cat)} (${list.length})</h4>
         ${list.map(w => `
           <div class="word-list-row">
-            <span class="wl-emoji">${w.emoji || ''}</span>
+            <span class="wl-emoji"></span>
             <span class="wl-ko">${escapeHtml(w.ko)}</span>
             <span class="wl-pl">${escapeHtml(tr(w))}</span>
             <span class="wl-badge-slot">${sourceBadgeHtml(w.source)}</span>
@@ -17767,6 +17944,12 @@ let dictBrowseLevel = null;      // null = wszystkie poziomy
 let dictBrowseDept  = null;      // null = wszystkie działy
 let dictBrowseList  = [];        // to, co aktualnie widać (po filtrach i szukaniu)
 let dictBrowseSeq   = 0;         // numer żądania - starsza odpowiedź nie nadpisze nowszej
+// Ile wierszy pokazujemy naraz. Lista bez ograniczenia ciągnęła się przez tysiące
+// pozycji - user nie miał jak dojść do końca ani zorientować się, ile ich jest.
+// Doładowanie przyciskiem, nie przy przewijaniu: przy nieskończonym scrollu nie da
+// się dotrzeć do niczego pod listą i gubi się poczucie, gdzie się jest.
+const DICT_PAGE = 60;
+let dictBrowseShown = DICT_PAGE;
 
 function dictBrowseChipsHTML(){
   const lvlWrap = document.getElementById('dictBrowseLevels');
@@ -17776,7 +17959,14 @@ function dictBrowseChipsHTML(){
     <button type="button" class="chip" role="tab" data-level="${m.level === null ? '' : m.level}"
       aria-pressed="${m.level === dictBrowseLevel ? 'true' : 'false'}">${escapeHtml(uiLang === 'en' ? m.labelEn : m.label)}</button>
   `).join('');
-  depWrap.innerHTML = [null].concat(DICT_DEPARTMENTS).map(d => `
+  // Działy liczone z RZECZYWISTYCH danych, nie z zaszytej listy. DICT_DEPARTMENTS
+  // miało 28 pozycji, a w bazie jest ich 42 - brakowało m.in. "Powitania i zwroty",
+  // "Czasowniki" i wszystkich liczb, czyli działów, których user szuka najczęściej.
+  // Scalamy z listą zaszytą, bo baza serwerowa ma działy spoza DEFAULT_WORDS.
+  const deptSet = new Set(DICT_DEPARTMENTS);
+  allWords.forEach(w => { if(w.category) deptSet.add(w.category); });
+  const depts = [...deptSet].sort((a, b) => a.localeCompare(b, 'pl'));
+  depWrap.innerHTML = [null].concat(depts).map(d => `
     <button type="button" class="chip" role="tab" data-dept="${d === null ? '' : escapeHtml(d)}"
       aria-pressed="${d === dictBrowseDept ? 'true' : 'false'}">${escapeHtml(d === null ? (uiLang === 'en' ? 'All sections' : 'Wszystkie działy') : d)}</button>
   `).join('');
@@ -17824,6 +18014,7 @@ async function loadDictBrowse(){
   }
   if(seq !== dictBrowseSeq) return;   // przyszła już nowsza odpowiedź
 
+  dictBrowseShown = DICT_PAGE; // nowe wyniki - wracamy na początek
   dictBrowseList = list.sort((a, b) => (a.ko || '').localeCompare(b.ko || '', 'ko'));
   renderDictBrowseRows();
 }
@@ -17832,29 +18023,49 @@ function renderDictBrowseRows(){
   const wrap = document.getElementById('dictBrowseRows');
   const count = document.getElementById('dictBrowseCount');
   const words = dictBrowseList;
+  const shown = Math.min(dictBrowseShown, words.length);
   count.textContent = uiLang === 'en'
-    ? `${words.length} word${words.length === 1 ? '' : 's'}`
-    : `${words.length} ${words.length === 1 ? 'słowo' : 'słów'}`;
+    ? (shown < words.length ? `${shown} of ${words.length} words` : `${words.length} word${words.length === 1 ? '' : 's'}`)
+    : (shown < words.length ? `${shown} z ${words.length} słów` : `${words.length} ${words.length === 1 ? 'słowo' : 'słów'}`);
   if(!words.length){
     wrap.innerHTML = `<p class="hint-note" style="text-align:center; padding:20px;">${uiLang === 'en' ? 'No matches.' : 'Brak dopasowań.'}</p>`;
     return;
   }
   // Nagłówek 초성 wstawiamy tylko przy zmianie grupy - lista jest już posortowana
   // koreańsko, więc grupy wychodzą same. Ten sam wzorzec co w liście działu.
+  // Pokazujemy tylko bieżącą porcję. Indeks 'i' jest z PEŁNEJ listy, więc
+  // otwieranie karty i nawigacja poprzednie/następne działają bez zmian.
+  const page = words.slice(0, dictBrowseShown);
   let lastGroup = null;
-  wrap.innerHTML = words.map((w, i) => {
+  wrap.innerHTML = page.map((w, i) => {
     const g = choseongOf(w.ko);
     const head = g !== lastGroup ? `<div class="section-sticky">${escapeHtml(g)}</div>` : '';
     lastGroup = g;
     return head + `
     <div class="dr-row sb-tappable" data-idx="${i}">
       <div class="dr-row-main">
-        <div class="dr-row-ko">${escapeHtml(w.ko)}${w.emoji ? ' ' + w.emoji : ''}</div>
+        <div class="dr-row-ko">${escapeHtml(w.ko)}</div>
         <div class="dr-row-pl">${escapeHtml(uiLang === 'en' ? w.en : w.pl)}</div>
       </div>
       ${w.pos ? `<span class="dr-row-badge">${escapeHtml(w.pos)}</span>` : ''}
     </div>`;
   }).join('');
+
+  // Przycisk doładowania - tylko gdy jest co doładować.
+  if(words.length > dictBrowseShown){
+    const left = words.length - dictBrowseShown;
+    const next = Math.min(DICT_PAGE, left);
+    wrap.insertAdjacentHTML('beforeend', `
+      <button class="tool-btn" id="dictBrowseMore" style="width:100%; margin:14px 0 4px;">
+        ${uiLang === 'en' ? `Show ${next} more (${left} left)` : `Pokaż kolejne ${next} (zostało ${left})`}
+      </button>`);
+    const moreBtn = document.getElementById('dictBrowseMore');
+    if(moreBtn) moreBtn.addEventListener('click', () => {
+      dictBrowseShown += DICT_PAGE;
+      renderDictBrowseRows();
+    });
+  }
+
   wrap.querySelectorAll('.dr-row').forEach(row => {
     row.addEventListener('click', () => openDictBrowseCard(parseInt(row.dataset.idx, 10)));
   });
@@ -18010,7 +18221,7 @@ function renderDictWordListRows(words){
     return head + `
     <div class="dr-row sb-tappable" data-idx="${i}">
       <div class="dr-row-main">
-        <div class="dr-row-ko">${escapeHtml(w.ko)}${w.emoji ? ' ' + w.emoji : ''}</div>
+        <div class="dr-row-ko">${escapeHtml(w.ko)}</div>
         <div class="dr-row-pl">${escapeHtml(uiLang === 'en' ? w.en : w.pl)}</div>
       </div>
       ${w.pos ? `<span class="dr-row-badge">${escapeHtml(w.pos)}</span>` : ''}
@@ -18045,6 +18256,13 @@ function showDictWordCardView(){
   document.getElementById('dictWordCardView').style.display = 'block';
 }
 document.getElementById('dictWordCardBackBtn').addEventListener('click', showDictWordListView);
+
+document.getElementById('readerSizeBtn').addEventListener('click', () => {
+  readerSizeIdx = (readerSizeIdx + 1) % READER_SIZES.length;
+  // Zmienna siedzi na :root, ale czyta ją wyłącznie .reader-p - nagłówek
+  // i arkusz słowa mają własne, stałe rozmiary (v4 §8).
+  document.documentElement.style.setProperty('--reader-size', READER_SIZES[readerSizeIdx] + 'px');
+});
 
 function renderDictWordCard(){
   const w = dictWordQueue[dictWordIndex];
@@ -20189,6 +20407,178 @@ function showReadingList(){
   renderReadingList();
 }
 
+/* ═══ ARKUSZ SŁOWA - KOMPONENT WSPÓLNY (v4 §3.1 + rozszerzenia) ═══════════
+   Wołany z cichego czytnika i z czytania na głos. Czyta ten sam rekord co
+   wiersz w słowniku (dictionary_words), więc niczego nie duplikuje. Poza v4
+   pokazuje przykład zdania, rozkład hanja i skrót do pełnej odmiany.
+   Wysokość jest stała - patrz komentarz przy .word-sheet. */
+let wordSheetToken = 0;
+
+function hideWordSheet(){
+  const sheet = document.getElementById('wordSheet');
+  if(sheet) sheet.hidden = true;
+  document.querySelectorAll('.reader-w[aria-selected="true"]').forEach(e => e.removeAttribute('aria-selected'));
+}
+
+// Słowo z tekstu bywa obklejone interpunkcją - zdejmujemy ją, zanim pytamy bazę.
+function cleanReaderWord(raw){
+  return (raw || '').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+}
+
+/* Partykuły przyklejone do rzeczownika: "물을" nie trafi w hasło "물", bo baza
+   trzyma formy słownikowe. Zdejmujemy je od najdłuższej, ale TYLKO jako plan B -
+   najpierw sprawdzamy dopasowanie pełnego słowa. Bez tej kolejności "가을"
+   (jesień) skróciłoby się do "가" i pokazalibyśmy nie to słowo.
+   Odmiana czasowników (마셔요 -> 마시다) wymaga analizy morfologicznej i tu jej
+   nie ma - takie słowa lecą do "Szukaj w słowniku", zgodnie z v4 §3.1. */
+const KO_PARTICLES = ['에게서','한테서','으로부터','에서','에게','한테','으로','까지','부터',
+                      '이나','라도','밖에','조차','마저','처럼','보다','하고',
+                      '을','를','은','는','이','가','에','도','만','의','와','과','로'];
+function readerLookupForms(word){
+  const forms = [word];
+  for(const p of KO_PARTICLES){
+    // Wystarczy, że po odjęciu partykuły zostaje choć jedna sylaba - właściwym
+    // zabezpieczeniem jest kolejność prób (pełne słowo pierwsze), nie długość.
+    if(word.length > p.length && word.endsWith(p)){
+      forms.push(word.slice(0, -p.length));
+      break;                 // jedna partykuła wystarczy, nie łuskamy w nieskończoność
+    }
+  }
+  return forms;
+}
+
+async function openWordSheet(rawWord){
+  const sheet = document.getElementById('wordSheet');
+  if(!sheet) return;
+  const word = cleanReaderWord(rawWord);
+  if(!word) return;
+  const token = ++wordSheetToken;
+  sheet.hidden = false;
+  sheet.innerHTML = `<div class="ws-top"><span class="word-ko">${escapeHtml(word)}</span></div>
+    <div class="word-meta">${uiLang === 'en' ? 'Looking up…' : 'Szukam…'}</div>`;
+
+  let hit = null, shown = word;
+  for(const form of readerLookupForms(word)){
+    try{
+      const hits = await searchDictionaryWords(form, 8);
+      const exact = hits.find(w => w.ko === form);
+      if(exact){ hit = exact; shown = form; break; }
+    }catch(e){ /* brak sieci - zachowujemy się jak przy braku trafienia */ }
+    if(token !== wordSheetToken) return;
+  }
+  if(token !== wordSheetToken) return;   // user tapnął już w inne słowo
+
+  const sino = deconstructSinoWord(shown);
+  const verb = (typeof KOREAN_VERBS !== 'undefined')
+    ? KOREAN_VERBS.find(v => v.ko === shown) : null;
+
+  const def = hit ? (uiLang === 'en' ? hit.en : hit.pl) : '';
+  const meta = hit
+    ? [hit.pos, hit.category].filter(Boolean).join(' · ')
+    : (uiLang === 'en' ? 'Not in the dictionary' : 'Brak w słowniku');
+
+  const exBlock = (hit && hit.ex)
+    ? `<div class="word-ex"><b>${escapeHtml(hit.ex)}</b><br>${escapeHtml(uiLang === 'en' ? (hit.exEn || '') : (hit.exPl || ''))}</div>`
+    : '';
+  const hanjaBlock = sino
+    ? `<div class="word-hanja">${sino.parts.map(p =>
+        `<span class="wh-part"><b>${escapeHtml(p.char)}</b>${escapeHtml(p.syl)} · ${escapeHtml(uiLang === 'en' ? p.en : p.pl)}</span>`
+      ).join('')}${sino.suffix ? `<span class="wh-part">${escapeHtml(sino.suffix)}</span>` : ''}</div>`
+    : '';
+
+  // Brak w bazie -> "Szukaj w słowniku", nie pusty arkusz i nie "Dodaj do fiszek".
+  const mainBtn = hit
+    ? `<button class="word-add" id="wsAddBtn">${uiLang === 'en' ? 'Add to flashcards' : 'Dodaj do fiszek'}</button>`
+    : `<button class="word-add" id="wsSearchBtn">${uiLang === 'en' ? 'Search the dictionary' : 'Szukaj w słowniku'}</button>`;
+
+  sheet.innerHTML = `
+    <div class="ws-top"><span class="word-ko">${escapeHtml(shown)}</span><span class="word-meta">${escapeHtml(meta)}</span></div>
+    ${def ? `<div class="word-def">${escapeHtml(def)}</div>` : ''}
+    ${hanjaBlock}
+    ${exBlock}
+    <div class="word-actions">
+      ${mainBtn}
+      ${verb ? `<button class="word-conj" id="wsConjBtn">${uiLang === 'en' ? 'Full conjugation' : 'Zobacz pełną odmianę'}</button>` : ''}
+      <button class="word-tts" id="wsTtsBtn" aria-label="${uiLang === 'en' ? 'Listen' : 'Odsłuchaj'}">🔊</button>
+    </div>`;
+
+  document.getElementById('wsTtsBtn').addEventListener('click', () => speakKorean(shown));
+  const conjBtn = document.getElementById('wsConjBtn');
+  if(conjBtn) conjBtn.addEventListener('click', () => { hideWordSheet(); openConjRef(verb); });
+  const searchBtn = document.getElementById('wsSearchBtn');
+  if(searchBtn) searchBtn.addEventListener('click', () => {
+    hideWordSheet();
+    setScreen('dictBrowse');
+    const inp = document.getElementById('dictBrowseSearch');
+    if(inp){ inp.value = shown; loadDictBrowse(); }
+  });
+  const addBtn = document.getElementById('wsAddBtn');
+  if(addBtn) addBtn.addEventListener('click', async () => {
+    // Ta sama ścieżka co "dodaj własne słówko" - nie dotykamy SRS ani kolejki.
+    if(customWords.some(w => w.ko === shown)){
+      addBtn.textContent = uiLang === 'en' ? 'Already added' : 'Już dodane'; return;
+    }
+    const obj = { ko: shown, category:'Własne', source:'reader' };
+    if(hit && hit.pl) obj.pl = hit.pl;
+    if(hit && hit.en) obj.en = hit.en;
+    customWords.push(obj);
+    try{
+      await saveCustom(); rebuildWordPool();
+      if(selectedCategories && !selectedCategories.includes('Własne')){
+        selectedCategories.push('Własne'); await saveCategories();
+      }
+    }catch(e){}
+    addBtn.textContent = uiLang === 'en' ? 'Added ✓' : 'Dodano ✓';
+  });
+}
+
+/* ═══ CICHY CZYTNIK ══════════════════════════════════════════════════════ */
+let readerText = null;
+let readerSentences = [];
+const READER_SIZES = [19, 21, 24];
+let readerSizeIdx = 1;
+
+function openReader(text){
+  readerText = text;
+  readerSentences = splitSentencesKo(text.ko);
+  setScreen('reader');
+  hideWordSheet();
+  document.getElementById('readerMeta').textContent =
+    (uiLang === 'en' && text.titleEn ? text.titleEn : text.title) || '';
+  document.documentElement.style.setProperty('--reader-size', READER_SIZES[readerSizeIdx] + 'px');
+  renderReaderBody();
+}
+
+function renderReaderBody(){
+  const body = document.getElementById('readerBody');
+  body.innerHTML = readerSentences.map((sent, i) => `
+    <p class="reader-p" data-i="${i}" data-read="false">${
+      sent.split(' ').map(w => `<span class="reader-w">${escapeHtml(w)}</span>`).join(' ')
+    }</p>`).join('');
+  body.querySelectorAll('.reader-w').forEach(w => w.addEventListener('click', (e) => {
+    e.stopPropagation();
+    body.querySelectorAll('.reader-w[aria-selected="true"]').forEach(x => x.removeAttribute('aria-selected'));
+    w.setAttribute('aria-selected', 'true');
+    openWordSheet(w.textContent);
+  }));
+  body.querySelectorAll('.reader-p').forEach(p => p.addEventListener('click', () => {
+    p.dataset.read = p.dataset.read === 'true' ? 'false' : 'true';
+    updateReaderProgress();
+  }));
+  updateReaderProgress();
+}
+
+// Pasek postępu znika przy jednym fragmencie zamiast stać na zerze - ten sam
+// wzorzec co rozkład hanja: lepiej nie pokazać nic niż coś mylącego.
+function updateReaderProgress(){
+  const bar = document.getElementById('readerProgress');
+  const fill = document.getElementById('readerProgressFill');
+  if(readerSentences.length < 2){ bar.style.display = 'none'; return; }
+  bar.style.display = '';
+  const done = document.querySelectorAll('#readerBody .reader-p[data-read="true"]').length;
+  fill.style.width = Math.round(done / readerSentences.length * 100) + '%';
+}
+
 function renderReadingList(){
   const wrap = document.getElementById('readingListCards');
   const normal = READING_TEXTS.filter(r => r.type !== 'tongueTwister').map(r => ({...r, custom:false}));
@@ -20205,11 +20595,19 @@ function renderReadingList(){
     3: { pl:'Zaawansowany', en:'Advanced' },
   };
 
+  // Dwa wejścia do tego samego tekstu: cichy czytnik (darmowy) i czytanie
+  // na głos (Premium Pro, bez zmian). Wiersz zostaje przyciskiem "Czytaj",
+  // żeby tapnięcie gdziekolwiek robiło rzecz domyślną i darmową.
   const renderRow = (r, i) => `
-    <button class="reading-row" data-idx="${i}">
-      <span class="icon">${r.custom ? '✏️' : r.type === 'tongueTwister' ? '🌀' : '📖'}</span>
-      <span class="title">${escapeHtml(uiLang === 'en' && r.titleEn ? r.titleEn : r.title)}${r.type === 'tongueTwister' ? ` <span class="tw-badge">${uiLang === 'en' ? 'TONGUE TWISTER' : 'ŁAMANIEC'}</span>` : ''}</span>
-    </button>
+    <div class="reading-row-pair">
+      <button class="reading-row" data-idx="${i}" data-mode="read">
+        <span class="icon">${r.custom ? '✏️' : r.type === 'tongueTwister' ? '🌀' : '📖'}</span>
+        <span class="title">${escapeHtml(uiLang === 'en' && r.titleEn ? r.titleEn : r.title)}${r.type === 'tongueTwister' ? ` <span class="tw-badge">${uiLang === 'en' ? 'TONGUE TWISTER' : 'ŁAMANIEC'}</span>` : ''}</span>
+      </button>
+      <button class="reading-aloud" data-idx="${i}" data-mode="aloud"
+        title="${uiLang === 'en' ? 'Read aloud (Premium Pro)' : 'Czytaj na głos (Premium Pro)'}"
+        aria-label="${uiLang === 'en' ? 'Read aloud' : 'Czytaj na głos'}">🎤</button>
+    </div>
   `;
 
   let html = '';
@@ -20237,8 +20635,17 @@ function renderReadingList(){
     html += `<div class="reading-row-list">${tongueTwisters.map((r, i) => renderRow(r, offset + i)).join('')}</div>`;
   }
   wrap.innerHTML = html;
-  wrap.querySelectorAll('.reading-row').forEach((row) => {
-    row.addEventListener('click', () => openReading(all[Number(row.dataset.idx)]));
+  wrap.querySelectorAll('[data-mode]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = all[Number(btn.dataset.idx)];
+      if(btn.dataset.mode === 'aloud'){
+        // Bramka Pro dotyczy WYŁĄCZNIE trybu głośnego - rozpoznawanie mowy kosztuje.
+        if(!isPremium){ document.getElementById('premiumPanel').classList.add('open'); return; }
+        openReading(item);
+      }else{
+        openReader(item);
+      }
+    });
   });
 }
 
@@ -21335,7 +21742,7 @@ function renderVirtualKeyboard(gridId){
     `<div class="vk-row">
       <button type="button" class="vk-key vk-wide" data-vk="back">⌫ Usuń</button>
       <button type="button" class="vk-key vk-wide" data-vk="space">␣ Spacja</button>
-      <button type="button" class="vk-key vk-wide" data-vk="clear">🗑 Wyczyść</button>
+      <button type="button" class="vk-key vk-wide" data-vk="clear">Wyczyść</button>
     </div>`;
 
   grid.querySelectorAll('.vk-key[data-ch]').forEach(btn=>{
@@ -21360,9 +21767,9 @@ document.getElementById('vkToggleConj').addEventListener('change', (e)=>{
 
 
 function sourceBadgeHtml(source){
-  if(source === 'manual') return '<span class="source-badge manual">✏️ Twoje słówko</span>';
-  if(source === 'photo') return '<span class="source-badge photo">📷 Ze zdjęcia</span>';
-  if(source === 'file') return '<span class="source-badge file">📄 Z pliku</span>';
+  if(source === 'manual') return '<span class="source-badge manual">Twoje słówko</span>';
+  if(source === 'photo') return '<span class="source-badge photo">Ze zdjęcia</span>';
+  if(source === 'file') return '<span class="source-badge file">Z pliku</span>';
   return '';
 }
 
@@ -21708,8 +22115,11 @@ function applyPremiumUI(){
     // Podstawowe czytanie (mikrofon, śledzenie wymowy) to czyste Web Speech API - zero
     // kosztu AI, więc wystarczy zwykły Premium. Tylko ocena swobodnej wypowiedzi (osobny
     // panel retell, patrz niżej) faktycznie kosztuje i wymaga Pro.
+    // Lista czytanek jest teraz widoczna zawsze: cichy czytnik (v4 §3) jest
+    // darmowy. Bramka dotyczy wyłącznie czytania NA GŁOS i siedzi przy
+    // przycisku 🎤 w renderReadingList - próg zostaje ten sam co dotąd.
     readingGate.style.display = isPremium ? 'none' : 'block';
-    readingBody.style.display = isPremium ? 'block' : 'none';
+    readingBody.style.display = '';
     if(!isPremium) stopReadingMic();
   }
 
