@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.4
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.5
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -730,6 +730,16 @@
     margin-top:4px;
     line-height:1.4;
   }
+  /* Wiersze ekranu Ustawień - przyciski przeniesione z nagłówka zachowują swoje
+     istniejące zdarzenia, zmienia się tylko oprawa. */
+  .settings-row{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:15px 4px; border-bottom:1px solid var(--border);
+    min-height:44px;
+  }
+  .settings-row:last-of-type{ border-bottom:none; }
+  .settings-row .sr-label{ font-size:16px; color:var(--ink); }
+
   /* ── DOLNA NAWIGACJA (redesign, krok 3) ───────────────────────────────
      Cztery stałe zakładki. Wysokość i promienie sterowane tokenami motywu, żeby
      wariantom PRO (jade/kobalt) wystarczyło nadpisać zmienne, bez własnych reguł. */
@@ -3074,7 +3084,6 @@
   </header>
   <div class="header-tools" id="headerTools">
     <button class="theme-toggle-btn" id="themeToggleBtn" title="Motyw" aria-label="Wybierz motyw" aria-haspopup="true" aria-expanded="false">🌙</button>
-    <button class="theme-toggle-btn" id="langToggleBtn" title="Język tłumaczeń" aria-label="Język tłumaczeń" style="font-size:13px; font-weight:700;">PL</button>
 
     <div class="panel" id="themePanel">
       <div class="modal-card">
@@ -3121,8 +3130,7 @@
         <div class="feedback" id="reportFeedback" style="margin-top:10px;"></div>
       </div>
     </div>
-    <button class="theme-toggle-btn" id="globalReportBtn" title="Zgłoś błąd" aria-label="Zgłoś błąd">🐞</button>
-    <button class="theme-toggle-btn" id="soundToggleBtn" title="Dźwięki" aria-label="Włącz/wyłącz dźwięki">🔊</button>
+    <button class="theme-toggle-btn" id="settingsBtn" title="Ustawienia" aria-label="Ustawienia">⚙️</button>
     <button class="theme-toggle-btn" id="accountBtn" title="Moje konto" aria-label="Moje konto">👤</button>
     <button class="premium-badge-btn" id="premiumBtn">⭐ Premium</button>
   </div>
@@ -4421,6 +4429,26 @@
     <div id="launchReadinessBarFill" style="height:100%; width:0%; background:linear-gradient(90deg,#E63946,#F4A340); transition:width .4s ease;"></div>
   </div>
   <div id="launchReadinessDetail" style="display:none; margin-top:8px; padding-top:8px; border-top:1px solid #333; line-height:1.8; max-height:55vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y;"></div>
+</div>
+
+<div id="settingsScreen" style="display:none;">
+  <button class="back-btn" data-back="modeSelect" data-i18n="backModeSelect">Wróć</button>
+  <div style="max-width:520px; margin:0 auto;">
+    <h3 style="font-family:var(--font-ko); font-size:20px; margin:0 0 16px; text-align:center;" data-i18n="settingsTitle">Ustawienia</h3>
+
+    <div class="settings-row">
+      <span class="sr-label" data-i18n="settingsSound">Dźwięki w aplikacji</span>
+<button class="theme-toggle-btn" id="soundToggleBtn" title="Dźwięki" aria-label="Włącz/wyłącz dźwięki">🔊</button>
+    </div>
+    <div class="settings-row">
+      <span class="sr-label" data-i18n="settingsLang">Język tłumaczeń</span>
+<button class="theme-toggle-btn" id="langToggleBtn" title="Język tłumaczeń" aria-label="Język tłumaczeń" style="font-size:13px; font-weight:700;">PL</button>
+    </div>
+    <div class="settings-row">
+      <span class="sr-label" data-i18n="settingsReport">Zgłoś błąd lub uwagę</span>
+<button class="theme-toggle-btn" id="globalReportBtn" title="Zgłoś błąd" aria-label="Zgłoś błąd">🐞</button>
+    </div>
+  </div>
 </div>
 
 <nav class="bottom-nav" id="bottomNav">
@@ -12827,7 +12855,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.4';
+const APP_VERSION = '2026-09-01.5';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -12842,7 +12870,7 @@ const SCREEN_IDS = {
   conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen',
   aiChat:'aiChatScreen', reading:'readingScreen',
   grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
-  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen'
+  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen'
 };
 
 /* ── DOLNA NAWIGACJA — logika (redesign, krok 3) ──────────────────────────
@@ -12875,6 +12903,8 @@ function updateBottomNav(screen){
     t.classList.toggle('is-active', t.dataset.nav === active);
   });
 }
+
+document.getElementById('settingsBtn').addEventListener('click', () => setScreen('settings'));
 
 document.getElementById('bottomNav').addEventListener('click', (e) => {
   const tab = e.target.closest('.bn-tab');
@@ -13424,6 +13454,11 @@ const I18N = {
   dictLoading: { pl: 'Ładowanie…', en: 'Loading…' },
   reportPanelTitle: { pl: 'Zgłoś błąd', en: 'Report an issue' },
   navLearn: { pl: 'Nauka', en: 'Learn' },
+  settingsTitle: { pl: 'Ustawienia', en: 'Settings' },
+  settingsSound: { pl: 'Dźwięki w aplikacji', en: 'App sounds' },
+  settingsLang: { pl: 'Język tłumaczeń', en: 'Translation language' },
+  settingsReport: { pl: 'Zgłoś błąd lub uwagę', en: 'Report a problem' },
+  backModeSelect: { pl: 'Wróć', en: 'Back' },
   navDict: { pl: 'Słownik', en: 'Dictionary' },
   navChat: { pl: 'Rozmowa', en: 'Speak' },
   navProgress: { pl: 'Postęp', en: 'Progress' },
