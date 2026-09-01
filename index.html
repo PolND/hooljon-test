@@ -61,6 +61,9 @@
        per motyw × per ekran - 7 × 3 zamiast czterech zmiennych. */
     --accent-deep: var(--card-hi); /* ciemny biegun gradientów; palety mogą nadpisać */
     --ad-h: 0px;           /* wysokość baneru; ustawiana z JS przez syncAdHeight() */
+    /* Pasek nawigacji i baner są oba fixed przy dolnej krawędzi, więc NAKŁADAJĄ
+       się na siebie. Miejsce u dołu zajmuje wyższy z nich, nie ich suma. */
+    --bottom-chrome: max(var(--nav-h), var(--ad-h));
     --field-radius: 0px;   /* 0 = pole "podkreślenie", >0 = pole "pudełko" */
     --field-bg: transparent;
     --btn-radius: var(--radius-pill);
@@ -1083,8 +1086,8 @@
   .bn-lab{ font-size:10px; font-weight:600; letter-spacing:.02em; }
   .bn-tab.is-active{ color:var(--hwang); }
   /* Miejsce, żeby pasek nie zasłaniał końca treści. */
-  .wrap{ padding-bottom:calc(var(--nav-h) + var(--ad-h) + 24px); }
-  @media (min-width:900px){ .wrap{ padding-bottom:calc(var(--nav-h) + var(--ad-h) + 48px); } }
+  .wrap{ padding-bottom:calc(var(--bottom-chrome) + 24px); }
+  @media (min-width:900px){ .wrap{ padding-bottom:calc(var(--bottom-chrome) + 48px); } }
 
   /* ── REDESIGN 1a: reguły globalne sterowane tokenami motywu ──────────── */
   .dict-word-ko, .center-word, .hanja-card, .study-card-example, .sce-ko{
@@ -3645,11 +3648,93 @@
 
 
 
+
+  /* ══ v3 §3 · KONIUGACJA · widok odmiany ══════════════════════════════════
+     Żadnej tabeli. Czas siedzi w segmented control, trzy rejestry są wierszami
+     pod spodem - jedna oś w przełączniku, druga w treści. Tabela rejestr × czas
+     na 360px wymusza poziomy scroll albo 9px tekst. */
+  #conjRefScreen{
+    display:flex; flex-direction:column;
+    /* wartość startowa; syncConjRefHeight() podmienia ją na zmierzoną, bo nad
+       ekranem jest jeszcze pasek narzędzi i padding .wrap */
+    height:calc(100dvh - var(--bottom-chrome) - 24px);
+  }
+  .conj-head{ padding:2px 0 12px; border-bottom:1px solid var(--border); }
+  .conj-inf{ font-family:var(--font-ko); font-size:34px; line-height:1.1; color:var(--ink); }
+  .conj-inf .stem{ color:inherit; }
+  .conj-inf .ending{ color:var(--hwang); }   /* końcówka wyróżniona, rdzeń neutralny */
+  .conj-meta{
+    font-size:13.5px; color:var(--ink-dim); margin-top:6px;
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .conj-tags{ display:flex; gap:12px; margin-top:12px; flex-wrap:wrap; }
+  .conj-tags .dot.stem{ background:var(--ink); }
+  .conj-tags .dot.ending{ background:var(--hwang); }
+
+  .conj-tenses{
+    display:flex; padding:3px; margin:10px 0 0;
+    border-radius:var(--radius-pill); background:var(--surface-2);
+  }
+  .conj-tenses button{
+    flex:1; min-height:40px; border:0; border-radius:var(--radius-pill);
+    background:0; color:var(--ink-dim); font:400 12.5px var(--font-ui); cursor:pointer;
+  }
+  .conj-tenses button[aria-selected="true"]{
+    background:var(--card); color:var(--ink); box-shadow:var(--shadow-card);
+  }
+
+  /* min-height:0 JEST OBOWIĄZKOWE - bez niego flex:1 nie ściska kontenera
+     (domyślne min-height:auto) i nadmiar wypycha CTA za krawędź ekranu. */
+  .conj-forms{ flex:1; min-height:0; overflow-y:auto; margin-top:4px; }
+  .conj-cta{ flex:none; margin-top:14px; min-height:52px; border-radius:var(--btn-radius); }
+
+  .conj-form{
+    padding:12px 0; border-bottom:1px solid var(--border);
+    display:flex; flex-direction:column; gap:3px;
+  }
+  .conj-form:last-of-type{ border-bottom:0; }
+  .conj-register{
+    font-size:11px; font-weight:500; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--ink-dim);
+  }
+  .conj-value{ font-family:var(--font-ko); font-size:25px; color:var(--ink); }
+  .conj-when{
+    font-size:13px; line-height:1.35; color:var(--ink-dim); text-wrap:pretty;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  /* Wygaszona dolna krawędź listy form - sygnał "jest co przewinąć". §3.1
+     dopuszcza przewijanie jako normalne zachowanie, ale user musi je zauważyć. */
+  .conj-forms.is-scrollable{
+    -webkit-mask-image:linear-gradient(to bottom, #000 calc(100% - 20px), transparent);
+            mask-image:linear-gradient(to bottom, #000 calc(100% - 20px), transparent);
+  }
+
+  /* Jadeit: bezokolicznik na gradiencie, formy jako karty. Te wymiary wynikają
+     z budżetu wysokości (v3 §3.1), nie z estetyki - suma dzieci musi zmieścić
+     się w 100dvh − --nav-h. */
+  [data-theme="jade"] .conj-head{
+    margin:0 0 16px; padding:16px 18px; border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    background:linear-gradient(160deg, var(--bg-glow), var(--accent-deep));
+  }
+  [data-theme="jade"] .conj-inf{ font-size:28px; }
+  [data-theme="jade"] .conj-form{
+    padding:13px 18px; border-bottom:0; margin-bottom:9px;
+    background:var(--card); border:1px solid var(--border); border-radius:22px;
+  }
+  [data-theme="jade"] .conj-value{ font-size:22px; }
+  /* Kobalt: bez zaokrągleń, segmented jako zakładki z podkreśleniem */
+  [data-theme="kobalt"] .conj-tenses{ background:0; padding:0; border-bottom:1px solid var(--border); border-radius:0; }
+  [data-theme="kobalt"] .conj-tenses button{ border-radius:0; font-weight:700; min-height:44px; }
+  [data-theme="kobalt"] .conj-tenses button[aria-selected="true"]{
+    background:0; color:var(--hwang); box-shadow:inset 0 -2px 0 var(--hwang);
+  }
+
   /* ══ v3 §4 · ROZMOWA AI ══════════════════════════════════════════════════
      Trzy zasady układu: koreański jest treścią (polski przypisem), mikrofon jest
      jedynym dużym elementem u dołu, bąbelek użytkownika nie pokazuje tłumaczenia.
      Silnik rozmowy i limit minut są nietknięte - to tylko prezentacja. */
-  #aiChatBody{ display:flex; flex-direction:column; min-height:calc(100dvh - var(--nav-h) - var(--ad-h) - 40px); }
+  #aiChatBody{ display:flex; flex-direction:column; min-height:calc(100dvh - var(--bottom-chrome) - 40px); }
   .chat-head{
     display:flex; align-items:center; gap:12px; padding:2px 0 14px;
     border-bottom:1px solid var(--border); margin-bottom:14px;
@@ -4572,6 +4657,24 @@
     <div class="home-screen" id="conjPosCards"></div>
   </div>
 
+  <div id="conjRefScreen" style="display:none;">
+    <button class="back-btn" id="conjRefBackBtn" data-back="conjugation" data-i18n="backConjPractice">Ćwiczenie</button>
+
+    <div class="conj-head">
+      <div class="conj-inf" id="conjRefInf"></div>
+      <div class="conj-meta conj-legend" id="conjRefMeta"></div>
+    </div>
+
+    <div class="conj-tenses" id="conjRefTenses" role="tablist"></div>
+
+    <!-- flex:1 + min-height:0 są OBOWIĄZKOWE (v3 §3.1): bez min-height:0 nadmiar
+         nie zostaje w kontenerze form, tylko wypycha CTA za krawędź ekranu.
+         Ta sama pułapka co min-width:0 w wierszu listy, tylko w drugiej osi. -->
+    <div class="conj-forms" id="conjRefForms"></div>
+
+    <button class="primary conj-cta" id="conjRefPracticeBtn" data-i18n="conjRefPractice">Przećwicz w zdaniach</button>
+  </div>
+
   <div id="conjLevelScreen" style="display:none;">
     <button class="back-btn" data-back="conjCategory" data-i18n="backDept2">Wybór działu</button>
     <div class="home-screen" id="conjLevelCards"></div>
@@ -4589,6 +4692,7 @@
       </div>
       <input type="text" id="typedInput" placeholder="Wpisz poprawną formę po koreańsku">
       <div><button id="typedCheckBtn" data-i18n="checkBtn2">Sprawdź</button></div>
+      <button class="link-quiet" id="conjShowRefBtn" type="button" data-i18n="conjShowRef">Zobacz pełną odmianę</button>
 
       <label class="vk-toggle-row">
         <span class="switch" style="margin:0;">
@@ -6524,6 +6628,8 @@ async function suggestGeminiResponse(){
 }
 
 document.getElementById('geminiTranslateBtn').addEventListener('click', translateLastGeminiUtterance);
+document.getElementById('conjShowRefBtn').addEventListener('click', () => openConjRef(conjCurrent));
+document.getElementById('conjRefPracticeBtn').addEventListener('click', () => setScreen('conjugation'));
 
 document.getElementById('geminiConnectBtn').addEventListener('click', connectGeminiRelay);
 document.getElementById('geminiDisconnectBtn').addEventListener('click', disconnectGeminiRelay);
@@ -13740,7 +13846,7 @@ const APP_VERSION = '2026-09-01.25';
 const SCREEN_IDS = {
   login:'loginScreen', loading:'loadingScreen', home:'homeScreen', vocabMode:'vocabModeScreen', vocabDept:'vocabDeptScreen', vocab:'vocabScreen',
   vocabStudy:'vocabStudyScreen', vocabLevel:'vocabLevelScreen',
-  conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen',
+  conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen', conjRef:'conjRefScreen',
   aiChat:'aiChatScreen', reading:'readingScreen',
   grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
   achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen'
@@ -13786,7 +13892,7 @@ function syncCompassMetrics(){
   const adH  = parseInt(rootCS.getPropertyValue('--ad-h'))  || 0;
   const navShown = (document.getElementById('bottomNav') || {}).offsetHeight ? navH : 0;
   // 22px to prześwit etykiety kierunku, 12px zapasu na cień/obrys pigułek
-  const avail = window.innerHeight - head - navShown - adH - 22 - 12;
+  const avail = window.innerHeight - head - Math.max(navShown, adH) - 22 - 12;
   const dialMax = Math.min(316, Math.round(window.innerWidth * 0.88));
   const dialPx = Math.max(240, Math.min(dialMax, avail));
   c.style.setProperty('--dial', dialPx + 'px');
@@ -14371,6 +14477,9 @@ const I18N = {
   geminiVoiceDefault: { pl: 'Dotknij „Połącz”, żeby rozpocząć rozmowę głosową.', en: 'Tap "Connect" to start a voice conversation.' },
   geminiVoiceNote: { pl: 'Rozmowa odbywa się na głos, w czasie rzeczywistym — mów naturalnie, bot odpowie od razu.', en: 'The conversation happens by voice, in real time — speak naturally, the bot will respond right away.' },
   geminiTranslateBtn: { pl: 'Nie rozumiem — przetłumacz', en: "I don't understand — translate" },
+  conjShowRef: { pl: 'Zobacz pełną odmianę', en: 'See the full conjugation' },
+  conjRefPractice: { pl: 'Przećwicz w zdaniach', en: 'Practise in sentences' },
+  backConjPractice: { pl: 'Ćwiczenie', en: 'Practice' },
   geminiConnectBtn: { pl: 'Połącz', en: 'Connect' },
   geminiDisconnectBtn: { pl: 'Rozłącz', en: 'Disconnect' },
   modeSelectAcademyTitle: { pl: 'Akademia', en: 'Academy' },
@@ -21897,6 +22006,104 @@ function renderTenseChips(){
       panel.style.display = wasOpen ? 'none' : 'block';
     });
   });
+}
+
+
+// ══ v3 §3 · WIDOK ODMIANY ════════════════════════════════════════════════
+// Trzy rejestry × trzy czasy biorą się WYŁĄCZNIE z pól w KOREAN_VERBS - żadnej
+// formy nie wyprowadzamy regułą, bo reguły koniugacji są na liście "czego nie
+// ruszać", a zdejmowanie 요 z 해요체 wywraca się choćby na kopule (이에요 -> 이야).
+// Opisy "kiedy tego użyć" pochodzą z REGISTER_META, czyli z waszej treści.
+const CONJ_REGISTERS = [
+  { key:'formal', name:'합니다',  fields:{ present:'formal',        past:'formalPast',   future:'formalFuture'  } },
+  { key:'polite', name:'해요',    fields:{ present:'present',       past:'past',         future:'future'        } },
+  { key:'casual', name:'해',      fields:{ present:'casualPresent', past:'casualPast',   future:'casualFuture'  } },
+];
+let conjRefVerb = null;
+let conjRefTense = 'present';
+
+// Forma słownikowa kończy się na 다 - rdzeń to wszystko przed nim. Końcówka
+// dostaje --hwang, rdzeń zostaje neutralny (v3 §3), zgodnie z tym, jak apka
+// koloruje rozbiory w .conj-breakdown.
+function splitDictForm(ko){
+  const s = (ko || '').trim();
+  return s.endsWith('다')
+    ? { stem: s.slice(0, -1), ending: '다' }
+    : { stem: s, ending: '' };
+}
+
+function renderConjRef(){
+  const v = conjRefVerb;
+  if(!v) return;
+  const { stem, ending } = splitDictForm(v.ko);
+  document.getElementById('conjRefInf').innerHTML =
+    `<span class="stem">${escapeHtml(stem)}</span><span class="ending">${escapeHtml(ending)}</span>`;
+  const posLabel = v.pos === 'adjective'
+    ? (uiLang === 'en' ? 'adjective' : 'przymiotnik')
+    : (uiLang === 'en' ? 'verb' : 'czasownik');
+  document.getElementById('conjRefMeta').innerHTML =
+    `<span>${escapeHtml(tr(v))}</span>` +
+    `<span>${escapeHtml(posLabel)}</span>` +
+    `<span><span class="dot ending"></span>${uiLang === 'en' ? 'ending' : 'końcówka'}</span>`;
+
+  const REF_TENSES = TENSES.filter(t => ['present','past','future'].includes(t.id));
+  document.getElementById('conjRefTenses').innerHTML = REF_TENSES.map(t => `
+    <button type="button" role="tab" data-tense="${t.id}"
+      aria-selected="${t.id === conjRefTense ? 'true' : 'false'}">${uiLang === 'en' ? t.labelEn : t.label}</button>
+  `).join('');
+  document.getElementById('conjRefTenses').querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => { conjRefTense = b.dataset.tense; renderConjRef(); });
+  });
+
+  const formsEl = document.getElementById('conjRefForms');
+  formsEl.innerHTML = CONJ_REGISTERS.map(r => {
+    const meta = REGISTER_META.find(m => m.key === r.key);
+    const value = v[r.fields[conjRefTense]] || '—';
+    const when = meta ? (uiLang === 'en' ? meta.descEn : meta.desc) : '';
+    const label = meta ? (uiLang === 'en' ? meta.labelEn : meta.label) : r.name;
+    return `
+      <div class="conj-form">
+        <div class="conj-register">${escapeHtml(r.name)} · ${escapeHtml(label)}</div>
+        <div class="conj-value">${escapeHtml(value)}</div>
+        <div class="conj-when">${escapeHtml(when)}</div>
+      </div>`;
+  }).join('');
+  // maska tylko wtedy, gdy naprawdę jest co przewijać
+  requestAnimationFrame(() => {
+    formsEl.classList.toggle('is-scrollable', formsEl.scrollHeight > formsEl.clientHeight + 2);
+  });
+}
+
+// v3 §3.1: karta + segmented + 3 formy + CTA <= 100dvh - --nav-h. Sam min-height
+// na ekranie tego nie gwarantuje (to minimum, nie maksimum), więc ustawiamy
+// wysokość z pomiaru - wtedy .conj-forms{flex:1;min-height:0} faktycznie ściska
+// się i przewija, a CTA nigdy nie oddaje wysokości.
+function syncConjRefHeight(){
+  const el = document.getElementById('conjRefScreen');
+  if(!el || el.offsetParent === null) return;
+  const rootCS = getComputedStyle(document.documentElement);
+  const navEl = document.getElementById('bottomNav');
+  const navH = (navEl && navEl.offsetHeight) ? (parseInt(rootCS.getPropertyValue('--nav-h')) || 64) : 0;
+  const adH = parseInt(rootCS.getPropertyValue('--ad-h')) || 0;
+  el.style.height = '';
+  const top = el.getBoundingClientRect().top;
+  // oba są fixed przy dolnej krawędzi, więc zajmują tyle, ile wyższy z nich
+  const h = Math.max(360, Math.round(window.innerHeight - top - Math.max(navH, adH) - 12));
+  el.style.height = h + 'px';
+}
+window.addEventListener('resize', () => { try{ syncConjRefHeight(); }catch(e){} });
+
+function openConjRef(verb){
+  conjRefVerb = verb || conjCurrent;
+  if(!conjRefVerb) return;
+  // conjTense z ćwiczenia bywa 'formal' - w tym widoku to rejestr, nie czas,
+  // więc mapujemy go na czas teraźniejszy (bo 합니다 to forma teraźniejsza).
+  const fromPractice = (typeof conjTense !== 'undefined' && conjTense) ? conjTense : 'present';
+  conjRefTense = ['present','past','future'].includes(fromPractice) ? fromPractice : 'present';
+  setScreen('conjRef');
+  renderConjRef();
+  try{ syncConjRefHeight(); }catch(e){}
+  requestAnimationFrame(() => { try{ syncConjRefHeight(); }catch(e){} });
 }
 
 function conjNewRound(){
