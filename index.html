@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.3
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.4
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -730,6 +730,50 @@
     margin-top:4px;
     line-height:1.4;
   }
+  /* ── DOLNA NAWIGACJA (redesign, krok 3) ───────────────────────────────
+     Cztery stałe zakładki. Wysokość i promienie sterowane tokenami motywu, żeby
+     wariantom PRO (jade/kobalt) wystarczyło nadpisać zmienne, bez własnych reguł. */
+  .bottom-nav{
+    position:fixed; left:0; right:0; bottom:0; z-index:45;
+    height:var(--nav-h);
+    padding-bottom:env(safe-area-inset-bottom);
+    display:flex; align-items:stretch;
+    border-top:1px solid var(--border);
+    background:var(--card);
+  }
+  @supports (backdrop-filter: blur(1px)){
+    .bottom-nav{
+      background:color-mix(in srgb, var(--card) 85%, transparent);
+      backdrop-filter:saturate(180%) blur(18px);
+      -webkit-backdrop-filter:saturate(180%) blur(18px);
+    }
+  }
+  @media (min-width:900px){
+    /* Na desktopie pasek zwęża się do kolumny treści zamiast rozciągać się na monitor. */
+    .bottom-nav{
+      left:50%; right:auto; transform:translateX(-50%);
+      width:min(640px, calc(100% - 32px));
+      bottom:16px; height:auto;
+      border:1px solid var(--border);
+      border-radius:var(--radius-lg);
+      box-shadow:0 10px 30px -18px rgba(0,0,0,.35);
+      padding:8px 10px;
+    }
+  }
+  .bn-tab{
+    flex:1; min-width:0; min-height:44px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    border:none; background:none; cursor:pointer;
+    color:var(--ink-dim); font-family:var(--font-ui);
+    padding:6px 2px;
+  }
+  .bn-ico{ font-size:19px; line-height:1; }
+  .bn-lab{ font-size:10px; font-weight:600; letter-spacing:.02em; }
+  .bn-tab.is-active{ color:var(--hwang); }
+  /* Miejsce, żeby pasek nie zasłaniał końca treści. */
+  .wrap{ padding-bottom:calc(var(--nav-h) + 24px); }
+  @media (min-width:900px){ .wrap{ padding-bottom:calc(var(--nav-h) + 48px); } }
+
   /* ── REDESIGN 1a: reguły globalne sterowane tokenami motywu ──────────── */
   .dict-word-ko, .center-word, .hanja-card, .study-card-example, .sce-ko{
     font-family:var(--font-ko);
@@ -4378,6 +4422,13 @@
   </div>
   <div id="launchReadinessDetail" style="display:none; margin-top:8px; padding-top:8px; border-top:1px solid #333; line-height:1.8; max-height:55vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y;"></div>
 </div>
+
+<nav class="bottom-nav" id="bottomNav">
+  <button class="bn-tab" data-nav="learn"><span class="bn-ico">📚</span><span class="bn-lab" data-i18n="navLearn">Nauka</span></button>
+  <button class="bn-tab" data-nav="dict"><span class="bn-ico">🔍</span><span class="bn-lab" data-i18n="navDict">Słownik</span></button>
+  <button class="bn-tab" data-nav="chat"><span class="bn-ico">🎙️</span><span class="bn-lab" data-i18n="navChat">Rozmowa</span></button>
+  <button class="bn-tab" data-nav="progress"><span class="bn-ico">📊</span><span class="bn-lab" data-i18n="navProgress">Postęp</span></button>
+</nav>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════════
@@ -12776,7 +12827,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.3';
+const APP_VERSION = '2026-09-01.4';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -12793,6 +12844,44 @@ const SCREEN_IDS = {
   grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
   achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen'
 };
+
+/* ── DOLNA NAWIGACJA — logika (redesign, krok 3) ──────────────────────────
+   Cztery zakładki wg pakietu wdrożeniowego. Pasek chowa się tam, gdzie
+   przeszkadza: logowanie, ładowanie, onboarding i ekrany skupienia (lekcja,
+   quiz, nauka) - tam wyjście jest przyciskiem wstecz. */
+const NAV_TARGETS = { learn:'home', dict:'dictBrowse', chat:'aiChat', progress:'achievements' };
+const NAV_HIDDEN_SCREENS = new Set([
+  'login','loading','register','onboarding','hangulGate','placementTest',
+  'storyLesson','vocabStudy','vocab','conjugation','grammarQuiz','grammarPractice',
+  'topikTest','sentenceBuilder'
+]);
+// Które ekrany "należą" do której zakładki - do podświetlenia aktywnej.
+const NAV_OWNS = {
+  learn: ['home','modeSelect','storyMap','vocabMode','vocabDept','vocabLevel','myWords','folderEdit','academy','hangul','grammarHub','grammarLevel','grammarChapter','reading'],
+  dict: ['dictBrowse','dictLevel','dictWordList'],
+  chat: ['aiChat','scenarioGen'],
+  progress: ['achievements'],
+};
+
+function updateBottomNav(screen){
+  const bar = document.getElementById('bottomNav');
+  if(!bar) return;
+  bar.style.display = NAV_HIDDEN_SCREENS.has(screen) ? 'none' : '';
+  let active = null;
+  for(const [tab, screens] of Object.entries(NAV_OWNS)){
+    if(screens.includes(screen)){ active = tab; break; }
+  }
+  bar.querySelectorAll('.bn-tab').forEach(t => {
+    t.classList.toggle('is-active', t.dataset.nav === active);
+  });
+}
+
+document.getElementById('bottomNav').addEventListener('click', (e) => {
+  const tab = e.target.closest('.bn-tab');
+  if(!tab) return;
+  const target = NAV_TARGETS[tab.dataset.nav];
+  if(target) setScreen(target);
+});
 
 function isAllDeptsMode(){
   const all = getAllCategories();
@@ -12878,6 +12967,9 @@ function setScreen(screen){
   if(screen === 'aiChat'){ applyPremiumUI(); renderAiChatTargetBanner(); renderGeminiTargetBanner(); renderGeminiLevelSelector(); }
   if(screen !== 'aiChat') stopAiChatMic(); // opuszczenie ekranu ucina mikrofon i mowę bota, żeby nic nie działało w tle
   if(screen === 'reading'){ applyPremiumUI(); showReadingList(); loadDailyReadingCard(); }
+  // Opakowane: ewentualny błąd paska NIE może zablokować przełączania ekranów -
+  // inaczej zepsuty pasek uniemożliwia dojście nawet do logowania (lekcja z 2026-08-31).
+  try{ updateBottomNav(screen); }catch(e){ console.error('updateBottomNav:', e); }
   if(screen === 'scenarioGen'){ applyPremiumUI(); renderScenarioChips(); }
   if(screen === 'hanja') renderHanjaScreen();
   if(screen === 'culture') renderCultureScreen();
@@ -13331,6 +13423,10 @@ const I18N = {
   backDictLevel: { pl: 'Wybór poziomu', en: 'Choose level' },
   dictLoading: { pl: 'Ładowanie…', en: 'Loading…' },
   reportPanelTitle: { pl: 'Zgłoś błąd', en: 'Report an issue' },
+  navLearn: { pl: 'Nauka', en: 'Learn' },
+  navDict: { pl: 'Słownik', en: 'Dictionary' },
+  navChat: { pl: 'Rozmowa', en: 'Speak' },
+  navProgress: { pl: 'Postęp', en: 'Progress' },
   appVersionLabel: { pl: 'Wersja', en: 'Version' },
   reportGroupContent: { pl: 'Treść', en: 'Content' },
   reportGroupMechanism: { pl: 'Działanie aplikacji', en: 'How the app behaves' },
