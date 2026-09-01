@@ -751,13 +751,113 @@
   .story-next-card .snc-title{font-family:'Song Myung', serif; font-size:20px; color:var(--ink); margin:6px 0 4px;}
   .story-next-card .snc-desc{font-size:14.5px; color:var(--ink-dim); margin-bottom:16px;}
   /* Picker słów z istniejącej bazy (panel "Dodaj własne słówka" -> zakładka "Wybierz z bazy") */
-  const SCREEN_IDS = {
+  /* ══ EKRAN „DZIŚ" — renderowanie ══════════════════════════════════════════
+   Struktura z projektu Claude Design, dane z naszej apki: cel dnia z limitu
+   dziennego, seria z dayStreak, następna lekcja z Trybu Opowieści, zaległe
+   powtórki z SRS. Nic tu nie jest atrapą - każda liczba jest prawdziwa. */
+function renderTodayScreen(){
+  const dateEl = document.getElementById('todayDate');
+  if(!dateEl) return;
+
+  const now = new Date();
+  const locale = uiLang === 'en' ? 'en-US' : 'pl-PL';
+  dateEl.textContent = now.toLocaleDateString(locale, { weekday:'long', day:'numeric', month:'long' });
+
+  const hour = now.getHours();
+  const greet = hour < 11 ? (uiLang === 'en' ? 'Good morning' : 'Dzień dobry')
+              : hour < 18 ? (uiLang === 'en' ? 'Good afternoon' : 'Dzień dobry')
+              : (uiLang === 'en' ? 'Good evening' : 'Dobry wieczór');
+  const name = (typeof currentProfileDisplayName === 'string' && currentProfileDisplayName.trim()) ? currentProfileDisplayName.trim() : '';
+  document.getElementById('todayGreeting').innerHTML = greet + (name ? ',<br>' + escapeHtml(name) : '');
+
+  // Cel dnia - liczymy z tego, co user faktycznie dziś zrobił.
+  const target = 30;
+  const done = Math.min(target, (dailyValueStats && dailyValueStats.wordsLearned) || 0);
+  document.getElementById('todayDone').textContent = done;
+  document.getElementById('todayTarget').textContent = '/ ' + target;
+  document.getElementById('todayBar').style.width = Math.round((done / target) * 100) + '%';
+  const left = Math.max(0, target - done);
+  document.getElementById('todayRemaining').textContent = left === 0
+    ? (uiLang === 'en' ? 'Daily goal complete. Anything more is a bonus.' : 'Cel dnia osiągnięty. Wszystko dalej to bonus.')
+    : (uiLang === 'en'
+        ? `${left} to go. About ${Math.max(1, Math.round(left / 4))} minutes.`
+        : `Zostało ${left}. Około ${Math.max(1, Math.round(left / 4))} min.`);
+
+  document.getElementById('todayStreak').textContent = dayStreak || 0;
+
+  // Dalej w kursie - następna lekcja Trybu Opowieści plus ta po niej (zablokowana).
+  const listEl = document.getElementById('todayLessonList');
+  const nextIdx = getNextLessonIndex();
+  if(nextIdx === -1){
+    listEl.innerHTML = `<div class="rd-list-row is-locked"><span style="flex:1;min-width:0;">
+      <span class="rd-head">${uiLang === 'en' ? 'Course complete' : 'Kurs ukończony'}</span>
+      <span class="rd-meta">${uiLang === 'en' ? 'All lessons done — keep reviewing.' : 'Wszystkie lekcje zrobione — zostają powtórki.'}</span>
+    </span></div>`;
+  } else {
+    const rows = [];
+    [0, 1].forEach(off => {
+      const l = STORY_LESSONS[nextIdx + off];
+      if(!l) return;
+      const locked = off > 0;
+      const glyph = l.type === 'grammar' ? '文' : (l.wordKos && l.wordKos[0]) || '語';
+      const sub = locked
+        ? (uiLang === 'en' ? 'Unlocks after the previous lesson' : 'Odblokuje się po poprzedniej lekcji')
+        : (l.type === 'grammar'
+            ? (uiLang === 'en' ? `Lesson ${l.id} · grammar` : `Lekcja ${l.id} · gramatyka`)
+            : (uiLang === 'en' ? `Lesson ${l.id} · ${(l.wordKos||[]).length} new words` : `Lekcja ${l.id} · ${(l.wordKos||[]).length} nowych słów`));
+      rows.push(`<button class="rd-list-row${locked ? ' is-locked' : ''}" ${locked ? '' : `data-lesson="${nextIdx + off}"`}>
+        <span class="rd-ko">${escapeHtml(glyph)}</span>
+        <span style="flex:1;min-width:0;">
+          <span class="rd-head">${escapeHtml(uiLang === 'en' ? l.title.en : l.title.pl)}</span>
+          <span class="rd-meta">${sub}</span>
+        </span>
+        ${locked ? '' : '<span class="rd-chev">›</span>'}
+      </button>`);
+    });
+    listEl.innerHTML = rows.join('');
+    listEl.querySelectorAll('[data-lesson]').forEach(b => {
+      b.addEventListener('click', () => {
+        storyCurrentLessonIndex = Number(b.dataset.lesson);
+        setScreen('storyLesson');
+      });
+    });
+  }
+
+  // Ćwicz - skróty do najczęstszych aktywności, z prawdziwymi licznikami.
+  const dueCount = getDueWords().length;
+  const practice = [
+    { icon:'🔁', name: uiLang === 'en' ? 'Reviews' : 'Powtórki', count: dueCount || null, act: () => { vocabStudySource = 'review'; setScreen('vocabStudy'); } },
+    { icon:'한', name: uiLang === 'en' ? 'Hangul' : 'Hangul', act: () => setScreen('hangul') },
+    { icon:'📐', name: uiLang === 'en' ? 'Grammar' : 'Gramatyka', act: () => setScreen('grammarHub') },
+    { icon:'📖', name: uiLang === 'en' ? 'Reading' : 'Czytanie', act: () => setScreen('reading') },
+  ];
+  const rowsEl = document.getElementById('todayPracticeRows');
+  rowsEl.innerHTML = practice.map((p, i) => `
+    <button class="rd-row" data-practice="${i}">
+      <span class="rd-row-icon">${p.icon}</span>
+      <span class="rd-row-name">${escapeHtml(p.name)}</span>
+      ${p.count ? `<span class="rd-row-count">${p.count}</span>` : ''}
+      <span class="rd-chev">›</span>
+    </button>`).join('');
+  rowsEl.querySelectorAll('[data-practice]').forEach(b => {
+    b.addEventListener('click', () => practice[Number(b.dataset.practice)].act());
+  });
+}
+
+document.getElementById('todayContinueBtn').addEventListener('click', () => {
+  const idx = getNextLessonIndex();
+  if(idx === -1){ vocabStudySource = 'review'; setScreen('vocabStudy'); return; }
+  storyCurrentLessonIndex = idx;
+  setScreen('storyLesson');
+});
+
+const SCREEN_IDS = {
   login:'loginScreen', loading:'loadingScreen', home:'homeScreen', vocabMode:'vocabModeScreen', vocabDept:'vocabDeptScreen', vocab:'vocabScreen',
   vocabStudy:'vocabStudyScreen', vocabLevel:'vocabLevelScreen',
   conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen',
   aiChat:'aiChatScreen', reading:'readingScreen',
   grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
-  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', myWords:'myWordsScreen', folderEdit:'folderEditScreen'
+  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', myWords:'myWordsScreen', folderEdit:'folderEditScreen', today:'todayScreen'
 };
 
 /* ── DOLNY PASEK NAWIGACJI ─────────────────────────────────────────
@@ -815,6 +915,100 @@
     flex:none;
     margin-left:auto;
   }
+  /* ══ EKRAN „DZIŚ" — redesign Claude Design, przeniesiony 1:1 ══════════════
+     Wymiary, proporcje i hierarchia dokładnie z jego projektu. Zmapowane tylko
+     nazwy tokenów na nasze (--bg-elev -> --card, --ink-2 -> --ink-dim itd.),
+     żeby ekran działał we wszystkich czterech motywach. Prefiks rd- chroni
+     przed kolizją z istniejącymi klasami apki. Dodane 2026-08-31. */
+  #todayScreen{
+    --rd-pad-x:26px;
+    --rd-pad-card:20px;
+    --rd-r-lg:28px;
+    --rd-r-md:24px;
+    --rd-r-xs:17px;
+    --rd-hero-bg:linear-gradient(168deg,#15161D,#0B0B0F);
+    --rd-hero-ink:#FFFFFF;
+    --rd-hero-ink-2:rgba(255,255,255,.6);
+    --rd-hero-ink-3:rgba(255,255,255,.5);
+    --rd-hero-hair:rgba(255,255,255,.14);
+    --rd-hero-btn-bg:#FFFFFF;
+    --rd-hero-btn-ink:#0B0B0F;
+  }
+  .rd-eyebrow{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:13px; font-weight:500; letter-spacing:.6px;
+    text-transform:uppercase; color:var(--ink-dim);
+  }
+  .rd-greeting{ padding:26px var(--rd-pad-x) 22px; }
+  .rd-greeting h1{
+    margin:9px 0 0;
+    font-family:'Song Myung', serif;
+    font-size:30px; line-height:1.16; letter-spacing:-.3px; font-weight:600;
+    color:var(--ink);
+  }
+
+  .rd-hero{
+    margin:0 var(--rd-pad-card); padding:24px; border-radius:var(--rd-r-lg);
+    background:var(--rd-hero-bg); color:var(--rd-hero-ink);
+    box-shadow:0 22px 40px -30px rgba(11,11,15,.9);
+  }
+  .rd-hero-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
+  .rd-hero .rd-eyebrow{ color:var(--rd-hero-ink-3); }
+  .rd-hero-count{ margin-top:12px; display:flex; align-items:baseline; gap:7px; }
+  .rd-hero-count b{
+    font-family:'Song Myung', serif; font-weight:600;
+    font-size:56px; line-height:.9; letter-spacing:-.9px;
+  }
+  .rd-hero-count span{ font-size:19px; color:var(--rd-hero-ink-3); }
+  .rd-hero-sub{ margin-top:10px; font-size:14px; line-height:1.5; color:var(--rd-hero-ink-2); }
+  .rd-streak{
+    flex:none; text-align:center; padding:9px 13px; border-radius:16px;
+    background:var(--rd-hero-hair);
+  }
+  .rd-streak b{ font-family:'Song Myung', serif; font-weight:600; font-size:20px; letter-spacing:-.3px; }
+  .rd-streak .rd-eyebrow{ margin-top:3px; font-size:13px; }
+  .rd-bar{ margin-top:20px; height:5px; border-radius:999px; background:var(--rd-hero-hair); overflow:hidden; }
+  .rd-bar i{ display:block; height:100%; border-radius:999px; background:var(--rd-hero-btn-bg); transition:width .4s ease; }
+  .rd-btn-primary{
+    margin-top:18px; width:100%; padding:15px; border:none; border-radius:var(--rd-r-xs);
+    background:var(--rd-hero-btn-bg); color:var(--rd-hero-btn-ink);
+    font-family:'Song Myung', serif; font-weight:600;
+    font-size:16.5px; letter-spacing:-.3px; cursor:pointer;
+  }
+
+  .rd-section-label{ padding:26px var(--rd-pad-x) 12px; display:block; }
+  .rd-list{
+    margin:0 var(--rd-pad-card); border:1px solid var(--border); border-radius:var(--rd-r-md);
+    background:var(--card); box-shadow:0 3px 10px -8px rgba(0,0,0,.3); overflow:hidden;
+  }
+  .rd-list-row{ display:flex; align-items:center; gap:16px; padding:17px 20px; width:100%;
+    border:none; background:transparent; text-align:left; cursor:pointer; color:var(--ink); }
+  /* Separator wcięty o 80px (pod tekst, nie pod hangul) - dokładnie jak w projekcie. */
+  .rd-list-row + .rd-list-row{ position:relative; }
+  .rd-list-row + .rd-list-row::before{
+    content:''; position:absolute; top:0; left:80px; right:0; height:1px; background:var(--border);
+  }
+  .rd-list-row .rd-ko{ font-family:'Noto Serif KR', serif; font-size:24px; min-width:44px; }
+  .rd-list-row .rd-head{ display:block; font-size:16.5px; }
+  .rd-list-row .rd-meta{ display:block; margin-top:4px; font-size:13.5px; color:var(--ink-dim); }
+  .rd-list-row .rd-chev{ color:var(--hwang); font-size:15px; }
+  .rd-list-row.is-locked{ cursor:default; }
+  .rd-list-row.is-locked .rd-ko, .rd-list-row.is-locked .rd-head{ opacity:.42; }
+  .rd-list-row.is-locked .rd-meta{ opacity:.7; }
+
+  .rd-rows{ margin:0 var(--rd-pad-x); display:flex; flex-direction:column; }
+  .rd-row{
+    display:flex; align-items:center; gap:14px; padding:15px 0;
+    border:none; border-bottom:1px solid var(--border); background:transparent;
+    text-align:left; cursor:pointer; color:var(--ink); width:100%;
+  }
+  .rd-row:last-child{ border-bottom:none; }
+  .rd-row-icon{ min-width:26px; font-size:19px; }
+  .rd-row-name{ flex:1; font-size:16.5px; font-weight:500; letter-spacing:-.2px; }
+  .rd-row-count{ font-family:'IBM Plex Mono', ui-monospace, monospace; font-size:13.5px; font-weight:600; color:var(--hwang); }
+  .rd-row-note{ font-size:13.5px; color:var(--ink-dim); }
+  .rd-row .rd-chev{ color:var(--ink-dim); font-size:15px; opacity:.5; }
+
   .folder-actions{
     display:flex;
     align-items:center;
@@ -3474,6 +3668,35 @@
 
       <div id="folderEditWordList" class="word-picker-results" style="max-height:none;"></div>
     </div>
+  </div>
+
+  <div id="todayScreen" style="display:none;">
+    <div class="rd-greeting">
+      <div class="rd-eyebrow" id="todayDate"></div>
+      <h1 id="todayGreeting"></h1>
+    </div>
+
+    <div class="rd-hero">
+      <div class="rd-hero-top">
+        <div>
+          <div class="rd-eyebrow" data-i18n="todayGoal">Cel dnia</div>
+          <div class="rd-hero-count"><b id="todayDone">0</b><span id="todayTarget">/ 30</span></div>
+          <div class="rd-hero-sub" id="todayRemaining"></div>
+        </div>
+        <div class="rd-streak">
+          <b id="todayStreak">0</b>
+          <div class="rd-eyebrow" data-i18n="todayDays">dni</div>
+        </div>
+      </div>
+      <div class="rd-bar"><i id="todayBar" style="width:0%"></i></div>
+      <button class="rd-btn-primary" id="todayContinueBtn" data-i18n="todayContinue">Kontynuuj naukę</button>
+    </div>
+
+    <div class="rd-eyebrow rd-section-label" data-i18n="todayNextInCourse">Dalej w kursie</div>
+    <div class="rd-list" id="todayLessonList"></div>
+
+    <div class="rd-eyebrow rd-section-label" style="margin-bottom:8px;" data-i18n="todayPractice">Ćwicz</div>
+    <div class="rd-rows" id="todayPracticeRows"></div>
   </div>
 
   <div id="dictBrowseScreen" style="display:none;">
@@ -12963,7 +13186,7 @@ const els2 = {
    Pasek chowa się na ekranach, gdzie by przeszkadzał: logowanie, ładowanie,
    onboarding i ekrany "pełnoekranowe" typu lekcja/quiz, gdzie user ma się skupić
    na jednym zadaniu, a wyjście jest przez przycisk wstecz. */
-const TAB_TARGETS = { start:'modeSelect', dict:'vocabMode', progress:'achievements' };
+const TAB_TARGETS = { start:'today', dict:'vocabMode', progress:'achievements' };
 const TABBAR_HIDDEN_SCREENS = new Set([
   'login','loading','register','onboarding','hangulGate','placementTest',
   'storyLesson','vocabStudy','vocab','conjugation','grammarQuiz','grammarPractice','topikTest','sentenceBuilder'
@@ -12975,7 +13198,7 @@ function updateTabbar(screen){
   bar.style.display = TABBAR_HIDDEN_SCREENS.has(screen) ? 'none' : '';
   // Podświetlenie: mapujemy ekran na zakładkę, do której "należy".
   const activeTab =
-    (screen === 'modeSelect' || screen === 'home' || screen === 'storyMap') ? 'start' :
+    (screen === 'today' || screen === 'modeSelect' || screen === 'home' || screen === 'storyMap') ? 'start' :
     (screen === 'achievements') ? 'progress' :
     (screen === 'vocabMode' || screen === 'vocabDept' || screen === 'vocabLevel' ||
      screen === 'dictBrowse' || screen === 'dictLevel' || screen === 'dictWordList' ||
@@ -13083,6 +13306,7 @@ function setScreen(screen){
   if(screen === 'aiChat'){ applyPremiumUI(); renderAiChatTargetBanner(); renderGeminiTargetBanner(); renderGeminiLevelSelector(); }
   if(screen !== 'aiChat') stopAiChatMic(); // opuszczenie ekranu ucina mikrofon i mowę bota, żeby nic nie działało w tle
   if(screen === 'myWords'){ renderMyWordsScreen(); }
+  if(screen === 'today'){ renderTodayScreen(); }
   updateTabbar(screen);
   if(screen === 'folderEdit'){ renderFolderEdit(); }
   if(screen === 'reading'){ applyPremiumUI(); showReadingList(); loadDailyReadingCard(); }
@@ -13734,6 +13958,11 @@ const I18N = {
   vocabNextBtn: { pl: 'Dalej →', en: 'Next →' },
   btnCategories: { pl: 'Działy', en: 'Sections' },
   tabStart: { pl: 'Dziś', en: 'Today' },
+  todayGoal: { pl: 'Cel dnia', en: 'Daily goal' },
+  todayDays: { pl: 'dni', en: 'days' },
+  todayContinue: { pl: 'Kontynuuj naukę', en: 'Continue learning' },
+  todayNextInCourse: { pl: 'Dalej w kursie', en: 'Next in course' },
+  todayPractice: { pl: 'Ćwicz', en: 'Practice' },
   tabDict: { pl: 'Słownik', en: 'Words' },
   tabProgress: { pl: 'Postęp', en: 'Progress' },
   tabAccount: { pl: 'Konto', en: 'Account' },
