@@ -751,6 +751,70 @@
   .story-next-card .snc-title{font-family:'Song Myung', serif; font-size:20px; color:var(--ink); margin:6px 0 4px;}
   .story-next-card .snc-desc{font-size:14.5px; color:var(--ink-dim); margin-bottom:16px;}
   /* Picker słów z istniejącej bazy (panel "Dodaj własne słówka" -> zakładka "Wybierz z bazy") */
+  const SCREEN_IDS = {
+  login:'loginScreen', loading:'loadingScreen', home:'homeScreen', vocabMode:'vocabModeScreen', vocabDept:'vocabDeptScreen', vocab:'vocabScreen',
+  vocabStudy:'vocabStudyScreen', vocabLevel:'vocabLevelScreen',
+  conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen',
+  aiChat:'aiChatScreen', reading:'readingScreen',
+  grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
+  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', myWords:'myWordsScreen', folderEdit:'folderEditScreen'
+};
+
+/* ── DOLNY PASEK NAWIGACJI ─────────────────────────────────────────
+     Wizualny język z redesignu Claude Design: geometryczne ikony zamiast emoji,
+     mono-etykiety wersalikami, rozmyte tło. Zbudowany na NASZYCH tokenach, nie na
+     jego własnej palecie - dzięki temu działa we wszystkich czterech motywach
+     (jasny, ciemny, Hanji, Neon) bez osobnych bloków. Dodane 2026-08-31. */
+  .tabbar{
+    position:fixed; left:0; right:0; bottom:0; z-index:45;
+    display:flex; justify-content:space-around;
+    padding:11px 16px calc(14px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--border);
+    background:var(--card); /* zapas dla przeglądarek bez color-mix - pełne, nieprzezroczyste tło */
+    background:color-mix(in srgb, var(--card) 88%, transparent);
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+  }
+  @media (min-width:900px){
+    /* Na desktopie ten sam pasek zwęża się do kolumny treści i unosi nad dołem okna -
+       zamiast rozciągać interfejs telefoniczny na cały monitor. */
+    .tabbar{
+      left:50%; right:auto; transform:translateX(-50%);
+      width:min(640px, calc(100% - 32px));
+      bottom:16px;
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow:0 10px 30px -18px rgba(0,0,0,.4);
+      padding:10px 12px;
+    }
+  }
+  .tab{
+    display:flex; flex-direction:column; align-items:center; gap:5px;
+    border:none; background:none; cursor:pointer; padding:2px 6px;
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:13px; font-weight:500; letter-spacing:.7px;
+    text-transform:uppercase; color:var(--ink-dim);
+    flex:1; min-width:0;
+  }
+  .tab i{
+    display:block; width:18px; height:18px;
+    border:1.5px solid var(--ink-dim); border-radius:6px;
+    opacity:.55;
+  }
+  /* Trzecia i czwarta zakładka mają okrągłe ikony - subtelne rozróżnienie
+     "nauka" (kwadraty) od "ty" (koła), prosto z projektu Design. */
+  .tab:nth-child(3) i, .tab:nth-child(4) i{ border-radius:50%; }
+  .tab.is-active{ color:var(--ink); }
+  .tab.is-active i{ border:none; background:var(--hwang); opacity:1; }
+  /* Miejsce na pasek, żeby nie zasłaniał końca treści. */
+  .wrap{ padding-bottom:92px; }
+  @media (min-width:900px){ .wrap{ padding-bottom:104px; } }
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex:none;
+    margin-left:auto;
+  }
   .folder-actions{
     display:flex;
     align-items:center;
@@ -4472,6 +4536,13 @@
     <div id="launchReadinessBarFill" style="height:100%; width:0%; background:linear-gradient(90deg,#E63946,#F4A340); transition:width .4s ease;"></div>
   </div>
   <div id="launchReadinessDetail" style="display:none; margin-top:8px; padding-top:8px; border-top:1px solid #333; line-height:1.8; max-height:55vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y;"></div>
+</div>
+
+<div class="tabbar" id="tabbar">
+  <button class="tab" data-tab="start"><i></i><span data-i18n="tabStart">Dziś</span></button>
+  <button class="tab" data-tab="dict"><i></i><span data-i18n="tabDict">Słownik</span></button>
+  <button class="tab" data-tab="progress"><i></i><span data-i18n="tabProgress">Postęp</span></button>
+  <button class="tab" data-tab="account"><i></i><span data-i18n="tabAccount">Konto</span></button>
 </div>
 
 <script>
@@ -12887,14 +12958,46 @@ const els2 = {
   feedback: document.getElementById('conjFeedback'),
 };
 
-const SCREEN_IDS = {
-  login:'loginScreen', loading:'loadingScreen', home:'homeScreen', vocabMode:'vocabModeScreen', vocabDept:'vocabDeptScreen', vocab:'vocabScreen',
-  vocabStudy:'vocabStudyScreen', vocabLevel:'vocabLevelScreen',
-  conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen',
-  aiChat:'aiChatScreen', reading:'readingScreen',
-  grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
-  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', myWords:'myWordsScreen', folderEdit:'folderEditScreen'
-};
+/* ── DOLNY PASEK NAWIGACJI ─────────────────────────────────────────
+   Cztery zakładki z projektu Claude Design, podpięte pod nasze istniejące ekrany.
+   Pasek chowa się na ekranach, gdzie by przeszkadzał: logowanie, ładowanie,
+   onboarding i ekrany "pełnoekranowe" typu lekcja/quiz, gdzie user ma się skupić
+   na jednym zadaniu, a wyjście jest przez przycisk wstecz. */
+const TAB_TARGETS = { start:'modeSelect', dict:'vocabMode', progress:'achievements' };
+const TABBAR_HIDDEN_SCREENS = new Set([
+  'login','loading','register','onboarding','hangulGate','placementTest',
+  'storyLesson','vocabStudy','vocab','conjugation','grammarQuiz','grammarPractice','topikTest','sentenceBuilder'
+]);
+
+function updateTabbar(screen){
+  const bar = document.getElementById('tabbar');
+  if(!bar) return;
+  bar.style.display = TABBAR_HIDDEN_SCREENS.has(screen) ? 'none' : '';
+  // Podświetlenie: mapujemy ekran na zakładkę, do której "należy".
+  const activeTab =
+    (screen === 'modeSelect' || screen === 'home' || screen === 'storyMap') ? 'start' :
+    (screen === 'achievements') ? 'progress' :
+    (screen === 'vocabMode' || screen === 'vocabDept' || screen === 'vocabLevel' ||
+     screen === 'dictBrowse' || screen === 'dictLevel' || screen === 'dictWordList' ||
+     screen === 'myWords' || screen === 'folderEdit') ? 'dict' : null;
+  bar.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('is-active', t.dataset.tab === activeTab);
+  });
+}
+
+document.getElementById('tabbar').addEventListener('click', (e) => {
+  const tab = e.target.closest('.tab');
+  if(!tab) return;
+  const key = tab.dataset.tab;
+  if(key === 'account'){
+    // Konto to panel, nie ekran - otwieramy tak samo jak ikona 👤 w nagłówku.
+    document.getElementById('accountPanel').classList.add('open');
+    return;
+  }
+  const target = TAB_TARGETS[key];
+  if(target) setScreen(target);
+});
+
 
 function isAllDeptsMode(){
   const all = getAllCategories();
@@ -12980,6 +13083,7 @@ function setScreen(screen){
   if(screen === 'aiChat'){ applyPremiumUI(); renderAiChatTargetBanner(); renderGeminiTargetBanner(); renderGeminiLevelSelector(); }
   if(screen !== 'aiChat') stopAiChatMic(); // opuszczenie ekranu ucina mikrofon i mowę bota, żeby nic nie działało w tle
   if(screen === 'myWords'){ renderMyWordsScreen(); }
+  updateTabbar(screen);
   if(screen === 'folderEdit'){ renderFolderEdit(); }
   if(screen === 'reading'){ applyPremiumUI(); showReadingList(); loadDailyReadingCard(); }
   if(screen === 'scenarioGen'){ applyPremiumUI(); renderScenarioChips(); }
@@ -13629,6 +13733,10 @@ const I18N = {
   limitTitle1: { pl: 'Limit na dziś wykorzystany', en: 'Today\'s limit reached' },
   vocabNextBtn: { pl: 'Dalej →', en: 'Next →' },
   btnCategories: { pl: 'Działy', en: 'Sections' },
+  tabStart: { pl: 'Dziś', en: 'Today' },
+  tabDict: { pl: 'Słownik', en: 'Words' },
+  tabProgress: { pl: 'Postęp', en: 'Progress' },
+  tabAccount: { pl: 'Konto', en: 'Account' },
   myWordsModeTitle: { pl: 'Moje słówka', en: 'My words' },
   myWordsModeDesc: { pl: 'Tylko słowa, które sam dodałeś — bez wybierania działu i poziomu.', en: 'Only the words you added yourself — no section or level to pick.' },
   myWordsScreenHint: { pl: 'Twoje własne zestawy. Ucz się całością albo wybierz jeden zestaw.', en: 'Your own sets. Study everything, or pick a single set.' },
