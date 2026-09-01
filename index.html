@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.25
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.27
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -64,6 +64,12 @@
     /* Pasek nawigacji i baner są oba fixed przy dolnej krawędzi, więc NAKŁADAJĄ
        się na siebie. Miejsce u dołu zajmuje wyższy z nich, nie ich suma. */
     --bottom-chrome: max(var(--nav-h), var(--ad-h));
+    /* Przezroczyste odcienie akcentu. Fallback bez color-mix: neutralna
+       powierzchnia zamiast obcego koloru - lepiej blado niż nie w palecie. */
+    --hwang-tint: var(--surface-2);        /* ~8%  - tło podświetleń */
+    --hwang-tint-strong: var(--surface-2); /* ~16% - mocniejsze tło */
+    --hwang-line: var(--border);           /* ~20% - obrysy i poświaty */
+    --on-accent: #FFFFFF;                  /* tekst na --hwang/--good/--bad */
     --field-radius: 0px;   /* 0 = pole "podkreślenie", >0 = pole "pudełko" */
     --field-bg: transparent;
     --btn-radius: var(--radius-pill);
@@ -87,6 +93,17 @@
     --good: #6FA987;
     --bad: #E08A5F;
     --shadow-card: none;
+  }
+
+  /* Palety z jasnym akcentem: na nich biel nie ma szans, wygrywa własne tło. */
+  [data-scheme="dark"], [data-scheme="jade"], [data-scheme="neon"]{ --on-accent: var(--bg); }
+
+  @supports (background: color-mix(in oklab, red 8%, transparent)){
+    :root{
+      --hwang-tint: color-mix(in oklab, var(--hwang) 8%, transparent);
+      --hwang-tint-strong: color-mix(in oklab, var(--hwang) 16%, transparent);
+      --hwang-line: color-mix(in oklab, var(--hwang) 24%, transparent);
+    }
   }
 
   /* ── MOTYWY PREMIUM PRO ─────────────────────────────────────────────
@@ -343,7 +360,7 @@
   /* W siatce chevron z variant-row nie ma sensu - karty nie są już wierszami listy. */
   [data-theme="kobalt"] .home-section-learn .home-card.variant-row::after{ content:none; }
   [data-theme="kobalt"] .home-card[data-vocab-flow="review"]{
-    background:var(--hwang); color:#fff; border-radius:0; border:0;
+    background:var(--hwang); color:var(--on-accent); border-radius:0; border:0;
   }
   [data-theme="kobalt"] h1, [data-theme="kobalt"] h3, [data-theme="kobalt"] .home-card .title{
     font-weight:800; letter-spacing:-.03em;
@@ -441,7 +458,7 @@
   .theme-row .tr-pro{
     font-size:11px; font-weight:600; letter-spacing:.6px;
     padding:2px 7px; border-radius:100px;
-    background:var(--hwang); color:#fff;
+    background:var(--hwang); color:var(--on-accent);
   }
   .theme-row .tr-check{ color:var(--hwang); font-size:14px; }
   [data-scheme="hanji"] .theme-row,
@@ -523,7 +540,7 @@
       margin:48px auto;
       background:var(--card);
       border-radius:28px;
-      box-shadow:0 40px 90px -35px rgba(27,58,87,0.28), 0 6px 18px rgba(27,58,87,0.06);
+      box-shadow:0 40px 90px -35px rgba(0,0,0,0.28), 0 6px 18px rgba(0,0,0,0.06);
       padding-left:40px;
       padding-right:40px;
     }
@@ -691,7 +708,8 @@
     justify-content:center;
     padding:8px 6px;
     text-align:center;
-    box-shadow: 0 0 0 6px rgba(230,57,70,0.05), 0 8px 20px -10px rgba(27,58,87,0.18);
+    /* była tu jeszcze czerwona poświata pieczęci (0 0 0 6px) - poszła razem z ramką */
+    box-shadow:var(--shadow-card);
     position:relative;
   }
   .slot-c .center-card{
@@ -704,7 +722,7 @@
   #storyQuestionCard.teach-mode{
     padding:32px 26px 28px;
     text-align:left;
-    box-shadow:0 8px 20px -10px rgba(27,58,87,0.18); /* bez czerwonej poświaty z .center-card - konkurowała z plakietką wzorca */
+    box-shadow:0 8px 20px -10px rgba(0,0,0,0.18); /* bez czerwonej poświaty z .center-card - konkurowała z plakietką wzorca */
   }
   .teach-pattern-chip{
     display:block;
@@ -719,7 +737,7 @@
   .teach-main-ko{font-size:24px; font-weight:600; line-height:1.5; margin-bottom:14px;}
   .pattern-highlight{
     color:var(--hwang);
-    background:rgba(230,57,70,0.12);
+    background:var(--hwang-tint-strong);
     padding:1px 3px;
     border-radius:4px;
   }
@@ -773,8 +791,8 @@
     grid-template-columns:1fr 1fr;
     gap:8px;
   }
-  .teach-try-btn.try-correct{background:var(--good); border-color:var(--good); color:#fff;}
-  .teach-try-btn.try-wrong{background:var(--bad); border-color:var(--bad); color:#fff;}
+  .teach-try-btn.try-correct{background:var(--good); border-color:var(--good); color:var(--on-accent);}
+  .teach-try-btn.try-wrong{background:var(--bad); border-color:var(--bad); color:var(--on-accent);}
   .teach-try-feedback{
     font-size:14.5px;
     margin-top:10px;
@@ -857,7 +875,7 @@
     cursor:pointer;
   }
   .grammar-nav-btn:disabled{opacity:0.4; cursor:default;}
-  .grammar-nav-btn.primary{background:var(--hwang); border-color:var(--hwang); color:#fff; margin-left:auto;}
+  .grammar-nav-btn.primary{background:var(--hwang); border-color:var(--hwang); color:var(--on-accent); margin-left:auto;}
 
   .teach-ask-ai-box{
     margin-top:16px;
@@ -920,13 +938,11 @@
     55%{opacity:1; transform:translateY(3px) scaleY(1.05);}
     100%{opacity:1; transform:translateY(0) scaleY(1);}
   }
+  /* USUNIĘTA 2026-09-02: ramka "pieczęci" (kreskowany prostokąt wewnątrz karty).
+     Zostawiam regułę pustą zamiast kasować selektor, żeby było widać, że to
+     świadoma decyzja, a nie zgubiony kod przy scalaniu. */
   .center-card::before{
-    content:'';
-    position:absolute;
-    inset:6px;
-    border:1px dashed rgba(230,57,70,0.2);
-    border-radius:16px;
-    pointer-events:none;
+    content:none;
   }
   .eyebrow{
     font-size:13px;
@@ -967,7 +983,7 @@
     justify-content:center;
     transition:background .15s ease, transform .12s ease;
   }
-  .center-speak-btn:hover{background:var(--hwang); color:#FFFFFF;}
+  .center-speak-btn:hover{background:var(--hwang); color:var(--on-accent);}
   .center-speak-btn:active{transform:scale(0.92);}
   .study-card-tr{font-size:15px; color:var(--ink-dim); margin-top:6px;}
   .study-card-example{
@@ -975,6 +991,20 @@
     padding-top:12px;
     border-top:1px dashed var(--border);
   }
+  /* Rozkład morfologiczny 한자어 na karcie nauki. Pokazujemy tylko wtedy, gdy
+     rozkład jest PEŁNY - częściowy (jedna sylaba znana, druga nie) bardziej myli,
+     niż pomaga, bo wygląda jakby słowo było krótsze. */
+  .hanja-breakdown{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    flex-wrap:wrap; margin-top:12px;
+  }
+  .hb-part{ display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .hb-char{
+    font-family:var(--font-ko); font-size:24px; color:var(--hwang); line-height:1;
+  }
+  .hb-syl{ font-size:11px; color:var(--ink-dim); font-family:var(--font-ko); }
+  .hb-mean{ font-size:10.5px; color:var(--ink-dim); max-width:72px; text-align:center; line-height:1.25; }
+  .hb-plus{ font-size:15px; color:var(--ink-dim); opacity:.5; align-self:flex-start; margin-top:4px; }
   .study-card-example .sce-ko{
     font-family:var(--font-ko);
     font-size:16px;
@@ -1179,7 +1209,7 @@
   .domain-count{font-size:13px; color:var(--ink-dim); margin-top:4px;}
   .domain-badge{
     position:absolute; top:8px; right:8px;
-    font-size:13px; background:var(--hwang); color:#fff;
+    font-size:13px; background:var(--hwang); color:var(--on-accent);
     padding:2px 6px; border-radius:100px; text-transform:uppercase;
   }
   .domain-badge.soon-badge{background:var(--surface-2); color:var(--ink-dim);}
@@ -1231,8 +1261,8 @@
     cursor:pointer;
     font-family:var(--font-ui);
   }
-  .sc-node.sc-done{background:var(--hwang); border-color:var(--hwang); color:#fff;}
-  .sc-node.sc-current{border-color:var(--hwang); color:var(--hwang); box-shadow:0 0 0 4px rgba(230,57,70,0.15);}
+  .sc-node.sc-done{background:var(--hwang); border-color:var(--hwang); color:var(--on-accent);}
+  .sc-node.sc-current{border-color:var(--hwang); color:var(--hwang); box-shadow:0 0 0 4px var(--hwang-line);}
   .sc-node.sc-locked{opacity:0.4; cursor:default;}
 
   /* GENERATOR SCENARIUSZY */
@@ -1267,12 +1297,16 @@
   }
   .study-rate-btn .srb-icon{font-size:20px; line-height:1;}
   .study-rate-btn:active{transform:scale(0.94);}
-  .study-rate-again{color:var(--bad);}
-  .study-rate-again:hover{background:var(--bad); color:#FFFFFF; border-color:var(--bad);}
-  .study-rate-hard{color:#E9A23B;}
-  .study-rate-hard:hover{background:#E9A23B; color:#FFFFFF; border-color:#E9A23B;}
-  .study-rate-easy{color:var(--good); border-color:var(--good);}
-  .study-rate-easy:hover{background:var(--good); color:#FFFFFF;}
+
+  /* Kolorowanie per ocena i emoji zostają WYŁĄCZNIE w układzie Klasycznym -
+     to jego znak rozpoznawczy i po to się go wybiera. Bursztyn #E9A23B był
+     zresztą ostatnim kolorem spoza palety w tym pliku. */
+  [data-theme="oldstyle"] .study-rate-again{color:var(--bad);}
+  [data-theme="oldstyle"] .study-rate-again:hover{background:var(--bad); color:var(--on-accent); border-color:var(--bad);}
+  [data-theme="oldstyle"] .study-rate-hard{color:var(--hwang);}
+  [data-theme="oldstyle"] .study-rate-hard:hover{background:var(--hwang); color:var(--on-accent); border-color:var(--hwang);}
+  [data-theme="oldstyle"] .study-rate-easy{color:var(--good); border-color:var(--good);}
+  [data-theme="oldstyle"] .study-rate-easy:hover{background:var(--good); color:var(--on-accent);}
   /* Pasek kontekstu nad kartą (układ z makiety: dział po lewej, postęp po prawej).
      Wcześniej był tu sam licznik "Powtórka 3 / 20" - user nie widział, z jakiego
      działu jest słowo, co przy nauce z wielu działów naraz gubiło orientację. */
@@ -1343,12 +1377,21 @@
   #vocabStudyScreen .sc-rate{
     flex:1; min-height:64px; border-radius:var(--radius);
     border:1px solid var(--border); background:var(--card); color:var(--ink);
-    gap:4px; padding:10px 6px;
+    gap:3px; padding:12px 6px;
+    justify-content:center; font:600 14px var(--font-ui);
   }
-  #vocabStudyScreen .sc-rate .srb-when{ font-size:11px; color:var(--ink-dim); font-weight:400; }
-  #vocabStudyScreen .sc-rate--yes{ background:var(--hwang); color:var(--bg); border-color:transparent; }
+  /* Makieta nie ma tu ikon - jest etykieta i interwał. Emoji zostaje tylko
+     w Klasycznym, razem z kolorowaniem ocen. */
+  #vocabStudyScreen .sc-rate .srb-icon{ display:none; }
+  [data-theme="oldstyle"] #vocabStudyScreen .sc-rate .srb-icon{ display:block; }
+  #vocabStudyScreen .sc-rate .srb-when{
+    font-size:11px; line-height:1; color:var(--ink-dim); font-weight:400;
+  }
+  /* Neutralny hover dla dwóch obrysowanych - podświetlenie, nie zmiana znaczenia */
+  #vocabStudyScreen .sc-rate:hover{ background:var(--card-hi); }
+  #vocabStudyScreen .sc-rate--yes{ background:var(--hwang); color:var(--on-accent); border-color:transparent; }
   #vocabStudyScreen .sc-rate--yes .srb-when{ color:inherit; opacity:.7; }
-  #vocabStudyScreen .sc-rate--yes:hover{ background:var(--hwang); color:var(--bg); }
+  #vocabStudyScreen .sc-rate--yes:hover{ background:var(--hwang); color:var(--on-accent); }
   /* Kobalt: siatka bez odstępów, spójna z jego menu i logowaniem */
   [data-theme="kobalt"] #vocabStudyScreen .sc-rates{
     display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
@@ -1416,21 +1459,14 @@
     user-select:none;
     position:relative;
     transition:background .15s ease, color .15s ease, transform .12s ease, box-shadow .15s ease;
-    box-shadow:0 3px 10px -6px rgba(27,58,87,0.35);
+    box-shadow:0 3px 10px -6px rgba(0,0,0,0.35);
   }
-  .ans-btn::before{
-    content:'';
-    position:absolute;
-    inset:4px;
-    border:1px solid var(--seal);
-    border-radius:9px;
-    opacity:0.5;
-    pointer-events:none;
-    transition:border-color .15s ease;
-  }
+  /* USUNIĘTY 2026-09-02: wewnętrzny pierścień "pieczęci" na przyciskach
+     odpowiedzi - ten sam motyw co ramka w .center-card. Podwójny obrys robił
+     z pigułki stempel i gryzł się z cienką kreską redesignu. */
+  .ans-btn::before{ content:none; }
   .ans-btn.ko{font-family:var(--font-ko); font-weight:600;}
-  .ans-btn:hover{background:var(--seal); color:#FFFFFF;}
-  .ans-btn:hover::before{border-color:rgba(255,255,255,0.55);}
+  .ans-btn:hover{background:var(--seal); color:var(--on-accent);}
   .ans-btn:active{transform:scale(0.95);}
   .ans-btn:disabled{cursor:default;}
 
@@ -1458,8 +1494,8 @@
   }
   /* Zapas dla przeglądarek bez color-mix - pełny, czytelny kolor zamiast przezroczystości. */
   @supports not (background: color-mix(in srgb, red 10%, transparent)){
-    .ans-btn.correct{ background:var(--good); color:#fff; }
-    .ans-btn.wrong{ background:var(--bad); color:#fff; }
+    .ans-btn.correct{ background:var(--good); color:var(--on-accent); }
+    .ans-btn.wrong{ background:var(--bad); color:var(--on-accent); }
   }
   .ans-btn.correct::before{border-color:rgba(255,255,255,0.6);}
 
@@ -1857,8 +1893,8 @@
   .premium-note{
     font-size:14px;
     color:var(--ink-dim);
-    background:rgba(230,57,70,0.06);
-    border:1px solid rgba(230,57,70,0.2);
+    background:var(--hwang-tint);
+    border:1px solid var(--hwang-line);
     border-radius:8px;
     padding:9px 10px;
     line-height:1.5;
@@ -1874,7 +1910,7 @@
   }
   /* było color:#fff — biel na --hwang wypada poniżej 4.5:1 w ciemnym i jadeicie;
      --bg jest zawsze kontrastowe względem własnego --hwang (v2 §3) */
-  .tier-tab.active{color:var(--bg); background:var(--hwang); border-color:var(--hwang);}
+  .tier-tab.active{color:var(--on-accent); background:var(--hwang); border-color:var(--hwang);}
 
   .price-cards{
     display:flex;
@@ -1929,8 +1965,8 @@
     font-size:14px;
     font-family:var(--font-ui);
   }
-  .price-card.recommended button{background:var(--hwang); color:var(--bg);}
-  .price-card button.owned{background:var(--good); border-color:var(--good); color:var(--bg);}
+  .price-card.recommended button{background:var(--hwang); color:var(--on-accent);}
+  .price-card button.owned{background:var(--good); border-color:var(--good); color:var(--on-accent);}
   @media (max-width:360px){
     .price-cards{flex-direction:column;}
   }
@@ -2020,7 +2056,7 @@
     cursor:pointer;
     transition:border-color .15s ease;
   }
-  .report-reason-btn.active{border-color:var(--hwang); background:rgba(230,57,70,0.08);}
+  .report-reason-btn.active{border-color:var(--hwang); background:var(--hwang-tint);}
   .report-comment-input{
     width:100%;
     box-sizing:border-box;
@@ -2044,7 +2080,7 @@
     cursor:pointer;
     transition:border-color .15s ease;
   }
-  .lang-option-row.active{border-color:var(--hwang); background:rgba(230,57,70,0.06);}
+  .lang-option-row.active{border-color:var(--hwang); background:var(--hwang-tint);}
   .lang-option-row.wip{cursor:default; opacity:0.55;}
   .lang-option-row .flag{font-size:20px; flex:none;}
   .lang-option-row .name{font-size:15px; color:var(--ink); flex:1;}
@@ -2061,12 +2097,13 @@
     gap:8px;
   }
   .category-chip{
-    background:var(--surface-2);
+    background:0;
     border:1px solid var(--border);
     color:var(--ink-dim);
-    font-size:14px;
-    padding:7px 12px;
-    border-radius:20px;
+    font-size:12.5px;
+    min-height:34px;
+    padding:7px 14px;
+    border-radius:var(--radius-pill);
     cursor:pointer;
     font-family:var(--font-ui);
     transition:all .15s ease;
@@ -2179,9 +2216,10 @@
   /* HISTORIA I KULTURA — dłuższy tekst niż Hanja, więc lewe wyrównanie i inny rytm */
   /* NAUKA ALFABETU HANGUL */
   .hangul-card{
-    background:linear-gradient(155deg, var(--card-hi), var(--card));
+    background:var(--card);
     border:1px solid var(--border);
-    border-radius:20px;
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-card);
     padding:32px 20px;
     text-align:center;
   }
@@ -2364,7 +2402,7 @@
   .hg-plus{font-size:18px; color:var(--ink-dim);}
   .hg-arrow{font-size:20px; color:var(--hwang);}
   .hg-result-block{
-    background:rgba(230,57,70,0.08);
+    background:var(--hwang-tint);
     border:2px solid var(--hwang);
     border-radius:14px;
     padding:14px 22px;
@@ -2477,7 +2515,7 @@
     align-items:center;
     justify-content:center;
   }
-  .register-card .rc-speak:hover{background:var(--hwang); color:#FFFFFF;}
+  .register-card .rc-speak:hover{background:var(--hwang); color:var(--on-accent);}
   .register-translation{
     text-align:center;
     font-size:14.5px;
@@ -2519,7 +2557,7 @@
   }
   .sb-chip:hover{border-color:var(--hwang);}
   .sb-chip:active{transform:scale(0.94);}
-  .sb-chip.sb-placed{background:var(--hwang); color:#FFFFFF; border-color:var(--hwang);}
+  .sb-chip.sb-placed{background:var(--hwang); color:var(--on-accent); border-color:var(--hwang);}
 
   /* WPROWADZENIE DLA NOWYCH UŻYTKOWNIKÓW */
   .ob-dots{
@@ -2700,7 +2738,7 @@
     border:1px solid var(--border);
     border-radius:20px;
     padding:22px 20px;
-    box-shadow:0 12px 30px -14px rgba(27,58,87,0.18);
+    box-shadow:0 12px 30px -14px rgba(0,0,0,0.18);
   }
   .login-tabs{
     display:flex;
@@ -2723,7 +2761,7 @@
     border:none;
     font-family:var(--font-ui);
   }
-  .login-tab.active{background:var(--card); color:var(--ink); box-shadow:0 2px 6px -2px rgba(27,58,87,0.2);}
+  .login-tab.active{background:var(--card); color:var(--ink); box-shadow:var(--shadow-card);}
   .login-field{margin-bottom:12px;}
   .login-field label{
     display:block;
@@ -2952,7 +2990,7 @@
     transition:background .15s ease, color .15s ease;
   }
   .back-btn:hover{border-color:var(--hwang);}
-  .back-btn:hover::before{background:var(--hwang); color:#FFFFFF;}
+  .back-btn:hover::before{background:var(--hwang); color:var(--on-accent);}
   .back-btn:active{transform:scale(0.97);}
 
   /* CONJUGATION */
@@ -3067,7 +3105,7 @@
     justify-content:center;
     user-select:none;
   }
-  .vk-key:active{background:var(--hwang); color:#FFFFFF; transform:scale(0.94);}
+  .vk-key:active{background:var(--hwang); color:var(--on-accent); transform:scale(0.94);}
   .vk-key.vk-wide{min-width:64px; font-family:var(--font-ui); font-size:14px; font-weight:600;}
   .vk-key.vk-double{color:var(--cheong);}
   .hint-note{font-size:14px; color:var(--ink-dim); margin-top:10px; text-align:center;}
@@ -3221,7 +3259,7 @@
     justify-content:center;
     transition:background .15s ease, transform .12s ease;
   }
-  .study-row .sr-speak:hover{background:var(--hwang); color:#FFFFFF;}
+  .study-row .sr-speak:hover{background:var(--hwang); color:var(--on-accent);}
   .study-row .sr-speak:active{transform:scale(0.92);}
   .study-group-title{
     font-size:13.5px;
@@ -3347,7 +3385,7 @@
     transition:background-color .15s ease, color .15s ease;
   }
   .reading-word.rw-current{
-    background:rgba(230,57,70,0.16);
+    background:var(--hwang-tint-strong);
     outline:2px solid var(--hwang);
     outline-offset:1px;
   }
@@ -3422,7 +3460,7 @@
     white-space:nowrap;
   }
   .rr-verdict-pill.rr-recog{ background:rgba(42,157,143,0.15); color:var(--good); }
-  .rr-verdict-pill.rr-reading{ background:rgba(230,57,70,0.12); color:var(--bad); }
+  .rr-verdict-pill.rr-reading{ background:var(--hwang-tint-strong); color:var(--bad); }
   .reading-ai-loading, .reading-ai-summary, .reading-ai-error, .reading-ai-upsell{
     margin-top:12px;
     padding-top:10px;
@@ -3763,7 +3801,7 @@
     border-radius:var(--radius) var(--radius) var(--radius) 8px; color:var(--ink);
   }
   .chat-log .ai-bubble.user{
-    align-self:flex-end; background:var(--hwang); color:var(--bg); border:0;
+    align-self:flex-end; background:var(--hwang); color:var(--on-accent); border:0;
     border-radius:var(--radius) var(--radius) 8px var(--radius);
   }
   .chat-log .ai-bubble.user .ai-pl{ display:none; }   /* user wie, co powiedział */
@@ -3791,7 +3829,7 @@
   }
   .chat-bar .chat-mic{
     width:68px; height:68px; flex:none; padding:0; border-radius:50%;
-    border:0; background:var(--hwang); color:var(--bg);
+    border:0; background:var(--hwang); color:var(--on-accent);
     display:grid; place-items:center; font-size:26px;
   }
   #geminiMicBtn.chat-mic.ai-chat-mic-active{
@@ -3809,7 +3847,7 @@
   [data-theme="kobalt"] .chat-log .ai-bubble.user{ border-radius:var(--radius); }
   [data-theme="kobalt"] .typing{ background:0; border:0; padding-left:16px; }
   [data-theme="kobalt"] .chat-bar .chat-side, [data-theme="kobalt"] .chat-avatar{ border-radius:12px; }
-  [data-theme="kobalt"] .chat-avatar{ background:var(--hwang); color:var(--bg); }
+  [data-theme="kobalt"] .chat-avatar{ background:var(--hwang); color:var(--on-accent); }
 
   /* ══ v3 §2 · SŁOWNIK ═════════════════════════════════════════════════════
      Litera alfabetu (u nas 초성 - spółgłoska początkowa) przestaje być osobnym
@@ -4417,6 +4455,7 @@
       <div class="sc-roman" id="vocabStudyRoman"></div>
       <div class="sc-rule"></div>
       <div class="study-card-tr sc-pl" id="vocabStudyTr"></div>
+      <div class="hanja-breakdown" id="vocabStudyHanja" style="display:none;"></div>
       <div class="study-card-example" id="vocabStudyExample" style="display:none;">
         <div class="sce-ko" id="vocabStudyExampleKo"></div>
         <div class="sce-tr" id="vocabStudyExampleTr"></div>
@@ -7483,6 +7522,79 @@ const HANGUL_SYLLABLE_DEMO = [
   { word:'사람', roman:'saram', parts:[{jamo:'ㅅ+ㅏ', role:'sylaba 1 (bez końcowej)'}, {jamo:'ㄹ+ㅏ+ㅁ', role:'sylaba 2 (ze spółgłoską końcową!)'}], meaning:'osoba' },
   { word:'한국', roman:'hanguk', parts:[{jamo:'ㅎ+ㅏ+ㄴ', role:'sylaba 1'}, {jamo:'ㄱ+ㅜ+ㄱ', role:'sylaba 2'}], meaning:'Korea' },
 ];
+
+/* ═══ ROZKŁAD MORFOLOGICZNY 한자어 ═══════════════════════════════════════════
+   Pokazuje, z jakich znaków hanja zbudowane jest słowo sinokoreańskie:
+   학교 -> 學 (uczyć się) + 校 (szkoła). To jedna z rzeczy, które odróżniają naukę
+   koreańskiego "ze zrozumieniem" od zapamiętywania - user widzi, że 학 w 학교,
+   학생 i 대학 to ten sam morfem.
+
+   DLACZEGO PO CZYTANIU, A NIE PO LIŚCIE SŁÓW: pierwsza próba budowała indeks
+   odwrotny (znak -> jego słowa, potem odwrócenie). Dawała ZŁĄ KOLEJNOŚĆ -
+   외국 wychodziło jako 國 + 外 - bo indeks nie wie, na której pozycji stoi znak.
+   Dopasowanie sylaba po sylabie do czytania znaku daje kolejność za darmo.
+
+   DLACZEGO BEZ SQLITE: pierwotna specyfikacja zakładała bazę SQLite z rekurencyjnymi
+   CTE. Przy tej skali (22 znaki, 60 KB danych) zwykła mapa w pamięci jest szybsza,
+   bo odpada warstwa zapytań - a apka nie ma buildu ani natywnej warstwy bazodanowej.
+   Gdy danych będzie 1800 znaków, ta struktura nadal wystarczy. Dodane 2026-09-01. */
+
+let _sinoIndex = null;
+function sinoHanjaIndex(){
+  if(_sinoIndex) return _sinoIndex;
+  // dwie mapy: czytanie -> znaki (do ustalenia KOLEJNOŚCI)
+  //            słowo    -> znaki (do POTWIERDZENIA, że rozkład jest prawdziwy)
+  const byReading = new Map();
+  const byWord = new Map();
+  HANJA_CHARACTERS.forEach(hc => {
+    const r = String(hc.reading || '').trim().split(/\s+/).pop();
+    if(r){
+      if(!byReading.has(r)) byReading.set(r, []);
+      byReading.get(r).push(hc);
+    }
+    [...(hc.words || []), ...(hc.moreWords || [])].forEach(w => {
+      if(!w || !w.ko) return;
+      if(!byWord.has(w.ko)) byWord.set(w.ko, new Set());
+      byWord.get(w.ko).add(hc.char);
+    });
+  });
+  _sinoIndex = { byReading, byWord };
+  return _sinoIndex;
+}
+
+/* Rozkład słowa sinokoreańskiego na znaki hanja.
+
+   KLUCZOWE: rozkładamy WYŁĄCZNIE słowa, które nasze dane wprost wiążą ze znakami.
+   Pierwsza wersja dopasowywała same czytania - i produkowała fałsze, bo wiele
+   znaków ma to samo czytanie: 지금 wychodziło jako 地(ziemia) + 金(złoto), gdy
+   naprawdę jest to 只今; 시대 jako 時 + 大, gdy jest 時代. W apce do nauki języka
+   taki błąd jest gorszy niż brak funkcji - user zapamiętałby nieprawdę.
+
+   Czytanie służy teraz tylko do ustalenia KOLEJNOŚCI znaków w potwierdzonym
+   rozkładzie (bez tego 외국 wychodziło jako 國 + 外).
+
+   Zwraca null, gdy nie da się rozłożyć w całości - lepiej nie pokazać nic,
+   niż pokazać połowę albo zgadywankę. */
+function deconstructSinoWord(ko){
+  if(!ko || typeof ko !== 'string') return null;
+  const word = ko.trim();
+  const syllables = [...word];
+  if(syllables.length < 2) return null;
+
+  const { byReading, byWord } = sinoHanjaIndex();
+  const confirmed = byWord.get(word);
+  if(!confirmed) return null; // brak potwierdzenia w danych - nie zgadujemy
+
+  const parts = syllables.map(syl => {
+    const cands = (byReading.get(syl) || []).filter(hc => confirmed.has(hc.char));
+    return cands.length ? { syl, hanja: cands[0] } : { syl, hanja: null };
+  });
+  // Pełny rozkład wymaga znaku dla KAŻDEJ sylaby, i tylu znaków, ile sylab.
+  if(parts.some(p => !p.hanja)) return null;
+  if(confirmed.size !== syllables.length) return null;
+  return { word, parts, complete: true };
+}
+
 
 const HANJA_CHARACTERS = [
   { char:'一', reading:'하나 일', meaning:'jeden', meaningEn:'one',
@@ -13834,7 +13946,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.25';
+const APP_VERSION = '2026-09-01.27';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15283,7 +15395,7 @@ function applyAccountUI(){
   const name = currentProfileDisplayName;
   body.innerHTML = `
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-      <div style="width:44px; height:44px; border-radius:50%; background:var(--hwang); color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-family:var(--font-ko); font-size:18px; flex:none;">
+      <div style="width:44px; height:44px; border-radius:50%; background:var(--hwang); color:var(--on-accent); display:flex; align-items:center; justify-content:center; font-family:var(--font-ko); font-size:18px; flex:none;">
         ${(name || email || '?').charAt(0).toUpperCase()}
       </div>
       <div>
@@ -16462,6 +16574,27 @@ async function renderVocabStudyList(){
 
 function showVocabStudyCard(){
   const w = vocabStudyQueue[vocabStudyIndex];
+  // Rozkład 한자어 - pokazujemy tylko przy PEŁNYM rozkładzie (patrz deconstructSinoWord).
+  try{
+    const hbEl = document.getElementById('vocabStudyHanja');
+    if(hbEl){
+      const d = deconstructSinoWord(w.ko);
+      if(d && d.complete){
+        hbEl.innerHTML = d.parts.map((p, i) => {
+          const mean = uiLang === 'en' ? p.hanja.meaningEn : p.hanja.meaning;
+          return (i ? '<span class="hb-plus">+</span>' : '') +
+            `<span class="hb-part">
+               <span class="hb-char">${escapeHtml(p.hanja.char)}</span>
+               <span class="hb-syl">${escapeHtml(p.syl)}</span>
+               <span class="hb-mean">${escapeHtml(mean || '')}</span>
+             </span>`;
+        }).join('');
+        hbEl.style.display = 'flex';
+      } else {
+        hbEl.style.display = 'none';
+      }
+    }
+  }catch(e){ /* rozkład to dodatek - jego brak nie może zablokować nauki */ }
   markQuestionShown(); // start pomiaru czasu odpowiedzi (ważenie SRS)
   // Podpisy "kiedy wróci" pod każdą oceną - user wie, co wybiera, zanim kliknie.
   try{
