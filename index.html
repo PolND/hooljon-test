@@ -751,106 +751,7 @@
   .story-next-card .snc-title{font-family:'Song Myung', serif; font-size:20px; color:var(--ink); margin:6px 0 4px;}
   .story-next-card .snc-desc{font-size:14.5px; color:var(--ink-dim); margin-bottom:16px;}
   /* Picker słów z istniejącej bazy (panel "Dodaj własne słówka" -> zakładka "Wybierz z bazy") */
-  /* ══ EKRAN „DZIŚ" — renderowanie ══════════════════════════════════════════
-   Struktura z projektu Claude Design, dane z naszej apki: cel dnia z limitu
-   dziennego, seria z dayStreak, następna lekcja z Trybu Opowieści, zaległe
-   powtórki z SRS. Nic tu nie jest atrapą - każda liczba jest prawdziwa. */
-function renderTodayScreen(){
-  const dateEl = document.getElementById('todayDate');
-  if(!dateEl) return;
-
-  const now = new Date();
-  const locale = uiLang === 'en' ? 'en-US' : 'pl-PL';
-  dateEl.textContent = now.toLocaleDateString(locale, { weekday:'long', day:'numeric', month:'long' });
-
-  const hour = now.getHours();
-  const greet = hour < 11 ? (uiLang === 'en' ? 'Good morning' : 'Dzień dobry')
-              : hour < 18 ? (uiLang === 'en' ? 'Good afternoon' : 'Dzień dobry')
-              : (uiLang === 'en' ? 'Good evening' : 'Dobry wieczór');
-  const name = (typeof currentProfileDisplayName === 'string' && currentProfileDisplayName.trim()) ? currentProfileDisplayName.trim() : '';
-  document.getElementById('todayGreeting').innerHTML = greet + (name ? ',<br>' + escapeHtml(name) : '');
-
-  // Cel dnia - liczymy z tego, co user faktycznie dziś zrobił.
-  const target = 30;
-  const done = Math.min(target, (dailyValueStats && dailyValueStats.wordsLearned) || 0);
-  document.getElementById('todayDone').textContent = done;
-  document.getElementById('todayTarget').textContent = '/ ' + target;
-  document.getElementById('todayBar').style.width = Math.round((done / target) * 100) + '%';
-  const left = Math.max(0, target - done);
-  document.getElementById('todayRemaining').textContent = left === 0
-    ? (uiLang === 'en' ? 'Daily goal complete. Anything more is a bonus.' : 'Cel dnia osiągnięty. Wszystko dalej to bonus.')
-    : (uiLang === 'en'
-        ? `${left} to go. About ${Math.max(1, Math.round(left / 4))} minutes.`
-        : `Zostało ${left}. Około ${Math.max(1, Math.round(left / 4))} min.`);
-
-  document.getElementById('todayStreak').textContent = dayStreak || 0;
-
-  // Dalej w kursie - następna lekcja Trybu Opowieści plus ta po niej (zablokowana).
-  const listEl = document.getElementById('todayLessonList');
-  const nextIdx = getNextLessonIndex();
-  if(nextIdx === -1){
-    listEl.innerHTML = `<div class="rd-list-row is-locked"><span style="flex:1;min-width:0;">
-      <span class="rd-head">${uiLang === 'en' ? 'Course complete' : 'Kurs ukończony'}</span>
-      <span class="rd-meta">${uiLang === 'en' ? 'All lessons done — keep reviewing.' : 'Wszystkie lekcje zrobione — zostają powtórki.'}</span>
-    </span></div>`;
-  } else {
-    const rows = [];
-    [0, 1].forEach(off => {
-      const l = STORY_LESSONS[nextIdx + off];
-      if(!l) return;
-      const locked = off > 0;
-      const glyph = l.type === 'grammar' ? '文' : (l.wordKos && l.wordKos[0]) || '語';
-      const sub = locked
-        ? (uiLang === 'en' ? 'Unlocks after the previous lesson' : 'Odblokuje się po poprzedniej lekcji')
-        : (l.type === 'grammar'
-            ? (uiLang === 'en' ? `Lesson ${l.id} · grammar` : `Lekcja ${l.id} · gramatyka`)
-            : (uiLang === 'en' ? `Lesson ${l.id} · ${(l.wordKos||[]).length} new words` : `Lekcja ${l.id} · ${(l.wordKos||[]).length} nowych słów`));
-      rows.push(`<button class="rd-list-row${locked ? ' is-locked' : ''}" ${locked ? '' : `data-lesson="${nextIdx + off}"`}>
-        <span class="rd-ko">${escapeHtml(glyph)}</span>
-        <span style="flex:1;min-width:0;">
-          <span class="rd-head">${escapeHtml(uiLang === 'en' ? l.title.en : l.title.pl)}</span>
-          <span class="rd-meta">${sub}</span>
-        </span>
-        ${locked ? '' : '<span class="rd-chev">›</span>'}
-      </button>`);
-    });
-    listEl.innerHTML = rows.join('');
-    listEl.querySelectorAll('[data-lesson]').forEach(b => {
-      b.addEventListener('click', () => {
-        storyCurrentLessonIndex = Number(b.dataset.lesson);
-        setScreen('storyLesson');
-      });
-    });
-  }
-
-  // Ćwicz - skróty do najczęstszych aktywności, z prawdziwymi licznikami.
-  const dueCount = getDueWords().length;
-  const practice = [
-    { icon:'🔁', name: uiLang === 'en' ? 'Reviews' : 'Powtórki', count: dueCount || null, act: () => { vocabStudySource = 'review'; setScreen('vocabStudy'); } },
-    { icon:'한', name: uiLang === 'en' ? 'Hangul' : 'Hangul', act: () => setScreen('hangul') },
-    { icon:'📐', name: uiLang === 'en' ? 'Grammar' : 'Gramatyka', act: () => setScreen('grammarHub') },
-    { icon:'📖', name: uiLang === 'en' ? 'Reading' : 'Czytanie', act: () => setScreen('reading') },
-  ];
-  const rowsEl = document.getElementById('todayPracticeRows');
-  rowsEl.innerHTML = practice.map((p, i) => `
-    <button class="rd-row" data-practice="${i}">
-      <span class="rd-row-icon">${p.icon}</span>
-      <span class="rd-row-name">${escapeHtml(p.name)}</span>
-      ${p.count ? `<span class="rd-row-count">${p.count}</span>` : ''}
-      <span class="rd-chev">›</span>
-    </button>`).join('');
-  rowsEl.querySelectorAll('[data-practice]').forEach(b => {
-    b.addEventListener('click', () => practice[Number(b.dataset.practice)].act());
-  });
-}
-
-document.getElementById('todayContinueBtn').addEventListener('click', () => {
-  const idx = getNextLessonIndex();
-  if(idx === -1){ vocabStudySource = 'review'; setScreen('vocabStudy'); return; }
-  storyCurrentLessonIndex = idx;
-  setScreen('storyLesson');
-});
-
+  
 const SCREEN_IDS = {
   login:'loginScreen', loading:'loadingScreen', home:'homeScreen', vocabMode:'vocabModeScreen', vocabDept:'vocabDeptScreen', vocab:'vocabScreen',
   vocabStudy:'vocabStudyScreen', vocabLevel:'vocabLevelScreen',
@@ -4769,6 +4670,106 @@ const SCREEN_IDS = {
 </div>
 
 <script>
+/* ══ EKRAN „DZIŚ" — renderowanie ══════════════════════════════════════════
+   Struktura z projektu Claude Design, dane z naszej apki: cel dnia z limitu
+   dziennego, seria z dayStreak, następna lekcja z Trybu Opowieści, zaległe
+   powtórki z SRS. Nic tu nie jest atrapą - każda liczba jest prawdziwa. */
+function renderTodayScreen(){
+  const dateEl = document.getElementById('todayDate');
+  if(!dateEl) return;
+
+  const now = new Date();
+  const locale = uiLang === 'en' ? 'en-US' : 'pl-PL';
+  dateEl.textContent = now.toLocaleDateString(locale, { weekday:'long', day:'numeric', month:'long' });
+
+  const hour = now.getHours();
+  const greet = hour < 11 ? (uiLang === 'en' ? 'Good morning' : 'Dzień dobry')
+              : hour < 18 ? (uiLang === 'en' ? 'Good afternoon' : 'Dzień dobry')
+              : (uiLang === 'en' ? 'Good evening' : 'Dobry wieczór');
+  const name = (typeof currentProfileDisplayName === 'string' && currentProfileDisplayName.trim()) ? currentProfileDisplayName.trim() : '';
+  document.getElementById('todayGreeting').innerHTML = greet + (name ? ',<br>' + escapeHtml(name) : '');
+
+  // Cel dnia - liczymy z tego, co user faktycznie dziś zrobił.
+  const target = 30;
+  const done = Math.min(target, (dailyValueStats && dailyValueStats.wordsLearned) || 0);
+  document.getElementById('todayDone').textContent = done;
+  document.getElementById('todayTarget').textContent = '/ ' + target;
+  document.getElementById('todayBar').style.width = Math.round((done / target) * 100) + '%';
+  const left = Math.max(0, target - done);
+  document.getElementById('todayRemaining').textContent = left === 0
+    ? (uiLang === 'en' ? 'Daily goal complete. Anything more is a bonus.' : 'Cel dnia osiągnięty. Wszystko dalej to bonus.')
+    : (uiLang === 'en'
+        ? `${left} to go. About ${Math.max(1, Math.round(left / 4))} minutes.`
+        : `Zostało ${left}. Około ${Math.max(1, Math.round(left / 4))} min.`);
+
+  document.getElementById('todayStreak').textContent = dayStreak || 0;
+
+  // Dalej w kursie - następna lekcja Trybu Opowieści plus ta po niej (zablokowana).
+  const listEl = document.getElementById('todayLessonList');
+  const nextIdx = getNextLessonIndex();
+  if(nextIdx === -1){
+    listEl.innerHTML = `<div class="rd-list-row is-locked"><span style="flex:1;min-width:0;">
+      <span class="rd-head">${uiLang === 'en' ? 'Course complete' : 'Kurs ukończony'}</span>
+      <span class="rd-meta">${uiLang === 'en' ? 'All lessons done — keep reviewing.' : 'Wszystkie lekcje zrobione — zostają powtórki.'}</span>
+    </span></div>`;
+  } else {
+    const rows = [];
+    [0, 1].forEach(off => {
+      const l = STORY_LESSONS[nextIdx + off];
+      if(!l) return;
+      const locked = off > 0;
+      const glyph = l.type === 'grammar' ? '文' : (l.wordKos && l.wordKos[0]) || '語';
+      const sub = locked
+        ? (uiLang === 'en' ? 'Unlocks after the previous lesson' : 'Odblokuje się po poprzedniej lekcji')
+        : (l.type === 'grammar'
+            ? (uiLang === 'en' ? `Lesson ${l.id} · grammar` : `Lekcja ${l.id} · gramatyka`)
+            : (uiLang === 'en' ? `Lesson ${l.id} · ${(l.wordKos||[]).length} new words` : `Lekcja ${l.id} · ${(l.wordKos||[]).length} nowych słów`));
+      rows.push(`<button class="rd-list-row${locked ? ' is-locked' : ''}" ${locked ? '' : `data-lesson="${nextIdx + off}"`}>
+        <span class="rd-ko">${escapeHtml(glyph)}</span>
+        <span style="flex:1;min-width:0;">
+          <span class="rd-head">${escapeHtml(uiLang === 'en' ? l.title.en : l.title.pl)}</span>
+          <span class="rd-meta">${sub}</span>
+        </span>
+        ${locked ? '' : '<span class="rd-chev">›</span>'}
+      </button>`);
+    });
+    listEl.innerHTML = rows.join('');
+    listEl.querySelectorAll('[data-lesson]').forEach(b => {
+      b.addEventListener('click', () => {
+        storyCurrentLessonIndex = Number(b.dataset.lesson);
+        setScreen('storyLesson');
+      });
+    });
+  }
+
+  // Ćwicz - skróty do najczęstszych aktywności, z prawdziwymi licznikami.
+  const dueCount = getDueWords().length;
+  const practice = [
+    { icon:'🔁', name: uiLang === 'en' ? 'Reviews' : 'Powtórki', count: dueCount || null, act: () => { vocabStudySource = 'review'; setScreen('vocabStudy'); } },
+    { icon:'한', name: uiLang === 'en' ? 'Hangul' : 'Hangul', act: () => setScreen('hangul') },
+    { icon:'📐', name: uiLang === 'en' ? 'Grammar' : 'Gramatyka', act: () => setScreen('grammarHub') },
+    { icon:'📖', name: uiLang === 'en' ? 'Reading' : 'Czytanie', act: () => setScreen('reading') },
+  ];
+  const rowsEl = document.getElementById('todayPracticeRows');
+  rowsEl.innerHTML = practice.map((p, i) => `
+    <button class="rd-row" data-practice="${i}">
+      <span class="rd-row-icon">${p.icon}</span>
+      <span class="rd-row-name">${escapeHtml(p.name)}</span>
+      ${p.count ? `<span class="rd-row-count">${p.count}</span>` : ''}
+      <span class="rd-chev">›</span>
+    </button>`).join('');
+  rowsEl.querySelectorAll('[data-practice]').forEach(b => {
+    b.addEventListener('click', () => practice[Number(b.dataset.practice)].act());
+  });
+}
+
+document.getElementById('todayContinueBtn').addEventListener('click', () => {
+  const idx = getNextLessonIndex();
+  if(idx === -1){ vocabStudySource = 'review'; setScreen('vocabStudy'); return; }
+  storyCurrentLessonIndex = idx;
+  setScreen('storyLesson');
+});
+
 /* ═══════════════════════════════════════════════════════════════════════
    WSKAŹNIK GOTOWOŚCI DO STARTU — dane checklisty, ustalone 2026-08-30.
    Wartości AKTUALIZOWANE RĘCZNIE w miarę postępu prac - to nie jest coś,
@@ -13306,8 +13307,11 @@ function setScreen(screen){
   if(screen === 'aiChat'){ applyPremiumUI(); renderAiChatTargetBanner(); renderGeminiTargetBanner(); renderGeminiLevelSelector(); }
   if(screen !== 'aiChat') stopAiChatMic(); // opuszczenie ekranu ucina mikrofon i mowę bota, żeby nic nie działało w tle
   if(screen === 'myWords'){ renderMyWordsScreen(); }
-  if(screen === 'today'){ renderTodayScreen(); }
-  updateTabbar(screen);
+  // Nowe ekrany opakowane, żeby ewentualny błąd w nich NIGDY nie zablokował samego
+  // przełączania ekranów - inaczej wywrócone renderowanie uniemożliwia nawet dojście
+  // do logowania. Nauczka z 2026-08-31, gdy blok JS trafił omyłkowo do <style>.
+  if(screen === 'today'){ try{ renderTodayScreen(); }catch(e){ console.error('renderTodayScreen:', e); } }
+  try{ updateTabbar(screen); }catch(e){ console.error('updateTabbar:', e); }
   if(screen === 'folderEdit'){ renderFolderEdit(); }
   if(screen === 'reading'){ applyPremiumUI(); showReadingList(); loadDailyReadingCard(); }
   if(screen === 'scenarioGen'){ applyPremiumUI(); renderScenarioChips(); }
