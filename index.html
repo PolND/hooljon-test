@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.14
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.16
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -156,6 +156,43 @@
     --radius:18px; --radius-lg:22px;
     --shadow-card:0 4px 14px -10px rgba(29,53,87,.28);
   }
+  /* ── KLASYCZNY: przywrócenie STRUKTURY sprzed redesignu ─────────────────
+     To nie jest "motyw kolorystyczny", tylko zachowany wygląd apki, na której
+     pracowaliśmy do 2026-09-01. Redesign nadpisał kilka rzeczy globalnie -
+     tutaj je cofamy, żeby ten motyw był naprawdę tamtą apką, a nie jej paletą.
+     UWAGA: emoji w nagłówkach sekcji zostały usunięte z tłumaczeń (dane, nie CSS),
+     więc ich przywrócenie wymaga JS - patrz applyOldstyleLabels. */
+
+  /* Nagłówki sekcji: pierwotnie czytelny tekst 14,5px, nie drobne wersaliki. */
+  [data-theme="oldstyle"] .home-screen .achv-section-title{
+    font-size:14.5px;
+    font-weight:600;
+    letter-spacing:normal;
+    text-transform:none;
+    color:var(--ink);
+    margin:22px 0 4px;
+  }
+
+  /* Karty: pierwotnie duże, z wyraźną ikoną i opisem - bez wariantu wierszowego. */
+  [data-theme="oldstyle"] .home-card.variant-row{
+    padding:20px;
+    gap:16px;
+  }
+  [data-theme="oldstyle"] .home-card.variant-row .icon{ font-size:36px; }
+  [data-theme="oldstyle"] .home-card.variant-row:hover .icon{ transform:scale(1.12) rotate(-4deg); }
+  [data-theme="oldstyle"] .home-card.variant-row .title{ font-size:20px; margin-bottom:6px; }
+  [data-theme="oldstyle"] .home-card.variant-row .desc{ font-size:14.5px; line-height:1.5; }
+  /* Bez strzałki - pierwotne karty nie były wierszami listy. */
+  [data-theme="oldstyle"] .home-card.variant-row::after{ content:none; }
+  /* Karta Powtórek nie była wyróżniana ramką akcentu. */
+  [data-theme="oldstyle"] .home-card.variant-hero{
+    background:linear-gradient(155deg, var(--card-hi), var(--card));
+    border:1px solid var(--border);
+    padding:28px 20px;
+  }
+  [data-theme="oldstyle"] .home-card.variant-hero .icon{ font-size:36px; }
+  [data-theme="oldstyle"] .home-card.variant-hero .title{ font-size:20px; }
+
   /* Pierwotny wygląd miał lżejszy nagłówek i mocniejsze cienie kart. */
   [data-theme="oldstyle"] .home-head .hh-title{
     font-size:30px; font-weight:400; letter-spacing:-.01em;
@@ -170,7 +207,7 @@
      czasu. Hanji i Neon miały to od początku; wyrównuję. */
   [data-theme="jade"] .center-card{
     border-radius:var(--radius-lg);
-    background:linear-gradient(160deg,#1D2321,#141817);
+    background:linear-gradient(160deg, var(--card-hi), var(--surface-2));
     border:1px solid var(--border);
     box-shadow:var(--shadow-card);
   }
@@ -204,12 +241,13 @@
     --good:#46B79A; --bad:#E4785C;
     --radius:26px; --radius-lg:30px; --nav-h:72px;
     --shadow-card:0 10px 30px -22px #000;
+    --accent-deep:#101815; /* ciemny biegun gradientu karty Powtórek */
     --font-ui:'Manrope', system-ui, sans-serif;
     --font-ko:'Manrope', 'Noto Serif KR', serif;
   }
   /* Karta "Powtórki" - jedyne miejsce z gradientem w tym motywie */
   [data-theme="jade"] .home-card[data-vocab-flow="review"]{
-    background:linear-gradient(160deg,#14332C,#101815);
+    background:linear-gradient(160deg, var(--bg-glow), var(--accent-deep));
     border-color:rgba(70,183,154,.22);
   }
   [data-theme="jade"] .bottom-nav{
@@ -324,7 +362,7 @@
   }
   [data-theme="neon"] .home-card .icon{
     font-family:'IBM Plex Mono', monospace;
-    color:#3BE8E0;
+    color:var(--primary);
     font-size:17px;
     font-weight:600;
   }
@@ -336,12 +374,12 @@
   [data-theme="neon"] .ans-btn:active{ box-shadow:0 0 0 3px rgba(255,46,136,.25); }
   [data-theme="neon"] .sc-progress-fill,
   [data-theme="neon"] .grammar-dot.active{
-    background:linear-gradient(90deg,#FF2E88,#3BE8E0);
+    background:linear-gradient(90deg, var(--hwang), var(--primary));
     animation:hj-neon 2.2s ease-in-out infinite;
   }
   [data-theme="neon"] .premium-badge-btn{
-    background:linear-gradient(90deg,#FF2E88,#3BE8E0);
-    color:#0A0810;
+    background:linear-gradient(90deg, var(--hwang), var(--primary));
+    color:var(--bg);
   }
   @keyframes hj-neon{ 0%,100%{filter:brightness(1)} 50%{filter:brightness(1.35)} }
 
@@ -13186,7 +13224,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.14';
+const APP_VERSION = '2026-09-01.16';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14923,6 +14961,25 @@ const THEME_ICONS = {
            '🏮':'CU','🏢':'BZ','🎙️':'AI','🏫':'SC','🔍':'FD','🔤':'CJ','🧩':'GX','🔥':'HT' }
 };
 
+/* Emoji w nagłówkach sekcji ekranu głównego. Redesign usunął je z TŁUMACZEŃ (czyli
+   z danych, nie ze stylów), więc w motywie Klasycznym nie da się ich przywrócić samym
+   CSS-em. Trzymamy mapę osobno i dopisujemy przy renderze. */
+const OLDSTYLE_SECTION_EMOJI = {
+  homeSectionQuick: '⚡',
+  homeSectionLearn: '📚',
+  homeSectionPractice: '🎯',
+};
+function applyOldstyleLabels(theme){
+  document.querySelectorAll('.home-screen .achv-section-title[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    const emoji = OLDSTYLE_SECTION_EMOJI[key];
+    if(!emoji) return;
+    // Zapamiętaj czysty tekst raz, żeby wielokrotne przełączanie motywu nie mnożyło emoji.
+    if(!el.dataset.plainLabel) el.dataset.plainLabel = el.textContent.trim().replace(/^[^\p{L}]+/u, '');
+    el.textContent = (theme === 'oldstyle' ? emoji + ' ' : '') + el.dataset.plainLabel;
+  });
+}
+
 function applyThemeIcons(theme){
   const meta = THEMES.find(t => t.id === theme) || THEMES[0];
   const mode = meta.mode || 'map';
@@ -14957,6 +15014,7 @@ function applyTheme(theme){
   const metaTag = document.querySelector('meta[name="theme-color"]');
   if(metaTag && meta.meta) metaTag.setAttribute('content', meta.meta);
   applyThemeIcons(theme);
+  try{ applyOldstyleLabels(theme); }catch(e){ /* etykiety to dodatek, nie mogą psuć zmiany motywu */ }
   renderThemePanel();
 }
 
