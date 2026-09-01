@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.5
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.6
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
@@ -3392,6 +3392,26 @@
     </div>
   </div>
 
+  <div id="settingsScreen" style="display:none;">
+  <button class="back-btn" data-back="modeSelect" data-i18n="backModeSelect">Wróć</button>
+  <div style="max-width:520px; margin:0 auto;">
+    <h3 style="font-family:var(--font-ko); font-size:20px; margin:0 0 16px; text-align:center;" data-i18n="settingsTitle">Ustawienia</h3>
+
+    <div class="settings-row">
+      <span class="sr-label" data-i18n="settingsSound">Dźwięki w aplikacji</span>
+<button class="theme-toggle-btn" id="soundToggleBtn" title="Dźwięki" aria-label="Włącz/wyłącz dźwięki">🔊</button>
+    </div>
+    <div class="settings-row">
+      <span class="sr-label" data-i18n="settingsLang">Język tłumaczeń</span>
+<button class="theme-toggle-btn" id="langToggleBtn" title="Język tłumaczeń" aria-label="Język tłumaczeń" style="font-size:13px; font-weight:700;">PL</button>
+    </div>
+    <div class="settings-row">
+      <span class="sr-label" data-i18n="settingsReport">Zgłoś błąd lub uwagę</span>
+<button class="theme-toggle-btn" id="globalReportBtn" title="Zgłoś błąd" aria-label="Zgłoś błąd">🐞</button>
+    </div>
+  </div>
+</div>
+
   <div id="dictBrowseScreen" style="display:none;">
     <button class="back-btn" data-back="vocabMode" data-i18n="backVocabMode">Wybór trybu</button>
     <div class="category-chips" id="dictDeptChips"></div>
@@ -4431,25 +4451,6 @@
   <div id="launchReadinessDetail" style="display:none; margin-top:8px; padding-top:8px; border-top:1px solid #333; line-height:1.8; max-height:55vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y;"></div>
 </div>
 
-<div id="settingsScreen" style="display:none;">
-  <button class="back-btn" data-back="modeSelect" data-i18n="backModeSelect">Wróć</button>
-  <div style="max-width:520px; margin:0 auto;">
-    <h3 style="font-family:var(--font-ko); font-size:20px; margin:0 0 16px; text-align:center;" data-i18n="settingsTitle">Ustawienia</h3>
-
-    <div class="settings-row">
-      <span class="sr-label" data-i18n="settingsSound">Dźwięki w aplikacji</span>
-<button class="theme-toggle-btn" id="soundToggleBtn" title="Dźwięki" aria-label="Włącz/wyłącz dźwięki">🔊</button>
-    </div>
-    <div class="settings-row">
-      <span class="sr-label" data-i18n="settingsLang">Język tłumaczeń</span>
-<button class="theme-toggle-btn" id="langToggleBtn" title="Język tłumaczeń" aria-label="Język tłumaczeń" style="font-size:13px; font-weight:700;">PL</button>
-    </div>
-    <div class="settings-row">
-      <span class="sr-label" data-i18n="settingsReport">Zgłoś błąd lub uwagę</span>
-<button class="theme-toggle-btn" id="globalReportBtn" title="Zgłoś błąd" aria-label="Zgłoś błąd">🐞</button>
-    </div>
-  </div>
-</div>
 
 <nav class="bottom-nav" id="bottomNav">
   <button class="bn-tab" data-nav="learn"><span class="bn-ico">📚</span><span class="bn-lab" data-i18n="navLearn">Nauka</span></button>
@@ -12855,7 +12856,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.5';
+const APP_VERSION = '2026-09-01.6';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
