@@ -752,14 +752,6 @@
   .story-next-card .snc-desc{font-size:14.5px; color:var(--ink-dim); margin-bottom:16px;}
   /* Picker słów z istniejącej bazy (panel "Dodaj własne słówka" -> zakładka "Wybierz z bazy") */
   
-const SCREEN_IDS = {
-  login:'loginScreen', loading:'loadingScreen', home:'homeScreen', vocabMode:'vocabModeScreen', vocabDept:'vocabDeptScreen', vocab:'vocabScreen',
-  vocabStudy:'vocabStudyScreen', vocabLevel:'vocabLevelScreen',
-  conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen',
-  aiChat:'aiChatScreen', reading:'readingScreen',
-  grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
-  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', myWords:'myWordsScreen', folderEdit:'folderEditScreen', today:'todayScreen'
-};
 
 /* ── DOLNY PASEK NAWIGACJI ─────────────────────────────────────────
      Wizualny język z redesignu Claude Design: geometryczne ikony zamiast emoji,
@@ -13187,6 +13179,15 @@ const els2 = {
    Pasek chowa się na ekranach, gdzie by przeszkadzał: logowanie, ładowanie,
    onboarding i ekrany "pełnoekranowe" typu lekcja/quiz, gdzie user ma się skupić
    na jednym zadaniu, a wyjście jest przez przycisk wstecz. */
+const SCREEN_IDS = {
+  login:'loginScreen', loading:'loadingScreen', home:'homeScreen', vocabMode:'vocabModeScreen', vocabDept:'vocabDeptScreen', vocab:'vocabScreen',
+  vocabStudy:'vocabStudyScreen', vocabLevel:'vocabLevelScreen',
+  conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen',
+  aiChat:'aiChatScreen', reading:'readingScreen',
+  grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
+  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', myWords:'myWordsScreen', folderEdit:'folderEditScreen', today:'todayScreen'
+};
+
 const TAB_TARGETS = { start:'today', dict:'vocabMode', progress:'achievements' };
 const TABBAR_HIDDEN_SCREENS = new Set([
   'login','loading','register','onboarding','hangulGate','placementTest',
