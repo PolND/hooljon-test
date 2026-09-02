@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.43
-  Zbudowane na: 24dce504bfaf9c8c6ee73f3ee7952263 (.39)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.45
+  Zbudowane na: c780bdf79944d15c86f3a222e692aac9 (.44) + 7254730798dbd6df84cdbbbe0dff936d (.44, gałąź rang)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
   pliki z tym samym .NN są różne. Przy każdym buildzie wpisz sumę pliku wejściowego.
@@ -309,7 +309,12 @@
      pod całą stroną, czyli poza ekranem. Stąd wrażenie, że tapnięcie w słowo
      nic nie robi. Dolny offset ustawia JS, bo zależy od tego, czy na danym
      ekranie widać pasek nawigacji i baner. Naprawione 2026-09-02. */
-  .word-sheet{ position:fixed; left:0; right:0; bottom:0; z-index:40;
+  /* left/width ustawia JS z faktycznej kolumny .wrap - "left:0; right:0"
+     rozciągało arkusz na całą szerokość okna, a apka jest wyśrodkowaną
+     kolumną 520/640px. Na telefonie różnicy nie było, na desktopie arkusz
+     wychodził poza kartę na całą stronę. Naprawione 2026-09-02. */
+  .word-sheet{ position:fixed; bottom:0; left:0; width:100%; z-index:40;
+    box-sizing:border-box;
     height:232px; border-top:1px solid var(--border); background:var(--card);
     padding:16px 16px calc(6px + env(safe-area-inset-bottom));
     display:flex; flex-direction:column; gap:8px; }
@@ -2367,6 +2372,14 @@
   .achv-streak-title{font-size:13.5px; color:var(--hwang); font-weight:600; text-transform:uppercase; letter-spacing:0.3px; margin-bottom:8px; font-family:var(--font-ui);}
   .achv-streak-num{font-size:40px; font-weight:700; color:var(--ink); font-family:var(--font-ui); line-height:1.1;}
   .achv-streak-label{font-size:14.5px; color:var(--ink-dim); margin-top:2px;}
+  /* Droga Mędrca - ranga pod licznikiem serii. */
+  .sage-rank{
+    margin-top:10px; font-family:var(--font-ko); font-size:17px;
+    color:var(--hwang); letter-spacing:.01em;
+  }
+  .sage-next{
+    margin-top:3px; font-size:12.5px; color:var(--ink-dim);
+  }
   .achv-streak-best{font-size:14px; color:var(--hwang); margin-top:8px; font-weight:600;}
   .achv-section-title{
     font-size:14.5px;
@@ -5371,10 +5384,12 @@
 
     <div class="achv-streak-card">
       <div class="achv-streak-title" data-i18n="achvStreakBulssi">Twój Bulssi (불씨)</div>
-      <div class="achv-streak-icon">🔥</div>
+      <div class="achv-streak-icon" id="achvStreakIcon">·</div>
       <div class="achv-streak-num" id="achvStreakNum">0</div>
       <div class="achv-streak-label" data-i18n="achvStreakLabel">dni z rzędu</div>
       <div class="achv-streak-best" id="achvStreakBest"></div>
+      <div class="sage-rank" id="sageRank"></div>
+      <div class="sage-next" id="sageNext"></div>
     </div>
 
     <h4 class="achv-section-title" data-i18n="achvBadgesTitle">Odznaki działów</h4>
@@ -14308,7 +14323,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.43';
+const APP_VERSION = '2026-09-02.45';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14536,6 +14551,10 @@ function setScreen(screen){
   if(screen === 'hanja') renderHanjaScreen();
   if(screen === 'culture') renderCultureScreen();
   if(screen === 'hangul') renderHangulScreen();
+  // Arkusz słowa jest position:fixed i żyje poza .wrap - bez tego zostawał
+  // widoczny (razem z rezerwą paddingu na .wrap) po przejściu na inny ekran
+  // i kładł się paskiem przez słownik. Chowamy go przy każdej zmianie ekranu.
+  try{ hideWordSheet(); }catch(e){}
   if(screen === 'dictBrowse') renderDictDeptChips();
   if(screen === 'account') renderAccountScreen();
   if(screen === 'dictLevel') renderDictLevelCards();
@@ -16760,6 +16779,38 @@ let earnedBadges = {}; // { departments: {catName: true}, allDepts: true/false }
 
 const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100, 200, 365];
 
+/* ═══ DROGA MĘDRCA — zalążek ════════════════════════════════════════════════
+   Ranga i płomień liczone z istniejącego dayStreak. To WYŁĄCZNIE warstwa
+   wizualna: zero nowych mechanik, zero nagród, zero zmian w tym, co user
+   dostaje. Powód takiego zakresu: nagrody z pełnej specyfikacji obejmują
+   darmowe minuty rozmowy z AI, co koliduje ze standing rule "wszystko, co
+   kosztuje AI, jest za Premium" - to decyzja biznesowa, nie techniczna,
+   i czeka na rozstrzygnięcie. Ranga sama w sobie nic nie kosztuje, a daje
+   poczucie postępu, którego dziś nie ma (licznik dni jest płaski).
+
+   Progi wzięte z pełnej drabiny 365-dniowej, żeby nie trzeba było ich potem
+   przenumerowywać - dokładamy tylko brakujące nagrody, nie zmieniamy rang. */
+const SAGE_RANKS = [
+  { from:0,   ko:'불씨',   pl:'Iskra',      en:'Ember',        flame:'·',  desc:'Początek drogi.' },
+  { from:7,   ko:'초보',   pl:'Nowicjusz',  en:'Novice',       flame:'▪',  desc:'Tydzień z rzędu.' },
+  { from:14,  ko:'유생',   pl:'Adept',      en:'Adept',        flame:'◆',  desc:'Dwa tygodnie bez przerwy.' },
+  { from:30,  ko:'선비',   pl:'Mędrzec',    en:'Scholar',      flame:'◈',  desc:'Miesiąc nauki.' },
+  { from:60,  ko:'진사',   pl:'Uczony',     en:'Graduate',     flame:'✦',  desc:'Dwa miesiące.' },
+  { from:90,  ko:'학사',   pl:'Mentor',     en:'Mentor',       flame:'✧',  desc:'Kwartał codziennej nauki.' },
+  { from:120, ko:'정승',   pl:'Minister',   en:'Minister',     flame:'❖',  desc:'Cztery miesiące.' },
+  { from:180, ko:'왕세자', pl:'Następca',   en:'Heir',         flame:'✵',  desc:'Pół roku.' },
+  { from:270, ko:'신선',   pl:'Nieśmiertelny', en:'Immortal',  flame:'✸',  desc:'Dziewięć miesięcy.' },
+  { from:365, ko:'태조',   pl:'Władca',     en:'Founder',      flame:'✹',  desc:'Pełny rok.' },
+];
+
+function sageRankFor(days){
+  let cur = SAGE_RANKS[0];
+  for(const r of SAGE_RANKS){ if(days >= r.from) cur = r; else break; }
+  const next = SAGE_RANKS.find(r => r.from > days) || null;
+  return { rank: cur, next, toNext: next ? next.from - days : 0 };
+}
+
+
 function todayDateString(d){
   return (d || new Date()).toISOString().slice(0, 10);
 }
@@ -16962,6 +17013,23 @@ const DEPT_BADGE_ICONS = {
 
 function renderAchievementsScreen(){
   document.getElementById('achvStreakNum').textContent = dayStreak;
+  // Droga Mędrca: ranga i płomień z aktualnej serii. Warstwa wizualna - nie zmienia
+  // niczego w tym, co user dostaje, ale pokazuje, że seria do czegoś prowadzi.
+  try{
+    const sr = sageRankFor(dayStreak);
+    const icon = document.getElementById('achvStreakIcon');
+    if(icon) icon.textContent = sr.rank.flame;
+    const rankEl = document.getElementById('sageRank');
+    if(rankEl) rankEl.textContent = sr.rank.ko + ' · ' + (uiLang === 'en' ? sr.rank.en : sr.rank.pl);
+    const nextEl = document.getElementById('sageNext');
+    if(nextEl){
+      nextEl.textContent = sr.next
+        ? (uiLang === 'en'
+            ? `${sr.toNext} day${sr.toNext === 1 ? '' : 's'} to ${sr.next.en}`
+            : `${sr.toNext} ${sr.toNext === 1 ? 'dzień' : 'dni'} do rangi ${sr.next.pl}`)
+        : (uiLang === 'en' ? 'Highest rank reached.' : 'Najwyższa ranga osiągnięta.');
+    }
+  }catch(e){ /* ranga to dodatek - nie może zablokować ekranu osiągnięć */ }
   document.getElementById('achvStreakBest').textContent = bestDayStreak > dayStreak
     ? (uiLang === 'en' ? `Best streak: ${bestDayStreak} days` : `Najlepsza seria: ${bestDayStreak} dni`)
     : '';
@@ -20501,16 +20569,38 @@ let wordSheetToken = 0;
 function placeWordSheet(){
   const sheet = document.getElementById('wordSheet');
   if(!sheet) return;
-  const vis = el => (el && getComputedStyle(el).display !== 'none') ? el.offsetHeight : 0;
-  const bottom = Math.max(vis(document.getElementById('bottomNav')),
-                          vis(document.getElementById('adSlot')));
+  // Liczymy odległość GÓRNEJ krawędzi paska od dołu okna, nie samą jego wysokość:
+  // pływający pasek Papieru ma pod sobą margines, więc offsetHeight zostawiał
+  // arkusz za nisko i nawigacja wchodziła na przycisk "Dodaj do fiszek".
+  const reach = el => {
+    if(!el || getComputedStyle(el).display === 'none') return 0;
+    const r = el.getBoundingClientRect();
+    return r.height ? Math.max(0, window.innerHeight - r.top) : 0;
+  };
+  const bottom = Math.max(reach(document.getElementById('bottomNav')),
+                          reach(document.getElementById('adSlot')));
   sheet.style.bottom = bottom + 'px';
+  // Arkusz trzyma się kolumny treści, nie okna - inaczej na szerokim ekranie
+  // rozjeżdża się na całą stronę, poza kartę apki.
+  const wrap = document.querySelector('.wrap');
+  if(wrap){
+    const r = wrap.getBoundingClientRect();
+    sheet.style.left = Math.round(r.left) + 'px';
+    sheet.style.width = Math.round(r.width) + 'px';
+  }
   // Rezerwa pod tekstem, żeby ostatni akapit nie chował się pod arkuszem.
   // Wysokość arkusza jest stała, więc kolejne tapnięcia niczym nie przesuwają.
   // Rezerwa liczona dla tekstu czytanki (jedyny ekran z klikalnymi słowami
   // po scaleniu 2026-09-02).
+  const pad = (sheet.offsetHeight + 12) + 'px';
   const body = document.getElementById('readingTextBox');
-  if(body) body.style.paddingBottom = (sheet.offsetHeight + 12) + 'px';
+  if(body) body.style.paddingBottom = pad;
+  // Cała kolumna też - inaczej arkusz zasłania legendę i przyciski trybu głośnego.
+  const wrapEl = document.querySelector('.wrap');
+  if(wrapEl){
+    if(!wrapEl.dataset.padBase) wrapEl.dataset.padBase = getComputedStyle(wrapEl).paddingBottom;
+    wrapEl.style.paddingBottom = 'calc(' + wrapEl.dataset.padBase + ' + ' + pad + ')';
+  }
 }
 
 function hideWordSheet(){
@@ -20518,6 +20608,8 @@ function hideWordSheet(){
   if(sheet) sheet.hidden = true;
   const body = document.getElementById('readingTextBox');
   if(body) body.style.paddingBottom = '';
+  const wrapEl = document.querySelector('.wrap');
+  if(wrapEl && wrapEl.dataset.padBase) wrapEl.style.paddingBottom = wrapEl.dataset.padBase;
   document.querySelectorAll('.reader-w[aria-selected="true"]').forEach(e => {
     e.removeAttribute('aria-selected');
     if(e.dataset.raw) e.textContent = e.dataset.raw;   // zdejmij podświetlenie części
@@ -20684,6 +20776,7 @@ function syncReaderHeight(){
   el.style.setProperty('--reader-h', Math.max(280, window.innerHeight - top - ad) + 'px');
 }
 window.addEventListener('resize', syncReaderHeight);
+window.addEventListener('resize', () => { const s=document.getElementById('wordSheet'); if(s && !s.hidden) placeWordSheet(); });
 
 
 
