@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.60
-  Zbudowane na: 46ed3853070e64f874d8f111745eac4d (.59)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.61
+  Zbudowane na: cfbe7e532e4037e9baf133178379a283 (.60)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
   pliki z tym samym .NN są różne. Przy każdym buildzie wpisz sumę pliku wejściowego.
@@ -14610,7 +14610,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.60';
+const APP_VERSION = '2026-09-02.61';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -17456,6 +17456,37 @@ function mistakeHintFor(sentence, wrong){
   const h = MISTAKE_HINTS[sentence + '||' + wrong];
   if(!h) return null;
   return uiLang === 'en' ? (h.en || h.pl) : h.pl;
+}
+
+/* ═══ ODPOWIEDZI RÓWNIEŻ POPRAWNE ══════════════════════════════════════════
+   Dwanaście dystraktorów w naszych danych to formy, które w danym zdaniu są
+   POPRAWNE - wzorzec ćwiczy tam odcień rejestru albo stylu, nie różnicę
+   gramatyczną (음 vs 것, 자 vs 자마자, 만큼 vs 처럼).
+
+   Uczący się wybierał dobrą formę i dostawał czerwony kolor. To gorsze niż brak
+   ćwiczenia, bo uczy nieufności do aplikacji i podważa to, co wie poprawnie.
+
+   Do czasu podmiany dystraktorów na formy faktycznie łamiące składnię
+   UZNAJEMY te odpowiedzi za poprawne i wyjaśniamy różnicę odcienia.
+   Wykryte przez model językowy przy generowaniu wyjaśnień błędów 2026-09-02. */
+const ALSO_ACCEPTED = {
+  '학교는 아홉 시___ 시작해요.': ['에'],
+  '배가 ___ 밥을 먹어요.': ['고프니까'],
+  '너무 웃겨서 눈물이 날 ___ 웃었어요.': ['만큼'],
+  '저도 ___ 커요.': ['형처럼'],
+  '이야기를 ___ 사실이 아니었어요.': ['들어 보니'],
+  '그가 문을 ___ 모두가 조용해졌다.': ['열자마자'],
+  '이건 제가 어릴 때 자주 ___ 음식이에요.': ['먹었던'],
+  '그런 질문은 좀 ___.': ['부담이에요'],
+  '그가 ___ 밝혀졌다.': ['옳다는 것이'],
+  '보고서에 문제가 ___ 드러났다.': ['있는 것이'],
+  '실험으로 그 이론이 ___ 증명됐다.': ['틀린 것이'],
+  '그는 자신이 ___ 강조했다.': ['무죄인 것을'],
+};
+
+function isAlsoAccepted(sentence, choice){
+  const list = ALSO_ACCEPTED[sentence];
+  return !!(list && list.includes(choice));
 }
 
 const CONFUSABLE_PAIRS = [
@@ -21375,7 +21406,10 @@ function grammarNewRound(){
 function grammarHandleAnswer(btn){
   if(grammarLocked) return;
   grammarLocked = true;
-  const isCorrect = btn.dataset.isCorrect === '1';
+  // Odpowiedź "błędna", która w tym zdaniu jest poprawna, liczy się jako dobra -
+  // patrz ALSO_ACCEPTED. Karanie za poprawną formę podważa zaufanie do apki.
+  const alsoOk = isAlsoAccepted(grammarCurrent.sentence, btn.dataset.choice);
+  const isCorrect = btn.dataset.isCorrect === '1' || alsoOk;
 
   document.querySelectorAll('#grammarChoiceGrid .ans-btn').forEach(b=>{
     if(b.dataset.isCorrect === '1'){ b.classList.add('correct'); }
@@ -21417,7 +21451,17 @@ function grammarHandleAnswer(btn){
     const hint = mistakeHintFor(grammarCurrent.sentence, btn && btn.dataset ? btn.dataset.choice : null);
     if(hint) mistakeHtml = `<div class="mistake-hint">${escapeHtml(hint)}</div>`;
   }
-  feedback.innerHTML = (isCorrect ? '<span>정답이에요! Dobrze!</span>' : '<span>Nie tym razem — poprawna forma:</span>') + mistakeHtml + explainHtml;
+  // Przy odpowiedzi uznanej (ALSO_ACCEPTED) mówimy wprost, że OBIE formy są dobre,
+  // i pokazujemy wyjaśnienie różnicy - to cenniejsza informacja niż samo "dobrze".
+  const headline = alsoOk
+    ? (uiLang === 'en'
+        ? '<span>Correct — and so is the form we expected. Both work here:</span>'
+        : '<span>Dobrze — i forma, której oczekiwaliśmy, też jest poprawna. Obie tu działają:</span>')
+    : (isCorrect ? '<span>정답이에요! Dobrze!</span>' : '<span>Nie tym razem — poprawna forma:</span>');
+  const altHtml = alsoOk
+    ? `<div class="mistake-hint">${escapeHtml(mistakeHintFor(grammarCurrent.sentence, btn.dataset.choice) || '')}</div>`
+    : '';
+  feedback.innerHTML = headline + altHtml + mistakeHtml + explainHtml;
   feedback.className = 'feedback ' + (isCorrect ? 'good' : 'bad');
 
   // Link do już istniejącego, ręcznie zweryfikowanego widgetu porównania rejestrów
