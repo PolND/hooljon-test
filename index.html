@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.39
-  Zbudowane na: 6eb5ae90cb7268d2db24670785b2fcea (.32)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.42
+  Zbudowane na: 24dce504bfaf9c8c6ee73f3ee7952263 (.39)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
   pliki z tym samym .NN są różne. Przy każdym buildzie wpisz sumę pliku wejściowego.
@@ -243,9 +243,22 @@
      Osobny tryb obok czytania na głos - tamten zostaje nietknięty. Tutaj
      koreański jest treścią, polski nie istnieje, dopóki user o niego nie
      poprosi tapnięciem w słowo. */
+  /* Pasek nawigacji jest tu ukryty (NAV_HIDDEN_SCREENS), ale baner reklamowy
+     nie - odejmujemy więc --ad-h, nie --bottom-chrome. Bez tego arkusz słowa
+     stał 64px nad dolną krawędzią zamiast na niej, jak w makiecie 5b.
+     Ten sam wzorzec co #vocabStudyScreen. */
+  /* Wysokość ustawia syncReaderHeight() z faktycznej pozycji ekranu, bo sama
+     reguła CSS nie zna górnego paddingu .wrap ani wysokości notcha - liczona
+     na sztywno wychodziła 32px za nisko i arkusz słowa wystawał poza okno.
+     Ten sam wzorzec co syncConjRefHeight. */
   #readerScreen{ display:flex; flex-direction:column; width:100%; min-width:0;
-    height:calc(100dvh - var(--bottom-chrome) - 40px); }
-  .reader-bar{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:4px 0 8px; }
+    height:var(--reader-h, calc(100dvh - var(--ad-h) - 24px)); }
+  .reader-bar{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:4px 0 10px; }
+  .reader-back{ flex:none; width:44px; height:44px; border:0; background:0;
+    color:var(--ink); font-size:26px; line-height:1; cursor:pointer; }
+  /* Kobalt wyróżnia tytuł i Aa akcentem - spójnie z jego zakładkami i menu. */
+  [data-theme="kobalt"] .reader-meta{ font-weight:700; color:var(--ink); }
+  [data-theme="kobalt"] .reader-size{ border:0; background:0; color:var(--hwang); font-weight:700; }
   .reader-meta{ flex:1; min-width:0; text-align:center; font-size:12.5px; color:var(--ink-dim);
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   /* Wejście w tryb głośny z WNĘTRZA czytnika. Wcześniej jedyną drogą był mały
@@ -253,14 +266,15 @@
      kliknięcie czytanki otwierało tryb głośny od razu. Teraz obie drogi działają.
      Bramka Premium sprawdzana przy KLIKNIĘCIU, nie przy wejściu - darmowy user
      ma widzieć, że funkcja istnieje. Dodane 2026-09-01. */
+  /* Makieta 5b ma w pasku tylko ‹ tytuł Aa. Tryb głośny to Twoja decyzja z .39,
+     więc zostaje - ale jako ikona tej samej wielkości co Aa, żeby nie zabierać
+     osobnego wiersza i nie odsuwać paska postępu od tytułu. */
   .reader-aloud-btn{
-    display:inline-flex; align-items:center; gap:6px;
-    min-height:36px; padding:6px 12px;
-    border:1px solid var(--border); border-radius:var(--btn-radius);
-    background:var(--card); color:var(--ink);
-    font-family:var(--font-ui); font-size:13px; font-weight:600;
-    cursor:pointer; flex:none;
+    flex:none; width:44px; min-height:44px; padding:0;
+    display:inline-flex; align-items:center; justify-content:center;
+    border:0; background:0; color:var(--ink); font-size:17px; cursor:pointer;
   }
+  .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
   .reader-aloud-btn:hover, .reader-aloud-btn:active{ background:var(--card-hi); }
   .reader-size{ flex:none; min-width:44px; min-height:44px; border:1px solid var(--border);
     border-radius:var(--btn-radius); background:var(--card); color:var(--ink);
@@ -274,11 +288,13 @@
     color:var(--ink); text-wrap:pretty; cursor:pointer; }
   .reader-p[data-read="true"]{ color:var(--ink-dim); }
   .reader-w{ cursor:pointer; }
-  .reader-w[aria-selected="true"]{ color:var(--hwang); border-bottom:2px solid var(--hwang); }
-  [data-theme="kobalt"] .reader-w[aria-selected="true"]{ border-bottom:0; border-radius:4px;
+  /* Podświetlenie siada na .reader-hit - czyli na tej części tokena, która
+     faktycznie trafiła w hasło słownikowe. Partykuła zostaje neutralna. */
+  .reader-hit{ color:var(--hwang); border-bottom:2px solid var(--hwang); }
+  [data-theme="kobalt"] .reader-hit{ border-bottom:0; border-radius:4px;
     padding:0 3px; background:var(--surface-2); }
   @supports (background: color-mix(in oklab, red 12%, transparent)){
-    [data-theme="kobalt"] .reader-w[aria-selected="true"]{ background:color-mix(in oklab, var(--hwang) 12%, transparent); }
+    [data-theme="kobalt"] .reader-hit{ background:color-mix(in oklab, var(--hwang) 12%, transparent); }
   }
   [data-theme="kobalt"] .reader-progress{ height:3px; border-radius:var(--radius-pill); }
   [data-theme="kobalt"] .reader-progress i{ height:3px; border-radius:var(--radius-pill); }
@@ -288,8 +304,14 @@
      przy każdym tapnięciu i user gubiłby linię. v4 podawało 168px; zmierzone
      na treści z rozkładem hanja i przykładem wychodzi więcej, więc podnoszę
      do 232px zamiast ucinać treść (patrz odpowiedź w rozmowie). */
-  .word-sheet{ flex:none; height:232px; border-top:1px solid var(--border);
-    background:var(--card); padding:16px 0 0; margin-top:8px;
+  /* Element siedzi poza .wrap i miał być "pozycjonowany na stałe u dołu okna",
+     ale samego pozycjonowania nigdy nie dostał - lądował w normalnym przepływie
+     pod całą stroną, czyli poza ekranem. Stąd wrażenie, że tapnięcie w słowo
+     nic nie robi. Dolny offset ustawia JS, bo zależy od tego, czy na danym
+     ekranie widać pasek nawigacji i baner. Naprawione 2026-09-02. */
+  .word-sheet{ position:fixed; left:0; right:0; bottom:0; z-index:40;
+    height:232px; border-top:1px solid var(--border); background:var(--card);
+    padding:16px 16px calc(6px + env(safe-area-inset-bottom));
     display:flex; flex-direction:column; gap:8px; }
   .word-sheet[hidden]{ display:none; }
 
@@ -317,8 +339,12 @@
   .word-actions{ margin-top:auto; display:flex; gap:10px; padding-bottom:2px; }
   .word-add{ flex:1; min-height:48px; border:0; border-radius:var(--btn-radius);
     background:var(--hwang); color:var(--on-accent); font:500 14.5px var(--font-ui); cursor:pointer; }
-  .word-tts{ flex:none; width:48px; height:48px; border-radius:var(--btn-radius);
-    border:1px solid var(--border); background:0; color:var(--ink-dim); cursor:pointer; }
+  /* Makieta 5b: odsłuch to małe okrągłe kółko z trójkątem, nie kwadrat z głośnikiem. */
+  .word-tts{ flex:none; width:48px; height:48px; border-radius:50%;
+    border:1px solid var(--border); background:0; color:var(--ink-dim);
+    font-size:15px; cursor:pointer; }
+  [data-theme="kobalt"] .word-meta{ text-transform:uppercase; font-weight:700;
+    letter-spacing:.06em; color:var(--hwang); }
   .word-conj{ flex:none; min-height:48px; padding:0 14px; border-radius:var(--btn-radius);
     border:1px solid var(--border); background:0; color:var(--ink); font:500 13px var(--font-ui); cursor:pointer; }
   [data-theme="kobalt"] .word-sheet{ background:var(--surface-2); }
@@ -3609,6 +3635,35 @@
   .reading-legend .dot.rl-wrong{background:var(--bad);}
   #readingMicBtn.ai-chat-mic-active{background:var(--bad);}
 
+  /* Pasek akcji czytanki - przyklejony do dołu, zawsze w zasięgu kciuka.
+     Dwa rzędy: drugorzędne akcje w linii (przewijalne, gdyby się nie mieściły)
+     i główny przycisk na pełną szerokość pod nimi. Offset dolny liczony tak samo
+     jak dla arkusza słowa: max(nawigacja, baner), bo oba są position:fixed. */
+  .reading-actions{
+    position:fixed; left:0; right:0; bottom:0; z-index:38;
+    display:flex; flex-direction:column; gap:8px;
+    padding:10px 16px calc(12px + env(safe-area-inset-bottom));
+    background:var(--card);
+    border-top:1px solid var(--border);
+  }
+  @media (min-width:900px){
+    .reading-actions{
+      left:50%; right:auto; transform:translateX(-50%);
+      width:min(640px, calc(100% - 32px));
+      bottom:16px; border:1px solid var(--border); border-radius:var(--radius-lg);
+      box-shadow:0 10px 30px -18px rgba(0,0,0,.35);
+    }
+  }
+  .reading-actions .ra-secondary{
+    display:flex; gap:8px; overflow-x:auto; overscroll-behavior-x:contain;
+    scrollbar-width:none;
+  }
+  .reading-actions .ra-secondary::-webkit-scrollbar{ display:none; }
+  .reading-actions .ra-secondary .tool-btn{ flex:none; min-height:40px; }
+  .reading-actions .primary{ width:100%; min-height:48px; }
+  /* Miejsce pod pasek, żeby nie zasłaniał końca tekstu ani raportu. */
+  #readingActiveWrap{ padding-bottom:124px; }
+
   .reading-report-box{
     margin-top:14px;
     padding:14px;
@@ -4593,9 +4648,14 @@
   </div>
 
   <div id="readerScreen" style="display:none;">
-  <button class="back-btn" id="readerBackBtn" data-back="reading" data-i18n="backReadingList">Lista czytanek</button>
+  <!-- Makieta 5b: pasek to jeden rząd - ‹ po lewej, tytuł na środku, Aa po prawej.
+       Zamiast osobnej pigułki "Lista czytanek" nad paskiem, która zabierała
+       wiersz i rozbijała symetrię. -->
   <div class="reader-bar">
+    <button class="reader-back" id="readerBackBtn" data-back="reading" aria-label="Lista czytanek">‹</button>
     <div class="reader-meta" id="readerMeta"></div>
+    <button class="reader-aloud-btn" id="readerAloudBtn" title="Czytaj na głos"
+      aria-label="Czytaj na głos">🎤<span class="sr-only" data-i18n="readerAloud">Na głos</span></button>
     <button class="reader-size" id="readerSizeBtn" aria-label="Rozmiar tekstu" title="Rozmiar tekstu">Aa</button>
   </div>
   <div class="reader-progress" id="readerProgress"><i id="readerProgressFill" style="width:0%"></i></div>
@@ -5163,10 +5223,18 @@
           <span><span class="dot rl-wrong"></span><span data-i18n="legendWrong">błędnie (kliknij, by odsłuchać)</span></span>
         </div>
 
-        <div class="ai-chat-controls">
-          <button class="tool-btn" id="readingListenBtn"><span data-i18n="listenFullBtn">Odsłuchaj</span></button>
-          <button class="primary" id="readingMicBtn" style="flex:1;"><span data-i18n="startReading">Zacznij czytać</span></button>
-          <button class="tool-btn" id="readingRestartBtn"><span data-i18n="restartBtn2">Od nowa</span></button>
+        <!-- Pasek akcji przyklejony do dolnej krawędzi. Wcześniej te przyciski stały
+             pod tekstem, więc przy dłuższej czytance trzeba było do nich przewijać,
+             a arkusz słowa (232px, position:fixed) potrafił je zasłonić. Teraz są
+             zawsze w zasięgu kciuka. Dodane 2026-09-02. -->
+        <div class="reading-actions" id="readingActions">
+          <div class="ra-secondary">
+            <button class="tool-btn" id="readingListenBtn"><span data-i18n="listenFullBtn">Odsłuchaj</span></button>
+            <button class="tool-btn" id="readingRestartBtn"><span data-i18n="restartBtn2">Od nowa</span></button>
+            <button class="tool-btn" id="readingRetellBtn"><span data-i18n="retellBtn">Opowiedz</span></button>
+            <button class="tool-btn" id="readingQuizBtn" style="display:none;"><span data-i18n="checkComprehension">Zrozumienie</span></button>
+          </div>
+          <button class="primary" id="readingMicBtn"><span data-i18n="startReading">Zacznij czytać</span></button>
         </div>
         <div class="hint-note" id="readingUnsupported" style="display:none; color:var(--bad); text-align:left;" data-i18n="speechUnsupported2">
           Twoja przeglądarka nie obsługuje rozpoznawania mowy (Web Speech API). Ta funkcja działa najlepiej w Chrome na komputerze lub Androidzie.
@@ -5174,10 +5242,7 @@
         <div class="hint-note" style="text-align:left;" data-i18n="readingNote">
           Uwaga: to porównanie z tym, co <b>rozpoznał</b> mikrofon, a nie ocena wymowy/akcentu.
         </div>
-        <div class="row" id="readingCheckRow" style="margin-top:10px;">
-          <button class="tool-btn" id="readingRetellBtn" style="flex:1;"><span data-i18n="retellBtn">Opowiedz swoimi słowami</span></button>
-          <button class="tool-btn" id="readingQuizBtn" style="flex:1; display:none;"><span data-i18n="checkComprehension">Wybór a/b/c/d</span></button>
-        </div>
+
         <div id="readingReportBox" class="reading-report-box" style="display:none;"></div>
       </div>
 
@@ -14250,7 +14315,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.39';
+const APP_VERSION = '2026-09-02.42';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14276,7 +14341,10 @@ const NAV_TARGETS = { learn:'home', dict:'dictBrowse', chat:'aiChat', progress:'
 const NAV_HIDDEN_SCREENS = new Set([
   'login','loading','register','onboarding','hangulGate','placementTest',
   'storyLesson','vocabStudy','vocab','conjugation','grammarQuiz','grammarPractice',
-  'topikTest','sentenceBuilder'
+  'topikTest','sentenceBuilder',
+  // Czytnik jest immersyjny - w makiecie 5b arkusz słowa siada na samym dole
+  // ekranu, bez paska nawigacji pod spodem. Dodane 2026-09-02.
+  'reader'
 ]);
 // Które ekrany "należą" do której zakładki - do podświetlenia aktywnej.
 const NAV_OWNS = {
@@ -18276,6 +18344,15 @@ function showDictWordCardView(){
 }
 document.getElementById('dictWordCardBackBtn').addEventListener('click', showDictWordListView);
 
+document.getElementById('readerAloudBtn').addEventListener('click', () => {
+  if(!readerText) return;
+  // Bramka sprawdzana przy kliknięciu, nie przy wejściu - darmowy user ma
+  // widzieć, że funkcja istnieje. Próg ten sam co na liście: isPremium.
+  if(!isPremium){ document.getElementById('premiumPanel').classList.add('open'); return; }
+  hideWordSheet();
+  openReading(readerText);
+});
+
 document.getElementById('readerSizeBtn').addEventListener('click', () => {
   readerSizeIdx = (readerSizeIdx + 1) % READER_SIZES.length;
   // Zmienna siedzi na :root, ale czyta ją wyłącznie .reader-p - nagłówek
@@ -20433,10 +20510,46 @@ function showReadingList(){
    Wysokość jest stała - patrz komentarz przy .word-sheet. */
 let wordSheetToken = 0;
 
+// Arkusz siada nad tym, co akurat zajmuje dół ekranu: paskiem nawigacji albo
+// banerem. Ta sama arytmetyka co --bottom-chrome: max(nav, baner), z tą różnicą,
+// że liczymy stan FAKTYCZNY - na czytniku nawigacja jest ukryta.
+function placeWordSheet(){
+  const sheet = document.getElementById('wordSheet');
+  if(!sheet) return;
+  const vis = el => (el && getComputedStyle(el).display !== 'none') ? el.offsetHeight : 0;
+  const bottom = Math.max(vis(document.getElementById('bottomNav')),
+                          vis(document.getElementById('adSlot')));
+  sheet.style.bottom = bottom + 'px';
+  // Rezerwa pod tekstem, żeby ostatni akapit nie chował się pod arkuszem.
+  // Wysokość arkusza jest stała, więc kolejne tapnięcia niczym nie przesuwają.
+  const body = document.getElementById('readerBody');
+  if(body) body.style.paddingBottom = (sheet.offsetHeight + 12) + 'px';
+}
+
 function hideWordSheet(){
   const sheet = document.getElementById('wordSheet');
   if(sheet) sheet.hidden = true;
-  document.querySelectorAll('.reader-w[aria-selected="true"]').forEach(e => e.removeAttribute('aria-selected'));
+  const body = document.getElementById('readerBody');
+  if(body) body.style.paddingBottom = '';
+  document.querySelectorAll('.reader-w[aria-selected="true"]').forEach(e => {
+    e.removeAttribute('aria-selected');
+    if(e.dataset.raw) e.textContent = e.dataset.raw;   // zdejmij podświetlenie części
+  });
+}
+
+// Podświetla w klikniętym tokenie tylko tę część, która trafiła w hasło.
+function markReaderHit(el, base){
+  if(!el) return;
+  const raw = el.dataset.raw || el.textContent;
+  el.dataset.raw = raw;
+  const i = raw.indexOf(base);
+  if(base && i !== -1){
+    el.innerHTML = escapeHtml(raw.slice(0, i))
+      + '<span class="reader-hit">' + escapeHtml(base) + '</span>'
+      + escapeHtml(raw.slice(i + base.length));
+  }else{
+    el.innerHTML = '<span class="reader-hit">' + escapeHtml(raw) + '</span>';
+  }
 }
 
 // Słowo z tekstu bywa obklejone interpunkcją - zdejmujemy ją, zanim pytamy bazę.
@@ -20466,13 +20579,14 @@ function readerLookupForms(word){
   return forms;
 }
 
-async function openWordSheet(rawWord){
+async function openWordSheet(rawWord, el){
   const sheet = document.getElementById('wordSheet');
   if(!sheet) return;
   const word = cleanReaderWord(rawWord);
   if(!word) return;
   const token = ++wordSheetToken;
   sheet.hidden = false;
+  placeWordSheet();
   sheet.innerHTML = `<div class="ws-top"><span class="word-ko">${escapeHtml(word)}</span></div>
     <div class="word-meta">${uiLang === 'en' ? 'Looking up…' : 'Szukam…'}</div>`;
 
@@ -20500,6 +20614,7 @@ async function openWordSheet(rawWord){
     }
   }
   if(token !== wordSheetToken) return;   // user tapnął już w inne słowo
+  markReaderHit(el, shown);
 
   const sino = deconstructSinoWord(shown);
   const verb = (typeof KOREAN_VERBS !== 'undefined')
@@ -20532,7 +20647,7 @@ async function openWordSheet(rawWord){
     <div class="word-actions">
       ${mainBtn}
       ${verb ? `<button class="word-conj" id="wsConjBtn">${uiLang === 'en' ? 'Full conjugation' : 'Zobacz pełną odmianę'}</button>` : ''}
-      <button class="word-tts" id="wsTtsBtn" aria-label="${uiLang === 'en' ? 'Listen' : 'Odsłuchaj'}">🔊</button>
+      <button class="word-tts" id="wsTtsBtn" aria-label="${uiLang === 'en' ? 'Listen' : 'Odsłuchaj'}">▸</button>
     </div>`;
 
   document.getElementById('wsTtsBtn').addEventListener('click', () => speakKorean(shown));
@@ -20580,7 +20695,20 @@ function openReader(text){
     (uiLang === 'en' && text.titleEn ? text.titleEn : text.title) || '';
   document.documentElement.style.setProperty('--reader-size', READER_SIZES[readerSizeIdx] + 'px');
   renderReaderBody();
+  syncReaderHeight();
+  requestAnimationFrame(syncReaderHeight);
 }
+
+// Pasek nawigacji jest na tym ekranie ukryty, ale baner reklamowy nie -
+// odejmujemy więc tylko jego wysokość.
+function syncReaderHeight(){
+  const el = document.getElementById('readerScreen');
+  if(!el || el.style.display === 'none') return;
+  const top = el.getBoundingClientRect().top;
+  const ad = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ad-h')) || 0;
+  el.style.setProperty('--reader-h', Math.max(280, window.innerHeight - top - ad) + 'px');
+}
+window.addEventListener('resize', syncReaderHeight);
 
 function renderReaderBody(){
   const body = document.getElementById('readerBody');
@@ -20592,7 +20720,7 @@ function renderReaderBody(){
     e.stopPropagation();
     body.querySelectorAll('.reader-w[aria-selected="true"]').forEach(x => x.removeAttribute('aria-selected'));
     w.setAttribute('aria-selected', 'true');
-    openWordSheet(w.textContent);
+    openWordSheet(w.dataset.raw || w.textContent, w);
   }));
   body.querySelectorAll('.reader-p').forEach(p => p.addEventListener('click', () => {
     p.dataset.read = p.dataset.read === 'true' ? 'false' : 'true';
