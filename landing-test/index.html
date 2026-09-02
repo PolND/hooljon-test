@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hooljon — koreański po polsku i po angielsku, od hangul do C2</title>
+<meta name="description" content="Aplikacja do nauki koreańskiego po polsku i po angielsku. Słownik 39 446 słów, 175 wzorców gramatycznych, rozkład słów sinokoreańskich na znaki hanja i rozmowa głosowa z AI. Działa w przeglądarce." />
+<meta name="theme-color" content="#F6F3EE" />
+<meta property="og:title" content="Hooljon — koreański po polsku i po angielsku" />
+<meta property="og:description" content="Od hangul do C2, z rozkładem słów na znaki, z których powstały. Słownik 39 446 słów, 175 wzorców gramatycznych, rozmowa głosowa z AI." />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="pl_PL" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=Public+Sans:wght@400;500;600&family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  /* Logo Hooljon - ta sama definicja SVG co w aplikacji, żeby marka była spójna
+     i nie trzeba było utrzymywać dwóch wersji. Dziedziczy kolor z rodzica. */
+  .hj-logo{ width:1.05em; height:1.05em; vertical-align:-0.16em; fill:currentColor; }
+  .hj-logo path{ fill:currentColor; }
+
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: #F6F3EE; }
+  a { color: #C1512F; text-decoration: none; }
+  a:hover { color: #9B3E22; }
+  ::selection { background: #C1512F; color: #F6F3EE; }
+
+.hj-hover-1:hover{background:#9B3E22 !important;color:#F6F3EE !important}
+.hj-hover-2:hover{background:#9B3E22 !important;color:#F6F3EE !important}
+.hj-hover-3:hover{border-color:#1A1714 !important;color:#1A1714 !important}
+.hj-hover-4:hover{border-color:#1A1714 !important;color:#1A1714 !important}
+.hj-hover-5:hover{background:#9B3E22 !important;color:#F6F3EE !important}
+.hj-hover-6:hover{border-color:#1A1714 !important;color:#1A1714 !important}
+.hj-hover-7:hover{background:#9B3E22 !important;color:#F6F3EE !important}
+.hj-hover-8:hover{border-color:#1A1714 !important;color:#1A1714 !important}
+  img { max-width: 100%; }
+  @media (max-width: 560px) {
+    header nav { order: 3; width: 100%; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<g id="hj-logo" fill-rule="evenodd">
+<path d="M53.07 87.75C51.86 87.89 50.85 87.84 50.38 87.75C49.91 87.66 49.76 87.68 50.28 87.23C50.79 86.78 52.5 85.8 53.49 85.06C54.47 84.32 55.12 83.8 56.18 82.78C57.23 81.76 58.64 80.35 59.8 78.95C60.96 77.55 61.94 76.33 63.11 74.4C64.29 72.46 65.67 70.05 66.84 67.36C68.01 64.67 69.29 60.97 70.15 58.25C71.01 55.52 71.57 53.0 72.02 51.0C72.46 49.0 72.79 47.08 72.84 46.24C72.9 45.39 72.79 45.77 72.33 45.93C71.86 46.08 71.29 46.69 70.05 47.17C68.81 47.65 66.18 48.48 64.87 48.83C63.56 49.17 62.65 49.26 62.18 49.24C61.71 49.22 61.46 49.17 62.08 48.72C62.7 48.27 64.65 47.39 65.91 46.55C67.17 45.7 68.58 44.57 69.63 43.65C70.69 42.74 71.38 42.01 72.22 41.06C73.07 40.11 73.88 39.13 74.71 37.96C75.53 36.78 76.57 35.09 77.19 34.02C77.81 32.95 77.12 34.64 78.43 31.54C79.74 28.43 83.95 18.15 85.06 15.39C86.16 12.63 85.18 15.13 85.06 14.98C84.94 14.82 84.83 14.54 84.33 14.46C83.83 14.37 82.47 14.49 82.06 14.46C81.64 14.42 82.37 14.32 81.85 14.25C81.33 14.18 79.52 14.18 78.95 14.04C78.38 13.91 78.33 13.73 78.43 13.46C78.54 13.18 78.11 13.36 79.57 12.39C81.04 11.42 84.44 9.45 87.23 7.63C90.03 5.8 94.61 2.55 96.34 1.41C98.08 0.28 97.36 0.81 97.65 0.79C97.95 0.78 98.03 1.02 98.1 1.31C98.18 1.6 98.07 2.31 98.1 2.55C98.14 2.8 98.21 1.52 98.31 2.76C98.41 4.0 98.62 8.76 98.72 10.01C98.83 11.25 98.86 9.45 98.93 10.21C99.0 10.97 99.03 13.46 99.14 14.56C99.24 15.67 99.48 16.01 99.55 16.84C99.62 17.67 99.52 19.05 99.55 19.53C99.59 20.01 99.72 19.42 99.76 19.74C99.79 20.06 99.72 21.16 99.76 21.46C99.79 21.76 99.93 21.05 99.97 21.53C100.0 22.02 100.05 23.92 99.97 24.36C99.88 24.8 100.11 24.84 99.45 24.19C98.79 23.54 96.67 21.04 96.0 20.46C95.32 19.88 95.92 19.13 95.41 20.7C94.9 22.27 93.69 26.66 92.93 29.88C92.17 33.1 91.68 36.54 90.86 40.03C90.03 43.51 88.92 47.65 87.96 50.79C86.99 53.93 86.13 56.31 85.06 58.87C83.99 61.42 82.64 64.08 81.54 66.11C80.43 68.15 79.3 69.81 78.43 71.08C77.57 72.36 77.62 72.38 76.36 73.78C75.1 75.17 72.17 78.21 70.88 79.47C69.58 80.73 69.67 80.57 68.6 81.33C67.53 82.09 65.7 83.3 64.46 84.02C63.22 84.75 62.28 85.2 61.15 85.68C60.01 86.16 58.97 86.58 57.63 86.92C56.28 87.27 54.28 87.61 53.07 87.75Z" fill="var(--logo-a)"/>
+<path d="M19.12 87.54C18.05 87.54 14.22 87.44 12.91 87.34C11.59 87.23 11.61 87.09 11.25 86.92C10.89 86.76 10.25 86.75 10.73 86.34C11.21 85.92 13.13 85.06 14.15 84.44C15.17 83.81 15.44 83.83 16.84 82.57C18.24 81.31 20.96 78.76 22.53 76.88C24.1 75.0 24.98 73.64 26.26 71.29C27.54 68.94 29.3 64.94 30.19 62.8C31.09 60.66 31.09 60.39 31.64 58.45C32.19 56.52 32.95 53.69 33.51 51.21C34.06 48.72 34.71 45.03 34.96 43.55C35.2 42.06 34.85 42.96 34.96 42.31C35.06 41.65 35.47 40.3 35.58 39.61C35.68 38.92 35.47 38.85 35.58 38.16C35.68 37.47 36.02 36.54 36.2 35.47C36.37 34.4 36.27 33.54 36.61 31.75C36.96 29.95 37.65 26.88 38.27 24.71C38.89 22.53 39.68 20.32 40.34 18.7C40.99 17.08 41.94 15.72 42.2 14.98C42.46 14.23 42.98 14.48 41.89 14.25C40.8 14.03 36.77 13.82 35.68 13.63C34.59 13.44 35.3 13.32 35.37 13.11C35.44 12.91 34.14 13.65 36.09 12.39C38.04 11.13 44.79 6.94 47.07 5.56C49.34 4.18 48.41 4.93 49.76 4.11C51.1 3.28 54.18 1.17 55.14 0.59C56.11 0.0 55.43 0.53 55.56 0.59C55.68 0.64 55.57 -2.85 55.87 0.9C56.16 4.64 57.16 19.31 57.32 23.05C57.47 26.79 57.47 23.93 56.8 23.36C56.12 22.79 53.95 20.2 53.28 19.63C52.61 19.06 53.16 18.62 52.76 19.94C52.36 21.27 51.38 24.84 50.9 27.61C50.41 30.37 50.07 34.99 49.86 36.51C49.65 38.03 49.72 36.13 49.65 36.71C49.59 37.3 49.55 39.2 49.45 40.03C49.34 40.86 48.98 41.36 49.03 41.68C49.09 42.01 49.15 42.18 49.76 41.99C50.36 41.8 51.59 40.96 52.66 40.55C53.73 40.13 54.28 39.89 56.18 39.51C58.07 39.13 62.15 38.61 64.04 38.27C65.94 37.92 66.49 37.75 67.56 37.44C68.63 37.13 69.57 36.78 70.46 36.4C71.36 36.02 72.12 35.65 72.95 35.16C73.78 34.68 74.68 34.09 75.43 33.51C76.18 32.92 77.04 31.87 77.43 31.64C77.83 31.42 78.2 31.28 77.81 32.16C77.43 33.04 76.12 35.44 75.12 36.92C74.12 38.41 72.79 39.94 71.81 41.06C70.82 42.18 70.62 42.53 69.22 43.65C67.82 44.77 65.04 46.76 63.42 47.79C61.8 48.83 60.42 49.45 59.49 49.86C58.56 50.28 58.66 49.93 57.83 50.28C57.0 50.62 55.31 51.48 54.52 51.93C53.73 52.38 53.74 52.36 53.07 52.97C52.4 53.57 51.16 54.78 50.48 55.56C49.81 56.33 49.52 56.8 49.03 57.63C48.55 58.45 48.27 58.87 47.58 60.52C46.89 62.18 45.79 65.56 44.89 67.56C44.0 69.57 43.27 70.88 42.2 72.53C41.13 74.19 39.56 76.21 38.47 77.5C37.39 78.8 36.94 79.24 35.68 80.3C34.42 81.35 32.33 82.92 30.92 83.82C29.5 84.71 28.47 85.16 27.19 85.68C25.91 86.2 24.29 86.65 23.26 86.92C22.22 87.2 21.64 87.27 20.98 87.34C20.32 87.41 19.63 87.3 19.32 87.34C19.01 87.37 20.19 87.54 19.12 87.54Z" fill="var(--logo-b)"/>
+</g>
+</defs></svg>
+
+<div style="background:#F6F3EE;color:#1A1714;font-family:'Public Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased">
+
+  <header style="position:sticky;top:0;z-index:20;background:rgba(246,243,238,0.92);backdrop-filter:blur(8px);border-bottom:1px solid #E2DCD2">
+    <div style="max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+      <a href="#gora" style="display:flex;align-items:baseline;gap:10px;color:#1A1714">
+        <span style="font-family:'Noto Serif KR',serif;font-size:19px;color:#C1512F"><svg class="hj-logo" viewBox="0 0 100 100" role="img" aria-label="Hooljon"><use href="#hj-logo"/></svg></span>
+        <span style="font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:#1A1714">Hooljon</span>
+      </a>
+      <nav style="display:flex;gap:22px;margin-left:auto;flex-wrap:wrap;font-size:14px">
+        <a href="#roznica" style="color:#5C5348">Czym się różni</a>
+        <a href="#ekrany" style="color:#5C5348">Ekrany</a>
+        <a href="#cennik" style="color:#5C5348">Cennik</a>
+        <a href="#nie-dla" style="color:#5C5348">Dla kogo nie</a>
+      </nav>
+      <a href="./app/" style="background:#C1512F;color:#F6F3EE;font-size:14px;font-weight:500;padding:10px 18px;border-radius:2px" class="hj-hover-1">Otwórz aplikację</a>
+    </div>
+  </header>
+
+  <section id="gora" style="max-width:1180px;margin:0 auto;padding:0 24px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:clamp(32px,5vw,72px);align-items:center;padding:clamp(48px,7vw,104px) 0 clamp(40px,5vw,72px)">
+      <div>
+        <p style="margin:0 0 clamp(20px,3vw,28px);font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#8A7F73">Przed startem · PWA · po polsku i angielsku · kolejne języki w drodze</p>
+        <h1 style="margin:0;font-family:'Spectral',Georgia,serif;font-weight:400;font-size:clamp(38px,5.6vw,68px);line-height:1.05;letter-spacing:-0.01em;text-wrap:pretty">Koreański od hangul do <span style="color:#C1512F">C2</span> — z rozkładem słów na znaki, z których powstały.</h1>
+        <p style="margin:clamp(20px,3vw,28px) 0 0;max-width:46ch;font-size:clamp(16px,1.5vw,19px);line-height:1.6;color:#5C5348;text-wrap:pretty">Aplikacja do nauki koreańskiego po polsku i po angielsku. Słownik 39 446 słów, 175 wzorców gramatycznych i rozmowa głosowa z AI. Działa w przeglądarce, bez instalacji.</p>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:clamp(24px,3vw,36px)">
+          <a href="./app/" style="background:#C1512F;color:#F6F3EE;font-size:16px;font-weight:500;padding:15px 26px;border-radius:2px" class="hj-hover-2">Zacznij bezpłatnie</a>
+          <a href="#roznica" style="border:1px solid #C9C1B5;color:#1A1714;font-size:16px;padding:15px 26px;border-radius:2px" class="hj-hover-3">Czym się różni</a>
+        </div>
+      </div>
+
+      <figure style="margin:0;border:1px solid #E2DCD2;background:#FFFDFA;padding:clamp(22px,3vw,34px)">
+        <figcaption style="font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:#8A7F73;margin-bottom:22px">Rozkład morfologiczny</figcaption>
+        <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+          <span style="font-family:'Noto Serif KR',serif;font-size:clamp(34px,4vw,46px);line-height:1">학교</span>
+          <span style="font-size:15px;color:#5C5348">szkoła</span>
+        </div>
+        <div style="display:flex;align-items:stretch;gap:10px;margin-top:24px;flex-wrap:wrap">
+          <div style="flex:1 1 130px;border-top:2px solid #C1512F;padding-top:12px">
+            <div style="font-family:'Noto Serif KR',serif;font-size:30px;color:#C1512F;line-height:1.1">學</div>
+            <div style="font-size:14px;color:#5C5348;margin-top:6px">uczyć się</div>
+          </div>
+          <div style="align-self:center;font-family:'Spectral',serif;font-size:24px;color:#8A7F73">+</div>
+          <div style="flex:1 1 130px;border-top:2px solid #C9C1B5;padding-top:12px">
+            <div style="font-family:'Noto Serif KR',serif;font-size:30px;line-height:1.1">校</div>
+            <div style="font-size:14px;color:#5C5348;margin-top:6px">szkoła</div>
+          </div>
+        </div>
+        <div style="margin-top:26px;padding-top:20px;border-top:1px solid #E2DCD2">
+          <p style="margin:0 0 14px;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:#8A7F73">To samo 學 wraca w</p>
+          <div style="display:grid;gap:10px">
+            <div style="display:flex;gap:12px;align-items:baseline"><span style="font-family:'Noto Serif KR',serif;font-size:20px"><span style="color:#C1512F">學</span>생</span><span style="font-size:14px;color:#5C5348">uczeń</span></div>
+            <div style="display:flex;gap:12px;align-items:baseline"><span style="font-family:'Noto Serif KR',serif;font-size:20px">대<span style="color:#C1512F">學</span></span><span style="font-size:14px;color:#5C5348">uniwersytet</span></div>
+          </div>
+          <p style="margin:18px 0 0;font-size:14px;line-height:1.55;color:#5C5348">1004 słowa sinokoreańskie mają ten rozkład opisany w bazie. Uczysz się budowy języka, nie listy do zapamiętania.</p>
+        </div>
+      </figure>
+    </div>
+
+    
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border-top:1px solid #E2DCD2;border-bottom:1px solid #E2DCD2">
+        <div style="padding:26px 20px 26px 0">
+          <div style="font-family:'Spectral',serif;font-size:clamp(24px,2.6vw,32px);line-height:1">39 446</div>
+          <div style="font-size:13px;color:#8A7F73;margin-top:8px">słów w słowniku</div>
+        </div>
+        <div style="padding:26px 20px">
+          <div style="font-family:'Spectral',serif;font-size:clamp(24px,2.6vw,32px);line-height:1">175</div>
+          <div style="font-size:13px;color:#8A7F73;margin-top:8px">wzorców gramatycznych</div>
+        </div>
+        <div style="padding:26px 20px">
+          <div style="font-family:'Spectral',serif;font-size:clamp(24px,2.6vw,32px);line-height:1">136</div>
+          <div style="font-size:13px;color:#8A7F73;margin-top:8px">lekcji prowadzonych</div>
+        </div>
+        <div style="padding:26px 20px">
+          <div style="font-family:'Spectral',serif;font-size:clamp(24px,2.6vw,32px);line-height:1">C1–C2</div>
+          <div style="font-size:13px;color:#8A7F73;margin-top:8px">najwyższy poziom materiału</div>
+        </div>
+      </div>
+    
+  </section>
+
+  <section id="roznica" style="max-width:1180px;margin:0 auto;padding:clamp(56px,8vw,110px) 24px 0">
+    <h2 style="margin:0;font-family:'Spectral',serif;font-weight:400;font-size:clamp(28px,3.6vw,44px);line-height:1.1">Cztery rzeczy, których nie znajdziesz w kursie ogólnym</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:clamp(28px,4vw,40px);margin-top:clamp(36px,5vw,64px)">
+      <article style="border-top:1px solid #1A1714;padding-top:20px">
+        <p style="margin:0 0 10px;font-family:'Spectral',serif;font-size:14px;color:#C1512F">01</p>
+        <h3 style="margin:0 0 12px;font-size:19px;font-weight:600;line-height:1.3">Materiał do poziomu C1–C2</h3>
+        <p style="margin:0;font-size:15px;line-height:1.65;color:#5C5348">Kursy Duolingo kończą się na B2 — sprawdziliśmy opisy wszystkich ich kursów. U nas materiał idzie wyżej: język specjalistyczny, rejestry i moduły branżowe.</p>
+      </article>
+      <article style="border-top:1px solid #1A1714;padding-top:20px">
+        <p style="margin:0 0 10px;font-family:'Spectral',serif;font-size:14px;color:#C1512F">02</p>
+        <h3 style="margin:0 0 12px;font-size:19px;font-weight:600;line-height:1.3">Słowa rozłożone na znaki</h3>
+        <p style="margin:0;font-size:15px;line-height:1.65;color:#5C5348">1004 słowa sinokoreańskie pokazują swoje elementy hanja. Kiedy poznasz 學, rozumiesz 학교, 학생 i 대학 bez uczenia się każdego osobno.</p>
+      </article>
+      <article style="border-top:1px solid #1A1714;padding-top:20px">
+        <p style="margin:0 0 10px;font-family:'Spectral',serif;font-size:14px;color:#C1512F">03</p>
+        <h3 style="margin:0 0 12px;font-size:19px;font-weight:600;line-height:1.3">Rozmowa głosowa z AI</h3>
+        <p style="margin:0;font-size:15px;line-height:1.65;color:#5C5348">Mówisz, dostajesz ocenę wymowy i korektę rejestru grzecznościowego — czyli tego, co w koreańskim decyduje o tym, czy zdanie brzmi właściwie.</p>
+      </article>
+      <article style="border-top:1px solid #1A1714;padding-top:20px">
+        <p style="margin:0 0 10px;font-family:'Spectral',serif;font-size:14px;color:#C1512F">04</p>
+        <h3 style="margin:0 0 12px;font-size:19px;font-weight:600;line-height:1.3">Czytanka dnia, codziennie nowa</h3>
+        <p style="margin:0;font-size:15px;line-height:1.65;color:#5C5348">Tekst generowany na dziś, dopasowany do znanych ci słów. Treść się nie kończy, a każde z 39 446 haseł ma własne zdanie przykładowe.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="ekrany" style="max-width:1180px;margin:clamp(56px,8vw,110px) auto 0;padding:0 24px">
+    <div style="display:flex;gap:20px;align-items:baseline;justify-content:space-between;flex-wrap:wrap;border-bottom:1px solid #E2DCD2;padding-bottom:20px">
+      <h2 style="margin:0;font-family:'Spectral',serif;font-weight:400;font-size:clamp(28px,3.6vw,44px);line-height:1.1">Jak to wygląda</h2>
+      <p style="margin:0;font-size:14px;color:#8A7F73">Zrzuty z aplikacji, bez retuszu</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:clamp(20px,3vw,32px);margin-top:clamp(28px,4vw,44px)">
+      <figure style="margin:0">
+        <div style="border:1px solid #E2DCD2;background:#FFFDFA;padding:8px"><img src="assets/shot-nauka.png" alt="Ekran Nauka w aplikacji Hooljon" style="display:block;width:100%;height:auto" /></div>
+        <figcaption style="margin-top:12px;font-size:14px;color:#5C5348">Nauka — działy, powtórki, seria dni</figcaption>
+      </figure>
+      <figure style="margin:0">
+        <div style="border:1px solid #E2DCD2;background:#FFFDFA;padding:8px"><img src="assets/shot-hanja.png" alt="Lekcja hanja ze znakiem 一" style="display:block;width:100%;height:auto" /></div>
+        <figcaption style="margin-top:12px;font-size:14px;color:#5C5348">Hanja — znak, słowa które już znasz, quiz</figcaption>
+      </figure>
+      <figure style="margin:0">
+        <div style="border:1px solid #E2DCD2;background:#FFFDFA;padding:8px"><img src="assets/shot-czytanka.png" alt="Czytanka dnia z oceną czytania na głos" style="display:block;width:100%;height:auto" /></div>
+        <figcaption style="margin-top:12px;font-size:14px;color:#5C5348">Czytanka dnia — czytasz na głos, tekst sprawdza</figcaption>
+      </figure>
+      <figure style="margin:0">
+        <div style="border:1px solid #E2DCD2;background:#FFFDFA;padding:8px"><img src="assets/shot-slownik.png" alt="Słownik z filtrami poziomu i działu" style="display:block;width:100%;height:auto" /></div>
+        <figcaption style="margin-top:12px;font-size:14px;color:#5C5348">Słownik — filtry poziomu, działu, część mowy</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="cennik" style="max-width:1180px;margin:clamp(56px,8vw,110px) auto 0;padding:0 24px">
+    <h2 style="margin:0;font-family:'Spectral',serif;font-weight:400;font-size:clamp(28px,3.6vw,44px);line-height:1.1">Cennik</h2>
+    <p style="margin:16px 0 0;max-width:52ch;font-size:16px;line-height:1.6;color:#5C5348">Bez umowy i bez okresu próbnego z kartą. Darmowa wersja jest darmowa na stałe.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(20px,3vw,28px);margin-top:clamp(32px,4vw,52px)">
+      <div style="border:1px solid #E2DCD2;background:#FFFDFA;padding:clamp(24px,3vw,32px);display:flex;flex-direction:column;gap:20px">
+        <div>
+          <p style="margin:0;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#8A7F73">Darmowy</p>
+          <p style="margin:14px 0 0;font-family:'Spectral',serif;font-size:38px;line-height:1">0 zł</p>
+        </div>
+        <ul style="margin:0;padding:0;list-style:none;display:grid;gap:10px;font-size:15px;line-height:1.5;color:#5C5348">
+          <li>Alfabet hangul w całości</li>
+          <li>Podstawowe działy słówek i powtórki</li>
+          <li>Dostęp do słownika i rozkładu słów na znaki</li>
+                <li>30 pytań dziennie, z reklamami</li>
+        </ul>
+        <a href="./app/" style="margin-top:auto;border:1px solid #C9C1B5;color:#1A1714;text-align:center;padding:13px 20px;font-size:15px;border-radius:2px" class="hj-hover-4">Załóż darmowe konto</a>
+      </div>
+      <div style="border:1px solid #C1512F;background:#FFFDFA;padding:clamp(24px,3vw,32px);display:flex;flex-direction:column;gap:20px">
+        <div>
+          <p style="margin:0;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#C1512F">Premium</p>
+          <p style="margin:14px 0 0;font-family:'Spectral',serif;font-size:38px;line-height:1">10 zł<span style="font-family:'Public Sans',sans-serif;font-size:15px;color:#8A7F73"> / mies.</span></p>
+        </div>
+        <ul style="margin:0;padding:0;list-style:none;display:grid;gap:10px;font-size:15px;line-height:1.5;color:#5C5348">
+          <li>Cały słownik 39 446 słów ze zdaniami</li>
+          <li>175 wzorców gramatycznych i 136 lekcji</li>
+          <li>Bez reklam i bez limitu pytań dziennie</li>
+                <li>Zaawansowane statystyki i eksport do CSV</li>
+                <li>Dodatkowe motywy kolorystyczne</li>
+          <li>Czytanka dnia</li>
+        </ul>
+        <a href="./app/" style="margin-top:auto;background:#C1512F;color:#F6F3EE;text-align:center;padding:13px 20px;font-size:15px;border-radius:2px" class="hj-hover-5">Wybierz Premium</a>
+      </div>
+      <div style="border:1px solid #E2DCD2;background:#FFFDFA;padding:clamp(24px,3vw,32px);display:flex;flex-direction:column;gap:20px">
+        <div>
+          <p style="margin:0;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#8A7F73">Premium Pro</p>
+          <p style="margin:14px 0 0;font-family:'Spectral',serif;font-size:38px;line-height:1">40 zł<span style="font-family:'Public Sans',sans-serif;font-size:15px;color:#8A7F73"> / mies.</span></p>
+        </div>
+        <ul style="margin:0;padding:0;list-style:none;display:grid;gap:10px;font-size:15px;line-height:1.5;color:#5C5348">
+          <li>Wszystko z Premium</li>
+          <li>Rozmowa głosowa z AI — 40 minut miesięcznie</li>
+          <li>Ocena wymowy i korekta rejestru</li>
+          <li>Czytanie na głos z oceną AI i podświetlaniem błędów</li>
+                <li>Import słówek ze zdjęcia lub pliku</li>
+                <li>Moduły branżowe: IT, prawo, K-beauty i inne</li>
+        </ul>
+        <a href="./app/" style="margin-top:auto;border:1px solid #C9C1B5;color:#1A1714;text-align:center;padding:13px 20px;font-size:15px;border-radius:2px" class="hj-hover-6">Wybierz Pro</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="nie-dla" style="max-width:1180px;margin:clamp(56px,8vw,110px) auto 0;padding:0 24px">
+    <div style="background:#EDE8E0;padding:clamp(28px,5vw,64px)">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:clamp(28px,4vw,56px)">
+        <div>
+          <h2 style="margin:0;font-family:'Spectral',serif;font-weight:400;font-size:clamp(26px,3.2vw,40px);line-height:1.15">Dla kogo to nie jest</h2>
+          <p style="margin:18px 0 0;max-width:38ch;font-size:16px;line-height:1.6;color:#5C5348">Wolimy powiedzieć to teraz niż po opłaceniu miesiąca.</p>
+        </div>
+        <ul style="margin:0;padding:0;list-style:none;display:grid;gap:22px">
+          <li style="border-top:1px solid #D6CFC4;padding-top:16px;font-size:16px;line-height:1.6;color:#3A342D">Jeśli szukasz płynności w trzy miesiące — nie obiecujemy tego i nie znamy nikogo, kto uczciwie może.</li>
+          <li style="border-top:1px solid #D6CFC4;padding-top:16px;font-size:16px;line-height:1.6;color:#3A342D">Jeśli chcesz nauki bez czytania i pisania — hangul jest tu punktem wyjścia, nie opcją.</li>
+          <li style="border-top:1px solid #D6CFC4;padding-top:16px;font-size:16px;line-height:1.6;color:#3A342D">Jeśli potrzebujesz nauczyciela, który poprawi ci esej i wytłumaczy wyjątek — to zadanie dla człowieka, nie dla tej aplikacji.</li>
+          <li style="border-top:1px solid #D6CFC4;padding-top:16px;font-size:16px;line-height:1.6;color:#3A342D">Jeśli potrzebujesz interfejsu w języku innym niż polski lub angielski — na razie go nie mamy. Kolejne wersje językowe są w przygotowaniu, ale nie podajemy terminu, bo sami go jeszcze nie znamy.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section style="max-width:1180px;margin:clamp(56px,8vw,110px) auto 0;padding:0 24px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:clamp(24px,4vw,56px);align-items:end;border-top:1px solid #1A1714;padding-top:clamp(28px,4vw,44px)">
+      <div>
+        <p style="margin:0 0 16px;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#8A7F73">Uczciwie</p>
+        <h2 style="margin:0;font-family:'Spectral',serif;font-weight:400;font-size:clamp(24px,3vw,34px);line-height:1.2;text-wrap:pretty">Jesteśmy przed startem. Nie mamy jeszcze użytkowników ani opinii.</h2>
+        <p style="margin:18px 0 0;max-width:50ch;font-size:16px;line-height:1.6;color:#5C5348">Dlatego zamiast cytatów pokazujemy liczby z bazy i zrzuty ekranu. Możesz sprawdzić wszystko sam w darmowej wersji — konto premium nie jest potrzebne, żeby zobaczyć, jak aplikacja działa.</p>
+      </div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <a href="./app/" style="background:#C1512F;color:#F6F3EE;font-size:16px;font-weight:500;padding:15px 26px;border-radius:2px" class="hj-hover-7">Otwórz aplikację</a>
+        <a href="#cennik" style="border:1px solid #C9C1B5;color:#1A1714;font-size:16px;padding:15px 26px;border-radius:2px" class="hj-hover-8">Wróć do cennika</a>
+      </div>
+    </div>
+  </section>
+
+  <footer style="margin-top:clamp(56px,8vw,110px);border-top:1px solid #E2DCD2">
+    <div style="max-width:1180px;margin:0 auto;padding:32px 24px 48px;display:flex;gap:24px;align-items:baseline;justify-content:space-between;flex-wrap:wrap">
+      <div style="display:flex;align-items:baseline;gap:10px">
+        <span style="font-family:'Noto Serif KR',serif;font-size:17px;color:#C1512F"><svg class="hj-logo" viewBox="0 0 100 100" role="img" aria-label="Hooljon"><use href="#hj-logo"/></svg></span>
+        <span style="font-size:12px;letter-spacing:0.18em;text-transform:uppercase">Hooljon</span>
+      </div>
+      <p style="margin:0;font-size:13px;color:#8A7F73">Koreański po polsku i po angielsku · PWA, działa w przeglądarce</p>
+      <a href="./app/" style="font-size:14px">Otwórz aplikację →</a>
+    </div>
+  </footer>
+</div>
+</body>
+</html>
