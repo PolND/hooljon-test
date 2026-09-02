@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.48
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.49
   Zbudowane na: c780bdf79944d15c86f3a222e692aac9 (.44) + 7254730798dbd6df84cdbbbe0dff936d (.44, gałąź rang)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -3664,6 +3664,23 @@
 
   /* CZYTANIE */
   /* Rozmiar tekstu sterowany przyciskiem Aa (przeniesiony z readerScreen). */
+  .reading-split{ display:block; }
+  .reading-main{ min-width:0; }
+  .reading-side{ display:none; }
+  @media (min-width:1100px){
+    .reading-split{
+      display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
+      gap:20px; align-items:start;
+    }
+    .reading-side{
+      display:block; position:sticky; top:12px;
+      background:var(--card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:18px; min-height:180px;
+    }
+    /* Na szerokim arkusz-pasek u dołu jest zbędny - jego rolę przejmuje panel. */
+    .word-sheet{ display:none !important; }
+  }
+
   .reading-text-box{ font-size:var(--reader-size, 21px); }
   .reading-text-box{
     background:var(--surface-2);
@@ -5368,12 +5385,23 @@
         <div class="reader-progress" id="readingProgress"><i id="readingProgressFill" style="width:0%"></i></div>
         <div class="ai-chat-status" id="readingStatus" data-i18n="readingStatusDefault">Kliknij „🎤 Zacznij czytać” i czytaj tekst na głos.</div>
 
+        <!-- Układ dwukolumnowy od 1100px: tekst po lewej, arkusz słowa jako panel
+             po prawej. To nie tylko lepsze wykorzystanie ekranu - znika ograniczenie,
+             które na wąskim obchodzimy stałą wysokością 232px. Panel może rosnąć do
+             treści, bo niczego nie zasłania, więc słowa bez hanja i przykładu
+             przestają zostawiać pustkę. Poniżej 1100px wszystko jak dotąd. -->
+        <div class="reading-split">
+        <div class="reading-main">
         <div class="reading-text-box" id="readingTextBox"></div>
 
         <div class="reading-legend">
           <span><span class="dot rl-current"></span><span data-i18n="legendNow">teraz</span></span>
           <span><span class="dot rl-correct"></span><span data-i18n="legendCorrect">poprawnie</span></span>
           <span><span class="dot rl-wrong"></span><span data-i18n="legendWrong">błędnie (kliknij, by odsłuchać)</span></span>
+        </div>
+
+        </div>
+        <aside class="reading-side" id="readingSide" aria-live="polite"></aside>
         </div>
 
         <!-- Pasek akcji przyklejony do dolnej krawędzi. Wcześniej te przyciski stały
@@ -14476,7 +14504,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.48';
+const APP_VERSION = '2026-09-02.49';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -21076,6 +21104,9 @@ function placeWordSheet(){
 }
 
 function hideWordSheet(){
+  // Panel boczny nie znika (jest częścią układu) - wraca do zachęty.
+  const side = document.getElementById('readingSide');
+  if(side) side.innerHTML = `<div class="ds-empty">${uiLang === 'en' ? 'Tap a word in the text to see its meaning.' : 'Dotknij słowa w tekście, żeby zobaczyć znaczenie.'}</div>`;
   const sheet = document.getElementById('wordSheet');
   if(sheet) sheet.hidden = true;
   const body = document.getElementById('readingTextBox');
@@ -21131,13 +21162,19 @@ function readerLookupForms(word){
 }
 
 async function openWordSheet(rawWord, el){
-  const sheet = document.getElementById('wordSheet');
+  // Na szerokim ekranie treść trafia do panelu bocznego zamiast do paska u dołu.
+  // Panel niczego nie zasłania, więc może rosnąć do treści - stąd 'auto' zamiast
+  // stałych 232px, które na wąskim są konieczne, żeby tekst nie skakał.
+  const wide = window.innerWidth >= 1100;
+  const sheet = wide
+    ? (document.getElementById('readingSide') || document.getElementById('wordSheet'))
+    : document.getElementById('wordSheet');
   if(!sheet) return;
   const word = cleanReaderWord(rawWord);
   if(!word) return;
   const token = ++wordSheetToken;
   sheet.hidden = false;
-  placeWordSheet();
+  if(!wide) placeWordSheet();
   sheet.innerHTML = `<div class="ws-top"><span class="word-ko">${escapeHtml(word)}</span></div>
     <div class="word-meta">${uiLang === 'en' ? 'Looking up…' : 'Szukam…'}</div>`;
 
