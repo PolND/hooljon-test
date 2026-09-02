@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.61
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.63
   Zbudowane na: cfbe7e532e4037e9baf133178379a283 (.60)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -3876,6 +3876,23 @@
   .gref-empty{ padding:16px 10px; font-size:13.5px; color:var(--ink-dim); text-align:center; line-height:1.55; }
   /* Wyjaśnienie konkretnego błędu - wyróżnione, bo to najważniejsza informacja
      na całym ekranie odpowiedzi. */
+  /* Panel zgłoszeń - widok dla właściciela aplikacji. */
+  .rep-card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:13px 14px; margin-bottom:10px;
+  }
+  .rep-top{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:6px; }
+  .rep-word{ font-family:var(--font-ko); font-size:17px; }
+  .rep-reason{
+    font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--hwang); border:1px solid var(--border); padding:2px 7px; border-radius:6px;
+  }
+  .rep-when{ font-size:11.5px; color:var(--ink-dim); margin-left:auto; }
+  .rep-comment{ font-size:13.5px; line-height:1.5; white-space:pre-wrap; color:var(--ink); }
+  .rep-ctx{
+    margin-top:8px; font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:11px; color:var(--ink-dim); word-break:break-all;
+  }
   .mistake-hint{
     margin:10px 0 4px; padding:11px 13px; border-radius:12px;
     background:var(--hwang-tint, var(--card-hi));
@@ -4867,6 +4884,19 @@
   </div>
 </div>
 
+<div id="reportsScreen" style="display:none;">
+  <button class="back-btn" data-back="settings" data-i18n="backSettings">Ustawienia</button>
+  <div style="max-width:640px; margin:0 auto;">
+    <h3 style="font-size:20px; margin:0 0 4px; text-align:center;">Zgłoszenia od użytkowników</h3>
+    <p class="hint-note" style="text-align:center; margin-bottom:12px;" id="reportsCount"></p>
+    <div class="row" style="margin-top:0;">
+      <button class="tool-btn" id="reportsRefreshBtn" style="flex:1;">Odśwież</button>
+      <button class="tool-btn" id="reportsCopyBtn" style="flex:1;">Kopiuj wszystkie</button>
+    </div>
+    <div id="reportsList" style="margin-top:12px;"></div>
+  </div>
+</div>
+
 <div id="settingsScreen" style="display:none;">
   <button class="back-btn" data-back="modeSelect" data-i18n="backModeSelect">Wróć</button>
   <div style="max-width:520px; margin:0 auto;">
@@ -4879,6 +4909,10 @@
     <div class="settings-row">
       <span class="sr-label" data-i18n="settingsLang">Język tłumaczeń</span>
 <button class="theme-toggle-btn" id="langToggleBtn" title="Język tłumaczeń" aria-label="Język tłumaczeń" style="font-size:13px; font-weight:700;">PL</button>
+    </div>
+    <div class="settings-row" id="settingsReportsRow" style="display:none;">
+      <span class="sr-label">Zgłoszenia od użytkowników</span>
+      <button class="theme-toggle-btn" id="openReportsBtn" title="Zgłoszenia" aria-label="Zgłoszenia">📥</button>
     </div>
     <div class="settings-row">
       <span class="sr-label" data-i18n="settingsReport">Zgłoś błąd lub uwagę</span>
@@ -14610,7 +14644,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.61';
+const APP_VERSION = '2026-09-02.63';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14625,7 +14659,7 @@ const SCREEN_IDS = {
   conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen', conjRef:'conjRefScreen',
   aiChat:'aiChatScreen', reading:'readingScreen',
   grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
-  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', myWords:'myWordsScreen', folderEdit:'folderEditScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen', account:'accountScreen'
+  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', myWords:'myWordsScreen', folderEdit:'folderEditScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen', reports:'reportsScreen', account:'accountScreen'
 };
 
 /* ── DOLNA NAWIGACJA — logika (redesign, krok 3) ──────────────────────────
@@ -14830,6 +14864,12 @@ function setScreen(screen){
   if(screen === 'conjugation') conjNewRound();
   if(screen === 'aiChat'){ applyPremiumUI(); renderAiChatTargetBanner(); renderGeminiTargetBanner(); renderGeminiLevelSelector(); }
   if(screen !== 'aiChat') stopAiChatMic(); // opuszczenie ekranu ucina mikrofon i mowę bota, żeby nic nie działało w tle
+  if(screen === 'settings'){
+    // Wiersz zgłoszeń tylko dla właściciela. To wyłącznie wygoda UI - realną bramką
+    // jest RLS na word_reports, bez którego zapytanie i tak zwróci pustkę.
+    const rr = document.getElementById('settingsReportsRow');
+    if(rr) rr.style.display = isReportsOwner() ? '' : 'none';
+  }
   if(screen === 'myWords'){ renderMyWordsScreen(); }
   if(screen === 'folderEdit'){ renderFolderEdit(); }
   if(screen === 'reading'){ applyPremiumUI(); showReadingList(); loadDailyReadingCard(); }
@@ -15800,6 +15840,80 @@ let currentReportReason = null;
    ekranie ani czego używa - i tak zwykle tego nie poda, a bez tego zgłoszenie
    "nie działa" jest bezużyteczne. Wszystko ląduje w polu komentarza, więc nie wymaga
    zmian w bazie. Dodane 2026-09-01, przed testami ze studentami koreanistyki. */
+/* ═══ PRZEGLĄD ZGŁOSZEŃ ════════════════════════════════════════════════════
+   Ekran dla właściciela aplikacji: zgłoszenia od użytkowników bez wchodzenia
+   do panelu Supabase. Przy bazie testerów zgłoszeń będzie kilkanaście dziennie
+   i ręczne odpytywanie bazy przestanie być praktyczne.
+
+   BEZPIECZEŃSTWO: sprawdzenie po stronie klienta to WYŁĄCZNIE wygoda interfejsu -
+   identyfikator jest w tym pliku jawnie i każdy może go odczytać. Prawdziwą
+   bramką musi być polityka RLS na tabeli word_reports, która pozwala czytać
+   cudze zgłoszenia tylko temu kontu. Bez niej zapytanie zwróci pustkę - czyli
+   zawodzi bezpiecznie, ale funkcja nie zadziała. Do zrobienia przez Claude Code. */
+const REPORTS_OWNER_ID = '32afb1e5-4f91-4032-9d76-761601c49734';
+let reportsCache = [];
+
+function isReportsOwner(){
+  try{ return currentUserId === REPORTS_OWNER_ID; }catch(e){ return false; }
+}
+
+async function loadReports(){
+  const list = document.getElementById('reportsList');
+  const count = document.getElementById('reportsCount');
+  if(!list) return;
+  list.innerHTML = '<div class="picker-empty">Wczytuję…</div>';
+  try{
+    const { data, error } = await sb.from('word_reports')
+      .select('id,word_ko,word_pl,word_category,reason,comment,screen_context,created_at')
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if(error) throw error;
+    reportsCache = data || [];
+  }catch(e){
+    list.innerHTML = `<div class="picker-empty">Nie udało się wczytać zgłoszeń.<br><small>${escapeHtml(e.message || String(e))}</small><br><br>Jeśli to błąd uprawnień — brakuje polityki RLS pozwalającej temu kontu czytać cudze zgłoszenia.</div>`;
+    if(count) count.textContent = '';
+    return;
+  }
+  if(count) count.textContent = reportsCache.length + (reportsCache.length === 1 ? ' zgłoszenie' : ' zgłoszeń');
+  if(!reportsCache.length){
+    list.innerHTML = '<div class="picker-empty">Brak zgłoszeń.</div>';
+    return;
+  }
+  list.innerHTML = reportsCache.map(r => {
+    // Kontekst techniczny doklejamy do komentarza przy wysyłce - rozdzielamy go
+    // z powrotem, żeby opis usera był czytelny, a dane diagnostyczne osobno.
+    const parts = String(r.comment || '').split('--- kontekst ---');
+    const userText = (parts[0] || '').trim();
+    const ctx = (parts[1] || '').trim();
+    const when = new Date(r.created_at).toLocaleString('pl-PL');
+    return `<div class="rep-card">
+      <div class="rep-top">
+        ${r.word_ko ? `<span class="rep-word">${escapeHtml(r.word_ko)}</span>` : ''}
+        ${r.word_pl ? `<span style="color:var(--ink-dim); font-size:13px;">${escapeHtml(r.word_pl)}</span>` : ''}
+        <span class="rep-reason">${escapeHtml(r.reason || '—')}</span>
+        <span class="rep-when">${escapeHtml(when)}</span>
+      </div>
+      ${userText ? `<div class="rep-comment">${escapeHtml(userText)}</div>` : ''}
+      ${ctx ? `<div class="rep-ctx">${escapeHtml(ctx)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+/* Kopiowanie całości do schowka - żeby dało się wkleić do rozmowy jednym ruchem,
+   zamiast przepisywać z ekranu. */
+function copyReportsToClipboard(){
+  if(!reportsCache.length) return;
+  const text = reportsCache.map(r => {
+    const when = new Date(r.created_at).toLocaleString('pl-PL');
+    return `[${when}] ${r.word_ko || '—'} (${r.word_pl || '—'}) · ${r.reason || '—'} · ekran: ${r.screen_context || '—'}\n${r.comment || ''}`;
+  }).join('\n\n---\n\n');
+  try{
+    navigator.clipboard.writeText(text);
+    const b = document.getElementById('reportsCopyBtn');
+    if(b){ const o = b.textContent; b.textContent = 'Skopiowano ✓'; setTimeout(()=> b.textContent = o, 1800); }
+  }catch(e){ alert('Nie udało się skopiować.'); }
+}
+
 function collectReportContext(){
   const parts = [];
   try{
@@ -19894,7 +20008,22 @@ function saveStoryProgress(){
   // "unhandled rejection" i znikał bez śladu, uniemożliwiając diagnozę. Stąd .catch()
   // na obietnicy, z jawnym logiem. Poprawione 2026-08-30 przy diagnozie braku synchronizacji.
   Promise.resolve(window.storage.set(STORAGE_KEYS.storyProgress, JSON.stringify(storyProgress)))
-    .catch(err => console.error('[Story] Nie udało się zapisać postępu na serwer:', err));
+    .then(() => {
+      // Zapis się udał - jeśli wcześniej był zablokowany, zdejmij ostrzeżenie.
+      if(storyProgressRemoteBlocked){
+        storyProgressRemoteBlocked = false;
+        try{ renderStoryMap(); }catch(e){}
+      }
+    })
+    .catch(err => {
+      // ZAPIS zawiódł. Wcześniej ostrzegaliśmy tylko przy nieudanym ODCZYCIE, więc
+      // user, któremu blokowany był wyłącznie zapis, robił kolejne lekcje w przekonaniu,
+      // że są zapisane - i dowiadywał się dopiero przy przesiadce na inne urządzenie.
+      // Potwierdzony przypadek 2026-09-02: Brave miał 7 lekcji, serwer 5.
+      console.error('[Story] Nie udało się zapisać postępu na serwer:', err);
+      storyProgressRemoteBlocked = true;
+      try{ renderStoryMap(); }catch(e){}
+    });
 }
 function isLessonDone(id){ return storyProgress.completedLessonIds.includes(id); }
 // Rozdziały odwołują się do lekcji przez JAWNE ID (lessonIds), nie przez pozycję
@@ -20024,8 +20153,8 @@ function renderStoryMap(){
   if(syncWarn){
     if(storyProgressRemoteBlocked){
       syncWarn.innerHTML = uiLang === 'en'
-        ? '⚠️ <b>Progress shown may be incomplete.</b><br>Your browser is blocking the connection to our server, so we can only show progress saved on this device. If you use Brave, tap the 🦁 lion icon in the address bar and turn Shields off for this site.'
-        : '⚠️ <b>Pokazany postęp może być niepełny.</b><br>Przeglądarka blokuje połączenie z naszym serwerem, więc widzisz tylko postęp zapisany na tym urządzeniu. Jeśli używasz Brave, kliknij ikonę lwa 🦁 w pasku adresu i wyłącz Shields dla tej strony.';
+        ? '⚠️ <b>Progress is not saving to the server.</b><br>Your browser is blocking the connection, so finished lessons stay on this device only — you will not see them on your phone. Nothing is lost: once unblocked, they upload by themselves. If you use Brave, tap the 🦁 lion icon in the address bar and turn Shields off for this site.'
+        : '⚠️ <b>Postęp nie zapisuje się na serwerze.</b><br>Przeglądarka blokuje połączenie, więc ukończone lekcje zostają tylko na tym urządzeniu — na telefonie ich nie zobaczysz. Dane nie są stracone: po odblokowaniu prześlą się same. Jeśli używasz Brave, kliknij ikonę lwa 🦁 w pasku adresu i wyłącz Shields dla tej strony.';
       syncWarn.style.display = 'block';
     } else {
       syncWarn.style.display = 'none';
@@ -23638,6 +23767,10 @@ document.getElementById('imgToggle').addEventListener('change', async (e)=>{
 });
 
 document.getElementById('grammarRefSearch').addEventListener('input', (e) => renderGrammarRef(e.target.value));
+
+document.getElementById('openReportsBtn').addEventListener('click', () => { setScreen('reports'); loadReports(); });
+document.getElementById('reportsRefreshBtn').addEventListener('click', loadReports);
+document.getElementById('reportsCopyBtn').addEventListener('click', copyReportsToClipboard);
 
 document.getElementById('addModeTypeBtn').addEventListener('click', () => setAddMode('type'));
 document.getElementById('addModePickBtn').addEventListener('click', () => setAddMode('pick'));
