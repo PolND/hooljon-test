@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.53
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.54
   Zbudowane na: c780bdf79944d15c86f3a222e692aac9 (.44) + 7254730798dbd6df84cdbbbe0dff936d (.44, gałąź rang)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -14541,7 +14541,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.53';
+const APP_VERSION = '2026-09-02.54';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -20288,6 +20288,18 @@ function showStoryQuestion(){
   storyLocked = false;
   const q = storyQueue[storyQIndex];
   const card = document.getElementById('storyQuestionCard');
+  // Czyszczenie WSZYSTKICH form odpowiedzi na samym początku, przed rozgałęzieniem.
+  // Wcześniej ukrywanie było w gałęzi pytań, a karta "nowe słówko" wychodzi z funkcji
+  // wcześniej przez return - więc po wpisanej odpowiedzi zostawała ona widoczna pod
+  // kartą kolejnego słowa. Zgłoszone przez testera 2026-09-02 (할머니 po "syn").
+  ['storyTypedWrap', 'storyOrderWrap', 'storyChoiceGrid'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+  const typedIn = document.getElementById('storyTypedInput');
+  if(typedIn){ typedIn.value = ''; typedIn.disabled = false; }
+  const aiLoad = document.getElementById('storyTypedAiLoading');
+  if(aiLoad) aiLoad.style.display = 'none';
   document.getElementById('storyLessonProgress').textContent = `${storyQIndex + 1} / ${storyQueue.length}`;
   document.getElementById('storyFeedback').innerHTML = '';
   document.getElementById('storyFeedback').className = 'feedback';
