@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.71
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.72
   Zbudowane na: cfbe7e532e4037e9baf133178379a283 (.60)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -14658,7 +14658,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.71';
+const APP_VERSION = '2026-09-02.72';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -17666,7 +17666,16 @@ const CONFUSABLE_PAIRS = [
 /* Karta porównania przy informacji zwrotnej. Pokazujemy TYLKO gdy para ma treść -
    pusta karta byłaby gorsza niż jej brak. Druga forma jest nazwana wprost, żeby
    user wiedział, z czym właściwie porównuje. */
+/* Porównanie pokazujemy RAZ na wzorzec w sesji. W trybie jednego wzorca wszystkie
+   pytania dotyczą tej samej konstrukcji, więc identyczna karta wyskakiwała przy
+   każdej odpowiedzi - po drugim razie przestaje być informacją, a staje się szumem,
+   który user przewija. Zgłoszone przez testera 2026-09-02. */
+const shownComparisons = new Set();
+function resetShownComparisons(){ shownComparisons.clear(); }
+
 function renderComparisonHtml(pattern){
+  if(shownComparisons.has(pattern)) return '';
+  shownComparisons.add(pattern);
   const list = comparisonsFor(pattern);
   if(!list.length) return '';
   return list.map(p => {
@@ -20460,6 +20469,7 @@ function renderGrammarPracticeSession(patternName){
   if(backBtn) backBtn.textContent = gpReturnScreen === 'storyLesson'
     ? (uiLang === 'en' ? 'Back to lesson' : 'Powrót do lekcji')
     : (uiLang === 'en' ? 'Back to patterns' : 'Powrót do wzorców');
+  resetShownComparisons(); // nowa sesja - porównanie może pojawić się znowu
   const basePool = collectPracticePoolForPattern(patternName);
   // Liczba rund skalowana do wielkości puli. Wcześniej zawsze dążyliśmy do 8 rund, co przy
   // puli jednozdaniowej (a tak jest dla 169 ze 175 wzorców - patrz kolejka treści) oznaczało
@@ -21683,7 +21693,14 @@ function grammarHandleAnswer(btn){
   // wiedzieć, jak nazywa się to, o co pyta. Panel nakłada się na ekran, więc runda
   // nie przepada. Odpowiedź na zarzut "muszę wyjść z apki i szukać na Reddicie".
   const refBtn = document.getElementById('grammarOpenRefBtn');
-  if(refBtn) refBtn.addEventListener('click', () => openGrammarRef(grammarCurrent.pattern));
+  if(refBtn) refBtn.addEventListener('click', (e) => {
+    // stopPropagation: bez tego kliknięcie bąbelkuje do globalnego handlera, który
+    // zamyka panele - panel otwierał się i natychmiast znikał, co wyglądało jak
+    // "przycisk nie działa". Ta sama pułapka co przy panelu motywów.
+    e.stopPropagation();
+    try{ openGrammarRef(grammarCurrent.pattern); }
+    catch(err){ console.error('[Kompendium] nie udało się otworzyć:', err); }
+  });
 
   document.getElementById('grammarSeeRegistersBtn').addEventListener('click', ()=>{
     registerIndex = 0;
