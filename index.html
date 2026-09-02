@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.64
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.65
   Zbudowane na: cfbe7e532e4037e9baf133178379a283 (.60)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -14644,7 +14644,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.64';
+const APP_VERSION = '2026-09-02.65';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14868,7 +14868,13 @@ function setScreen(screen){
     // Wiersz zgłoszeń tylko dla właściciela. To wyłącznie wygoda UI - realną bramką
     // jest RLS na word_reports, bez którego zapytanie i tak zwróci pustkę.
     const rr = document.getElementById('settingsReportsRow');
-    if(rr) rr.style.display = isReportsOwner() ? '' : 'none';
+    // setScreen nie jest asynchroniczne, więc sprawdzamy w tle i pokazujemy wiersz,
+    // gdy odpowiedź przyjdzie. Domyślnie ukryty - lepiej mignąć brakiem niż pokazać
+    // komuś, kto nie powinien tego widzieć.
+    if(rr){
+      rr.style.display = 'none';
+      isReportsOwner().then(ok => { if(ok) rr.style.display = ''; }).catch(()=>{});
+    }
   }
   if(screen === 'myWords'){ renderMyWordsScreen(); }
   if(screen === 'folderEdit'){ renderFolderEdit(); }
@@ -15853,8 +15859,15 @@ let currentReportReason = null;
 const REPORTS_OWNER_ID = '32afb1e5-4f91-4032-9d76-761601c49734';
 let reportsCache = [];
 
-function isReportsOwner(){
-  try{ return currentUserId === REPORTS_OWNER_ID; }catch(e){ return false; }
+/* currentUserId() zwraca OBIETNICĘ (czyta sesję z Supabase), więc porównanie
+   jej bezpośrednio z identyfikatorem zawsze dawało fałsz i wiersz nigdy się nie
+   pokazywał. Składnia była poprawna, więc walidator tego nie wychwycił.
+   Znalezione przez testera 2026-09-02. */
+async function isReportsOwner(){
+  try{
+    const id = await currentUserId();
+    return id === REPORTS_OWNER_ID;
+  }catch(e){ return false; }
 }
 
 async function loadReports(){
