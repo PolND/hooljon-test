@@ -37,6 +37,36 @@
   @media (max-width: 560px) {
     header nav { order: 3; width: 100%; }
   }
+
+  /* ── POWIĘKSZANIE ZRZUTÓW ────────────────────────────────────────────
+     Bez JavaScriptu: kotwica :target pokazuje nakładkę. Strona ma zero JS
+     i to zostaje - działa też przy zablokowanych skryptach.
+     Zrzuty w rzędzie po cztery są na telefonie za małe, żeby cokolwiek
+     odczytać, a to one mają pokazać produkt. */
+  .shot-link{ display:block; cursor:zoom-in; }
+  .shot-zoom{
+    position:fixed; inset:0; z-index:100;
+    display:none; align-items:center; justify-content:center;
+    background:rgba(23,20,18,.92);
+    padding:24px;
+  }
+  .shot-zoom:target{ display:flex; }
+  .shot-zoom img{
+    max-width:min(100%, 520px); max-height:92vh;
+    width:auto; height:auto;
+    border-radius:12px; box-shadow:0 30px 80px -30px rgba(0,0,0,.8);
+  }
+  /* Całe tło zamyka - na telefonie trafienie w mały krzyżyk jest uciążliwe. */
+  .shot-close{
+    position:absolute; inset:0; cursor:zoom-out;
+  }
+  .shot-x{
+    position:absolute; top:16px; right:18px;
+    width:44px; height:44px; border-radius:50%;
+    background:rgba(255,255,255,.14); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; line-height:1; text-decoration:none;
+  }
 </style>
 </head>
 <body>
@@ -160,19 +190,19 @@
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:clamp(20px,3vw,32px);margin-top:clamp(28px,4vw,44px)">
       <figure style="margin:0">
-        <div style="border:1px solid #E2DCD2;background:#FFFDFA;padding:8px"><img src="assets/shot-nauka.png" alt="Ekran Nauka w aplikacji Hooljon" style="display:block;width:100%;height:auto" /></div>
+        <div style="border:1px solid #E2DCD2;background:#FFFDFA;padding:8px"><a class="shot-link" href="#zoom-shot-nauka" aria-label="Powiększ: Ekran Nauka w aplikacji Hooljon"><img src="assets/shot-nauka.png" alt="Ekran Nauka w aplikacji Hooljon" style="display:block;width:100%;height:auto" /></a></div>
         <figcaption style="margin-top:12px;font-size:14px;color:#5C5348">Nauka — działy, powtórki, seria dni</figcaption>
       </figure>
       <figure style="margin:0">
-        <div style="border:1px solid #E2DCD2;background:#FFFDFA;padding:8px"><img src="assets/shot-hanja.png" alt="Lekcja hanja ze znakiem 一" style="display:block;width:100%;height:auto" /></div>
+        <div style="border:1px solid #E2DCD2;background:#FFFDFA;padding:8px"><a class="shot-link" href="#zoom-shot-hanja" aria-label="Powiększ: Lekcja hanja ze znakiem 一"><img src="assets/shot-hanja.png" alt="Lekcja hanja ze znakiem 一" style="display:block;width:100%;height:auto" /></a></div>
         <figcaption style="margin-top:12px;font-size:14px;color:#5C5348">Hanja — znak, słowa które już znasz, quiz</figcaption>
       </figure>
       <figure style="margin:0">
-        <div style="border:1px solid #E2DCD2;background:#FFFDFA;padding:8px"><img src="assets/shot-czytanka.png" alt="Czytanka dnia z oceną czytania na głos" style="display:block;width:100%;height:auto" /></div>
+        <div style="border:1px solid #E2DCD2;background:#FFFDFA;padding:8px"><a class="shot-link" href="#zoom-shot-czytanka" aria-label="Powiększ: Czytanka dnia z oceną czytania na głos"><img src="assets/shot-czytanka.png" alt="Czytanka dnia z oceną czytania na głos" style="display:block;width:100%;height:auto" /></a></div>
         <figcaption style="margin-top:12px;font-size:14px;color:#5C5348">Czytanka dnia — czytasz na głos, tekst sprawdza</figcaption>
       </figure>
       <figure style="margin:0">
-        <div style="border:1px solid #E2DCD2;background:#FFFDFA;padding:8px"><img src="assets/shot-slownik.png" alt="Słownik z filtrami poziomu i działu" style="display:block;width:100%;height:auto" /></div>
+        <div style="border:1px solid #E2DCD2;background:#FFFDFA;padding:8px"><a class="shot-link" href="#zoom-shot-slownik" aria-label="Powiększ: Słownik z filtrami poziomu i działu"><img src="assets/shot-slownik.png" alt="Słownik z filtrami poziomu i działu" style="display:block;width:100%;height:auto" /></a></div>
         <figcaption style="margin-top:12px;font-size:14px;color:#5C5348">Słownik — filtry poziomu, działu, część mowy</figcaption>
       </figure>
     </div>
@@ -270,5 +300,9 @@
     </div>
   </footer>
 </div>
+<div class="shot-zoom" id="zoom-shot-nauka" role="dialog" aria-label="Ekran Nauka w aplikacji Hooljon"><a class="shot-close" href="#" aria-label="Zamknij"></a><img src="assets/shot-nauka.png" alt="Ekran Nauka w aplikacji Hooljon" /><a class="shot-x" href="#" aria-label="Zamknij">&times;</a></div>
+<div class="shot-zoom" id="zoom-shot-hanja" role="dialog" aria-label="Lekcja hanja ze znakiem 一"><a class="shot-close" href="#" aria-label="Zamknij"></a><img src="assets/shot-hanja.png" alt="Lekcja hanja ze znakiem 一" /><a class="shot-x" href="#" aria-label="Zamknij">&times;</a></div>
+<div class="shot-zoom" id="zoom-shot-czytanka" role="dialog" aria-label="Czytanka dnia z oceną czytania na głos"><a class="shot-close" href="#" aria-label="Zamknij"></a><img src="assets/shot-czytanka.png" alt="Czytanka dnia z oceną czytania na głos" /><a class="shot-x" href="#" aria-label="Zamknij">&times;</a></div>
+<div class="shot-zoom" id="zoom-shot-slownik" role="dialog" aria-label="Słownik z filtrami poziomu i działu"><a class="shot-close" href="#" aria-label="Zamknij"></a><img src="assets/shot-slownik.png" alt="Słownik z filtrami poziomu i działu" /><a class="shot-x" href="#" aria-label="Zamknij">&times;</a></div>
 </body>
 </html>
