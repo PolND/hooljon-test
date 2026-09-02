@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.63
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.64
   Zbudowane na: cfbe7e532e4037e9baf133178379a283 (.60)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -14644,7 +14644,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.63';
+const APP_VERSION = '2026-09-02.64';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -23940,6 +23940,14 @@ document.getElementById('btnAiFlashcards').addEventListener('click', ()=>{
     body.style.display = isPremiumPro ? 'block' : 'none';
   }
 });
+// Przycisk bramki Premium przy generatorze scenariuszy nie miał żadnej obsługi -
+// kliknięcie nie robiło nic, a user zostawał na ekranie bez wyjaśnienia.
+// Wykryte audytem funkcji AI 2026-09-02.
+document.getElementById('scenarioGoPremiumBtn').addEventListener('click', ()=>{
+  document.getElementById('premiumPanel').classList.add('open');
+  document.getElementById('premiumPanel').scrollIntoView({behavior:'smooth', block:'start'});
+});
+
 document.getElementById('aiGoPremiumBtn').addEventListener('click', ()=>{
   document.getElementById('aiFlashcardPanel').classList.remove('open');
   document.getElementById('aiFileImportPanel').classList.remove('open');
