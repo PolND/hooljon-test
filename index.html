@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.50
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.51
   Zbudowane na: c780bdf79944d15c86f3a222e692aac9 (.44) + 7254730798dbd6df84cdbbbe0dff936d (.44, gałąź rang)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -6515,8 +6515,24 @@ const dataStore = {
           return;
         }
         case STORAGE_KEYS.dayStreak: {
-          const { count, best, lastActiveDate } = JSON.parse(value);
-          await dsUpsertColumns('rewards', userId, { day_streak: count, best_day_streak: best, last_active_date: lastActiveDate });
+          // Serię liczy WYŁĄCZNIE serwer, funkcją register_daily_activity().
+          // Bezpośredni zapis do rewards.day_streak jest zablokowany przez RLS
+          // (migracja 0024) - i słusznie, bo klient mógł wpisać dowolną liczbę.
+          //
+          // Funkcja bierze datę z current_date, więc przestawienie zegara w telefonie
+          // nic nie daje. Jest też idempotentna w obrębie doby: kolejne wywołania
+          // tego samego dnia nie podbijają licznika.
+          //
+          // Odpowiedź serwera jest ŹRÓDŁEM PRAWDY - nadpisujemy nią stan lokalny,
+          // zamiast wysyłać własną liczbę. Ten sam wzorzec co przy statusie Premium.
+          const res = await sb.rpc('register_daily_activity');
+          if(res.error) throw res.error;
+          const d = res.data;
+          if(d){
+            dayStreak = d.day_streak ?? dayStreak;
+            bestDayStreak = d.best_day_streak ?? bestDayStreak;
+            lastActiveDate = d.last_active_date ?? lastActiveDate;
+          }
           return;
         }
         case STORAGE_KEYS.badges: {
@@ -14504,7 +14520,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.50';
+const APP_VERSION = '2026-09-02.51';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
