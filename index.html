@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.70
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.71
   Zbudowane na: cfbe7e532e4037e9baf133178379a283 (.60)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -14658,7 +14658,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.70';
+const APP_VERSION = '2026-09-02.71';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -21572,7 +21572,22 @@ function grammarNewRound(){
       return;
     }
   } else {
-    items = grammarSinglePatternIdx !== null ? [grammarChapter.items[grammarSinglePatternIdx]] : grammarChapter.items;
+    // TRYB JEDNEGO WZORCA: rozwijamy moreExamples na osobne pytania. Wcześniej
+    // items miało dokładnie jeden element, więc losowanie zawsze zwracało TO SAMO
+    // zdanie - user widział jedno pytanie w kółko, mimo że wzorzec ma cztery.
+    // 522 dodane przykłady były w tym trybie niewidoczne. Zgłoszone 2026-09-02.
+    if(grammarSinglePatternIdx !== null){
+      const base = grammarChapter.items[grammarSinglePatternIdx];
+      items = [base, ...(base.moreExamples || []).map(ex => ({
+        // moreExamples nie mają pól opisowych - dziedziczą je z wzorca bazowego,
+        // żeby wyjaśnienie, tabela odmiany i porównania działały tak samo.
+        ...ex,
+        pattern: base.pattern, explain: base.explain, explainEn: base.explainEn,
+        conjHtml: base.conjHtml, conjHtmlEn: base.conjHtmlEn, register: base.register,
+      }))];
+    } else {
+      items = grammarChapter.items;
+    }
     document.getElementById('grammarChapterLabel').textContent = grammarSinglePatternIdx !== null
       ? `${grammarChapter.title} · ${uiLang === 'en' ? 'single pattern' : 'jeden wzorzec'}`
       : grammarChapter.title;
