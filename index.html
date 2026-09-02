@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.42
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.43
   Zbudowane na: 24dce504bfaf9c8c6ee73f3ee7952263 (.39)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -251,7 +251,7 @@
      reguła CSS nie zna górnego paddingu .wrap ani wysokości notcha - liczona
      na sztywno wychodziła 32px za nisko i arkusz słowa wystawał poza okno.
      Ten sam wzorzec co syncConjRefHeight. */
-  #readerScreen{ display:flex; flex-direction:column; width:100%; min-width:0;
+  #readingScreen{ display:flex; flex-direction:column; width:100%; min-width:0;
     height:var(--reader-h, calc(100dvh - var(--ad-h) - 24px)); }
   .reader-bar{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:4px 0 10px; }
   .reader-back{ flex:none; width:44px; height:44px; border:0; background:0;
@@ -3591,6 +3591,8 @@
   #geminiMicBtn.ai-chat-mic-active{background:var(--bad);}
 
   /* CZYTANIE */
+  /* Rozmiar tekstu sterowany przyciskiem Aa (przeniesiony z readerScreen). */
+  .reading-text-box{ font-size:var(--reader-size, 21px); }
   .reading-text-box{
     background:var(--surface-2);
     border:1px solid var(--border);
@@ -4647,22 +4649,6 @@
     </div>
   </div>
 
-  <div id="readerScreen" style="display:none;">
-  <!-- Makieta 5b: pasek to jeden rząd - ‹ po lewej, tytuł na środku, Aa po prawej.
-       Zamiast osobnej pigułki "Lista czytanek" nad paskiem, która zabierała
-       wiersz i rozbijała symetrię. -->
-  <div class="reader-bar">
-    <button class="reader-back" id="readerBackBtn" data-back="reading" aria-label="Lista czytanek">‹</button>
-    <div class="reader-meta" id="readerMeta"></div>
-    <button class="reader-aloud-btn" id="readerAloudBtn" title="Czytaj na głos"
-      aria-label="Czytaj na głos">🎤<span class="sr-only" data-i18n="readerAloud">Na głos</span></button>
-    <button class="reader-size" id="readerSizeBtn" aria-label="Rozmiar tekstu" title="Rozmiar tekstu">Aa</button>
-  </div>
-  <div class="reader-progress" id="readerProgress"><i id="readerProgressFill" style="width:0%"></i></div>
-  <div class="reader-body" id="readerBody"></div>
-  <!-- Arkusz słowa jest wspólny dla obu trybów - wołany też z czytania na głos. -->
-
-</div>
 
 <div id="accountScreen" style="display:none;">
   <button class="back-btn" data-back="modeSelect" data-i18n="backModeSelect">Wróć</button>
@@ -5211,8 +5197,15 @@
 
       <!-- AKTYWNE CZYTANIE -->
       <div id="readingActiveWrap" style="display:none;">
-        <button class="back-btn" id="readingBackToList" data-i18n="backReadingList">Lista czytanek</button>
-        <h3 id="readingActiveTitle" style="font-family:var(--font-ko); font-size:18px; color:var(--ink); margin:0 0 4px;"></h3>
+        <!-- Pasek jednorzędowy z makiety 5b: wstecz po lewej, tytuł na środku, Aa po
+             prawej. Przeniesiony z martwego readerScreen przy scaleniu 2026-09-02 -
+             wcześniej osobna pigułka "Lista czytanek" zabierała cały wiersz. -->
+        <div class="reader-bar">
+          <button class="reader-back" id="readingBackToList" data-back="reading" aria-label="Lista czytanek">‹</button>
+          <div class="reader-meta" id="readingActiveTitle"></div>
+          <button class="reader-size" id="readingSizeBtn" aria-label="Rozmiar tekstu" title="Rozmiar tekstu">Aa</button>
+        </div>
+        <div class="reader-progress" id="readingProgress"><i id="readingProgressFill" style="width:0%"></i></div>
         <div class="ai-chat-status" id="readingStatus" data-i18n="readingStatusDefault">Kliknij „🎤 Zacznij czytać” i czytaj tekst na głos.</div>
 
         <div class="reading-text-box" id="readingTextBox"></div>
@@ -14315,7 +14308,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.42';
+const APP_VERSION = '2026-09-02.43';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14330,7 +14323,7 @@ const SCREEN_IDS = {
   conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen', conjRef:'conjRefScreen',
   aiChat:'aiChatScreen', reading:'readingScreen',
   grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
-  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen', account:'accountScreen', reader:'readerScreen'
+  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen', account:'accountScreen'
 };
 
 /* ── DOLNA NAWIGACJA — logika (redesign, krok 3) ──────────────────────────
@@ -18344,19 +18337,11 @@ function showDictWordCardView(){
 }
 document.getElementById('dictWordCardBackBtn').addEventListener('click', showDictWordListView);
 
-document.getElementById('readerAloudBtn').addEventListener('click', () => {
-  if(!readerText) return;
-  // Bramka sprawdzana przy kliknięciu, nie przy wejściu - darmowy user ma
-  // widzieć, że funkcja istnieje. Próg ten sam co na liście: isPremium.
-  if(!isPremium){ document.getElementById('premiumPanel').classList.add('open'); return; }
-  hideWordSheet();
-  openReading(readerText);
-});
 
-document.getElementById('readerSizeBtn').addEventListener('click', () => {
+document.getElementById('readingSizeBtn').addEventListener('click', () => {
   readerSizeIdx = (readerSizeIdx + 1) % READER_SIZES.length;
-  // Zmienna siedzi na :root, ale czyta ją wyłącznie .reader-p - nagłówek
-  // i arkusz słowa mają własne, stałe rozmiary (v4 §8).
+  // Zmienna siedzi na :root, ale czytają ją tylko elementy tekstu czytanki -
+  // nagłówek i arkusz słowa mają własne, stałe rozmiary (v4 §8).
   document.documentElement.style.setProperty('--reader-size', READER_SIZES[readerSizeIdx] + 'px');
 });
 
@@ -20522,14 +20507,16 @@ function placeWordSheet(){
   sheet.style.bottom = bottom + 'px';
   // Rezerwa pod tekstem, żeby ostatni akapit nie chował się pod arkuszem.
   // Wysokość arkusza jest stała, więc kolejne tapnięcia niczym nie przesuwają.
-  const body = document.getElementById('readerBody');
+  // Rezerwa liczona dla tekstu czytanki (jedyny ekran z klikalnymi słowami
+  // po scaleniu 2026-09-02).
+  const body = document.getElementById('readingTextBox');
   if(body) body.style.paddingBottom = (sheet.offsetHeight + 12) + 'px';
 }
 
 function hideWordSheet(){
   const sheet = document.getElementById('wordSheet');
   if(sheet) sheet.hidden = true;
-  const body = document.getElementById('readerBody');
+  const body = document.getElementById('readingTextBox');
   if(body) body.style.paddingBottom = '';
   document.querySelectorAll('.reader-w[aria-selected="true"]').forEach(e => {
     e.removeAttribute('aria-selected');
@@ -20686,23 +20673,11 @@ let readerSentences = [];
 const READER_SIZES = [19, 21, 24];
 let readerSizeIdx = 1;
 
-function openReader(text){
-  readerText = text;
-  readerSentences = splitSentencesKo(text.ko);
-  setScreen('reader');
-  hideWordSheet();
-  document.getElementById('readerMeta').textContent =
-    (uiLang === 'en' && text.titleEn ? text.titleEn : text.title) || '';
-  document.documentElement.style.setProperty('--reader-size', READER_SIZES[readerSizeIdx] + 'px');
-  renderReaderBody();
-  syncReaderHeight();
-  requestAnimationFrame(syncReaderHeight);
-}
 
 // Pasek nawigacji jest na tym ekranie ukryty, ale baner reklamowy nie -
 // odejmujemy więc tylko jego wysokość.
 function syncReaderHeight(){
-  const el = document.getElementById('readerScreen');
+  const el = document.getElementById('readingScreen');
   if(!el || el.style.display === 'none') return;
   const top = el.getBoundingClientRect().top;
   const ad = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ad-h')) || 0;
@@ -20710,35 +20685,7 @@ function syncReaderHeight(){
 }
 window.addEventListener('resize', syncReaderHeight);
 
-function renderReaderBody(){
-  const body = document.getElementById('readerBody');
-  body.innerHTML = readerSentences.map((sent, i) => `
-    <p class="reader-p" data-i="${i}" data-read="false">${
-      sent.split(' ').map(w => `<span class="reader-w">${escapeHtml(w)}</span>`).join(' ')
-    }</p>`).join('');
-  body.querySelectorAll('.reader-w').forEach(w => w.addEventListener('click', (e) => {
-    e.stopPropagation();
-    body.querySelectorAll('.reader-w[aria-selected="true"]').forEach(x => x.removeAttribute('aria-selected'));
-    w.setAttribute('aria-selected', 'true');
-    openWordSheet(w.dataset.raw || w.textContent, w);
-  }));
-  body.querySelectorAll('.reader-p').forEach(p => p.addEventListener('click', () => {
-    p.dataset.read = p.dataset.read === 'true' ? 'false' : 'true';
-    updateReaderProgress();
-  }));
-  updateReaderProgress();
-}
 
-// Pasek postępu znika przy jednym fragmencie zamiast stać na zerze - ten sam
-// wzorzec co rozkład hanja: lepiej nie pokazać nic niż coś mylącego.
-function updateReaderProgress(){
-  const bar = document.getElementById('readerProgress');
-  const fill = document.getElementById('readerProgressFill');
-  if(readerSentences.length < 2){ bar.style.display = 'none'; return; }
-  bar.style.display = '';
-  const done = document.querySelectorAll('#readerBody .reader-p[data-read="true"]').length;
-  fill.style.width = Math.round(done / readerSentences.length * 100) + '%';
-}
 
 function renderReadingList(){
   const wrap = document.getElementById('readingListCards');
@@ -20829,6 +20776,17 @@ function openReading(reading){
   renderReadingText();
 }
 
+/* Pasek postępu czytania: ile słów zostało już ocenionych. W trybie głośnym to
+   uczciwszy wskaźnik niż podział na zdania z cichego czytnika - karaoke i tak
+   podświetla bieżące słowo, więc blaknięcie zdań byłoby drugim, konkurencyjnym
+   sygnałem tego samego. Przeniesione z readerScreen przy scaleniu 2026-09-02. */
+function updateReadingProgress(){
+  const fill = document.getElementById('readingProgressFill');
+  if(!fill || !readingResults || !readingResults.length){ return; }
+  const done = readingResults.filter(r => r !== null).length;
+  fill.style.width = Math.round(done / readingResults.length * 100) + '%';
+}
+
 function renderReadingText(){
   const box = document.getElementById('readingTextBox');
   box.innerHTML = readingWordsRaw.map((w, i) => {
@@ -20841,6 +20799,8 @@ function renderReadingText(){
 
   // Błędnie przeczytane słowo: odsłuchaj wzorzec. Ma pierwszeństwo, bo w trakcie
   // poprawiania wymowy to jest potrzeba pilniejsza niż sprawdzenie znaczenia.
+  updateReadingProgress();
+
   box.querySelectorAll('.reading-word.rw-wrong').forEach(el=>{
     el.addEventListener('click', (e)=>{
       e.stopPropagation();
