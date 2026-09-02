@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.45
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.46
   Zbudowane na: c780bdf79944d15c86f3a222e692aac9 (.44) + 7254730798dbd6df84cdbbbe0dff936d (.44, gałąź rang)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2372,6 +2372,36 @@
   .achv-streak-title{font-size:13.5px; color:var(--hwang); font-weight:600; text-transform:uppercase; letter-spacing:0.3px; margin-bottom:8px; font-family:var(--font-ui);}
   .achv-streak-num{font-size:40px; font-weight:700; color:var(--ink); font-family:var(--font-ui); line-height:1.1;}
   .achv-streak-label{font-size:14.5px; color:var(--ink-dim); margin-top:2px;}
+  /* Drabina rang - pełna hierarchia z zaznaczeniem, gdzie user jest teraz.
+     Stopnie osiągnięte są pełne, bieżący wyróżniony ramką akcentu, przyszłe
+     przygaszone. Pokazujemy wszystkie - świadomie, bo sens drabiny polega na
+     tym, że widać dokąd prowadzi, a nie tylko następny krok. */
+  .sage-ladder{ display:flex; flex-direction:column; gap:2px; }
+  .sl-row{
+    display:flex; align-items:center; gap:12px;
+    padding:10px 12px; border-radius:var(--radius);
+    border:1px solid transparent;
+  }
+  .sl-row.is-done{ opacity:.75; }
+  .sl-row.is-now{
+    border-color:var(--hwang);
+    background:var(--hwang-tint, var(--card-hi));
+  }
+  .sl-row.is-future{ opacity:.45; }
+  .sl-flame{
+    width:26px; text-align:center; font-size:17px; flex:none;
+    color:var(--hwang);
+  }
+  .sl-row.is-future .sl-flame{ color:var(--ink-dim); }
+  .sl-name{ flex:1; min-width:0; }
+  .sl-ko{ font-family:var(--font-ko); font-size:15px; color:var(--ink); }
+  .sl-pl{ font-size:12.5px; color:var(--ink-dim); margin-top:1px; }
+  .sl-days{
+    flex:none; font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:12px; color:var(--ink-dim);
+  }
+  .sl-row.is-now .sl-days{ color:var(--hwang); font-weight:600; }
+
   /* Droga Mędrca - ranga pod licznikiem serii. */
   .sage-rank{
     margin-top:10px; font-family:var(--font-ko); font-size:17px;
@@ -5391,6 +5421,10 @@
       <div class="sage-rank" id="sageRank"></div>
       <div class="sage-next" id="sageNext"></div>
     </div>
+
+    <h4 class="achv-section-title" data-i18n="sageLadderTitle">Droga Mędrca</h4>
+    <p class="hint-note" style="text-align:left;" data-i18n="sageLadderHint">Ranga rośnie z długością serii. Każdy dzień z rzędu przybliża do kolejnego stopnia.</p>
+    <div class="sage-ladder" id="sageLadder"></div>
 
     <h4 class="achv-section-title" data-i18n="achvBadgesTitle">Odznaki działów</h4>
     <p class="hint-note" style="text-align:left;" data-i18n="achvBadgesHint">Ukończ wszystkie słówka danego działu w trybie Nauka, żeby odblokować odznakę.</p>
@@ -14323,7 +14357,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.45';
+const APP_VERSION = '2026-09-02.46';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15010,6 +15044,8 @@ const I18N = {
   dictLoading: { pl: 'Ładowanie…', en: 'Loading…' },
   reportPanelTitle: { pl: 'Zgłoś błąd', en: 'Report an issue' },
   navLearn: { pl: 'Nauka', en: 'Learn' },
+  sageLadderTitle: { pl: 'Droga Mędrca', en: 'The Sage\'s Path' },
+  sageLadderHint: { pl: 'Ranga rośnie z długością serii. Każdy dzień z rzędu przybliża do kolejnego stopnia.', en: 'Your rank grows with your streak. Every day in a row brings the next step closer.' },
   readerAloud: { pl: 'Na głos', en: 'Aloud' },
   studyRatePrompt: { pl: 'Jak dobrze pamiętasz?', en: 'How well do you remember?' },
   settingsTitle: { pl: 'Ustawienia', en: 'Settings' },
@@ -16803,6 +16839,32 @@ const SAGE_RANKS = [
   { from:365, ko:'태조',   pl:'Władca',     en:'Founder',      flame:'✹',  desc:'Pełny rok.' },
 ];
 
+/* Pełna drabina rang. Pokazujemy WSZYSTKIE stopnie, także odległe - sens
+   hierarchii polega na tym, że widać dokąd prowadzi. Ukrywanie dalszych
+   zamieniłoby ją w zwykły licznik "do następnego". */
+function renderSageLadder(days){
+  const wrap = document.getElementById('sageLadder');
+  if(!wrap) return;
+  const cur = sageRankFor(days).rank;
+  wrap.innerHTML = SAGE_RANKS.map(r => {
+    const state = r === cur ? 'is-now' : (days >= r.from ? 'is-done' : 'is-future');
+    const left = r.from - days;
+    const days_lab = r === cur
+      ? (uiLang === 'en' ? 'now' : 'teraz')
+      : (days >= r.from
+          ? '✓'
+          : (uiLang === 'en' ? `in ${left} d` : `za ${left} dni`));
+    return `<div class="sl-row ${state}">
+      <span class="sl-flame">${r.flame}</span>
+      <span class="sl-name">
+        <span class="sl-ko">${escapeHtml(r.ko)}</span>
+        <span class="sl-pl">${escapeHtml(uiLang === 'en' ? r.en : r.pl)} · ${r.from === 0 ? (uiLang === 'en' ? 'start' : 'start') : (uiLang === 'en' ? `day ${r.from}` : `dzień ${r.from}`)}</span>
+      </span>
+      <span class="sl-days">${days_lab}</span>
+    </div>`;
+  }).join('');
+}
+
 function sageRankFor(days){
   let cur = SAGE_RANKS[0];
   for(const r of SAGE_RANKS){ if(days >= r.from) cur = r; else break; }
@@ -17029,6 +17091,7 @@ function renderAchievementsScreen(){
             : `${sr.toNext} ${sr.toNext === 1 ? 'dzień' : 'dni'} do rangi ${sr.next.pl}`)
         : (uiLang === 'en' ? 'Highest rank reached.' : 'Najwyższa ranga osiągnięta.');
     }
+    renderSageLadder(dayStreak);
   }catch(e){ /* ranga to dodatek - nie może zablokować ekranu osiągnięć */ }
   document.getElementById('achvStreakBest').textContent = bestDayStreak > dayStreak
     ? (uiLang === 'en' ? `Best streak: ${bestDayStreak} days` : `Najlepsza seria: ${bestDayStreak} dni`)
