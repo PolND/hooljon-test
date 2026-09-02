@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.69
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.70
   Zbudowane na: cfbe7e532e4037e9baf133178379a283 (.60)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -14658,7 +14658,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.69';
+const APP_VERSION = '2026-09-02.70';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -20448,11 +20448,18 @@ function collectPracticePoolForPattern(patternName){
 }
 
 let gpQueue = [];
+let gpReturnScreen = 'storyLesson'; // skąd wszedł user - powrót musi tam wracać
 let gpIndex = 0;
 const GP_TARGET_ROUNDS = 8;  // górny pułap rund
 const GP_MAX_REPEATS = 2;    // ile razy MAKSYMALNIE może się powtórzyć to samo zdanie
 
 function renderGrammarPracticeSession(patternName){
+  // Etykieta powrotu musi pasować do tego, skąd user przyszedł - "Powrót do lekcji"
+  // przy wejściu z przeglądania wzorców jest myląca, bo żadnej lekcji nie było.
+  const backBtn = document.getElementById('gpBackBtn');
+  if(backBtn) backBtn.textContent = gpReturnScreen === 'storyLesson'
+    ? (uiLang === 'en' ? 'Back to lesson' : 'Powrót do lekcji')
+    : (uiLang === 'en' ? 'Back to patterns' : 'Powrót do wzorców');
   const basePool = collectPracticePoolForPattern(patternName);
   // Liczba rund skalowana do wielkości puli. Wcześniej zawsze dążyliśmy do 8 rund, co przy
   // puli jednozdaniowej (a tak jest dla 169 ze 175 wzorców - patrz kolejka treści) oznaczało
@@ -20531,8 +20538,15 @@ document.getElementById('gpBackBtn').addEventListener('click', ()=>{
   // zresetowało całą lekcję od zera. Wracamy bezpośrednio do ekranu wyniku, który wciąż
   // tam jest, tylko ukryty - lekki, punktowy powrót zamiast pełnej maszynerii ekranów.
   document.getElementById('grammarPracticeScreen').style.display = 'none';
-  document.getElementById('storyLessonScreen').style.display = 'block';
-  currentScreen = 'storyLesson';
+  if(gpReturnScreen === 'storyLesson'){
+    // Powrót do ekranu wyniku lekcji - celowo bez setScreen, bo to wywołałoby
+    // startStoryLesson() i zresetowało lekcję od zera.
+    document.getElementById('storyLessonScreen').style.display = 'block';
+    currentScreen = 'storyLesson';
+  } else {
+    // Wejście z przeglądania wzorców - wracamy normalną nawigacją.
+    setScreen(gpReturnScreen);
+  }
 });
 document.getElementById('gpDoneBtn').addEventListener('click', ()=>{
   document.getElementById('gpBackBtn').click();
@@ -21088,6 +21102,7 @@ function finishStoryLesson(){
     `;
     patternsWrap.querySelectorAll('[data-practice-pattern]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
+        gpReturnScreen = 'storyLesson';
         setScreen('grammarPractice');
         renderGrammarPracticeSession(btn.dataset.practicePattern);
       });
@@ -21619,6 +21634,7 @@ function grammarHandleAnswer(btn){
       ${renderComparisonHtml(grammarCurrent.pattern)}
       <button class="tool-btn" id="grammarPracticeInChatBtn" style="width:100%; margin-top:10px;">💬 ${uiLang === 'en' ? 'Practice this in conversation' : 'Poćwicz to w rozmowie'}</button>
       <button class="tool-btn" id="grammarSeeRegistersBtn" style="width:100%; margin-top:8px;">🔀 ${uiLang === 'en' ? 'Compare speech registers' : 'Porównaj style grzecznościowe'}</button>
+      <button class="tool-btn" id="grammarDrillBtn" style="width:100%; margin-top:8px;">🎯 ${uiLang === 'en' ? 'Drill this pattern' : 'Poćwicz ten wzorzec'}</button>
       <button class="tool-btn" id="grammarOpenRefBtn" style="width:100%; margin-top:8px;">📖 ${uiLang === 'en' ? 'Look it up in the reference' : 'Sprawdź w kompendium'}</button>
     </div>`;
   const feedback = document.getElementById('grammarFeedback');
@@ -21657,6 +21673,18 @@ function grammarHandleAnswer(btn){
   document.getElementById('grammarSeeRegistersBtn').addEventListener('click', ()=>{
     registerIndex = 0;
     setScreen('register');
+  });
+
+  // Sesja ćwiczeniowa z WIELOMA zdaniami dla jednego wzorca. Wcześniej dostępna
+  // wyłącznie na końcu lekcji Trybu Opowieści - czyli 522 dodane przykłady były
+  // osiągalne jedną drogą, a przy przeglądaniu wzorców user dostawał jedno pytanie
+  // i szedł dalej. Zgłoszone przez testera 2026-09-02.
+  const drillBtn = document.getElementById('grammarDrillBtn');
+  if(drillBtn) drillBtn.addEventListener('click', ()=>{
+    const name = grammarCurrent.pattern;
+    gpReturnScreen = 'grammarQuiz';
+    setScreen('grammarPractice');
+    renderGrammarPracticeSession(name);
   });
 
   document.getElementById('grammarPracticeInChatBtn').addEventListener('click', ()=>{
