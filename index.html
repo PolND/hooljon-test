@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.38
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-01.39
   Zbudowane na: 6eb5ae90cb7268d2db24670785b2fcea (.32)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -4596,15 +4596,12 @@
   <button class="back-btn" id="readerBackBtn" data-back="reading" data-i18n="backReadingList">Lista czytanek</button>
   <div class="reader-bar">
     <div class="reader-meta" id="readerMeta"></div>
-    <button class="reader-aloud-btn" id="readerAloudBtn" title="Czytaj na głos z oceną AI">
-      <span aria-hidden="true">🎤</span><span data-i18n="readerAloud">Na głos</span>
-    </button>
     <button class="reader-size" id="readerSizeBtn" aria-label="Rozmiar tekstu" title="Rozmiar tekstu">Aa</button>
   </div>
   <div class="reader-progress" id="readerProgress"><i id="readerProgressFill" style="width:0%"></i></div>
   <div class="reader-body" id="readerBody"></div>
   <!-- Arkusz słowa jest wspólny dla obu trybów - wołany też z czytania na głos. -->
-  <div class="word-sheet" id="wordSheet" hidden></div>
+
 </div>
 
 <div id="accountScreen" style="display:none;">
@@ -5757,6 +5754,10 @@
   <div id="launchReadinessDetail" style="display:none; margin-top:8px; padding-top:8px; border-top:1px solid #333; line-height:1.8; max-height:55vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y;"></div>
 </div>
 
+
+<!-- Arkusz słowa: wspólny dla wszystkich ekranów z tekstem koreańskim.
+     Poza .wrap, bo jest pozycjonowany na stałe u dołu okna. -->
+<div class="word-sheet" id="wordSheet" hidden></div>
 
 <nav class="bottom-nav" id="bottomNav">
   <button class="bn-tab" data-nav="learn"><span class="bn-ico">📚</span><span class="bn-lab" data-i18n="navLearn">Nauka</span></button>
@@ -14249,7 +14250,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-01.38';
+const APP_VERSION = '2026-09-01.39';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -20669,25 +20670,17 @@ function renderReadingList(){
   wrap.innerHTML = html;
   wrap.querySelectorAll('[data-mode]').forEach((btn) => {
     btn.addEventListener('click', () => {
+      // SCALENIE 2026-09-01: jeden ekran czytania zamiast dwóch. Wcześniej wiersz
+      // otwierał cichy czytnik, a mała ikona mikrofonu - tryb głośny za bramką.
+      // User z nawyku klikał wiersz, trafiał w czytnik i nie znajdował oceny AI.
+      // Teraz obie drogi prowadzą w to samo miejsce; mikrofon jest w środku,
+      // a bramka Premium siedzi na nim, nie na wejściu.
       const item = all[Number(btn.dataset.idx)];
-      if(btn.dataset.mode === 'aloud'){
-        // Bramka Pro dotyczy WYŁĄCZNIE trybu głośnego - rozpoznawanie mowy kosztuje.
-        if(!isPremium){ document.getElementById('premiumPanel').classList.add('open'); return; }
-        openReading(item);
-      }else{
-        openReader(item);
-      }
+      openReading(item);
     });
   });
 }
 
-document.getElementById('readerAloudBtn').addEventListener('click', () => {
-  // Ten sam przepływ co ikona na liście: bramka Pro, potem tryb głośny z oceną AI.
-  if(!readerText) return;
-  if(!isPremium){ document.getElementById('premiumPanel').classList.add('open'); return; }
-  setScreen('reading');
-  openReading(readerText);
-});
 
 function openReading(reading){
   currentReading = reading;
@@ -20718,10 +20711,24 @@ function renderReadingText(){
     return `<span class="${cls}" data-idx="${i}">${escapeHtml(w)}</span>`;
   }).join(' ');
 
+  // Błędnie przeczytane słowo: odsłuchaj wzorzec. Ma pierwszeństwo, bo w trakcie
+  // poprawiania wymowy to jest potrzeba pilniejsza niż sprawdzenie znaczenia.
   box.querySelectorAll('.reading-word.rw-wrong').forEach(el=>{
-    el.addEventListener('click', ()=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
       const idx = parseInt(el.dataset.idx, 10);
       speakKorean(normalizeReadingWord(readingWordsRaw[idx]));
+    });
+  });
+
+  // Pozostałe słowa: arkusz ze znaczeniem, rozkładem hanja i odmianą.
+  // Przeniesione z cichego czytnika przy scaleniu ekranów 2026-09-01 - wcześniej
+  // ta funkcja działała tylko w trybie cichym, choć w głośnym jest równie przydatna
+  // (potykasz się o słowo, chcesz sprawdzić, co znaczy, bez przerywania nagrania).
+  box.querySelectorAll('.reading-word:not(.rw-wrong)').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const idx = parseInt(el.dataset.idx, 10);
+      openWordSheet(readingWordsRaw[idx]);
     });
   });
 }
@@ -20896,6 +20903,14 @@ document.getElementById('readingListenBtn').addEventListener('click', ()=>{
 
 document.getElementById('readingMicBtn').addEventListener('click', ()=>{
   if(readingListening){ stopReadingMic(); document.getElementById('readingStatus').textContent = uiLang === 'en' ? 'Stopped. Tap to continue.' : 'Zatrzymano. Kliknij, żeby kontynuować.'; return; }
+  // BRAMKA PREMIUM JEST TUTAJ, nie na wejściu do czytanki (scalenie 2026-09-01).
+  // Powód: samo czytanie tekstu nic nie kosztuje, więc ma być darmowe. Płatne jest
+  // dopiero rozpoznawanie mowy i ocena. Dzięki temu darmowy user WIDZI, że funkcja
+  // istnieje - zamiast nie znaleźć jej wcale, bo cały ekran był za bramką.
+  if(!isPremium){
+    document.getElementById('premiumPanel').classList.add('open');
+    return;
+  }
   readingNetworkRetried = false; // ręczne kliknięcie = świeża szansa na jedną automatyczną próbę ponowienia
 
   if(!window.isSecureContext){
