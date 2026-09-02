@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.46
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.47
   Zbudowane na: c780bdf79944d15c86f3a222e692aac9 (.44) + 7254730798dbd6df84cdbbbe0dff936d (.44, gałąź rang)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -1395,6 +1395,35 @@
   .story-next-card .snc-label{font-size:13.5px; color:var(--hwang); font-weight:600; text-transform:uppercase; letter-spacing:0.4px;}
   .story-next-card .snc-title{font-family:var(--font-ko); font-size:20px; color:var(--ink); margin:6px 0 4px;}
   .story-next-card .snc-desc{font-size:14.5px; color:var(--ink-dim); margin-bottom:16px;}
+  /* Picker słów z bazy + zestawy własnych fiszek (przywrócone 2026-09-02
+     z PRZYWROCIC-fiszki-picker.md - funkcja zgubiona przy scalaniu gałęzi). */
+  .addmode-tab.active{ background:var(--hwang); color:var(--on-accent, #fff); border-color:var(--hwang); }
+  .word-picker-results{ max-height:46vh; overflow-y:auto; overscroll-behavior:contain; margin:10px 0; border-radius:10px; }
+  .picker-row{
+    display:flex; align-items:center; gap:10px; width:100%; padding:10px;
+    border:none; border-bottom:1px solid var(--border); background:transparent;
+    color:var(--ink); text-align:left; cursor:pointer; font-family:var(--font-ui);
+  }
+  .picker-row:last-child{ border-bottom:none; }
+  .picker-row.selected{ background:var(--card-hi); }
+  .picker-row .pr-check{
+    width:20px; height:20px; flex:none; border:1.5px solid var(--border); border-radius:6px;
+    display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--on-accent, #fff);
+  }
+  .picker-row.selected .pr-check{ background:var(--hwang); border-color:var(--hwang); }
+  .picker-row .pr-text{ flex:1; min-width:0; }
+  .picker-row .pr-ko{ display:block; font-family:var(--font-ko); font-size:16px; }
+  .picker-row .pr-tr{ display:block; font-size:13px; color:var(--ink-dim); margin-top:1px; }
+  .picker-row .pr-cat{
+    font-size:10.5px; color:var(--ink-dim); background:var(--surface-2);
+    padding:2px 7px; border-radius:100px; flex:none; max-width:38%;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .picker-empty{ padding:14px 10px; font-size:13px; color:var(--ink-dim); text-align:center; line-height:1.5; }
+  .folder-actions{ display:flex; align-items:center; gap:6px; flex:none; margin-left:auto; }
+  .folder-act{ font-size:16px; opacity:.55; padding:4px 6px; border-radius:8px; }
+  .folder-act:hover, .folder-act:active{ opacity:1; background:var(--surface-2); }
+
   .level-inline{
     display:inline-block;
     font-family:var(--font-ui);
@@ -4682,6 +4711,13 @@
           <div class="desc" data-i18n="leechModeDesc">Słowa, które regularnie Ci umykają.</div>
         </span>
       </button>
+            <button class="home-card variant-row" id="vocabMyWordsCard" data-vocab-flow="myWords" style="display:none;">
+        <span class="icon">✏️</span>
+        <span>
+          <div class="title"><span data-i18n="myWordsModeTitle">Moje słówka</span> <span class="level-badge ready" id="vocabMyWordsBadge">0</span></div>
+          <div class="desc" data-i18n="myWordsModeDesc">Tylko słowa, które sam dodałeś — bez wybierania działu i poziomu.</div>
+        </span>
+      </button>
       <button class="home-card" data-target="dictBrowse">
         <span class="icon">🔍</span>
         <span>
@@ -4741,6 +4777,32 @@
     </div>
   </div>
 </div>
+
+  <div id="myWordsScreen" style="display:none;">
+    <button class="back-btn" data-back="vocabMode" data-i18n="backVocabMode">Wybór trybu</button>
+    <div style="max-width:520px; margin:0 auto;">
+      <h3 style="font-family:var(--font-ko); font-size:20px; margin:0 0 4px; text-align:center;"><span data-i18n="myWordsModeTitle">Moje słówka</span></h3>
+      <p class="hint-note" style="margin-bottom:14px; text-align:center;" data-i18n="myWordsScreenHint">Twoje własne zestawy. Ucz się całością albo wybierz jeden zestaw.</p>
+      <div class="row" style="margin-top:0;">
+        <button class="tool-btn" id="myWordsAddBtn" style="flex:1;">+ <span data-i18n="btnAddWord">Dodaj słówka</span></button>
+        <button class="tool-btn" id="myWordsNewFolderBtn" style="flex:1;"><span data-i18n="btnNewFolder">Nowy zestaw</span></button>
+      </div>
+      <div id="myWordsFolderList" class="home-screen" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <div id="folderEditScreen" style="display:none;">
+    <button class="back-btn" data-back="myWords" data-i18n="backMyWords">Moje zestawy</button>
+    <div style="max-width:520px; margin:0 auto;">
+      <h3 id="folderEditTitle" style="font-family:var(--font-ko); font-size:20px; margin:0 0 4px; text-align:center;"></h3>
+      <p class="hint-note" style="margin-bottom:14px; text-align:center;" data-i18n="folderEditHint">Dotknij słowa, żeby je usunąć z zestawu.</p>
+      <div class="row" style="margin-top:0;">
+        <button class="tool-btn" id="folderEditRenameBtn" style="flex:1;"><span data-i18n="btnRenameFolder">Zmień nazwę</span></button>
+        <button class="tool-btn" id="folderEditDeleteBtn" style="flex:1;"><span data-i18n="btnDeleteFolder">Usuń zestaw</span></button>
+      </div>
+      <div id="folderEditWordList" class="word-picker-results" style="max-height:none;"></div>
+    </div>
+  </div>
 
   <div id="dictBrowseScreen" style="display:none;">
     <button class="back-btn" data-back="vocabMode" data-i18n="backVocabMode">Wybór trybu</button>
@@ -4969,10 +5031,34 @@
       <div class="modal-card">
         <button class="modal-close" data-close="addPanel" aria-label="Zamknij">✕</button>
         <h3 data-i18n="addWordsTitle">Dodaj własne słówka</h3>
-        <p id="addWordHint">Jedna linia = jedno słówko, w formacie: <b>koreański - polski</b><br>np. 사과 - jabłko</p>
-        <textarea id="addTextarea" placeholder="사과 - jabłko&#10;물 - woda"></textarea>
-        <div class="row">
-          <button class="primary" id="saveAdd" data-i18n="saveToDict">Zapisz do słownika</button>
+
+        <div id="folderSelectWrap" style="margin-bottom:10px;">
+          <label style="display:block; font-size:12.5px; color:var(--ink-dim); margin-bottom:5px;" data-i18n="folderSelectLabel">Zapisz do zestawu:</label>
+          <select id="folderSelect" style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-size:14.5px; font-family:var(--font-ui);"></select>
+        </div>
+
+        <div class="row" style="margin-top:0;">
+          <button class="tool-btn addmode-tab active" id="addModeTypeBtn" style="flex:1;" data-i18n="addModeType">Wpisz ręcznie</button>
+          <button class="tool-btn addmode-tab" id="addModePickBtn" style="flex:1;" data-i18n="addModePick">Wybierz z bazy</button>
+        </div>
+
+        <div id="addModeTypeBody">
+          <p id="addWordHint">Jedna linia = jedno słówko, w formacie: <b>koreański - polski</b><br>np. 사과 - jabłko</p>
+          <textarea id="addTextarea" placeholder="사과 - jabłko&#10;물 - woda"></textarea>
+          <div class="row">
+            <button class="primary" id="saveAdd" data-i18n="saveToDict">Zapisz do słownika</button>
+          </div>
+        </div>
+
+        <div id="addModePickBody" style="display:none;">
+          <p class="hint-note" data-i18n="pickerHint">Szukaj po koreańsku lub po polsku. Zaznacz słowa, które chcesz dodać do swoich fiszek.</p>
+          <input type="text" id="wordPickerSearch" placeholder="np. 사과 albo jabłko" style="width:100%; padding:11px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-size:15px; font-family:var(--font-ui);">
+          <div id="wordPickerResults" class="word-picker-results"></div>
+          <div class="row">
+            <button class="primary" id="wordPickerSaveBtn" style="flex:1;" disabled>
+              <span data-i18n="pickerSave">Dodaj zaznaczone</span> <span id="wordPickerCount"></span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -14309,6 +14395,8 @@ let selectedLevel = null; // null = "Wszystkie" (bez filtra), albo 1 | 2 | 3
 // nie pojawia się w konkretnym poziomie 1/2/3 — żeby liczby na kartach poziomów były wiarygodne.
 function matchesLevel(w){
   if(selectedLevel === null || selectedLevel === undefined) return true;
+  // Własne słówka usera nie mają poziomu - nie ukrywamy ich przy filtrze.
+  if(w.level === undefined || w.level === null) return true;
   return w.level === selectedLevel;
 }
 let screenTransitionTimer = null;
@@ -14357,7 +14445,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.46';
+const APP_VERSION = '2026-09-02.47';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14372,7 +14460,7 @@ const SCREEN_IDS = {
   conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen', conjRef:'conjRefScreen',
   aiChat:'aiChatScreen', reading:'readingScreen',
   grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
-  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen', account:'accountScreen'
+  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', myWords:'myWordsScreen', folderEdit:'folderEditScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen', account:'accountScreen'
 };
 
 /* ── DOLNA NAWIGACJA — logika (redesign, krok 3) ──────────────────────────
@@ -14577,6 +14665,8 @@ function setScreen(screen){
   if(screen === 'conjugation') conjNewRound();
   if(screen === 'aiChat'){ applyPremiumUI(); renderAiChatTargetBanner(); renderGeminiTargetBanner(); renderGeminiLevelSelector(); }
   if(screen !== 'aiChat') stopAiChatMic(); // opuszczenie ekranu ucina mikrofon i mowę bota, żeby nic nie działało w tle
+  if(screen === 'myWords'){ renderMyWordsScreen(); }
+  if(screen === 'folderEdit'){ renderFolderEdit(); }
   if(screen === 'reading'){ applyPremiumUI(); showReadingList(); loadDailyReadingCard(); }
   // Opakowane: ewentualny błąd paska NIE może zablokować przełączania ekranów -
   // inaczej zepsuty pasek uniemożliwia dojście nawet do logowania (lekcja z 2026-08-31).
@@ -14633,6 +14723,7 @@ document.querySelectorAll('.home-card[data-vocab-flow]').forEach(card=>{
       setScreen('vocabStudy');
       return;
     }
+    if(flow === 'myWords'){ setScreen('myWords'); return; }
     if(flow === 'leeches'){
       vocabStudySource = 'leeches';
       setScreen('vocabStudy');
@@ -15044,6 +15135,19 @@ const I18N = {
   dictLoading: { pl: 'Ładowanie…', en: 'Loading…' },
   reportPanelTitle: { pl: 'Zgłoś błąd', en: 'Report an issue' },
   navLearn: { pl: 'Nauka', en: 'Learn' },
+  addModeType: { pl: 'Wpisz ręcznie', en: 'Type manually' },
+  addModePick: { pl: 'Wybierz z bazy', en: 'Pick from dictionary' },
+  pickerHint: { pl: 'Szukaj po koreańsku lub po polsku. Zaznacz słowa, które chcesz dodać do swoich fiszek.', en: 'Search in Korean or English. Tap the words you want to add.' },
+  pickerSave: { pl: 'Dodaj zaznaczone', en: 'Add selected' },
+  folderSelectLabel: { pl: 'Zapisz do zestawu:', en: 'Save to set:' },
+  myWordsModeTitle: { pl: 'Moje słówka', en: 'My words' },
+  myWordsModeDesc: { pl: 'Tylko słowa, które sam dodałeś — bez wybierania działu i poziomu.', en: 'Only the words you added yourself.' },
+  myWordsScreenHint: { pl: 'Twoje własne zestawy. Ucz się całością albo wybierz jeden zestaw.', en: 'Your own sets.' },
+  btnNewFolder: { pl: 'Nowy zestaw', en: 'New set' },
+  backMyWords: { pl: 'Moje zestawy', en: 'My sets' },
+  folderEditHint: { pl: 'Dotknij słowa, żeby je usunąć z zestawu.', en: 'Tap a word to remove it.' },
+  btnRenameFolder: { pl: 'Zmień nazwę', en: 'Rename' },
+  btnDeleteFolder: { pl: 'Usuń zestaw', en: 'Delete set' },
   sageLadderTitle: { pl: 'Droga Mędrca', en: 'The Sage\'s Path' },
   sageLadderHint: { pl: 'Ranga rośnie z długością serii. Każdy dzień z rzędu przybliża do kolejnego stopnia.', en: 'Your rank grows with your streak. Every day in a row brings the next step closer.' },
   readerAloud: { pl: 'Na głos', en: 'Aloud' },
@@ -16572,8 +16676,199 @@ async function loadStorage(){
   renderMissedPanel();
 }
 
+/* ═══ PICKER SŁÓW Z BAZY + ZESTAWY WŁASNYCH FISZEK ═════════════════════════
+   Przywrócone 2026-09-02 z PRZYWROCIC-fiszki-picker.md. Funkcja powstała
+   2026-08-31 i zginęła przy przyjmowaniu pliku zbudowanego na starszej bazie -
+   stąd osobny plik z instrukcją, żeby nie zależała od historii rozmowy. */
+const DEFAULT_FOLDER = '__default__';
+let pickerSelected = new Map();
+let pickerSearchTimer = null;
+let pickerLastQuery = '';
+let pendingNewFolder = null;
+let myWordsSelectedFolder = null;
+let folderEditName = null;
+
+function pickerTranslationOf(w){ return (uiLang === 'en' ? (w.en || w.pl) : (w.pl || w.en)) || ''; }
+function folderLabel(name){ return name === DEFAULT_FOLDER ? (uiLang === 'en' ? 'Unsorted' : 'Bez zestawu') : name; }
+function getMyWords(){ return allWords.filter(w => (w.category || 'Własne') === 'Własne'); }
+function getMyFolders(){
+  const map = new Map();
+  getMyWords().forEach(w => { const f = w.folder || DEFAULT_FOLDER; map.set(f, (map.get(f) || 0) + 1); });
+  return [...map.entries()].sort((a, b) => (a[0] === DEFAULT_FOLDER ? 1 : b[0] === DEFAULT_FOLDER ? -1 : a[0].localeCompare(b[0])));
+}
+
+function searchLocalWords(term, limit){
+  const t = term.toLowerCase(); const out = [];
+  for(const w of DEFAULT_WORDS){
+    if(w.ko.toLowerCase().includes(t) || (w.pl && w.pl.toLowerCase().includes(t)) || (w.en && w.en.toLowerCase().includes(t))){
+      out.push(w); if(out.length >= limit) break;
+    }
+  }
+  return out;
+}
+
+function renderPickerResults(words, loadingMore){
+  const wrap = document.getElementById('wordPickerResults');
+  if(!wrap) return;
+  if(!words.length){
+    wrap.innerHTML = `<div class="picker-empty">${uiLang === 'en' ? 'No matches. You can still add the word manually in the other tab.' : 'Brak wyników. Możesz dodać słowo ręcznie w drugiej zakładce.'}</div>`;
+    return;
+  }
+  wrap.innerHTML = words.map(w => {
+    const sel = pickerSelected.has(w.ko);
+    return `<button type="button" class="picker-row${sel ? ' selected' : ''}" data-ko="${escapeHtml(w.ko)}">
+      <span class="pr-check">${sel ? '✓' : ''}</span>
+      <span class="pr-text">
+        <span class="pr-ko">${escapeHtml(w.ko)}</span>
+        <span class="pr-tr">${escapeHtml(pickerTranslationOf(w))}</span>
+      </span>
+      ${w.category ? `<span class="pr-cat">${escapeHtml(w.category)}</span>` : ''}
+    </button>`;
+  }).join('') + (loadingMore ? `<div class="picker-empty">${uiLang === 'en' ? 'Searching the full dictionary…' : 'Szukam w pełnym słowniku…'}</div>` : '');
+  wrap.querySelectorAll('.picker-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const ko = row.dataset.ko;
+      const word = words.find(x => x.ko === ko);
+      if(!word) return;
+      if(pickerSelected.has(ko)) pickerSelected.delete(ko); else pickerSelected.set(ko, word);
+      renderPickerResults(words, false);
+      updatePickerSaveBtn();
+    });
+  });
+}
+
+function updatePickerSaveBtn(){
+  const btn = document.getElementById('wordPickerSaveBtn');
+  const cnt = document.getElementById('wordPickerCount');
+  if(!btn) return;
+  const n = pickerSelected.size;
+  btn.disabled = n === 0;
+  if(cnt) cnt.textContent = n ? `(${n})` : '';
+}
+
+async function runPickerSearch(term){
+  pickerLastQuery = term;
+  const local = searchLocalWords(term, 25);
+  renderPickerResults(local, true);
+  try{
+    const remote = await searchDictionaryWords(term, 40);
+    if(pickerLastQuery !== term) return; // user zmienił zapytanie - porzuć stary wynik
+    const seen = new Set(local.map(w => w.ko));
+    const merged = [...local];
+    remote.forEach(w => { if(!seen.has(w.ko)){ seen.add(w.ko); merged.push(w); } });
+    renderPickerResults(merged.slice(0, 50), false);
+  }catch(e){ if(pickerLastQuery === term) renderPickerResults(local, false); }
+}
+
+function setAddMode(mode){
+  const isPick = mode === 'pick';
+  document.getElementById('addModeTypeBody').style.display = isPick ? 'none' : 'block';
+  document.getElementById('addModePickBody').style.display = isPick ? 'block' : 'none';
+  document.getElementById('addModeTypeBtn').classList.toggle('active', !isPick);
+  document.getElementById('addModePickBtn').classList.toggle('active', isPick);
+  if(isPick) setTimeout(() => document.getElementById('wordPickerSearch').focus(), 50);
+}
+
+function updateFolderSelect(){
+  const sel = document.getElementById('folderSelect');
+  if(!sel) return;
+  const existing = getMyFolders().map(([name]) => name).filter(n => n !== DEFAULT_FOLDER);
+  const opts = [];
+  if(pendingNewFolder && !existing.includes(pendingNewFolder)) opts.push(pendingNewFolder);
+  opts.push(...existing);
+  sel.innerHTML = opts.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('')
+    + `<option value="${DEFAULT_FOLDER}">${uiLang === 'en' ? 'Unsorted' : 'Bez zestawu'}</option>`
+    + `<option value="__new__">${uiLang === 'en' ? '+ New set…' : '+ Nowy zestaw…'}</option>`;
+  sel.value = pendingNewFolder || (opts.length ? opts[0] : DEFAULT_FOLDER);
+}
+
+function chosenFolder(){
+  const sel = document.getElementById('folderSelect');
+  const v = sel ? sel.value : DEFAULT_FOLDER;
+  return (v === '__new__' || !v) ? DEFAULT_FOLDER : v;
+}
+
+function updateMyWordsCard(){
+  const card = document.getElementById('vocabMyWordsCard');
+  if(!card) return;
+  const own = getMyWords();
+  card.style.display = own.length ? '' : 'none';
+  const badge = document.getElementById('vocabMyWordsBadge');
+  if(badge) badge.textContent = own.length;
+}
+
+function renderMyWordsScreen(){
+  const wrap = document.getElementById('myWordsFolderList');
+  if(!wrap) return;
+  const all = getMyWords();
+  if(!all.length){
+    wrap.innerHTML = `<div class="picker-empty">${uiLang === 'en' ? 'No words of your own yet. Tap "Add words" above.' : 'Nie masz jeszcze własnych słówek. Kliknij „Dodaj słówka" powyżej.'}</div>`;
+    return;
+  }
+  const rows = [`
+    <button class="home-card variant-row" data-folder="__all__">
+      <span class="icon">📚</span>
+      <span>
+        <div class="title">${uiLang === 'en' ? 'All my words' : 'Wszystkie moje słówka'} <span class="level-badge ready">${all.length}</span></div>
+        <div class="desc">${uiLang === 'en' ? 'Everything you added, in one session.' : 'Wszystko, co dodałeś, w jednej sesji.'}</div>
+      </span>
+    </button>`];
+  getMyFolders().forEach(([name, count]) => {
+    rows.push(`
+      <button class="home-card variant-row" data-folder="${escapeHtml(name)}">
+        <span class="icon">${name === DEFAULT_FOLDER ? '📄' : '📁'}</span>
+        <span>
+          <div class="title">${escapeHtml(folderLabel(name))} <span class="level-badge ready">${count}</span></div>
+          <div class="desc">${uiLang === 'en' ? 'Practice just this set.' : 'Ucz się tylko tego zestawu.'}</div>
+        </span>
+        ${name !== DEFAULT_FOLDER ? `<span class="folder-actions"><span class="folder-act" data-edit="${escapeHtml(name)}">⚙️</span></span>` : ''}
+      </button>`);
+  });
+  wrap.innerHTML = rows.join('');
+  wrap.querySelectorAll('.home-card[data-folder]').forEach(card => {
+    card.addEventListener('click', (e) => {
+      const editEl = e.target.closest('[data-edit]');
+      if(editEl){ e.stopPropagation(); folderEditName = editEl.dataset.edit; setScreen('folderEdit'); return; }
+      const f = card.dataset.folder;
+      myWordsSelectedFolder = (f === '__all__') ? null : f;
+      vocabStudySource = 'myWords';
+      setScreen('vocabStudy');
+    });
+  });
+}
+
+function renderFolderEdit(){
+  if(!folderEditName) return;
+  const titleEl = document.getElementById('folderEditTitle');
+  const listEl = document.getElementById('folderEditWordList');
+  const words = customWords.filter(w => (w.folder || DEFAULT_FOLDER) === folderEditName);
+  if(titleEl) titleEl.textContent = folderLabel(folderEditName) + ' (' + words.length + ')';
+  if(!listEl) return;
+  if(!words.length){
+    listEl.innerHTML = `<div class="picker-empty">${uiLang === 'en' ? 'This set is empty.' : 'Ten zestaw jest pusty.'}</div>`;
+    return;
+  }
+  listEl.innerHTML = words.map(w => `
+    <button type="button" class="picker-row" data-ko="${escapeHtml(w.ko)}">
+      <span class="pr-check">✕</span>
+      <span class="pr-text">
+        <span class="pr-ko">${escapeHtml(w.ko)}</span>
+        <span class="pr-tr">${escapeHtml(pickerTranslationOf(w))}</span>
+      </span>
+    </button>`).join('');
+  listEl.querySelectorAll('.picker-row').forEach(row => {
+    row.addEventListener('click', async () => {
+      const ko = row.dataset.ko;
+      if(!confirm(uiLang === 'en' ? `Remove "${ko}"?` : `Usunąć „${ko}"?`)) return;
+      customWords = customWords.filter(w => !(w.ko === ko && (w.folder || DEFAULT_FOLDER) === folderEditName));
+      await saveCustom(); rebuildWordPool(); renderFolderEdit();
+    });
+  });
+}
+
 function rebuildWordPool(){
   allWords = [...DEFAULT_WORDS, ...customWords];
+  updateMyWordsCard();
 }
 
 function getAllCategories(){
@@ -17586,6 +17881,13 @@ function renderMissedPanel(){
 }
 
 function pickPool(){
+  // Tryb "Moje słówka": własny zestaw usera, CELOWO bez filtrowania po dziale
+  // i poziomie - user dodał te słowa świadomie.
+  if(vocabStudySource === 'myWords'){
+    let own = allWords.filter(w => (w.category || 'Własne') === 'Własne');
+    if(myWordsSelectedFolder !== null) own = own.filter(w => (w.folder || DEFAULT_FOLDER) === myWordsSelectedFolder);
+    return own;
+  }
   let base;
   if(mode === "review"){
     const keys = Object.keys(missedWords);
@@ -22701,6 +23003,78 @@ document.getElementById('imgToggle').addEventListener('change', async (e)=>{
   els.centerEmoji.style.display = (showImage && current && current.emoji) ? '' : 'none';
 });
 
+document.getElementById('addModeTypeBtn').addEventListener('click', () => setAddMode('type'));
+document.getElementById('addModePickBtn').addEventListener('click', () => setAddMode('pick'));
+
+document.getElementById('wordPickerSearch').addEventListener('input', (e) => {
+  const term = e.target.value.trim();
+  clearTimeout(pickerSearchTimer);
+  if(term.length < 1){ document.getElementById('wordPickerResults').innerHTML = ''; return; }
+  // Odczekanie przed strzałem do bazy - inaczej każda litera to osobne zapytanie.
+  pickerSearchTimer = setTimeout(() => runPickerSearch(term), 250);
+});
+
+document.getElementById('folderSelect').addEventListener('change', (e) => {
+  if(e.target.value !== '__new__') return;
+  const name = (prompt(uiLang === 'en' ? 'Name for the new set:' : 'Nazwa nowego zestawu:', '') || '').trim();
+  if(!name || name === DEFAULT_FOLDER){ updateFolderSelect(); return; }
+  pendingNewFolder = name; updateFolderSelect();
+});
+
+document.getElementById('wordPickerSaveBtn').addEventListener('click', async () => {
+  if(!pickerSelected.size) return;
+  const folder = chosenFolder();
+  const existing = new Set(customWords.map(w => w.ko));
+  let added = 0;
+  pickerSelected.forEach((w, ko) => {
+    if(existing.has(ko)) return; // już masz tę fiszkę
+    customWords.push({
+      ko: w.ko, pl: w.pl || '', en: w.en || '', emoji: w.emoji || '',
+      ex: w.ex || '', exPl: w.exPl || '', exEn: w.exEn || '',
+      level: w.level, category: 'Własne', folder, source: 'picked'
+    });
+    added++;
+  });
+  pickerSelected.clear(); updatePickerSaveBtn();
+  document.getElementById('wordPickerSearch').value = '';
+  document.getElementById('wordPickerResults').innerHTML = '';
+  if(added > 0){
+    await saveCustom(); rebuildWordPool();
+    if(selectedCategories && !selectedCategories.includes('Własne')) selectedCategories.push('Własne');
+    try{ await saveCategories(); renderCategoryPanel(); }catch(e){}
+    document.getElementById('addPanel').classList.remove('open');
+  }
+});
+
+document.getElementById('myWordsAddBtn').addEventListener('click', () => {
+  document.getElementById('addPanel').classList.add('open'); updateFolderSelect();
+});
+document.getElementById('myWordsNewFolderBtn').addEventListener('click', () => {
+  const name = (prompt(uiLang === 'en' ? 'Name for the new set:' : 'Nazwa nowego zestawu:', '') || '').trim();
+  if(!name || name === DEFAULT_FOLDER) return;
+  pendingNewFolder = name;
+  document.getElementById('addPanel').classList.add('open');
+  setAddMode('pick'); updateFolderSelect();
+});
+document.getElementById('folderEditRenameBtn').addEventListener('click', async () => {
+  if(!folderEditName) return;
+  const name = (prompt(uiLang === 'en' ? 'New name:' : 'Nowa nazwa:', folderEditName) || '').trim();
+  if(!name || name === folderEditName || name === DEFAULT_FOLDER) return;
+  customWords.forEach(w => { if((w.folder || DEFAULT_FOLDER) === folderEditName) w.folder = name; });
+  folderEditName = name;
+  await saveCustom(); rebuildWordPool(); renderFolderEdit();
+});
+document.getElementById('folderEditDeleteBtn').addEventListener('click', async () => {
+  if(!folderEditName) return;
+  const count = customWords.filter(w => (w.folder || DEFAULT_FOLDER) === folderEditName).length;
+  // Usunięcie zestawu NIE kasuje słów - przenosi je do "Bez zestawu". Przypadkowe
+  // kliknięcie nie może kosztować usera całej pracy.
+  if(!confirm(uiLang === 'en' ? `Delete set? ${count} word(s) move to "Unsorted".` : `Usunąć zestaw? ${count} słow(o/a) trafi do „Bez zestawu".`)) return;
+  customWords.forEach(w => { if((w.folder || DEFAULT_FOLDER) === folderEditName) delete w.folder; });
+  folderEditName = null;
+  await saveCustom(); rebuildWordPool(); setScreen('myWords');
+});
+
 document.getElementById('btnAdd').addEventListener('click', ()=>{
   els.addPanel.classList.toggle('open');
   els.missedPanel.classList.remove('open');
@@ -22743,7 +23117,7 @@ document.getElementById('saveAdd').addEventListener('click', async ()=>{
       const ko = parts[0].trim();
       const translation = parts.slice(1).join('-').trim();
       if(ko && translation){
-        const wordObj = { ko, category:'Własne', source:'manual' };
+        const wordObj = { ko, category:'Własne', folder: chosenFolder(), source:'manual' };
         if(uiLang === 'en') wordObj.en = translation; else wordObj.pl = translation;
         customWords.push(wordObj);
         added++;
