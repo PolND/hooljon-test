@@ -44,13 +44,34 @@
      Zrzuty w rzędzie po cztery są na telefonie za małe, żeby cokolwiek
      odczytać, a to one mają pokazać produkt. */
   .shot-link{ display:block; cursor:zoom-in; }
+  /* Nakładka jest zawsze w drzewie, ale niewidoczna i nieklikalna - dzięki temu
+     da się ją animować. 'display:none' nie animuje się w żaden sposób, więc
+     zamiast niego opacity + visibility + przesunięcie. */
   .shot-zoom{
     position:fixed; inset:0; z-index:100;
-    display:none; align-items:center; justify-content:center;
-    background:rgba(23,20,18,.92);
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(23,20,18,0);
     padding:24px;
+    opacity:0; visibility:hidden; pointer-events:none;
+    transition:opacity .22s ease, background .22s ease, visibility 0s linear .22s;
   }
-  .shot-zoom:target{ display:flex; }
+  .shot-zoom:target{
+    opacity:1; visibility:visible; pointer-events:auto;
+    background:rgba(23,20,18,.92);
+    transition:opacity .22s ease, background .22s ease, visibility 0s;
+  }
+  /* Zdjęcie wjeżdża od dołu i lekko rośnie - stąd wrażenie wysuwania,
+     a nie nagłego pojawienia się. */
+  .shot-zoom img{
+    transform:translateY(18px) scale(.97);
+    transition:transform .26s cubic-bezier(.22,1,.36,1);
+  }
+  .shot-zoom:target img{ transform:translateY(0) scale(1); }
+  /* Kto ma wyłączone animacje w systemie, dostaje natychmiastowe pokazanie. */
+  @media (prefers-reduced-motion:reduce){
+    .shot-zoom, .shot-zoom img{ transition:none; }
+    .shot-zoom img{ transform:none; }
+  }
   .shot-zoom img{
     max-width:min(100%, 520px); max-height:92vh;
     width:auto; height:auto;
@@ -300,9 +321,9 @@
     </div>
   </footer>
 </div>
-<div class="shot-zoom" id="zoom-shot-nauka" role="dialog" aria-label="Ekran Nauka w aplikacji Hooljon"><a class="shot-close" href="#" aria-label="Zamknij"></a><img src="assets/shot-nauka.png" alt="Ekran Nauka w aplikacji Hooljon" /><a class="shot-x" href="#" aria-label="Zamknij">&times;</a></div>
-<div class="shot-zoom" id="zoom-shot-hanja" role="dialog" aria-label="Lekcja hanja ze znakiem 一"><a class="shot-close" href="#" aria-label="Zamknij"></a><img src="assets/shot-hanja.png" alt="Lekcja hanja ze znakiem 一" /><a class="shot-x" href="#" aria-label="Zamknij">&times;</a></div>
-<div class="shot-zoom" id="zoom-shot-czytanka" role="dialog" aria-label="Czytanka dnia z oceną czytania na głos"><a class="shot-close" href="#" aria-label="Zamknij"></a><img src="assets/shot-czytanka.png" alt="Czytanka dnia z oceną czytania na głos" /><a class="shot-x" href="#" aria-label="Zamknij">&times;</a></div>
-<div class="shot-zoom" id="zoom-shot-slownik" role="dialog" aria-label="Słownik z filtrami poziomu i działu"><a class="shot-close" href="#" aria-label="Zamknij"></a><img src="assets/shot-slownik.png" alt="Słownik z filtrami poziomu i działu" /><a class="shot-x" href="#" aria-label="Zamknij">&times;</a></div>
+<div class="shot-zoom" id="zoom-shot-nauka" role="dialog" aria-label="Ekran Nauka w aplikacji Hooljon"><a class="shot-close" href="#ekrany" aria-label="Zamknij"></a><img src="assets/shot-nauka.png" alt="Ekran Nauka w aplikacji Hooljon" /><a class="shot-x" href="#ekrany" aria-label="Zamknij">&times;</a></div>
+<div class="shot-zoom" id="zoom-shot-hanja" role="dialog" aria-label="Lekcja hanja ze znakiem 一"><a class="shot-close" href="#ekrany" aria-label="Zamknij"></a><img src="assets/shot-hanja.png" alt="Lekcja hanja ze znakiem 一" /><a class="shot-x" href="#ekrany" aria-label="Zamknij">&times;</a></div>
+<div class="shot-zoom" id="zoom-shot-czytanka" role="dialog" aria-label="Czytanka dnia z oceną czytania na głos"><a class="shot-close" href="#ekrany" aria-label="Zamknij"></a><img src="assets/shot-czytanka.png" alt="Czytanka dnia z oceną czytania na głos" /><a class="shot-x" href="#ekrany" aria-label="Zamknij">&times;</a></div>
+<div class="shot-zoom" id="zoom-shot-slownik" role="dialog" aria-label="Słownik z filtrami poziomu i działu"><a class="shot-close" href="#ekrany" aria-label="Zamknij"></a><img src="assets/shot-slownik.png" alt="Słownik z filtrami poziomu i działu" /><a class="shot-x" href="#ekrany" aria-label="Zamknij">&times;</a></div>
 </body>
 </html>
