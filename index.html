@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.51
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.53
   Zbudowane na: c780bdf79944d15c86f3a222e692aac9 (.44) + 7254730798dbd6df84cdbbbe0dff936d (.44, gałąź rang)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2436,6 +2436,19 @@
     margin-top:10px; font-family:var(--font-ko); font-size:17px;
     color:var(--hwang); letter-spacing:.01em;
   }
+  .vacation-row{
+    margin-top:10px; display:flex; align-items:center; justify-content:center;
+    gap:10px; flex-wrap:wrap;
+  }
+  .vacation-row .vac-lab, .vacation-row .vac-state{ font-size:12.5px; color:var(--ink-dim); }
+  .vacation-row .vac-state{ color:var(--ink); }
+  .vacation-row .vac-btn{ min-height:34px; padding:5px 12px; font-size:12.5px; }
+  .shield-row{
+    margin-top:10px; display:flex; align-items:center; justify-content:center;
+    gap:8px; flex-wrap:wrap;
+  }
+  .shield-row .sh-icons{ font-size:15px; letter-spacing:2px; }
+  .shield-row .sh-lab{ font-size:12.5px; color:var(--ink-dim); }
   .sage-next{
     margin-top:3px; font-size:12.5px; color:var(--ink-dim);
   }
@@ -5565,6 +5578,8 @@
       <div class="achv-streak-best" id="achvStreakBest"></div>
       <div class="sage-rank" id="sageRank"></div>
       <div class="sage-next" id="sageNext"></div>
+      <div class="shield-row" id="shieldRow"></div>
+      <div class="vacation-row" id="vacationRow"></div>
     </div>
 
     <h4 class="achv-section-title" data-i18n="sageLadderTitle">Droga Mędrca</h4>
@@ -6532,6 +6547,12 @@ const dataStore = {
             dayStreak = d.day_streak ?? dayStreak;
             bestDayStreak = d.best_day_streak ?? bestDayStreak;
             lastActiveDate = d.last_active_date ?? lastActiveDate;
+            // Tarcze Hwarang (migracja 0026). Serwer sam decyduje o przyznaniu
+            // i zużyciu - klient tylko pokazuje wynik, nigdy go nie liczy.
+            shieldsAvailable = d.shields_available ?? shieldsAvailable;
+            vacationDaysLeft = d.vacation_days_remaining ?? 0;
+            onVacationDay = !!d.on_vacation_day;
+            try{ announceShieldEvents(d); }catch(e){ /* komunikat to dodatek */ }
           }
           return;
         }
@@ -14520,7 +14541,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.51';
+const APP_VERSION = '2026-09-02.53';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -17183,6 +17204,158 @@ let bestDayStreak = 0;
 let lastActiveDate = null; // 'YYYY-MM-DD'
 let earnedBadges = {}; // { departments: {catName: true}, allDepts: true/false }
 
+/* ═══ TARCZE HWARANG ════════════════════════════════════════════════════════
+   Ochrona serii: gdy minie doba bez nauki, tarcza ratuje licznik przed
+   wyzerowaniem. Przyznawana co 7 dni serii, limit rośnie z rangą (1/2/3).
+
+   CAŁA LOGIKA JEST PO STRONIE SERWERA (register_daily_activity, migracja 0026).
+   Klient nie liczy nic sam - odbiera stan i go pokazuje. To celowe: tarcza ma
+   wartość tylko wtedy, gdy nie da się jej sobie dopisać przestawieniem zegara.
+
+   Komunikat "masz komplet tarcz" pokazujemy RAZ DZIENNIE, nie przy każdej sesji.
+   Powtarzany przy każdym wejściu przestałby być zauważany - a wtedy nie zadziała
+   też wtedy, gdy zacznie coś znaczyć. */
+let shieldsAvailable = 0;
+/* ═══ URLOP MĘDRCA ══════════════════════════════════════════════════════════
+   Świadome zamrożenie serii na czas wyjazdu lub choroby - w odróżnieniu od tarczy,
+   która działa automatycznie, urlop użytkownik włącza sam, z wyprzedzeniem.
+
+   Dostępny przy serii powyżej 60 dni, do 7 dni, raz na pół roku.
+   Cała logika i limity po stronie serwera (migracja 0027) - klient tylko pokazuje
+   stan i wysyła prośbę. Odpowiedź serwera jest źródłem prawdy.
+
+   UWAGA: anulowanie urlopu NIE kasuje daty rozpoczęcia po stronie bazy. Bez tego
+   limit półroczny dałoby się obejść: wziąć urlop, anulować po dniu, wziąć kolejny. */
+const VACATION_MIN_STREAK = 60;
+const VACATION_MAX_DAYS = 7;
+let vacationDaysLeft = 0;
+let onVacationDay = false;
+
+async function startSageVacation(days){
+  const res = await sb.rpc('start_sage_vacation', { p_days: days });
+  if(res.error) throw res.error;
+  return res.data;
+}
+async function cancelSageVacation(){
+  const res = await sb.rpc('cancel_sage_vacation');
+  if(res.error) throw res.error;
+  return res.data;
+}
+
+/* Komunikat po nieudanej próbie - tłumaczymy powód, zamiast pokazywać kod błędu. */
+function vacationErrorText(err, availableFrom){
+  const en = uiLang === 'en';
+  if(err === 'cooldown_active'){
+    const when = availableFrom ? new Date(availableFrom).toLocaleDateString(en ? 'en-GB' : 'pl-PL') : '';
+    return en
+      ? 'You have already used a vacation in the last six months. Next one available from ' + when + '.'
+      : 'Urlop był już wykorzystany w ciągu ostatniego pół roku. Kolejny dostępny od ' + when + '.';
+  }
+  if(err === 'streak_too_short'){
+    return en
+      ? 'A vacation unlocks at a ' + VACATION_MIN_STREAK + '-day streak.'
+      : 'Urlop odblokowuje się przy serii ' + VACATION_MIN_STREAK + ' dni.';
+  }
+  if(err === 'vacation_active'){
+    return en ? 'A vacation is already running.' : 'Urlop już trwa.';
+  }
+  return en ? 'Could not start the vacation.' : 'Nie udało się rozpocząć urlopu.';
+}
+let lastShieldFullNoticeDate = null;
+
+/* Wiersz urlopu. Pokazujemy go DOPIERO od 60 dni serii - wcześniej byłby
+   informacją o czymś, czego user i tak nie może użyć, a takich w interfejsie
+   już wystarczy. Poniżej progu nic nie renderujemy. */
+function renderVacationRow(){
+  const row = document.getElementById('vacationRow');
+  if(!row) return;
+  const en = uiLang === 'en';
+
+  if(vacationDaysLeft > 0){
+    row.innerHTML = `<span class="vac-state">🌙 ${en
+      ? 'Vacation: ' + vacationDaysLeft + (vacationDaysLeft === 1 ? ' day left' : ' days left')
+      : 'Urlop: ' + vacationDaysLeft + (vacationDaysLeft === 1 ? ' dzień' : ' dni') + ' do końca'}</span>
+      <button class="tool-btn vac-btn" id="vacCancelBtn">${en ? 'End early' : 'Zakończ'}</button>`;
+    const b = document.getElementById('vacCancelBtn');
+    if(b) b.addEventListener('click', async () => {
+      if(!confirm(en ? 'End the vacation now? It cannot be started again for six months.'
+                     : 'Zakończyć urlop? Kolejny dopiero za pół roku.')) return;
+      try{
+        await cancelSageVacation();
+        vacationDaysLeft = 0;
+        renderVacationRow();
+      }catch(e){ alert(en ? 'Could not end the vacation.' : 'Nie udało się zakończyć urlopu.'); }
+    });
+    return;
+  }
+
+  if(dayStreak < VACATION_MIN_STREAK){ row.innerHTML = ''; return; }
+
+  row.innerHTML = `<span class="vac-lab">${en
+    ? 'Going away? Freeze your streak for up to ' + VACATION_MAX_DAYS + ' days.'
+    : 'Wyjeżdżasz? Zamroź serię na maksymalnie ' + VACATION_MAX_DAYS + ' dni.'}</span>
+    <button class="tool-btn vac-btn" id="vacStartBtn">${en ? 'Take a vacation' : 'Weź urlop'}</button>`;
+  const btn = document.getElementById('vacStartBtn');
+  if(btn) btn.addEventListener('click', async () => {
+    const raw = prompt(en ? 'How many days? (1-' + VACATION_MAX_DAYS + ')' : 'Ile dni? (1-' + VACATION_MAX_DAYS + ')', String(VACATION_MAX_DAYS));
+    const days = parseInt(raw, 10);
+    if(!days || days < 1 || days > VACATION_MAX_DAYS) return;
+    try{
+      const r = await startSageVacation(days);
+      if(r && r.ok === false){
+        alert(vacationErrorText(r.error, r.available_from));
+        return;
+      }
+      vacationDaysLeft = days;
+      renderVacationRow();
+      showCelebration({
+        icon: '🌙',
+        title: en ? 'Vacation started' : 'Urlop rozpoczęty',
+        subtitle: en ? 'Your streak is frozen for ' + days + (days === 1 ? ' day.' : ' days.')
+                     : 'Twoja seria jest zamrożona na ' + days + (days === 1 ? ' dzień.' : ' dni.')
+      });
+    }catch(e){ alert(en ? 'Could not start the vacation.' : 'Nie udało się rozpocząć urlopu.'); }
+  });
+}
+
+function announceShieldEvents(d){
+  if(!d) return;
+  const en = uiLang === 'en';
+  // Jedno zdarzenie na raz. Ratunek ma pierwszeństwo przed przyznaniem, bo niesie
+  // ważniejszą informację - user ma wiedzieć, że coś go uratowało, a nie tylko że
+  // coś dostał.
+  if(d.shield_used){
+    showCelebration({
+      icon: '🛡️',
+      title: en ? 'A shield saved your streak' : 'Tarcza uratowała twoją serię',
+      subtitle: en
+        ? (d.day_streak ?? '') + ' days held. Shields left: ' + (d.shields_available ?? 0) + '.'
+        : (d.day_streak ?? '') + ' dni zachowane. Zostało tarcz: ' + (d.shields_available ?? 0) + '.'
+    });
+    return;
+  }
+  if(d.shield_granted){
+    showCelebration({
+      icon: '🛡️',
+      title: en ? 'New shield earned' : 'Zdobyta tarcza',
+      subtitle: en
+        ? 'It will protect your streak if you miss a day. You have ' + (d.shields_available ?? 1) + '.'
+        : 'Ochroni serię, jeśli opuścisz dzień. Masz ich ' + (d.shields_available ?? 1) + '.'
+    });
+    return;
+  }
+  if(d.shield_grant_skipped){
+    const today = todayDateString();
+    if(lastShieldFullNoticeDate === today) return;
+    lastShieldFullNoticeDate = today;
+    showCelebration({
+      icon: '🛡️',
+      title: en ? 'Shield inventory full' : 'Masz komplet tarcz',
+      subtitle: en ? 'The next one arrives once you use this one.' : 'Kolejna trafi do ciebie, gdy zużyjesz obecną.'
+    });
+  }
+}
+
 const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100, 200, 365];
 
 /* ═══ DROGA MĘDRCA — zalążek ════════════════════════════════════════════════
@@ -17462,6 +17635,21 @@ function renderAchievementsScreen(){
         : (uiLang === 'en' ? 'Highest rank reached.' : 'Najwyższa ranga osiągnięta.');
     }
     renderSageLadder(dayStreak);
+    // Tarcze: pokazujemy zawsze, także przy zerze - user ma wiedzieć, że mechanizm
+    // istnieje, zanim zdobędzie pierwszą. Inaczej pierwsza tarcza pojawia się
+    // znikąd i nie wiadomo, czym jest.
+    renderVacationRow();
+    const shRow = document.getElementById('shieldRow');
+    if(shRow){
+      const n = shieldsAvailable || 0;
+      const icons = n > 0 ? '🛡️'.repeat(Math.min(n, 3)) : '·';
+      shRow.innerHTML = `<span class="sh-icons">${icons}</span>` +
+        `<span class="sh-lab">${n > 0
+          ? (uiLang === 'en' ? (n === 1 ? '1 shield protects your streak' : n + ' shields protect your streak')
+                             : (n === 1 ? '1 tarcza chroni twoją serię' : n + ' tarcze chronią twoją serię'))
+          : (uiLang === 'en' ? 'A shield every 7 days protects your streak'
+                             : 'Tarcza co 7 dni serii ochroni cię przed jej utratą')}</span>`;
+    }
   }catch(e){ /* ranga to dodatek - nie może zablokować ekranu osiągnięć */ }
   document.getElementById('achvStreakBest').textContent = bestDayStreak > dayStreak
     ? (uiLang === 'en' ? `Best streak: ${bestDayStreak} days` : `Najlepsza seria: ${bestDayStreak} dni`)
