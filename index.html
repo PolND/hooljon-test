@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.47
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.48
   Zbudowane na: c780bdf79944d15c86f3a222e692aac9 (.44) + 7254730798dbd6df84cdbbbe0dff936d (.44, gałąź rang)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -4226,6 +4226,30 @@
   .dict-filters .chip[aria-pressed="true"]{
     background:var(--primary); color:var(--bg); border-color:transparent;
   }
+  /* Dwie kolumny dopiero od 1100px - przy 900px kolumna 640px plus panel
+     nie mieszczą się bez ściskania listy do nieczytelnej szerokości. */
+  .dict-split{ display:block; }
+  .dict-side{ display:none; }
+  @media (min-width:1100px){
+    .dict-split{
+      display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      gap:18px; align-items:start;
+    }
+    .dict-side{
+      display:block; position:sticky; top:12px;
+      background:var(--card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:18px; min-height:220px;
+    }
+  }
+  .ds-empty{ font-size:13px; color:var(--ink-dim); line-height:1.55; }
+  .ds-ko{ font-family:var(--font-ko); font-size:40px; line-height:1.1; margin-bottom:4px; }
+  .ds-pl{ font-size:16px; color:var(--ink-dim); margin-bottom:14px; }
+  .ds-ex{ background:var(--surface-2); border-radius:14px; padding:13px; margin:14px 0; }
+  .ds-ex-ko{ font-family:var(--font-ko); font-size:15px; line-height:1.5; }
+  .ds-ex-pl{ font-size:12.5px; color:var(--ink-dim); margin-top:5px; }
+  .ds-acts{ display:flex; gap:8px; flex-wrap:wrap; }
+  .dr-row.is-selected{ background:var(--card-hi); }
+
   .dict-list{ margin-top:10px; overscroll-behavior:contain; }
   .dict-list .section-sticky{ text-transform:none; }
 
@@ -4821,7 +4845,14 @@
       <div class="dict-filters dict-filters--scroll" id="dictBrowseDepts" role="tablist"></div>
     </div>
     <p class="hint-note" id="dictBrowseCount" style="margin-top:8px;"></p>
-    <div id="dictBrowseRows" class="dict-list"></div>
+    <!-- Układ dwukolumnowy na szerokich ekranach: lista zostaje na miejscu, karta
+         słowa zmienia się obok. Bez tego kliknięcie słowa ZASTĘPUJE listę i przy
+         przeglądaniu dziesięciu słów to dziesięć razy tam i z powrotem.
+         Poniżej 1100px prawa kolumna jest ukryta i działa stara nawigacja. -->
+    <div class="dict-split">
+      <div id="dictBrowseRows" class="dict-list"></div>
+      <aside class="dict-side" id="dictBrowseSide" aria-live="polite"></aside>
+    </div>
   </div>
 
   <div id="industryModuleScreen" style="display:none;">
@@ -14445,7 +14476,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.47';
+const APP_VERSION = '2026-09-02.48';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -18582,11 +18613,87 @@ function renderDictBrowseRows(){
   wrap.querySelectorAll('.dr-row').forEach(row => {
     row.addEventListener('click', () => openDictBrowseCard(parseInt(row.dataset.idx, 10)));
   });
+
+  // Panel boczny startuje z zachętą, nie pustką - inaczej na szerokim ekranie
+  // prawa kolumna wygląda jak błąd renderowania.
+  const side = document.getElementById('dictBrowseSide');
+  if(side && !side.innerHTML.trim()){
+    side.innerHTML = `<div class="ds-empty">${uiLang === 'en' ? 'Pick a word from the list to see details.' : 'Wybierz słowo z listy, żeby zobaczyć szczegóły.'}</div>`;
+  }
 }
 
 // Karta słowa to ten sam widok co w liście działu - nie duplikujemy go, tylko
 // podstawiamy kolejkę i wracamy do słownika, a nie do wyboru poziomu.
+/* Karta słowa w panelu bocznym (szerokie ekrany). Świadomie NIE jest kopią
+   pełnej karty z dictWordList - pokazuje to, po co user tu przyszedł: słowo,
+   znaczenie, budowę i przykład. Pełna karta z nawigacją poprzednie/następne
+   zostaje na wąskich ekranach, gdzie jest jedyną drogą. */
+function renderDictSideCard(idx){
+  const side = document.getElementById('dictBrowseSide');
+  if(!side) return;
+  const w = dictBrowseList[idx];
+  if(!w){
+    side.innerHTML = `<div class="ds-empty">${uiLang === 'en' ? 'Pick a word from the list to see details.' : 'Wybierz słowo z listy, żeby zobaczyć szczegóły.'}</div>`;
+    return;
+  }
+  let hanjaHtml = '';
+  try{
+    const d = deconstructSinoWord(w.ko);
+    if(d){
+      hanjaHtml = '<div class="hanja-breakdown" style="justify-content:flex-start;">' + d.parts.map((pt, i) => {
+        const mean = uiLang === 'en' ? pt.en : pt.pl;
+        return (i ? '<span class="hb-plus">+</span>' : '') +
+          `<span class="hb-part"><span class="hb-char">${escapeHtml(pt.char)}</span>` +
+          `<span class="hb-syl">${escapeHtml(pt.syl)}</span>` +
+          `<span class="hb-mean">${escapeHtml(mean)}</span></span>`;
+      }).join('') + (d.suffix ? `<span class="hb-suffix">+ ${escapeHtml(d.suffix)}</span>` : '') + '</div>';
+    }
+  }catch(e){ /* rozkład to dodatek */ }
+
+  const ex = w.ex ? `<div class="ds-ex">
+      <div class="ds-ex-ko">${escapeHtml(w.ex)}</div>
+      <div class="ds-ex-pl">${escapeHtml(uiLang === 'en' ? (w.exEn || '') : (w.exPl || ''))}</div>
+    </div>` : '';
+
+  side.innerHTML = `
+    <div class="ds-ko">${escapeHtml(w.ko)}</div>
+    <div class="ds-pl">${escapeHtml(uiLang === 'en' ? (w.en || '') : (w.pl || ''))}</div>
+    ${hanjaHtml}
+    ${ex}
+    <div class="ds-acts">
+      <button class="tool-btn" id="dsAddBtn">${uiLang === 'en' ? 'Add to flashcards' : 'Dodaj do fiszek'}</button>
+      <button class="tool-btn" id="dsSpeakBtn">${uiLang === 'en' ? 'Listen' : 'Odsłuchaj'}</button>
+    </div>`;
+
+  const add = document.getElementById('dsAddBtn');
+  if(add) add.addEventListener('click', async () => {
+    if(customWords.some(x => x.ko === w.ko)){
+      add.textContent = uiLang === 'en' ? 'Already added' : 'Już dodane';
+      return;
+    }
+    customWords.push({
+      ko: w.ko, pl: w.pl || '', en: w.en || '', emoji: w.emoji || '',
+      ex: w.ex || '', exPl: w.exPl || '', exEn: w.exEn || '',
+      level: w.level, category: 'Własne', source: 'picked'
+    });
+    try{ await saveCustom(); rebuildWordPool(); }catch(e){}
+    add.textContent = uiLang === 'en' ? 'Added ✓' : 'Dodano ✓';
+  });
+  const sp = document.getElementById('dsSpeakBtn');
+  if(sp) sp.addEventListener('click', () => { try{ speakKorean(w.ko); }catch(e){} });
+}
+
 function openDictBrowseCard(idx){
+  // Na szerokim ekranie karta pojawia się OBOK listy - lista zostaje na miejscu,
+  // więc przeglądanie wielu słów nie wymaga cofania. Poniżej 1100px zachowanie
+  // bez zmian: przejście na osobny ekran karty.
+  if(window.innerWidth >= 1100){
+    const rows = document.querySelectorAll('#dictBrowseRows .dr-row');
+    rows.forEach(r => r.classList.toggle('is-selected', parseInt(r.dataset.idx, 10) === idx));
+    renderDictSideCard(idx);
+    return;
+  }
+
   dictWordQueue = dictBrowseList;
   dictWordIndex = idx;
   dictWordContextLabel = uiLang === 'en' ? 'Dictionary' : 'Słownik';
