@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.90
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.91
   Zbudowane na: b9af347d66bb7edec6d0d416602953c4 (.78)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -7129,7 +7129,18 @@ async function startGeminiMic(){
   clearGeminiSilenceTimer();
   document.getElementById('geminiHelpArea').style.display = 'none';
   try{
-    geminiMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    // Usuwanie echa MUSI być włączone jawnie. Przy samym { audio: true } przeglądarka
+    // nie ma obowiązku go użyć i na Androidzie często tego nie robi - wtedy mikrofon
+    // łapie głos Haksy z głośnika, a Gemini transkrybuje go jako wypowiedź ucznia.
+    // Objaw: po odpowiedzi Haksy pojawia się "twoja" kwestia, której nie wypowiedziałeś.
+    // Zgłoszone przez testera 2026-09-03 (Samsung S23, głośnik).
+    geminiMicStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: { ideal: true },
+        noiseSuppression: { ideal: true },
+        autoGainControl: { ideal: true },
+      }
+    });
   }catch(e){
     setGeminiVoiceStatus('⚠️ ' + (uiLang === 'en' ? 'Microphone access denied.' : 'Odmówiono dostępu do mikrofonu.'));
     return;
@@ -7156,6 +7167,8 @@ async function startGeminiMic(){
 }
 
 function stopGeminiMic(){
+  clearTimeout(geminiUnmuteTimer);
+  geminiMicMutedForPlayback = false;
   if(geminiProcessorNode){ try{ geminiProcessorNode.disconnect(); }catch(e){} geminiProcessorNode = null; }
   if(geminiMicStream){ geminiMicStream.getTracks().forEach(t => t.stop()); geminiMicStream = null; }
   if(geminiMicContext){ try{ geminiMicContext.close(); }catch(e){} geminiMicContext = null; }
@@ -7179,7 +7192,36 @@ function endGeminiTurn(){
 // INNY niż 16kHz wejścia) -> Float32 -> AudioBuffer, kolejkowane po czasie zakończenia
 // poprzedniego fragmentu, żeby kawałki audio z osobnych wiadomości grały płynnie,
 // bez przerw ani nakładania się.
+/* Wyciszanie mikrofonu na czas odpowiedzi Haksy - DRUGIE zabezpieczenie obok
+   echoCancellation. Samo usuwanie echa nie jest niezawodne na wszystkich
+   urządzeniach, a przy głośniku telefonu potrafi przepuścić na tyle, że model
+   transkrybuje własną odpowiedź jako wypowiedź ucznia.
+
+   Wyciszamy ścieżkę (track.enabled = false), nie zamykamy strumienia - dzięki temu
+   nie trzeba prosić o dostęp ponownie i nie ma przerwy przy wznowieniu.
+   Odblokowanie następuje, gdy kolejka odtwarzania się opróżni. */
+let geminiMicMutedForPlayback = false;
+let geminiUnmuteTimer = null;
+
+function setGeminiMicMuted(muted){
+  if(!geminiMicStream) return;
+  geminiMicStream.getAudioTracks().forEach(t => { t.enabled = !muted; });
+  geminiMicMutedForPlayback = muted;
+}
+
+/* Odblokowanie planujemy na moment, w którym skończy się zakolejkowany dźwięk.
+   Każda nowa porcja przesuwa termin, więc przy ciągłej wypowiedzi mikrofon
+   pozostaje wyciszony do jej końca. */
+function scheduleGeminiUnmute(){
+  clearTimeout(geminiUnmuteTimer);
+  const left = geminiPlaybackContext
+    ? Math.max(0, (geminiPlaybackQueueTime - geminiPlaybackContext.currentTime) * 1000)
+    : 0;
+  geminiUnmuteTimer = setTimeout(() => setGeminiMicMuted(false), left + 250);
+}
+
 function queueGeminiAudioPlayback(base64Data){
+  setGeminiMicMuted(true);
   if(!geminiPlaybackContext){
     geminiPlaybackContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
     geminiPlaybackQueueTime = geminiPlaybackContext.currentTime;
@@ -7200,6 +7242,7 @@ function queueGeminiAudioPlayback(base64Data){
   const startTime = Math.max(geminiPlaybackQueueTime, geminiPlaybackContext.currentTime);
   source.start(startTime);
   geminiPlaybackQueueTime = startTime + audioBuffer.duration;
+  scheduleGeminiUnmute();
 }
 
 // Wskaźnik minut - te same pola co potwierdził Claude Code (nazwy CELOWO inne niż
@@ -14820,7 +14863,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-03.90';
+const APP_VERSION = '2026-09-03.91';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
