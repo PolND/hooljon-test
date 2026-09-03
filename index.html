@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.74
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-02.77
   Zbudowane na: cfbe7e532e4037e9baf133178379a283 (.60)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -5514,6 +5514,9 @@
              przestają zostawiać pustkę. Poniżej 1100px wszystko jak dotąd. -->
         <div class="reading-split">
         <div class="reading-main">
+        <div class="hint-note" id="readingUnsupported" style="display:none; color:var(--bad); text-align:left;" data-i18n="speechUnsupported2">
+          Twoja przeglądarka nie obsługuje rozpoznawania mowy (Web Speech API). Ta funkcja działa najlepiej w Chrome na komputerze lub Androidzie.
+        </div>
         <div class="reading-text-box" id="readingTextBox"></div>
 
         <div class="reading-legend">
@@ -5538,9 +5541,6 @@
             <button class="tool-btn" id="readingQuizBtn" style="display:none;"><span data-i18n="checkComprehension">Zrozumienie</span></button>
           </div>
           <button class="primary" id="readingMicBtn"><span data-i18n="startReading">Zacznij czytać</span></button>
-        </div>
-        <div class="hint-note" id="readingUnsupported" style="display:none; color:var(--bad); text-align:left;" data-i18n="speechUnsupported2">
-          Twoja przeglądarka nie obsługuje rozpoznawania mowy (Web Speech API). Ta funkcja działa najlepiej w Chrome na komputerze lub Androidzie.
         </div>
         <div class="hint-note" style="text-align:left;" data-i18n="readingNote">
           Uwaga: to porównanie z tym, co <b>rozpoznał</b> mikrofon, a nie ocena wymowy/akcentu.
@@ -6993,7 +6993,18 @@ async function connectGeminiRelay(isRetry){
         appendGeminiTranscript('bot', msg.serverContent.outputTranscription.text);
       }
       if(msg.serverContent.inputTranscription && msg.serverContent.inputTranscription.text){
-        appendGeminiTranscript('user', msg.serverContent.inputTranscription.text);
+        const t = msg.serverContent.inputTranscription.text;
+        // Gemini ustawia languageCode:'ko-KR', ale modele natywnie audio potrafią
+        // zignorować to przy niewyraźnym nagraniu i transkrybować na inny język
+        // (znany otwarty błąd Google). Pokazanie userowi jego słów cyrylicą wygląda
+        // na awarię apki - lepiej poprosić o powtórzenie. Zgłoszone z Samsunga S23.
+        if(!looksLikeKorean(t)){
+          setGeminiVoiceStatus(uiLang === 'en'
+            ? 'That came through as "' + t.slice(0, 30) + '" — not Korean. Try again, closer to the mic.'
+            : 'To zostało odczytane jako „' + t.slice(0, 30) + '" — to nie koreański. Spróbuj jeszcze raz, bliżej mikrofonu.');
+        } else {
+          appendGeminiTranscript('user', t);
+        }
       }
       // turnComplete to WŁASNA, niezależna wiadomość (bez audio w tej samej ramce) -
       // sprawdzamy ją osobno, nie jako "else" od sprawdzenia parts, zgodnie z potwierdzoną
@@ -7016,6 +7027,20 @@ async function connectGeminiRelay(isRetry){
     document.getElementById('geminiConnectBtn').disabled = false;
   };
 
+/* Przywrócenie przycisków do stanu gotowości po zerwaniu połączenia. Bez tego
+   po cichym zastoju (kod 4008) mikrofon zostawał w stanie "nagrywam", a przycisk
+   połączenia był ukryty - user nie miał czym kliknąć, żeby wrócić do rozmowy. */
+function resetGeminiButtonsToReady(){
+  try{
+    const mic = document.getElementById('geminiMicBtn');
+    if(mic){ mic.classList.remove('ai-chat-mic-active'); mic.style.display = 'none'; }
+    const conn = document.getElementById('geminiConnectBtn');
+    if(conn) conn.style.display = '';
+    const disc = document.getElementById('geminiDisconnectBtn');
+    if(disc) disc.style.display = 'none';
+  }catch(e){ /* przywracanie przycisków nie może rzucać */ }
+}
+
   geminiSocket.onclose = (event) => {
     console.log('[Gemini Live] Zamknięto. Kod:', event.code, '| Powód:', event.reason || '(brak)', '| Czyste zamknięcie:', event.wasClean);
     clearTimeout(setupTimeout);
@@ -7027,6 +7052,18 @@ async function connectGeminiRelay(isRetry){
     // świeżym wdrożeniu przekaźnika czasem pęka z kodem 1006, zanim setupComplete
     // w ogóle nadejdzie - to opóźnienie propagacji między węzłami edge, nie błąd.
     // Próbujemy raz, automatycznie, zamiast zmuszać usera do ręcznego klikania ponownie.
+    // 4008: przekaźnik wykrył, że Gemini nie odpowiedziało przez 15 s od wysłania
+    // audio - cichy zastój po stronie modelu. Wcześniej nic tego nie wykrywało
+    // i rozmowa wisiała w nieskończoność z przyciskami w stanie pośrednim.
+    // Historię ZOSTAWIAMY: trzy wymiany to realny wysiłek, a zastój nie jest winą usera.
+    if(event.code === 4008){
+      setGeminiVoiceStatus(uiLang === 'en'
+        ? 'No answer came back. Tap the microphone and say it again.'
+        : 'Nie doczekaliśmy się odpowiedzi. Dotknij mikrofonu i powiedz to jeszcze raz.');
+      resetGeminiButtonsToReady();
+      return;
+    }
+
     if(!isRetry && wasNeverReady && event.code === 1006){
       console.log('[Gemini Live] Wygląda na znany przypadek opóźnienia propagacji - próbuję ponownie automatycznie...');
       setGeminiVoiceStatus(uiLang === 'en' ? 'Retrying connection…' : 'Ponawiam połączenie…');
@@ -14665,7 +14702,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-02.74';
+const APP_VERSION = '2026-09-02.77';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14885,6 +14922,15 @@ function setScreen(screen){
   if(screen === 'conjugation') conjNewRound();
   if(screen === 'aiChat'){ applyPremiumUI(); renderAiChatTargetBanner(); renderGeminiTargetBanner(); renderGeminiLevelSelector(); }
   if(screen !== 'aiChat') stopAiChatMic(); // opuszczenie ekranu ucina mikrofon i mowę bota, żeby nic nie działało w tle
+  if(screen === 'aiChat'){
+    const un = document.getElementById('aiChatUnsupported');
+    if(un && !aiChatSpeechAvailable()){
+      un.style.display = 'block';
+      un.textContent = uiLang === 'en'
+        ? 'This browser may not recognise Korean speech. If your words come out garbled, try Chrome or Safari.'
+        : 'Ta przeglądarka może nie rozpoznawać koreańskiej mowy. Jeśli twoje słowa wychodzą zniekształcone, spróbuj w Chrome lub Safari.';
+    } else if(un){ un.style.display = 'none'; }
+  }
   if(screen === 'settings'){
     // Wiersz zgłoszeń tylko dla właściciela. To wyłącznie wygoda UI - realną bramką
     // jest RLS na word_reports, bez którego zapytanie i tak zwróci pustkę.
@@ -14929,7 +14975,17 @@ function setScreen(screen){
   if(screen === 'onboarding'){ obIndex = 0; renderOnboardingStep(); }
   if(screen === 'numberSystem') renderNumberSystemScreen();
   if(screen === 'placementTest') startPlacementTest();
-  if(screen === 'storyMap') renderStoryMap();
+  if(screen === 'storyMap'){
+    renderStoryMap();
+    // Po powrocie z lekcji przeglądarka zachowuje poprzednią pozycję przewijania,
+    // więc user lądował gdzieś na dole listy zamiast przy kolejnej lekcji.
+    // Przewijamy do karty "następna lekcja" - to jedyne miejsce, które go interesuje.
+    // Zgłoszone przez testera 2026-09-02.
+    setTimeout(()=>{
+      const card = document.getElementById('storyNextCard');
+      if(card && card.scrollIntoView) card.scrollIntoView({ behavior:'smooth', block:'center' });
+    }, 60);
+  }
   if(screen === 'storyLesson') startStoryLesson();
 
   // Kluczowa naprawa: applyI18n() do tej pory było wołane TYLKO przy starcie apki i ręcznym
@@ -22103,6 +22159,31 @@ function renderReadingList(){
 
 
 function openReading(reading){
+  // Sprawdzenie wsparcia od razu przy wejściu. Wcześniej komunikat pojawiał się
+  // dopiero po kliknięciu mikrofonu - a na przeglądarkach bez Web Speech (Samsung
+  // Internet, Firefox) przycisk był ukrywany, więc nie było czego kliknąć i user
+  // nie dowiadywał się, dlaczego funkcja zniknęła. Zgłoszone 2026-09-02.
+  try{
+    const unsup = document.getElementById('readingUnsupported');
+    const mic = document.getElementById('readingMicBtn');
+    const hasSR = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+    if(unsup && mic){
+      if(!window.isSecureContext || !hasSR){
+        unsup.style.display = 'block';
+        unsup.textContent = !window.isSecureContext
+          ? (uiLang === 'en'
+              ? 'The microphone needs a secure (HTTPS) connection.'
+              : 'Mikrofon wymaga bezpiecznego połączenia (HTTPS).')
+          : (uiLang === 'en'
+              ? 'This browser does not support speech recognition, so reading aloud is unavailable. Chrome, Edge or Safari will work. Silent reading and the word sheet work normally.'
+              : 'Ta przeglądarka nie obsługuje rozpoznawania mowy, więc czytanie na głos jest niedostępne. Zadziała w Chrome, Edge lub Safari. Czytanie po cichu i podglądanie słów działają normalnie.');
+        mic.style.display = 'none';
+      } else {
+        unsup.style.display = 'none';
+        mic.style.display = '';
+      }
+    }
+  }catch(e){ /* komunikat to dodatek */ }
   currentReading = reading;
   readingWordsRaw = reading.ko.split(/\s+/).filter(Boolean);
   readingWords = readingWordsRaw.map(normalizeReadingWord);
@@ -23068,6 +23149,22 @@ function stopAiChatMic(){
   }
 }
 
+/* Sprawdzenie, czy przeglądarka faktycznie rozpozna koreański. Samsung Internet
+   i część przeglądarek mobilnych MAJĄ webkitSpeechRecognition, ale ignorują
+   ustawienie recognition.lang i używają języka systemowego - efekt to transkrypcja
+   koreańskiej mowy zapisana cyrylicą albo łacinką, a potem zawieszenie rozmowy,
+   bo model dostaje bełkot. Zgłoszone z Samsunga S23 2026-09-02. */
+function aiChatSpeechAvailable(){
+  return !!(window.SpeechRecognition || window.webkitSpeechRecognition) && window.isSecureContext;
+}
+
+/* Transkrypcja, która nie zawiera ANI JEDNEGO znaku hangul, prawie na pewno
+   pochodzi z rozpoznawania w złym języku. Lepiej powiedzieć to wprost, niż
+   wysłać bełkot do modelu i zawiesić rozmowę. */
+function looksLikeKorean(text){
+  return /[가-힣]/.test(String(text || ''));
+}
+
 function resetAiChat(){
   stopAiChatMic();
   aiChatHistory = [];
@@ -23196,6 +23293,16 @@ document.getElementById('aiChatMicBtn').addEventListener('click', ()=>{
       document.getElementById('aiChatMicBtn').textContent = '🎤 Mów';
       const finalText = aiChatTranscriptBuffer.trim();
       aiChatTranscriptBuffer = '';
+      // Transkrypcja bez ANI JEDNEGO znaku hangul znaczy, że przeglądarka
+      // rozpoznała mowę w złym języku (Samsung Internet ignoruje recognition.lang).
+      // Wysłanie tego do modelu kończyło się zawieszeniem rozmowy, bo dostawał
+      // bełkot i nie wiedział, co odpowiedzieć. Lepiej powiedzieć wprost.
+      if(finalText && !looksLikeKorean(finalText)){
+        setAiChatStatus(uiLang === 'en'
+          ? '⚠️ Your browser transcribed this as: "' + finalText.slice(0, 40) + '" — not Korean. Speech recognition is using the wrong language. Try Chrome or Safari.'
+          : '⚠️ Przeglądarka zapisała to jako: „' + finalText.slice(0, 40) + '" — to nie koreański. Rozpoznawanie mowy używa złego języka. Spróbuj w Chrome lub Safari.');
+        return;
+      }
       if(finalText) handleUserUtterance(finalText);
     };
   }
