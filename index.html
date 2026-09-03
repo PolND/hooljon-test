@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.92
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.93
   Zbudowane na: b9af347d66bb7edec6d0d416602953c4 (.78)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -3908,6 +3908,18 @@
   [data-theme="kobalt"] .qv-btn{ border-radius:var(--radius); font-weight:700; }
   [data-theme="jade"] .qv-btn{ border-radius:26px; }
 
+  /* Transkrypcja wypowiedzi ucznia - oznaczona jako przybliżona. Rozpoznawanie mowy
+     myli się przy akcencie nie-natywnym, a to większość naszych użytkowników. */
+  .ai-bubble.is-approx{ position:relative; }
+  .ai-bubble.is-approx .ai-ko{ opacity:.85; }
+  .ai-bubble.is-approx::after{
+    content:'≈'; position:absolute; top:6px; right:9px;
+    font-size:12px; color:var(--ink-dim); opacity:.6;
+  }
+  .transcript-note{
+    font-size:11.5px; color:var(--ink-dim); text-align:center;
+    padding:6px 12px; line-height:1.45;
+  }
   .mistake-hint{
     margin:10px 0 4px; padding:11px 13px; border-radius:12px;
     background:var(--hwang-tint, var(--card-hi));
@@ -6855,14 +6867,30 @@ let geminiCurrentUserText = '';
 function renderGeminiTranscript(){
   const wrap = document.getElementById('geminiVoiceTranscript');
   if(!wrap) return;
-  const finalized = geminiTranscriptHistory.map(t =>
-    `<div class="ai-bubble ${t.speaker}"><div class="ai-ko">${escapeHtml(t.text)}</div></div>`
-  ).join('');
+  // Transkrypcja WYPOWIEDZI UCZNIA jest oznaczona jako przybliżona. Rozpoznawanie
+  // mowy radzi sobie z koreańskim nie-natywnym wyraźnie gorzej niż z natywnym -
+  // potwierdziliśmy to wcześniej testem Web Speech, a Gemini ma ten sam problem
+  // (zgłoszone 2026-09-03: "이름이 뭐예요" zapisane jako "25예요").
+  //
+  // Nie da się tego naprawić po naszej stronie. Ale można przestać podawać wynik
+  // jako fakt: user, który widzi swoje poprawne zdanie zapisane jako bełkot,
+  // uznaje że źle wymówił - a to nieprawda i zniechęca.
+  const bubble = (t) => t.speaker === 'user'
+    ? `<div class="ai-bubble user is-approx"><div class="ai-ko">${escapeHtml(t.text)}</div></div>`
+    : `<div class="ai-bubble bot"><div class="ai-ko">${escapeHtml(t.text)}</div></div>`;
+  const finalized = geminiTranscriptHistory.map(bubble).join('');
   const inProgress = (geminiCurrentBotText || geminiCurrentUserText) ? `
-    ${geminiCurrentUserText ? `<div class="ai-bubble user"><div class="ai-ko">${escapeHtml(geminiCurrentUserText)}</div></div>` : ''}
+    ${geminiCurrentUserText ? `<div class="ai-bubble user is-approx"><div class="ai-ko">${escapeHtml(geminiCurrentUserText)}</div></div>` : ''}
     ${geminiCurrentBotText ? `<div class="ai-bubble bot"><div class="ai-ko">${escapeHtml(geminiCurrentBotText)}</div></div>` : ''}
   ` : '';
-  wrap.innerHTML = finalized + inProgress;
+  // Wyjaśnienie znaku ≈ - pokazujemy raz, gdy pojawi się pierwsza transkrypcja usera.
+  // Bez tego symbol jest zagadką, a z nim staje się informacją: "to zapis
+  // automatyczny, nie ocena twojej wymowy".
+  const anyUser = geminiTranscriptHistory.some(t => t.speaker === 'user') || !!geminiCurrentUserText;
+  const note = anyUser ? `<div class="transcript-note">${uiLang === 'en'
+    ? '≈ marks automatic transcription of your speech. It often misreads non-native pronunciation — a wrong line here does not mean you said it wrong.'
+    : '≈ oznacza automatyczny zapis twojej wypowiedzi. Często myli się przy akcencie nierodzimym — błędna linijka nie znaczy, że powiedziałeś źle.'}</div>` : '';
+  wrap.innerHTML = note + finalized + inProgress;
   wrap.scrollTop = wrap.scrollHeight;
 }
 
@@ -14900,7 +14928,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-03.92';
+const APP_VERSION = '2026-09-03.93';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
