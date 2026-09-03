@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.78
-  Zbudowane na: cfbe7e532e4037e9baf133178379a283 (.60)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.80
+  Zbudowane na: b9af347d66bb7edec6d0d416602953c4 (.78)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
   pliki z tym samym .NN są różne. Przy każdym buildzie wpisz sumę pliku wejściowego.
@@ -2737,6 +2737,17 @@
     padding:14px 22px;
   }
   .hg-result-block .jamo-char{font-size:36px;}
+
+  /* v4 §2 · HISTORIA I KULTURA - oś czasu (makieta 5a) */
+  .culture-head{ padding:4px 0 12px; display:flex; flex-direction:column; gap:14px; }
+  .culture-title{ font-size:34px; font-weight:300; letter-spacing:-.02em; line-height:1.1; color:var(--ink); }
+  [data-theme="jade"] .culture-title,
+  [data-theme="kobalt"] .culture-title{ font-size:32px; font-weight:800; letter-spacing:-.03em; }
+  .culture-list{ display:block; }
+  .culture-epoch{ display:flex; align-items:baseline; gap:8px; }
+  .culture-epoch b{ font-family:var(--font-ko); font-weight:400; }
+  .gutter-row.sb-tappable{ cursor:pointer; }
+  .culture-empty{ padding:26px 0; color:var(--ink-dim); font-size:13.5px; text-wrap:pretty; }
 
   .culture-card{
     background:linear-gradient(155deg, var(--card-hi), var(--card));
@@ -5866,6 +5877,21 @@
 
   <div id="cultureScreen" style="display:none;">
     <button class="back-btn" data-back="home" data-i18n="backHome">Menu główne</button>
+
+    <!-- Makieta 5a: oś czasu zamiast kafli/karuzeli. Epoka to lepki nagłówek
+         (ten sam .section-sticky co litera w słowniku), rok siedzi w rynience
+         52px z v4 §1, więc lata czytają się w kolumnie. Jadeit dokłada tylko
+         promienie - zero reguł per ekran. -->
+    <div id="cultureListView">
+      <div class="culture-head">
+        <div class="culture-title" data-i18n="cultureTitle">Historia i kultura</div>
+        <div class="dict-filters culture-filters" id="cultureTabs" role="tablist"></div>
+      </div>
+      <div class="culture-list" id="cultureList"></div>
+    </div>
+
+    <div id="cultureTopicView" style="display:none;">
+    <button class="back-btn" id="cultureBackToList" data-i18n="cultureBackToList">◀ Historia i kultura</button>
     <div class="ai-chat-status" id="cultureProgress"></div>
     <div class="culture-card" id="cultureCard"></div>
 
@@ -5879,6 +5905,7 @@
     <div class="ai-chat-controls" style="margin-top:16px;">
       <button class="tool-btn" id="culturePrevBtn">◀ <span data-i18n="registerPrev">Poprzednie</span></button>
       <button class="primary" id="cultureNextBtn"><span data-i18n="registerNext">Następne</span> ▶</button>
+    </div>
     </div>
   </div>
 
@@ -14702,7 +14729,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-03.78';
+const APP_VERSION = '2026-09-03.80';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14957,6 +14984,7 @@ function setScreen(screen){
   // widoczny (razem z rezerwą paddingu na .wrap) po przejściu na inny ekran
   // i kładł się paskiem przez słownik. Chowamy go przy każdej zmianie ekranu.
   try{ hideWordSheet(); }catch(e){}
+  if(screen === 'culture') showCultureListView();
   if(screen === 'dictBrowse') renderDictDeptChips();
   if(screen === 'account') renderAccountScreen();
   if(screen === 'dictLevel') renderDictLevelCards();
@@ -15349,6 +15377,8 @@ const I18N = {
   backChapter: { pl: 'Wybór rozdziału', en: 'Choose chapter' },
   backDept: { pl: 'Wybór działu', en: 'Choose section' },
   backDept2: { pl: 'Wybór działu', en: 'Choose section' },
+  cultureTitle: { pl: 'Historia i kultura', en: 'History and culture' },
+  cultureBackToList: { pl: '◀ Historia i kultura', en: '◀ History and culture' },
   backHome: { pl: 'Menu główne', en: 'Main menu' },
   backGrammarHub: { pl: 'Gramatyka', en: 'Grammar' },
   backToLesson: { pl: 'Powrót do lekcji', en: 'Back to lesson' },
@@ -16732,7 +16762,13 @@ const THEMES = [
      'scheme'  -> data-scheme (kolory), domyślna paleta motywu
      'schemes' -> lista alternatywnych palet; brak = motyw ma tylko swoją */
   { id:'papier', name:'Papier', ko:'종이 · papier i tusz', icon:'📄', pro:false,
-    mode:'line',  layout:'papier', scheme:'light',  sw:['#F6F3EE','#C1512F'], meta:'#F6F3EE' },
+    mode:'line',  layout:'papier', scheme:'light',  sw:['#F6F3EE','#C1512F'], meta:'#F6F3EE',
+    // Papier przejął wybór jasna/ciemna po ukryciu Klasycznego - bez tego darmowy
+    // user straciłby tryb ciemny w ogóle (Jadeit i Kobalt są za Premium).
+    schemes:[
+      { id:'light', name:'Jasny',  ko:'밝음',      pro:false, sw:['#F6F3EE','#C1512F'], meta:'#F6F3EE' },
+      { id:'dark',  name:'Ciemny', ko:'먹 · tusz', pro:false, sw:['#151311','#E0714A'], meta:'#151311' },
+    ] },
 
   { id:'jade',   name:'Jadeit', ko:'옥 · grafit i jadeit', icon:'🟢', pro:true,
     mode:'emoji', layout:'jade',   scheme:'jade',   sw:['#0D100F','#46B79A'], meta:'#0D100F' },
@@ -16740,7 +16776,11 @@ const THEMES = [
   { id:'kobalt', name:'Kobalt', ko:'청 · grafit i kobalt', icon:'🔷', pro:true,
     mode:'glyph', layout:'kobalt', scheme:'kobalt', sw:['#FFFFFF','#3355E8'], meta:'#FFFFFF' },
 
-  { id:'oldstyle', name:'Klasyczny', ko:'옛 · pierwotny Hooljon', icon:'🕰️', pro:false,
+  // UKRYTY 2026-09-03 (decyzja Damiana). Wpis ZOSTAJE w tablicy, bo użytkownicy,
+  // którzy mieli go wybranego, muszą się dalej poprawnie renderować - usunięcie
+  // wpisu cofnęłoby ich do Papieru i zgubiło ustawienie. Pole hidden:true wycina
+  // go wyłącznie z listy wyboru.
+  { id:'oldstyle', name:'Klasyczny', ko:'옛 · pierwotny Hooljon', icon:'🕰️', pro:false, hidden:true,
     mode:'map',   layout:'oldstyle', scheme:'oldstyle', sw:['#F8F9FA','#E63946'], meta:'#F8F9FA',
     schemes:[
       { id:'oldstyle', name:'Jasny',  ko:'밝음',          pro:false, sw:['#F8F9FA','#E63946'], meta:'#F8F9FA' },
@@ -16931,7 +16971,7 @@ function renderThemePanel(){
   const wrap = document.getElementById('themeRows');
   if(!wrap) return;
   const isPro = premiumTier === 'pro';
-  const visible = THEMES.filter(t => !t.pro || isPro);
+  const visible = THEMES.filter(t => !t.hidden && (!t.pro || isPro));
 
   let html = visible.map(t => `
     <button class="theme-row ${t.id === currentTheme ? 'active' : ''}" data-theme-id="${t.id}">
@@ -19033,6 +19073,111 @@ document.getElementById('hanjaNextBtn').addEventListener('click', ()=>{
 let cultureIndex = 0;
 let cultureQuizLocked = false;
 
+/* ═══ OŚ CZASU (v4 §2, makieta 5a) ════════════════════════════════════════
+   UWAGA co do treści: cztery wpisy poniżej to DOKŁADNIE te z makiety 5a i
+   README v4 §2 nazywa je "przykładowymi, wymagającymi redakcji". Nie dopisałem
+   od siebie ani jednego wydarzenia - oś czasu jest tu szkieletem czekającym na
+   redakcję, nie gotową treścią historyczną.
+   Reguła edytorska z §2: tytuł <= 32 znaki (jedna linia przy 360px),
+   opis <= 90 znaków (dwie linie). Dłuższy opis nie psuje układu, ale rozjeżdża
+   rytm kolumny lat. */
+const CULTURE_TIMELINE = [
+  { epoch:'조선', epochPl:'Joseon', epochEn:'Joseon', year:'1443',
+    title:'Sejong ogłasza hangul', titleEn:'Sejong proclaims Hangul',
+    body:'Pismo dla ludzi, którzy nie mieli czasu uczyć się znaków chińskich.',
+    bodyEn:'A script for people who had no time to learn Chinese characters.' },
+  { epoch:'조선', epochPl:'Joseon', epochEn:'Joseon', year:'1592',
+    title:'Wojna imjińska', titleEn:'Imjin War',
+    body:'Siedem lat, po których zostaje admirał Yi i okręty żółwie.',
+    bodyEn:'Seven years that leave behind Admiral Yi and the turtle ships.' },
+  { epoch:'근대', epochPl:'nowoczesność', epochEn:'modern era', year:'1945',
+    title:'Wyzwolenie i podział', titleEn:'Liberation and division',
+    body:'38. równoleżnik miał być tymczasowy.',
+    bodyEn:'The 38th parallel was meant to be temporary.' },
+  { epoch:'근대', epochPl:'nowoczesność', epochEn:'modern era', year:'1988',
+    title:'Igrzyska w Seulu', titleEn:'Seoul Olympics',
+    body:'Moment, w którym świat zaczyna oglądać Koreę Południową.',
+    bodyEn:'The moment the world starts watching South Korea.' },
+];
+
+let cultureTab = 'timeline';
+
+function renderCultureTabs(){
+  const wrap = document.getElementById('cultureTabs');
+  if(!wrap) return;
+  const tabs = [
+    { id:'timeline', pl:'Oś czasu',  en:'Timeline' },
+    { id:'customs',  pl:'Zwyczaje',  en:'Customs'  },
+    { id:'food',     pl:'Kuchnia',   en:'Food'     },
+  ];
+  wrap.innerHTML = tabs.map(t => `<button type="button" class="chip" role="tab" data-tab="${t.id}"
+    aria-pressed="${t.id === cultureTab ? 'true' : 'false'}">${escapeHtml(uiLang === 'en' ? t.en : t.pl)}</button>`).join('');
+  wrap.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    cultureTab = c.dataset.tab; renderCultureTabs(); renderCultureList();
+  }));
+}
+
+function renderCultureList(){
+  const list = document.getElementById('cultureList');
+  if(!list) return;
+
+  if(cultureTab === 'timeline'){
+    // Nagłówek epoki wstawiamy tylko przy jej zmianie - dane są już w kolejności
+    // chronologicznej, więc grupy wychodzą same. Ten sam wzorzec co 초성.
+    let last = null;
+    list.innerHTML = CULTURE_TIMELINE.map(e => {
+      const head = e.epoch !== last
+        ? `<div class="section-sticky culture-epoch"><b>${escapeHtml(e.epoch)}</b> · ${escapeHtml(uiLang === 'en' ? e.epochEn : e.epochPl)}</div>`
+        : '';
+      last = e.epoch;
+      return head + `
+        <div class="gutter-row">
+          <div class="gutter">${escapeHtml(e.year)}</div>
+          <div class="gutter-main">
+            <div class="gutter-title">${escapeHtml(uiLang === 'en' ? e.titleEn : e.title)}</div>
+            <div class="gutter-body">${escapeHtml(uiLang === 'en' ? e.bodyEn : e.body)}</div>
+          </div>
+        </div>`;
+    }).join('');
+    return;
+  }
+
+  if(cultureTab === 'customs'){
+    // Istniejące tematy kulturowe (CULTURE_TOPICS) nie znikają - stają się tą
+    // zakładką. Rynienka niesie emoji tematu, bo zwyczaj nie ma roku.
+    list.innerHTML = CULTURE_TOPICS.map((c, i) => `
+      <div class="gutter-row sb-tappable" data-topic="${i}">
+        <div class="gutter" style="font-size:20px;">${c.icon}</div>
+        <div class="gutter-main">
+          <div class="gutter-title">${escapeHtml(uiLang === 'en' ? c.titleEn : c.titlePl)}</div>
+          <div class="gutter-body">${escapeHtml(c.title)}</div>
+        </div>
+      </div>`).join('');
+    list.querySelectorAll('[data-topic]').forEach(row => row.addEventListener('click', () => {
+      cultureIndex = parseInt(row.dataset.topic, 10);
+      showCultureTopicView();
+      renderCultureScreen();
+    }));
+    return;
+  }
+
+  // Kuchnia: brak treści w bazie. Lepiej powiedzieć to wprost niż pokazać
+  // wymyślone wpisy - ta zakładka jest w makiecie, materiału do niej nie ma.
+  list.innerHTML = `<p class="culture-empty">${uiLang === 'en'
+    ? 'No entries yet — this section is in the design but has no content in the database.'
+    : 'Jeszcze pusto — ta zakładka jest w projekcie, ale nie ma do niej treści w bazie.'}</p>`;
+}
+
+function showCultureListView(){
+  document.getElementById('cultureListView').style.display = 'block';
+  document.getElementById('cultureTopicView').style.display = 'none';
+  renderCultureTabs(); renderCultureList();
+}
+function showCultureTopicView(){
+  document.getElementById('cultureListView').style.display = 'none';
+  document.getElementById('cultureTopicView').style.display = 'block';
+}
+
 function renderCultureScreen(){
   const c = CULTURE_TOPICS[cultureIndex];
   document.getElementById('cultureProgress').textContent = `${cultureIndex + 1} / ${CULTURE_TOPICS.length}`;
@@ -19088,6 +19233,7 @@ function handleCultureQuizAnswer(btn){
   feedback.className = 'feedback ' + (isCorrect ? 'good' : 'bad');
 }
 
+document.getElementById('cultureBackToList').addEventListener('click', showCultureListView);
 document.getElementById('culturePrevBtn').addEventListener('click', ()=>{
   if(cultureIndex > 0){ cultureIndex -= 1; renderCultureScreen(); }
 });
