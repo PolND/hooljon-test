@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.93
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.94
   Zbudowane na: b9af347d66bb7edec6d0d416602953c4 (.78)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -9606,7 +9606,7 @@ const DEFAULT_WORDS = [
   {ko:"부당하다", pl:"niesprawiedliwy", en:"unfair / unjust", category:"Cechy i miary", level:3, pos:"adjective", source:'krdict'},
   {ko:"부드럽다", pl:"miękki", en:"soft / smooth", category:"Cechy i miary", level:1, pos:"adjective", source:'krdict'},
   {ko:"부럽다", pl:"zazdrosny", en:"envious", category:"Uczucia i charakter", level:2, pos:"adjective", source:'krdict'},
-  {ko:"부르다", pl:"pełny (np. brzuch)", en:"full", category:"Hobby i czas wolny", level:1, pos:"verb", source:'krdict'},
+  {ko:"부르다", pl:"śpiewać, wołać", en:"to sing, to call", category:"Hobby i czas wolny", level:1, pos:"verb", source:'krdict'},
   {ko:"부실하다", pl:"słaby", en:"weak / poor", category:"Ciało, zdrowie i czynności fizyczne", level:3, pos:"adjective", source:'krdict'},
   {ko:"부족하다", pl:"niewystarczający", en:"insufficient", category:"Cechy i miary", level:1, pos:"adjective", source:'krdict'},
   {ko:"부지런하다", pl:"pracowity", en:"diligent", category:"Uczucia i charakter", level:3, pos:"adjective", source:'krdict'},
@@ -10473,7 +10473,7 @@ const DEFAULT_WORDS = [
   {ko:"그래", pl:"tak", en:"yes", category:"Logika i gramatyka pojęciowa", level:1, pos:"interjection", source:'krdict'},
   {ko:"끝", pl:"koniec", en:"end", category:"Czas i częstotliwość", level:1, pos:"noun", source:'krdict'},
   {ko:"민족", pl:"naród", en:"nation", category:"Polityka i prawo", level:3, pos:"noun", industryModule:["Prawo i Administracja"], source:'krdict'},
-  {ko:"간", pl:"przerwa", en:"interval", category:"Jedzenie i kuchnia", level:2, pos:"noun", source:'krdict'},
+  {ko:"간", pl:"wątroba; przyprawienie", en:"liver; seasoning", category:"Jedzenie i kuchnia", level:2, pos:"noun", source:'krdict'},
   {ko:"조사", pl:"badanie", en:"investigation", category:"Polityka i prawo", level:2, pos:"noun", industryModule:["Prawo i Administracja", "Wojskowość i Obronność"], source:'krdict'},
   {ko:"듯", pl:"jak", en:"like", category:"Cechy i miary", level:2, pos:"bound_noun", source:'krdict'},
   {ko:"입", pl:"usta", en:"mouth", category:"Ciało, zdrowie i czynności fizyczne", level:1, pos:"noun", source:'krdict'},
@@ -10498,7 +10498,7 @@ const DEFAULT_WORDS = [
   {ko:"치다", pl:"uderzyć", en:"attack", category:"Ciało, zdrowie i czynności fizyczne", level:1, pos:"verb", source:'krdict'},
   {ko:"혼자", pl:"sam", en:"alone", category:"Słownictwo ogólne", level:1, source:'krdict'},
   {ko:"이제", pl:"teraz", en:"now", category:"Czas i częstotliwość", level:1, pos:"noun", source:'krdict'},
-  {ko:"교수", pl:"nauczanie", en:"teaching", category:"Szkoła i nauka", level:1, pos:"noun", source:'krdict'},
+  {ko:"교수", pl:"profesor", en:"professor", category:"Szkoła i nauka", level:1, pos:"noun", source:'krdict'},
   {ko:"술", pl:"alkohol", en:"alcohol", category:"Jedzenie i kuchnia", level:1, ex:"저는 술을 안 마셔요.", exPl:"Nie piję alkoholu.", exEn:"I do not drink alcohol.", source:'krdict'},
   {ko:"전화", pl:"telefon", en:"telephone", category:"Komunikacja i media", level:1, pos:"noun", source:'krdict'},
   {ko:"맞다", pl:"zgadzać się", en:"be right", category:"Logika i gramatyka pojęciowa", level:1, pos:"verb", source:'krdict'},
@@ -10546,7 +10546,7 @@ const DEFAULT_WORDS = [
   {ko:"어", pl:"o", en:"oh", category:"Uczucia i charakter", level:1, pos:"interjection", source:'krdict'},
   {ko:"국내", pl:"krajowy", en:"domestic", category:"Przyroda i geografia", level:2, pos:"noun", source:'krdict'},
   {ko:"비하다", pl:"porównywać", en:"compare", category:"Słownictwo ogólne", level:2, source:'krdict'},
-  {ko:"기관", pl:"silnik", en:"engine", category:"Polityka i prawo", level:3, pos:"noun", industryModule:["Prawo i Administracja"], source:'krdict'},
+  {ko:"기관", pl:"instytucja, organ", en:"institution, organ", category:"Polityka i prawo", level:3, pos:"noun", industryModule:["Prawo i Administracja"], source:'krdict'},
   {ko:"입장", pl:"pozycja", en:"position", category:"Dom i mieszkanie", level:2, pos:"noun", industryModule:["Media, Popkultura i K-Entertainment"], source:'krdict'},
   {ko:"만하다", pl:"być wartym", en:"be worth", category:"Słownictwo ogólne", level:2, source:'krdict'},
   {ko:"예", pl:"przykład", en:"example", category:"Uczucia i charakter", level:1, pos:"interjection", source:'krdict'},
@@ -10558,7 +10558,7 @@ const DEFAULT_WORDS = [
   {ko:"내", pl:"wewnątrz", en:"inside", category:"Logika i gramatyka pojęciowa", level:1, pos:"pronoun", source:'krdict'},
   {ko:"모양", pl:"kształt", en:"shape", category:"Cechy i miary", level:1, pos:"noun", source:'krdict'},
   {ko:"산", pl:"góra", en:"mountain", category:"Pogoda i pory roku", level:1, ex:"주말에 산에 가요.", exPl:"W weekend jadę w góry.", exEn:"I go to the mountain on weekends.", source:'krdict'},
-  {ko:"새", pl:"nowy", en:"new", category:"Zwierzęta", level:1, pos:"noun", source:'krdict'},
+  {ko:"새", pl:"ptak", en:"bird", category:"Zwierzęta", level:1, pos:"noun", source:'krdict'},
   {ko:"하지만", pl:"ale", en:"but", category:"Logika i gramatyka pojęciowa", level:1, pos:"adverb", source:'krdict'},
   {ko:"조건", pl:"warunek", en:"condition", category:"Słownictwo ogólne", level:2, source:'krdict'},
   {ko:"문", pl:"drzwi", en:"door", category:"Dom i mieszkanie", level:1, ex:"문을 닫아 주세요.", exPl:"Proszę zamknąć drzwi.", exEn:"Please close the door.", source:'krdict'},
@@ -10976,7 +10976,7 @@ const DEFAULT_WORDS = [
   {ko:"숨", pl:"oddech", en:"a breath", category:"Ciało, zdrowie i czynności fizyczne", level:1, pos:"noun", source:'krdict'},
   {ko:"행사", pl:"wydarzenie", en:"an event / a function", category:"Wydarzenia i aktywność społeczna", level:2, pos:"noun", source:'krdict'},
   {ko:"누나", pl:"starsza siostra (dla mężczyzny)", en:"older sister", category:"Rodzina i relacje", level:1, source:'krdict'},
-  {ko:"신", pl:"bóg", en:"god", category:"Wygląd i ubiór", level:1, pos:"noun", source:'krdict'},
+  {ko:"신", pl:"but (skrót od 신발)", en:"shoe (short for 신발)", category:"Wygląd i ubiór", level:1, pos:"noun", source:'krdict'},
   {ko:"왕", pl:"król", en:"king", category:"Polityka i prawo", level:1, pos:"noun", source:'krdict'},
   {ko:"점점", pl:"coraz bardziej", en:"more and more", category:"Cechy i miary", level:1, pos:"adverb", source:'krdict'},
   {ko:"질문", pl:"pytanie", en:"a question", category:"Komunikacja i media", level:1, pos:"noun", source:'krdict'},
@@ -11036,7 +11036,7 @@ const DEFAULT_WORDS = [
   {ko:"자전거", pl:"rower", en:"bicycle", category:"Transport i podróże", level:1, source:'krdict'},
   {ko:"참여하다", pl:"uczestniczyć", en:"participate", category:"Wydarzenia i aktywność społeczna", level:2, pos:"verb", source:'krdict'},
   {ko:"탓", pl:"wina", en:"blame", category:"Logika i gramatyka pojęciowa", level:2, pos:"noun", source:'krdict'},
-  {ko:"걔", pl:"dzieciak", en:"child", category:"Logika i gramatyka pojęciowa", level:1, source:'krdict'},
+  {ko:"걔", pl:"on, ona (potocznie, o kimś znajomym)", en:"he, she (casual, about someone known)", category:"Logika i gramatyka pojęciowa", level:1, source:'krdict'},
   {ko:"목", pl:"szyja", en:"neck", category:"Ciało, zdrowie i czynności fizyczne", level:1, pos:"noun", source:'krdict'},
   {ko:"발표", pl:"ogłoszenie", en:"announcement", category:"Komunikacja i media", level:1, pos:"noun", source:'krdict'},
   {ko:"범죄", pl:"przestępstwo", en:"crime", category:"Polityka i prawo", level:2, pos:"noun", industryModule:["Prawo i Administracja", "Wojskowość i Obronność"], source:'krdict'},
@@ -11131,7 +11131,7 @@ const DEFAULT_WORDS = [
   {ko:"식당", pl:"restauracja", en:"restaurant", category:"Jedzenie i kuchnia", level:1, ex:"이 식당은 맛있어요.", exPl:"Ta restauracja jest pyszna.", exEn:"This restaurant is delicious.", source:'krdict'},
   {ko:"이래", pl:"od tego czasu", en:"since / after that", category:"Logika i gramatyka pojęciowa", level:3, source:'krdict'},
   {ko:"체육", pl:"wychowanie fizyczne", en:"physical education", category:"Szkoła i nauka", level:1, pos:"noun", source:'krdict'},
-  {ko:"사례", pl:"podziękowanie", en:"thanks / gratitude", category:"Wydarzenia i aktywność społeczna", level:3, pos:"noun", source:'krdict'},
+  {ko:"사례", pl:"przypadek, przykład", en:"case, instance", category:"Wydarzenia i aktywność społeczna", level:3, pos:"noun", source:'krdict'},
   {ko:"추진하다", pl:"wdrażać", en:"propel / drive forward", category:"Wydarzenia i aktywność społeczna", level:3, pos:"verb", source:'krdict'},
   {ko:"칠월", pl:"lipiec", en:"july", category:"Miesiące", level:1, source:'krdict'},
   {ko:"틀", pl:"rama", en:"frame / mold", category:"Cechy i miary", level:2, pos:"noun", source:'krdict'},
@@ -11150,14 +11150,14 @@ const DEFAULT_WORDS = [
   {ko:"종이", pl:"papier", en:"paper", category:"Szkoła i nauka", level:1, pos:"noun", source:'krdict'},
   {ko:"폭력", pl:"przemoc", en:"violence", category:"Polityka i prawo", level:2, pos:"noun", industryModule:["Prawo i Administracja", "Wojskowość i Obronność"], source:'krdict'},
   {ko:"혹시", pl:"może", en:"sometimes / maybe", category:"Cechy i miary", level:1, pos:"adverb", source:'krdict'},
-  {ko:"양", pl:"ilość", en:"quantity", category:"Zwierzęta", level:1, pos:"noun", source:'krdict'},
+  {ko:"양", pl:"owca", en:"sheep", category:"Zwierzęta", level:1, pos:"noun", source:'krdict'},
   {ko:"절차", pl:"procedura", en:"process / formalities", category:"Polityka i prawo", level:3, pos:"noun", industryModule:["Prawo i Administracja"], source:'krdict'},
   {ko:"공기", pl:"powietrze", en:"air", category:"Hobby i czas wolny", level:1, pos:"noun", source:'krdict'},
   {ko:"올림픽", pl:"olimpiada", en:"olympic", category:"Kultura i sztuka", level:1, pos:"noun", industryModule:["Media, Popkultura i K-Entertainment"], source:'krdict'},
   {ko:"이외", pl:"oprócz", en:"except", category:"Logika i gramatyka pojęciowa", level:2, pos:"noun", source:'krdict'},
   {ko:"재미", pl:"zabawa", en:"amusement", category:"Uczucia i charakter", level:1, pos:"noun", source:'krdict'},
   {ko:"기대", pl:"oczekiwanie", en:"expectation", category:"Wydarzenia i aktywność społeczna", level:2, pos:"noun", source:'krdict'},
-  {ko:"식물", pl:"roślina (uwaga: w Twoim pliku jest błąd)", en:"food / provisions", category:"Rośliny", level:1, pos:"noun", source:'krdict'},
+  {ko:"식물", pl:"roślina", en:"plant", category:"Rośliny", level:1, pos:"noun", source:'krdict'},
   {ko:"옛", pl:"dawny", en:"old / ancient", category:"Czas i częstotliwość", level:2, pos:"determiner", source:'krdict'},
   {ko:"적어도", pl:"co najmniej", en:"at least", category:"Cechy i miary", level:2, pos:"adverb", source:'krdict'},
   {ko:"평", pl:"pyeong", en:"pyeong (2 m²)", category:"Cechy i miary", level:1, pos:"bound_noun", source:'krdict'},
@@ -11293,7 +11293,7 @@ const DEFAULT_WORDS = [
   {ko:"상상", pl:"wyobraźnia", en:"imagination", category:"Logika i gramatyka pojęciowa", level:1, pos:"noun", source:'krdict'},
   {ko:"소득", pl:"dochód", en:"income", category:"Zakupy i pieniądze", level:3, pos:"noun", source:'krdict'},
   {ko:"수도", pl:"stolica", en:"capital city", category:"Dom i mieszkanie", level:1, pos:"noun", source:'krdict'},
-  {ko:"역", pl:"rola", en:"role", category:"Transport i podróże", level:1, pos:"noun", source:'krdict'},
+  {ko:"역", pl:"stacja (rola = 역할)", en:"station (role = 역할)", category:"Transport i podróże", level:1, pos:"noun", source:'krdict'},
   {ko:"인식하다", pl:"rozpoznawać", en:"recognize", category:"Logika i gramatyka pojęciowa", level:1, pos:"verb", source:'krdict'},
   {ko:"침대", pl:"łóżko", en:"bed", category:"Dom i mieszkanie", level:1, pos:"noun", source:'krdict'},
   {ko:"권", pl:"tom", en:"volume / book", category:"Cechy i miary", level:1, pos:"bound_noun", source:'krdict'},
@@ -11361,7 +11361,7 @@ const DEFAULT_WORDS = [
   {ko:"대표적", pl:"reprezentatywny", en:"representative", category:"Czas i częstotliwość", level:2, pos:"noun", source:'krdict'},
   {ko:"만일", pl:"jeśli", en:"if / suppose", category:"Logika i gramatyka pojęciowa", level:3, pos:"noun", source:'krdict'},
   {ko:"사회적", pl:"społeczny", en:"socially", category:"Wydarzenia i aktywność społeczna", level:2, pos:"noun", source:'krdict'},
-  {ko:"이어", pl:"slang", en:"slang / vulgarity", category:"Czas i częstotliwość", level:3, pos:"adverb", source:'krdict'},
+  {ko:"이어", pl:"następnie, w dalszej kolejności", en:"subsequently, next", category:"Czas i częstotliwość", level:3, pos:"adverb", source:'krdict'},
   {ko:"주부", pl:"gospodyni domowa", en:"housewife", category:"Praca i kariera", level:1, pos:"noun", source:'krdict'},
   {ko:"진리", pl:"prawda", en:"truth", category:"Słownictwo ogólne", level:3, source:'krdict'},
   {ko:"태양", pl:"słońce", en:"the sun", category:"Pogoda i pory roku", level:2, ex:"한낮의 태양은 모든 것을 태워 버릴 듯 뜨거웠다.", exPl:"Południowe słońce było tak gorące, jakby miało wszystko spalić.", exEn:"The midday sun was so hot it seemed like it would burn everything.", source:'krdict'},
@@ -11544,7 +11544,7 @@ const DEFAULT_WORDS = [
   {ko:"여인", pl:"kobieta (poetycko)", en:"beauty / belle", category:"Rodzina i relacje", level:3, source:'krdict'},
   {ko:"운영하다", pl:"zarządzać", en:"manage / administer", category:"Wydarzenia i aktywność społeczna", level:3, pos:"verb", source:'krdict'},
   {ko:"평가하다", pl:"oceniać", en:"evaluate", category:"Szkoła i nauka", level:2, pos:"verb", source:'krdict'},
-  {ko:"표", pl:"znak", en:"marker / indication", category:"Transport i podróże", level:1, pos:"noun", source:'krdict'},
+  {ko:"표", pl:"bilet", en:"ticket", category:"Transport i podróże", level:1, pos:"noun", source:'krdict'},
   {ko:"필요성", pl:"konieczność", en:"necessity", category:"Cechy i miary", level:3, pos:"noun", source:'krdict'},
   {ko:"부위", pl:"część (ciała)", en:"region / part", category:"Ciało, zdrowie i czynności fizyczne", level:2, pos:"noun", industryModule:["Medycyna i Ochrona Zdrowia"], source:'krdict'},
   {ko:"비우다", pl:"opróżnić", en:"empty", category:"Ciało, zdrowie i czynności fizyczne", level:2, pos:"verb", source:'krdict'},
@@ -11652,7 +11652,7 @@ const DEFAULT_WORDS = [
   {ko:"취소하다", pl:"anulować", en:"cancel", category:"Słownictwo ogólne", level:1, source:'krdict'},
   {ko:"치우다", pl:"sprzątać", en:"clean up", category:"Dom i mieszkanie", level:1, pos:"verb", source:'krdict'},
   {ko:"화학", pl:"chemia", en:"chemistry", category:"Szkoła i nauka", level:1, pos:"noun", source:'krdict'},
-  {ko:"가리다", pl:"piętrzyć", en:"pile up / stack up", category:"Dom i mieszkanie", level:2, pos:"verb", source:'krdict'},
+  {ko:"가리다", pl:"zasłaniać, przesłaniać", en:"to cover, to block from view", category:"Dom i mieszkanie", level:2, pos:"verb", source:'krdict'},
   {ko:"그나마", pl:"mimo to", en:"even though / nevertheless", category:"Słownictwo ogólne", level:3, source:'krdict'},
   {ko:"껍질", pl:"skórka", en:"skin / nutshell", category:"Jedzenie i kuchnia", level:1, pos:"noun", source:'krdict'},
   {ko:"남부", pl:"południowa część", en:"the south part", category:"Przyroda i geografia", level:2, pos:"noun", source:'krdict'},
@@ -14928,7 +14928,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-03.93';
+const APP_VERSION = '2026-09-03.94';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
