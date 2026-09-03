@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.91
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.92
   Zbudowane na: b9af347d66bb7edec6d0d416602953c4 (.78)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -6993,6 +6993,9 @@ async function connectGeminiRelay(isRetry){
     if(msg.setupComplete){
       clearTimeout(setupTimeout);
       geminiSetupComplete = true;
+      // Mikrofon startuje SAM po nawiązaniu sesji - user nie musi nic klikać,
+      // żeby zacząć mówić. To sedno rozmowy ciągłej.
+      setTimeout(() => { startGeminiMic().catch(()=>{}); }, 120);
       document.getElementById('geminiConnectBtn').style.display = 'none';
       document.getElementById('geminiDisconnectBtn').style.display = '';
       document.getElementById('geminiMicBtn').style.display = '';
@@ -7162,6 +7165,13 @@ async function startGeminiMic(){
   source.connect(geminiProcessorNode);
   geminiProcessorNode.connect(geminiMicContext.destination); // wymagane, żeby onaudioprocess się odpalał w niektórych przeglądarkach
   geminiIsListening = true;
+  // Przycisk nie służy już do mówienia - kończy rozmowę. Etykieta musi to oddawać,
+  // inaczej user klika go w połowie zdania, myśląc że "wysyła".
+  const mb = document.getElementById('geminiMicBtn');
+  if(mb){
+    mb.textContent = uiLang === 'en' ? '⏹ End conversation' : '⏹ Zakończ rozmowę';
+    mb.disabled = false;
+  }
   document.getElementById('geminiMicBtn').innerHTML = `⏹️ <span>${uiLang === 'en' ? 'End turn' : 'Zakończ turę'}</span>`;
   setGeminiVoiceStatus('🎤 ' + (uiLang === 'en' ? 'Listening…' : 'Słucham…'));
 }
@@ -7179,13 +7189,19 @@ function stopGeminiMic(){
 
 // Koniec tury usera - osobna, jawna wiadomość (audioStreamEnd), nie samo wykrycie ciszy -
 // zgodnie z potwierdzonym protokołem. To ŚWIADOME zakończenie, nie automatyczne.
+/* Zostaje dla ścieżki awaryjnej: gdy VAD nie wykryje końca wypowiedzi, user może
+   domknąć turę ręcznie. Normalnie nie jest wołane - model decyduje sam. */
 function endGeminiTurn(){
   if(geminiSocket && geminiSocket.readyState === WebSocket.OPEN){
     geminiSocket.send(JSON.stringify({ realtimeInput: { audioStreamEnd: true } }));
   }
-  stopGeminiMic();
-  document.getElementById('geminiMicBtn').disabled = true;
   setGeminiVoiceStatus(uiLang === 'en' ? 'Waiting for response…' : 'Czekam na odpowiedź…');
+}
+
+/* Zakończenie całej rozmowy - mikrofon i gniazdo. */
+function stopGeminiConversation(){
+  stopGeminiMic();
+  if(geminiSocket && geminiSocket.readyState === WebSocket.OPEN) geminiSocket.close(1000, 'user ended');
 }
 
 // Odtwarzanie: dekodowanie PCM16 (24kHz, zgodnie z potwierdzonym formatem wyjścia,
@@ -7204,6 +7220,13 @@ let geminiMicMutedForPlayback = false;
 let geminiUnmuteTimer = null;
 
 function setGeminiMicMuted(muted){
+  // Wskaźnik stanu - przy rozmowie ciągłej user musi wiedzieć, czy jest jego kolej.
+  // Bez tego cisza wizualna trwa kilka sekund i nie wiadomo, czy apka żyje.
+  if(geminiIsListening){
+    setGeminiVoiceStatus(muted
+      ? (uiLang === 'en' ? '🔊 Haksa is speaking…' : '🔊 Haksa mówi…')
+      : (uiLang === 'en' ? '🎤 Listening — just talk' : '🎤 Słucham — po prostu mów'));
+  }
   if(!geminiMicStream) return;
   geminiMicStream.getAudioTracks().forEach(t => { t.enabled = !muted; });
   geminiMicMutedForPlayback = muted;
@@ -7471,9 +7494,23 @@ document.getElementById('conjRefPracticeBtn').addEventListener('click', () => se
 
 document.getElementById('geminiConnectBtn').addEventListener('click', connectGeminiRelay);
 document.getElementById('geminiDisconnectBtn').addEventListener('click', disconnectGeminiRelay);
+/* ROZMOWA CIĄGŁA (2026-09-03). Wcześniej: kliknij "Mów", powiedz, kliknij ponownie,
+   czekaj. To był nadajnik-odbiornik, nie rozmowa - i to głównie stąd brało się
+   wrażenie sztywności, nie z instrukcji modelu.
+
+   Teraz mikrofon jest otwarty przez całą sesję, a Gemini Live samo wykrywa koniec
+   wypowiedzi (VAD po stronie serwera). Nie wysyłamy audioStreamEnd - model decyduje
+   sam, kiedy odpowiedzieć.
+
+   Warunkiem było naprawienie echa: przy ciągle otwartym mikrofonie wyciszanie na
+   czas odpowiedzi Haksy przestaje być zabezpieczeniem, a staje się koniecznością.
+
+   ŚWIADOMY KOMPROMIS: wyciszenie na czas odpowiedzi znaczy, że nie da się Haksie
+   przerwać w połowie zdania. Gemini Live to obsługuje, ale odblokowanie mikrofonu
+   podczas odtwarzania wróciłoby do problemu, który właśnie naprawiliśmy. */
 document.getElementById('geminiMicBtn').addEventListener('click', ()=>{
-  if(geminiIsListening) endGeminiTurn();
-  else startGeminiMic();
+  // Przycisk kończy rozmowę - mówienie nie wymaga już klikania.
+  stopGeminiConversation();
 });
 
 // Odmiany przez czasy: teraźniejszy grzecznościowy, przeszły grzecznościowy, przyszły, formalny (-습니다)
@@ -14863,7 +14900,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-03.91';
+const APP_VERSION = '2026-09-03.92';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
