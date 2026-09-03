@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.86
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.88
   Zbudowane na: b9af347d66bb7edec6d0d416602953c4 (.78)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -5994,6 +5994,7 @@
     <p class="hint-note" id="gpProgress" style="text-align:center;"></p>
     <div class="teach-try-box" id="gpBox" style="margin-top:14px;">
       <div class="teach-try-sentence" id="gpSentence"></div>
+      <div class="grammar-target" id="gpTarget"></div>
       <div class="teach-try-choices" id="gpChoices"></div>
       <div class="teach-try-feedback" id="gpFeedback"></div>
     </div>
@@ -14819,7 +14820,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-03.86';
+const APP_VERSION = '2026-09-03.88';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -20803,6 +20804,11 @@ function renderGrammarPracticeRound(){
   const ex = gpQueue[gpIndex];
   document.getElementById('gpProgress').textContent = `${gpIndex + 1} / ${gpQueue.length}`;
   document.getElementById('gpSentence').textContent = ex.sentence;
+  // Cel po polsku TAKŻE w sesji ćwiczeniowej. Poprawka z .73 objęła tylko quiz,
+  // a to dwa różne ekrany. Bez tego przy "___ 새 휴대폰이에요" nie da się wiedzieć,
+  // czy chodzi o 이거는, 그거는 czy 저거는 - wszystkie trzy są poprawne gramatycznie.
+  const gpT = document.getElementById('gpTarget');
+  if(gpT) gpT.textContent = uiLang === 'en' ? (ex.en || '') : (ex.pl || '');
   document.getElementById('gpFeedback').textContent = '';
   document.getElementById('gpFeedback').classList.remove('shown');
   const box = document.getElementById('gpBox');
@@ -20897,10 +20903,16 @@ function renderGrammarTeachCard(item, card){
       const choicesHtml = shuffle([...ex.choices]).map(opt =>
         `<button type="button" class="ans-btn ko teach-try-btn" data-choice="${String(opt).replace(/"/g,'&quot;')}">${escapeHtml(opt)}</button>`
       ).join('');
+      // Cel po polsku - trzeci ekran z tym samym problemem. Bez niego przy zdaniu
+      // "___ 새 휴대폰이에요" wszystkie trzy opcje są gramatycznie poprawne i wybór
+      // jest zgadywanką. Poprawki z .73 i .87 objęły quiz i sesję ćwiczeniową;
+      // to jest karta nauki w Trybie Opowieści. Zgłoszone 2026-09-03.
+      const tgtHtml = `<div class="grammar-target">${escapeHtml(uiLang === 'en' ? (ex.en || '') : (ex.pl || ''))}</div>`;
       return `<div class="teach-try-box" id="teachTryBox">
         ${practiceQueue.length > 1 ? `<div class="teach-try-progress">${uiLang === 'en' ? 'Example' : 'Przykład'} ${practiceIndex + 1} / ${practiceQueue.length}</div>` : ''}
         <div class="teach-try-sentence">${escapeHtml(ex.sentence)}</div>
-        <div class="teach-try-choices">${choicesHtml}</div>
+        <div class="teach-try-choices">${tgtHtml}
+        ${choicesHtml}</div>
         <div class="teach-try-feedback" id="teachTryFeedback"></div>
       </div>`;
     }
