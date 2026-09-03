@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.88
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.89
   Zbudowane na: b9af347d66bb7edec6d0d416602953c4 (.78)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -5118,23 +5118,25 @@
       <span id="vocabInputModeLabel">Wybór (4 odpowiedzi)</span>
     </div>
 
-    <div class="compass" id="vocabCompassWrap">
-      <div class="grid" id="quizGrid">
-        <div class="slot-n"><span class="compass-label">북 · 흑</span><button class="ans-btn" data-slot="n"></button></div>
-        <div class="slot-w"><span class="compass-label">서 · 백</span><button class="ans-btn" data-slot="w"></button></div>
-        <div class="slot-c">
-          <div class="center-card">
-            <div class="eyebrow" id="centerEyebrow">SŁOWO</div>
-            <div class="center-emoji" id="centerEmoji"></div>
-            <div class="center-word" id="centerWord">...</div>
-            <button class="center-speak-btn" id="centerSpeakBtn" title="Odsłuchaj wymowę" aria-label="Odsłuchaj wymowę">🔊</button>
-            <div id="centerSourceBadge"></div>
-          </div>
+      <!-- UKŁAD PIONOWY (makieta 1b). Kompas zastąpiony listą odpowiedzi - po
+           redesignie tarcza z czterema kierunkami przestała pasować do reszty
+           interfejsu, która operuje wierszami i kartami. Nazwy tokenów heuk/jeok/
+           cheong/baek (kierunki świata) zostają w palecie, bo niosą tożsamość
+           niezależnie od układu. Decyzja Damiana 2026-09-03. -->
+      <div class="quiz-vertical" id="vocabCompassWrap">
+        <div class="qv-progress" id="quizProgress"></div>
+        <div class="qv-prompt" id="centerEyebrow">Wybierz tłumaczenie</div>
+        <div class="qv-emoji" id="centerEmoji"></div>
+        <div class="qv-word" id="centerWord">...</div>
+        <button class="center-speak-btn" id="centerSpeakBtn" title="Odsłuchaj wymowę" aria-label="Odsłuchaj wymowę">🔊</button>
+        <div id="centerSourceBadge"></div>
+        <div class="qv-choices" id="quizGrid">
+          <button class="ans-btn qv-btn" data-slot="n"></button>
+          <button class="ans-btn qv-btn" data-slot="w"></button>
+          <button class="ans-btn qv-btn" data-slot="e"></button>
+          <button class="ans-btn qv-btn" data-slot="s"></button>
         </div>
-        <div class="slot-e"><span class="compass-label">동 · 청</span><button class="ans-btn" data-slot="e"></button></div>
-        <div class="slot-s"><span class="compass-label">남 · 적</span><button class="ans-btn" data-slot="s"></button></div>
       </div>
-    </div>
 
     <div class="typed-answer" id="vocabTypedWrap" style="display:none;">
       <div class="center-card" style="max-width:340px; margin:0 auto;">
@@ -14820,7 +14822,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-03.88';
+const APP_VERSION = '2026-09-03.89';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14865,50 +14867,33 @@ const NAV_OWNS = {
 // tarczą i ile pod nią. W makiecie to po 86px, u nas nie - więc zamiast wpisywać
 // cudze wartości, mierzymy własne przy każdym wejściu na ekran i zmianie rozmiaru.
 function syncCompassMetrics(){
-  const c = document.querySelector('.compass');
-  if(!c || c.offsetParent === null) return;
-  const prev = c.style.paddingTop;
-  c.style.paddingTop = '0px';
-  const head = Math.max(0, Math.round(c.getBoundingClientRect().top));
-  const screenEl = c.closest('[id$="Screen"]');
-  const dial = Math.round(c.querySelector('.grid').getBoundingClientRect().height);
-  const foot = screenEl
-    ? Math.max(0, Math.round(screenEl.getBoundingClientRect().bottom - c.getBoundingClientRect().top - dial))
-    : 86;
-  c.style.paddingTop = prev;
-  const rootCS = getComputedStyle(document.documentElement);
-  const navH = parseInt(rootCS.getPropertyValue('--nav-h')) || 64;
-  const adH  = parseInt(rootCS.getPropertyValue('--ad-h'))  || 0;
-  const navShown = (document.getElementById('bottomNav') || {}).offsetHeight ? navH : 0;
-  // 22px to prześwit etykiety kierunku, 12px zapasu na cień/obrys pigułek
-  const avail = window.innerHeight - head - Math.max(navShown, adH) - 22 - 12;
-  const dialMax = Math.min(316, Math.round(window.innerWidth * 0.88));
-  const dialPx = Math.max(240, Math.min(dialMax, avail));
-  c.style.setProperty('--dial', dialPx + 'px');
-  c.style.setProperty('--head-h', head + 'px');
-  // słowo w centrum nie może się zawinąć ani wyjść poza koło - zamiast progu na
-  // liczbę sylab po prostu mierzymy i schodzimy z rozmiarem, aż się mieści
-  // to samo dla czterech odpowiedzi - polskie słowa bywają dłuższe niż pigułka
+  // Po przejściu na układ pionowy (makieta 1b) geometria tarczy jest zbędna -
+  // lista sama się układa. Zostaje jedynie zmniejszanie tekstu w przyciskach,
+  // bo polskie tłumaczenia bywają dłuższe niż szerokość opcji, a zawinięcie
+  // do drugiej linii rozjeżdża wysokość listy.
+  const c = document.getElementById('vocabCompassWrap');
+  if(!c) return;
   c.querySelectorAll('.ans-btn').forEach(btn => {
     btn.style.fontSize = '';
     if(!btn.textContent.trim()) return;
-    let s = parseFloat(getComputedStyle(btn).fontSize);
-    const room = btn.getBoundingClientRect().width - 10;
-    let g = 8;
-    while(btn.scrollWidth > room && s > 10 && g--){ s -= 0.5; btn.style.fontSize = s + 'px'; }
+    let size = parseFloat(getComputedStyle(btn).fontSize);
+    const room = btn.getBoundingClientRect().width - 40; // padding 20px z każdej strony
+    let guard = 10;
+    while(btn.scrollWidth > room && size > 12 && guard--){
+      size -= 0.5; btn.style.fontSize = size + 'px';
+    }
   });
-  const cw = c.querySelector('.slot-c .center-word');
-  const hubBox = c.querySelector('.slot-c');
-  if(cw && hubBox){
-    cw.style.fontSize = '';
-    let size = parseFloat(getComputedStyle(cw).fontSize);
-    const room = hubBox.getBoundingClientRect().width - 18;
-    let guard = 12;
-    while(cw.scrollWidth > room && size > 13 && guard--){
-      size -= 1; cw.style.fontSize = size + 'px';
+  // Słowo w nagłówku - to samo, bo długie wyrazy koreańskie potrafią wyjść poza ekran.
+  const word = document.getElementById('centerWord');
+  if(word){
+    word.style.fontSize = '';
+    let size = parseFloat(getComputedStyle(word).fontSize);
+    const room = c.getBoundingClientRect().width - 20;
+    let guard = 14;
+    while(word.scrollWidth > room && size > 20 && guard--){
+      size -= 2; word.style.fontSize = size + 'px';
     }
   }
-  c.style.setProperty('--foot-h', (foot + parseInt(getComputedStyle(document.documentElement).getPropertyValue('--ad-h')) || foot) + 'px');
 }
 window.addEventListener('resize', () => { try{ syncCompassMetrics(); }catch(e){} });
 
