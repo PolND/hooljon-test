@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.135
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.136
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2224,6 +2224,40 @@
   .tier-tab[aria-selected="true"]{
     background:var(--hwang); color:var(--on-accent, var(--bg)); border-color:var(--hwang);
     font-weight:700;
+  }
+
+  /* Wariant „karty": korzyści rozpisane per plan zamiast tabeli (v2 §3). */
+  .perk-switch{ display:flex; gap:6px; margin:14px 0 10px; }
+  .perk-sw-btn{
+    flex:1; min-height:36px; border-radius:var(--radius-pill);
+    border:1px solid var(--border); background:0; color:var(--ink-dim);
+    font:700 12.5px var(--font-ui); cursor:pointer;
+  }
+  .perk-sw-btn.active{ background:var(--hwang); color:var(--on-accent, var(--bg)); border-color:var(--hwang); }
+  .perk-plan{
+    padding:16px 18px; margin-bottom:12px; background:var(--card);
+    border:1px solid var(--border); border-radius:var(--radius-lg);
+  }
+  .perk-plan.featured{ border:1.5px solid var(--hwang); }
+  .perk-plan-name{
+    font:800 13px var(--font-ui); letter-spacing:.1em; text-transform:uppercase;
+    color:var(--hwang); margin-bottom:10px;
+  }
+  .perk{
+    display:flex; gap:11px; align-items:center; font-size:14px; color:var(--ink);
+    font-family:var(--font-ui); padding:5px 0;
+  }
+  .perk-check{
+    flex:none; width:20px; height:20px; border-radius:50%; display:grid; place-items:center;
+    background:color-mix(in srgb, var(--hwang) 16%, transparent); color:var(--hwang);
+    font:800 11px var(--font-ui);
+  }
+  .perk--pro{ color:var(--ink-dim); }
+  .perk--pro .perk-check{
+    background:var(--card); border:1px solid var(--border); color:var(--ink-dim); font-size:10px;
+  }
+  @supports not (background: color-mix(in srgb, red 16%, transparent)){
+    .perk-check{ background:var(--surface-2); }
   }
 
   .compare-table{width:100%; border-collapse:collapse; margin:12px 0; font-size:14px;}
@@ -6606,7 +6640,16 @@
         <div id="rewardedAdClaimedMsg" style="display:none; margin-top:10px; font-size:14.5px; color:var(--good); font-weight:600;"></div>
       </div>
 
-      <table class="compare-table">
+      <!-- Dwa warianty prezentacji tego samego: tabela porównawcza (gęsta, dobra
+           do zestawiania planów) i lista korzyści w kartach (łatwiejsza do
+           skanowania jednego planu; wzorzec .perk z v2 §3). Przełącznik jest
+           TYMCZASOWY - do rozstrzygnięcia, który zostaje. 2026-09-04. -->
+      <div class="perk-switch">
+        <button type="button" class="perk-sw-btn active" data-perkview="table">Tabela</button>
+        <button type="button" class="perk-sw-btn" data-perkview="cards">Karty</button>
+      </div>
+      <div id="perkCards" style="display:none;"></div>
+      <table class="compare-table" id="compareTable">
         <tr><th data-i18n="tFeature">Funkcja</th><th data-i18n="tFree">Darmowe</th><th data-i18n="tPremium">Premium</th><th data-i18n="tPremiumPro">Pro</th></tr>
         <tr><td data-i18n="tWords">Słówka i tryby nauki</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
         <tr><td data-i18n="tAudio">Wymowa / audio</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
@@ -15434,7 +15477,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.135';
+const APP_VERSION = '2026-09-04.136';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -25337,6 +25380,62 @@ document.getElementById('openParticleBtn').addEventListener('click', (e)=>{
   e.stopPropagation();
   // Kompendium zostaje otwarte pod spodem - user wraca do niego po zamknięciu.
   openParticlePanel();
+});
+
+/* Karty korzyści budowane Z TABELI, nie z osobnej listy - inaczej trzeba by
+   utrzymywać dwie kopie tej samej treści i przy każdej zmianie planu pamiętać
+   o obu. Tabela zostaje źródłem prawdy. */
+function renderPerkCards(){
+  const tab = document.getElementById('compareTable');
+  const wrap = document.getElementById('perkCards');
+  if(!tab || !wrap) return;
+  const wiersze = [...tab.querySelectorAll('tr')];
+  if(wiersze.length < 2) return;
+  const naglowki = [...wiersze[0].querySelectorAll('th')].map(t => t.textContent.trim());
+  const plany = naglowki.slice(1);          // Darmowe, Premium, Pro
+
+  wrap.innerHTML = plany.map((nazwa, kol) => {
+    const punkty = wiersze.slice(1).map(tr => {
+      const kom = [...tr.querySelectorAll('td')];
+      if(kom.length < plany.length + 1) return null;
+      const etykieta = kom[0].textContent.trim();
+      const wartosc = kom[kol + 1].textContent.trim();
+      // Myślnik = brak w tym planie; pokazujemy przygaszony, żeby było widać,
+      // czego user nie dostaje - to sedno wzorca .perk--pro z v2 §3.
+      const ma = wartosc && wartosc !== '—' && wartosc !== '-';
+      // Trzy przypadki, każdy inaczej:
+      //   ✓ albo brak wartości  -> sama etykieta
+      //   myślnik (nie ma)      -> sama etykieta, przygaszona (bez powielania myślnika)
+      //   wartość opisowa       -> etykieta z doprecyzowaniem
+      // „Reklamy: są" to nie korzyść, więc w planie darmowym pokazujemy je jako
+      // brak czegoś, nie jako punkt na plus.
+      const negatywna = /^(są|tak|yes)$/i.test(wartosc);
+      const opis = (!ma || wartosc === '✓' || !wartosc) ? etykieta : etykieta + ': ' + wartosc;
+      const plus = ma && !negatywna;
+      return `<div class="perk${plus ? '' : ' perk--pro'}">
+                <span class="perk-check">${plus ? '✓' : '–'}</span>
+                <span>${escapeHtml(opis)}</span>
+              </div>`;
+    }).filter(Boolean).join('');
+    // Środkowy plan wyróżniony - to ten, na który kierujemy.
+    const wyroz = (kol === plany.length - 2) ? ' featured' : '';
+    return `<div class="perk-plan${wyroz}">
+              <div class="perk-plan-name">${escapeHtml(nazwa)}</div>${punkty}
+            </div>`;
+  }).join('');
+}
+
+document.querySelectorAll('[data-perkview]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const karty = btn.dataset.perkview === 'cards';
+    document.querySelectorAll('[data-perkview]').forEach(b =>
+      b.classList.toggle('active', b === btn));
+    const tab = document.getElementById('compareTable');
+    const wrap = document.getElementById('perkCards');
+    if(karty && wrap && !wrap.innerHTML) renderPerkCards();
+    if(tab) tab.style.display = karty ? 'none' : '';
+    if(wrap) wrap.style.display = karty ? '' : 'none';
+  });
 });
 
 document.getElementById('particlePrevBtn').addEventListener('click', ()=>{
