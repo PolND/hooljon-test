@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.115
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.117
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -4074,7 +4074,10 @@
      Układ z makiety: postęp na górze, polecenie, słowo hero, cztery odpowiedzi
      jako pełnowymiarowe wiersze dosunięte do dołu - w zasięgu kciuka. */
   .quiz-vertical{
-    display:flex; flex-direction:column; min-height:calc(100dvh - var(--bottom-chrome) - 40px);
+    /* Wysokość ustawia syncCompassMetrics z FAKTYCZNEJ pozycji i dolnej krawędzi
+       ramy. Wartość z 100dvh była tu zbędna, a wewnątrz ramy wręcz szkodliwa:
+       żądała więcej miejsca, niż rama ma. */
+    display:flex; flex-direction:column;
     padding:0 2px;
   }
   .qv-progress{
@@ -4089,7 +4092,11 @@
   /* .quiz-vertical to kolumna flex bez align-items, więc dziecko o stałej
      szerokości (34px) rozciąga się do lewej krawędzi zamiast siedzieć pod
      słowem. Blokom tekstowym stretch nie przeszkadza, temu owszem. */
-  .quiz-vertical > .center-speak-btn{ align-self:center; }
+  /* Dzieci o stałej szerokości w kolumnie flex bez align-items rozciągają się
+     do lewej krawędzi. Blokom tekstowym stretch nie przeszkadza (mają
+     text-align:center), tym owszem. */
+  .quiz-vertical > .center-speak-btn,
+  .quiz-vertical > #centerSourceBadge{ align-self:center; }
   .qv-emoji:empty{ display:none; }
   .qv-word{
     font-family:var(--font-ko); font-size:44px; font-weight:600;
@@ -4140,8 +4147,8 @@
     .qv-choices .ans-btn.correct, .qv-btn.correct{ background:var(--card-hi); }
     .qv-choices .ans-btn.wrong, .qv-btn.wrong{ background:var(--card-hi); }
   }
-  [data-theme="kobalt"] .qv-btn{ border-radius:var(--radius); font-weight:700; }
-  [data-theme="jade"] .qv-btn{ border-radius:26px; }
+  [data-theme="kobalt"] .qv-btn, [data-theme="kobalt"] .qv-choices .ans-btn{ border-radius:var(--radius); font-weight:700; }
+  [data-theme="jade"] .qv-btn, [data-theme="jade"] .qv-choices .ans-btn{ border-radius:26px; }
 
   /* Transkrypcja wypowiedzi ucznia - oznaczona jako przybliżona. Rozpoznawanie mowy
      myli się przy akcencie nie-natywnym, a to większość naszych użytkowników. */
@@ -15262,7 +15269,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.115';
+const APP_VERSION = '2026-09-04.117';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15327,7 +15334,16 @@ function syncCompassMetrics(){
   const chrome = Math.max(vis(document.getElementById('bottomNav')),
                           vis(document.getElementById('adSlot')));
   const top = c.getBoundingClientRect().top;
-  c.style.minHeight = Math.max(320, window.innerHeight - top - chrome - 8) + 'px';
+  // Dolna krawędź liczona od RAMY, nie od okna. Na szerokim ekranie apka siedzi
+  // w ramie o stałej wysokości (max 900px) - mierzenie względem window.innerHeight
+  // dawało tam wartość większą niż sama rama, więc kolumna rozpychała ją i lista
+  // odpowiedzi wypadała poza widok. Zgłoszone przez testera 2026-09-04.
+  const wrap = document.querySelector('.wrap');
+  const wrapRect = wrap ? wrap.getBoundingClientRect() : null;
+  const dolna = (wrapRect && wrapRect.height < window.innerHeight)
+    ? wrapRect.bottom
+    : window.innerHeight;
+  c.style.minHeight = Math.max(320, dolna - top - chrome - 8) + 'px';
   // Mierzymy szerokość SAMEGO TEKSTU (Range), nie bloku. Poprzednia wersja
   // porównywała scrollWidth elementu pełnej szerokości z szerokością kontenera
   // minus padding - a to jest prawdziwe praktycznie zawsze, więc pętla zbijała
@@ -24408,7 +24424,7 @@ function newRound(){
     document.getElementById('centerSourceBadge').innerHTML = '';
     document.getElementById('centerSpeakBtn').style.display = 'none';
     current = null;
-    document.querySelectorAll('#quizGrid .ans-btn').forEach(b=>{ b.textContent=''; b.disabled=true; b.className='ans-btn dim'; });
+    document.querySelectorAll('#quizGrid .ans-btn').forEach(b=>{ b.textContent=''; b.disabled=true; b.className='ans-btn qv-btn dim'; });
     return;
   }
 
