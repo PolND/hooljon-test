@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.111
-  Zbudowane na: 6b52a60a39174be2a1e4370a89c8a535 (.105 Design) + baa154ba3ba4950c532d405b8158e03b (.109 moja)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.112
+  Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
   pliki z tym samym .NN są różne. Przy każdym buildzie wpisz sumę pliku wejściowego.
@@ -869,6 +869,53 @@
     border-color:var(--hwang);
     font-weight:600;
   }
+
+  /* ══ MAKIETA 7e · FISZKA KO→PL ═══════════════════════════════════════════
+     Cztery tryby jako siatka 2x2, a nie rząd wychodzący za krawędź; narzędzia
+     pod jednym wierszem. Cała ta klatka jest o odzyskaniu wysokości nad
+     odpowiedziami - "słowo dostaje pion, którego wcześniej nie miało". */
+  #vocabScreen .modebar{
+    display:grid; grid-template-columns:1fr 1fr; gap:8px;
+    padding:0 0 12px; overflow:visible;
+  }
+  #vocabScreen .modebar .mode-btn{
+    width:auto; min-width:0; margin:0; flex:none;
+    text-align:center; padding:11px 8px; border-radius:var(--radius);
+    background:var(--surface-2); border:1px solid var(--border);
+    font:700 13px var(--font-ui); color:var(--ink-dim);
+  }
+  #vocabScreen .modebar .mode-btn.active{
+    background:var(--hwang); border-color:var(--hwang); color:var(--on-accent);
+  }
+  /* Tryb odpowiedzi jako wiersz: etykieta z podpisem po lewej, przełącznik
+     po prawej - zamiast trzech elementów rozrzuconych w jednej linii. */
+  #vocabScreen .input-mode-row{
+    display:flex; align-items:center; gap:14px; min-height:56px;
+    padding:12px 0; border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border); margin-bottom:4px;
+  }
+  #vocabScreen .input-mode-row .imr-main{ flex:1; min-width:0; }
+  #vocabScreen .input-mode-row .imr-lab{ font:600 14.5px var(--font-ui); color:var(--ink); display:block; }
+  #vocabScreen .input-mode-row #vocabInputModeLabel{
+    font-size:12.5px; color:var(--ink-dim); display:block; margin-top:2px;
+  }
+  /* Siedem przycisków narzędzi pod jednym wierszem. To one zjadały wysokość,
+     przez którą odpowiedzi wypadały pod nawigację na niskich ekranach
+     (pomiar 2026-09-04: przy 640px brakowało 22px, przy 600px - 84px). */
+  .tools-row{
+    display:flex; align-items:center; gap:14px; width:100%;
+    min-height:56px; padding:14px 0; margin-top:14px;
+    border:0; border-top:1px solid var(--border); background:0; cursor:pointer;
+  }
+  .tools-row .tr-ico{ flex:none; font-size:18px; color:var(--ink-dim); }
+  .tools-row .tr-main{ flex:1; min-width:0; text-align:left; }
+  .tools-row .tr-title{ font:600 14.5px var(--font-ui); color:var(--ink); display:block; }
+  .tools-row .tr-sub{
+    font-size:12.5px; color:var(--ink-dim); margin-top:2px; display:block;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .tools-row .tr-chev{ flex:none; color:var(--ink-dim); font-size:18px; }
+  .toolbar.is-collapsed{ display:none; }
 
   /* COMPASS */
   /* Wewnątrz kompasu siatka MUSI mieć dokładnie --dial - inaczej reguła pionowa
@@ -5186,12 +5233,14 @@
     </div>
 
     <div class="input-mode-row">
-      <span data-i18n="answerModeLabel">Tryb odpowiedzi:</span>
+      <span class="imr-main">
+        <span class="imr-lab" data-i18n="answerModeLabel">Tryb odpowiedzi</span>
+        <span id="vocabInputModeLabel">Wybór (4 odpowiedzi)</span>
+      </span>
       <label class="switch" style="margin:0;">
         <input type="checkbox" id="vocabTypedToggle">
         <span class="track"><span class="knob"></span></span>
       </label>
-      <span id="vocabInputModeLabel">Wybór (4 odpowiedzi)</span>
     </div>
 
       <!-- UKŁAD PIONOWY (makieta 1b). Kompas zastąpiony listą odpowiedzi - po
@@ -5249,7 +5298,15 @@
       <button class="primary" id="vocabNextBtn" style="flex:1;" data-i18n="nextBtn">Dalej →</button>
     </div>
 
-    <div class="toolbar">
+    <button type="button" class="tools-row" id="vocabToolsToggle" aria-expanded="false" aria-controls="vocabToolbar">
+      <span class="tr-ico" aria-hidden="true">⋯</span>
+      <span class="tr-main">
+        <span class="tr-title" data-i18n="toolsRowTitle">Narzędzia</span>
+        <span class="tr-sub" data-i18n="toolsRowSub">Działy · lista · dodaj · AI · trudne</span>
+      </span>
+      <span class="tr-chev" aria-hidden="true">›</span>
+    </button>
+    <div class="toolbar is-collapsed" id="vocabToolbar">
       <button class="tool-btn" id="btnCategories" data-i18n="btnCategories">Działy</button>
       <button class="tool-btn" id="btnWordList"><span data-i18n="wordListTitle2">Lista słówek</span></button>
       <button class="tool-btn" id="btnAdd">+ <span data-i18n="btnAddWord">Dodaj słówka</span></button>
@@ -15009,7 +15066,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.111';
+const APP_VERSION = '2026-09-04.112';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15965,6 +16022,8 @@ const I18N = {
   modePlKo: { pl: 'PL → KO', en: 'EN → KO' },
   modeMixed: { pl: 'Mieszane', en: 'Mixed' },
   modeReview: { pl: 'Powtórka błędów', en: 'Mistake review' },
+  toolsRowTitle: { pl: 'Narzędzia', en: 'Tools' },
+  toolsRowSub: { pl: 'Działy · lista · dodaj · AI · trudne', en: 'Sections · list · add · AI · hard' },
   answerModeLabel: { pl: 'Tryb odpowiedzi:', en: 'Answer mode:' },
   vocabTypedCheckBtn: { pl: 'Sprawdź', en: 'Check' },
   vkToggleLabelVocab: { pl: 'Klawiatura koreańska (myszką/dotykiem)', en: 'Korean keyboard (mouse/touch)' },
@@ -19033,6 +19092,18 @@ document.getElementById('btnWordList').addEventListener('click', ()=>{
     return;
   }
   openWordListPanel(selectedCategories);
+});
+
+document.getElementById('vocabToolsToggle').addEventListener('click', () => {
+  // Narzędzia schowane domyślnie (makieta 7e). Po rozwinięciu przeliczamy
+  // wysokość kolumny quizu, bo zmienia się to, co jest pod nią.
+  const bar = document.getElementById('vocabToolbar');
+  const btn = document.getElementById('vocabToolsToggle');
+  const open = bar.classList.toggle('is-open');
+  bar.classList.toggle('is-collapsed', !open);
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  btn.querySelector('.tr-chev').textContent = open ? '⌄' : '›';
+  try{ syncCompassMetrics(); }catch(e){}
 });
 
 document.getElementById('btnCategories').addEventListener('click', ()=>{
