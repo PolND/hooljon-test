@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.101
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.102
   Zbudowane na: b9af347d66bb7edec6d0d416602953c4 (.78)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -5995,6 +5995,7 @@
       <div style="font-size:44px; margin-bottom:8px;">🎉</div>
       <div style="font-size:20px; font-weight:700; font-family:var(--font-ui);" id="storyResultTitle"></div>
       <p class="hint-note" id="storyResultMsg"></p>
+      <div id="storyLoopActions" style="margin-top:14px;"></div>
       <div id="storyResultPatterns" style="text-align:left; margin:16px 0;"></div>
       <button class="primary" id="storyContinueBtn" data-i18n="storyContinueBtn">Kontynuuj</button>
     </div>
@@ -14915,7 +14916,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.101';
+const APP_VERSION = '2026-09-04.102';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -21534,6 +21535,58 @@ document.getElementById('storyNextQBtn').addEventListener('click', ()=>{
   else showStoryQuestion();
 });
 
+/* Przejścia z ekranu wyniku do kolejnych etapów pracy z materiałem lekcji.
+   Każdy przycisk pokazujemy TYLKO gdy jest czym go wypełnić - pusty prowadzący
+   donikąd jest gorszy niż jego brak. */
+function renderStoryLoopActions(lesson){
+  const wrap = document.getElementById('storyLoopActions');
+  if(!wrap) return;
+  const en = uiLang === 'en';
+  const words = (lesson.wordKos || []);
+  const rows = [];
+
+  // 1. ROZKŁAD HANJA - tylko dla słów sinokoreańskich z tej lekcji.
+  const hanjaWords = words.filter(w => { try{ return !!deconstructSinoWord(w); }catch(e){ return false; } });
+  if(hanjaWords.length){
+    rows.push(`<button type="button" class="tool-btn loop-btn" data-loop="hanja" style="width:100%; margin-top:8px;">
+      漢 ${en ? 'Break down the Sino-Korean words' : 'Rozłóż słowa sinokoreańskie'} (${hanjaWords.length})</button>`);
+  }
+
+  // 2. CZYTANIE NA GŁOS - jeśli lekcja ma zdania, na których da się ćwiczyć wymowę.
+  if(words.length >= 3){
+    rows.push(`<button type="button" class="tool-btn loop-btn" data-loop="read" style="width:100%; margin-top:8px;">
+      🎙️ ${en ? 'Read these words aloud' : 'Przeczytaj te słowa na głos'}</button>`);
+  }
+
+  // 3. POWTÓRKI - słowa z lekcji wchodzą do kolejki SRS; pokazujemy ile czeka.
+  const due = words.filter(w => { const d = srsData[w]; return d && d.due <= Date.now(); }).length;
+  if(due){
+    rows.push(`<button type="button" class="tool-btn loop-btn" data-loop="srs" style="width:100%; margin-top:8px;">
+      🔁 ${en ? 'Review what is due' : 'Powtórz, co czeka'} (${due})</button>`);
+  }
+
+  if(!rows.length){ wrap.innerHTML = ''; return; }
+  wrap.innerHTML = `<div class="achv-section-title" style="margin:14px 0 4px;">${
+    en ? '↻ Keep working with this material' : '↻ Pracuj dalej z tym materiałem'}</div>` + rows.join('');
+
+  wrap.querySelectorAll('[data-loop]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const kind = btn.dataset.loop;
+      if(kind === 'hanja'){
+        // Arkusz słowa pokazuje rozkład na znaki hanja. Otwieramy pierwszy;
+        // drugi argument to element kotwiczący, tu niepotrzebny.
+        openWordSheet(hanjaWords[0], null);
+      } else if(kind === 'read'){
+        setLastMode('reading');
+        setScreen('reading');
+      } else if(kind === 'srs'){
+        setLastMode('vocabStudy');
+        setScreen('vocabStudy');
+      }
+    });
+  });
+}
+
 function finishStoryLesson(){
   const lesson = STORY_LESSONS[storyCurrentLessonIndex];
   markLessonDone(lesson.id);
@@ -21544,6 +21597,17 @@ function finishStoryLesson(){
   document.getElementById('storyFeedback').innerHTML = '';
   document.getElementById('storyNextRow').style.display = 'none';
   document.getElementById('storyLessonProgress').textContent = '';
+
+  /* ═══ PĘTLA NAUKI ═══════════════════════════════════════════════════════
+     Lekcja nie jest końcem, tylko wejściem do kolejnych etapów pracy z tym
+     samym materiałem. Wcześniej ekran wyniku prowadził wyłącznie z powrotem
+     na mapę - user, który chciał przećwiczyć słowa albo przeczytać je na głos,
+     musiał sam znaleźć drogę przez menu.
+
+     Etapy, które faktycznie mamy: rozkład hanja (poznanie budowy słowa),
+     ćwiczenie wzorca (produkcja), czytanie na głos z oceną AI (artykulacja).
+     Każdy operuje na materiale Z TEJ lekcji, nie na losowym. */
+  renderStoryLoopActions(lesson);
 
   const totalTests = storyQueue.filter(q => q.kind === 'test').length;
   const pct = Math.round((storyCorrectCount / totalTests) * 100);
