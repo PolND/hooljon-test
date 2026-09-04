@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.119
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.120
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -15277,7 +15277,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.119';
+const APP_VERSION = '2026-09-04.120';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -24428,7 +24428,7 @@ function newRound(){
     els.centerWord.textContent = mode === 'review'
       ? 'Brak jeszcze trudnych słówek w wybranych działach — pomyl się trochę więcej albo dodaj więcej działów.'
       : 'W wybranych działach jest za mało słówek. Dodaj więcej działów w sekcji „Działy”.';
-    els.centerWord.className = 'center-word';
+    els.centerWord.className = 'qv-word center-word';
     document.getElementById('centerSourceBadge').innerHTML = '';
     document.getElementById('centerSpeakBtn').style.display = 'none';
     current = null;
@@ -24482,10 +24482,10 @@ function newRound(){
   els.centerEyebrow.textContent = direction === 'ko-pl' ? 'PO KOREAŃSKU' : (uiLang === 'en' ? 'IN ENGLISH' : 'PO POLSKU');
   if(direction === 'ko-pl'){
     els.centerWord.textContent = current.ko;
-    els.centerWord.className = 'center-word ko';
+    els.centerWord.className = 'qv-word center-word ko';
   } else {
     els.centerWord.textContent = tr(current);
-    els.centerWord.className = 'center-word';
+    els.centerWord.className = 'qv-word center-word';
   }
   els.centerEmoji.textContent = (showImage && current.emoji) ? current.emoji : '';
   els.centerEmoji.style.display = (showImage && current.emoji) ? '' : 'none';
