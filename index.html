@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.104
-  Zbudowane na: b9af347d66bb7edec6d0d416602953c4 (.78)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.106
+  Zbudowane na: 3ebe72b339cdf48ea743a7f0634c3a37 (.104 od Design) + 07df37e37663026b638282b6701a2df0 (.104 moja)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
   pliki z tym samym .NN są różne. Przy każdym buildzie wpisz sumę pliku wejściowego.
@@ -3966,6 +3966,26 @@
   .grammar-explain .ge-pattern{color:var(--hwang); font-weight:600; font-size:13.5px; text-transform:uppercase; letter-spacing:0.3px;}
   .grammar-explain .ge-full{font-family:var(--font-ko); font-size:17px; color:var(--ink); margin-top:4px;}
   .grammar-explain .ge-pl{color:var(--ink-dim); margin-top:2px;}
+  /* Cztery akcje w jednym wierszu zamiast czterech pasów pełnej szerokości -
+     "Dalej" wraca tuż pod wyjaśnienie, zamiast czekać na końcu kolejki.
+     Nic nie znika, zmienia się tylko gęstość. Pole dotyku zostaje 44px. */
+  .ge-actions{ display:flex; gap:8px; margin-top:12px; }
+  .ge-act{
+    flex:1; min-width:0; min-height:60px; padding:8px 3px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+    border:1px solid var(--border); border-radius:var(--radius);
+    background:var(--card); color:var(--ink); cursor:pointer;
+  }
+  .ge-act:hover{ background:var(--card-hi); }
+  .ge-act .ga-ico{ font-size:17px; line-height:1; }
+  /* Dwie linie zamiast wielokropka: "Kompendium" nie mieści się w 76px przy
+     360px ekranu, a ucięta etykieta w rzędzie czterech wygląda na błąd. */
+  .ge-act .ga-lab{
+    font:500 10.5px/1.15 var(--font-ui); color:var(--ink-dim); text-align:center;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+    overflow:hidden; max-width:100%; hyphens:auto;
+  }
+  [data-theme="kobalt"] .ge-act{ border-radius:var(--radius); }
   .grammar-explain .ge-explain{
     margin-top:8px;
     padding-top:8px;
@@ -4989,6 +5009,7 @@
       <h3 id="folderEditTitle" style="font-family:var(--font-ko); font-size:20px; margin:0 0 4px; text-align:center;"></h3>
       <p class="hint-note" style="margin-bottom:14px; text-align:center;" data-i18n="folderEditHint">Dotknij słowa, żeby je usunąć z zestawu.</p>
       <div class="row" style="margin-top:0;">
+        <button class="tool-btn" id="folderEditAddBtn" style="flex:1;">+ <span data-i18n="btnAddWord">Dodaj słówka</span></button>
         <button class="tool-btn" id="folderEditRenameBtn" style="flex:1;"><span data-i18n="btnRenameFolder">Zmień nazwę</span></button>
         <button class="tool-btn" id="folderEditDeleteBtn" style="flex:1;"><span data-i18n="btnDeleteFolder">Usuń zestaw</span></button>
       </div>
@@ -14960,7 +14981,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.104';
+const APP_VERSION = '2026-09-04.106';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15172,6 +15193,7 @@ function setScreen(screen){
         : 'Ta przeglądarka może nie rozpoznawać koreańskiej mowy. Jeśli twoje słowa wychodzą zniekształcone, spróbuj w Chrome lub Safari.';
     } else if(un){ un.style.display = 'none'; }
   }
+  if(screen === 'vocabStudy'){ try{ syncVocabStudyBack(); }catch(e){} }
   if(screen === 'settings'){
     // Wiersz zgłoszeń tylko dla właściciela. To wyłącznie wygoda UI - realną bramką
     // jest RLS na word_reports, bez którego zapytanie i tak zwróci pustkę.
@@ -17461,6 +17483,20 @@ function renderMyWordsScreen(){
       setScreen('vocabStudy');
     });
   });
+}
+
+/* Powrót z ekranu nauki zależy od tego, SKĄD user wszedł. Wcześniej prowadził
+   na sztywno do wyboru poziomu - więc ktoś, kto zaczął naukę z własnego zestawu,
+   po cofnięciu lądował przy poziomach TOPIK, czyli w zupełnie innym miejscu
+   niż to, z którego wyszedł. Zgłoszone przez testera 2026-09-04. */
+function syncVocabStudyBack(){
+  const btn = document.getElementById('vocabStudyBackBtn');
+  if(!btn) return;
+  const fromMyWords = (vocabStudySource === 'myWords');
+  btn.dataset.back = fromMyWords ? 'myWords' : 'vocabLevel';
+  btn.textContent = fromMyWords
+    ? (uiLang === 'en' ? 'My sets' : 'Moje zestawy')
+    : (uiLang === 'en' ? 'Choose level' : 'Wybór poziomu');
 }
 
 function renderFolderEdit(){
@@ -22317,15 +22353,19 @@ function grammarHandleAnswer(btn){
   const explainText = uiLang === 'en' ? (grammarCurrent.explainEn || grammarCurrent.explain) : grammarCurrent.explain;
   const explainHtml = `
     <div class="grammar-explain">
-      <div class="ge-pattern">${grammarCurrent.pattern}</div>
+      <!-- Etykieta wzorca i tłumaczenie NIE wracają tutaj: karta z pytaniem
+           zostaje na ekranie, więc byłyby dosłownym powtórzeniem tego, co
+           wisi 200px wyżej. Zostaje uzupełnione zdanie (to jest odpowiedź)
+           i wskazówka (to jest nowa treść). 2026-09-04. -->
       <div class="ge-full">${grammarCurrent.full}</div>
-      <div class="ge-pl">${tr(grammarCurrent)}</div>
       ${explainText ? `<div class="ge-explain">💡 ${explainText}</div>` : ''}
       ${renderComparisonHtml(grammarCurrent.pattern)}
-      <button class="tool-btn" id="grammarPracticeInChatBtn" style="width:100%; margin-top:10px;">💬 ${uiLang === 'en' ? 'Practice this in conversation' : 'Poćwicz to w rozmowie'}</button>
-      <button class="tool-btn" id="grammarSeeRegistersBtn" style="width:100%; margin-top:8px;">🔀 ${uiLang === 'en' ? 'Compare speech registers' : 'Porównaj style grzecznościowe'}</button>
-      <button class="tool-btn" id="grammarDrillBtn" style="width:100%; margin-top:8px;">🎯 ${uiLang === 'en' ? 'Drill this pattern' : 'Poćwicz ten wzorzec'}</button>
-      <button class="tool-btn" id="grammarOpenRefBtn" style="width:100%; margin-top:8px;">📖 ${uiLang === 'en' ? 'Look it up in the reference' : 'Sprawdź w kompendium'}</button>
+      <div class="ge-actions">
+        <button class="ge-act" id="grammarPracticeInChatBtn"><span class="ga-ico">💬</span><span class="ga-lab">${uiLang === 'en' ? 'In conversation' : 'W rozmowie'}</span></button>
+        <button class="ge-act" id="grammarSeeRegistersBtn"><span class="ga-ico">🔀</span><span class="ga-lab">${uiLang === 'en' ? 'Registers' : 'Style'}</span></button>
+        <button class="ge-act" id="grammarDrillBtn"><span class="ga-ico">🎯</span><span class="ga-lab">${uiLang === 'en' ? 'Drill' : 'Ćwicz'}</span></button>
+        <button class="ge-act" id="grammarOpenRefBtn"><span class="ga-ico">📖</span><span class="ga-lab">${uiLang === 'en' ? 'Reference' : 'Kompendium'}</span></button>
+      </div>
     </div>`;
   const feedback = document.getElementById('grammarFeedback');
   // Przy błędzie: wyjaśnienie DLACZEGO wybrana odpowiedź jest zła, nie tylko
@@ -24658,6 +24698,19 @@ document.getElementById('wordPickerSaveBtn').addEventListener('click', async () 
 
 document.getElementById('myWordsAddBtn').addEventListener('click', () => {
   document.getElementById('addPanel').classList.add('open'); updateFolderSelect();
+});
+
+/* Dodawanie słów Z WNĘTRZA zestawu. Wcześniej ekran zestawu miał tylko zmianę
+   nazwy i usunięcie - user, który chciał dopisać słowo do otwartego zestawu,
+   musiał się cofnąć i wybrać go ponownie w rozwijanej liście.
+   Tutaj zestaw jest już znany, więc ustawiamy go od razu. */
+document.getElementById('folderEditAddBtn').addEventListener('click', () => {
+  document.getElementById('addPanel').classList.add('open');
+  updateFolderSelect();
+  // Ustawiamy zestaw, z którego user wszedł - lista jest już wypełniona przez
+  // updateFolderSelect() powyżej, więc wartość na pewno w niej istnieje.
+  const sel = document.getElementById('folderSelect');
+  if(sel && folderEditName) sel.value = folderEditName;
 });
 document.getElementById('myWordsNewFolderBtn').addEventListener('click', () => {
   const name = (prompt(uiLang === 'en' ? 'Name for the new set:' : 'Nazwa nowego zestawu:', '') || '').trim();
