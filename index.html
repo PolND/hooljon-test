@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.124
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.125
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -573,8 +573,16 @@
   [data-theme="jade"] .home-section-learn{
     display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:stretch;
   }
-  [data-theme="jade"] .home-section-learn > .achv-section-title,
-  [data-theme="jade"] .home-section-learn > .home-card.variant-hero{ grid-column:1 / -1; }
+  /* USUNIĘTO 2026-09-04: reguła celowała w nagłówki i variant-hero WEWNĄTRZ
+     kontenera, a oba są jego rodzeństwem - "Nauka" stoi przed nim, "Praktyka" po,
+     a variant-hero (Powtórki) siedzi w "Szybkim dostępie". Selektor nie łapał
+     niczego, ale sugerował wdrożony wzorzec "nagłówek jako dziecko siatki",
+     którego nie ma.
+
+     Gdyby ktoś kiedyś wsunął nagłówek do kontenera: Jadeit zadziała, Kobalt
+     cicho się zepsuje - nagłówek zajmie jedną kolumnę i usiądzie wprost na
+     kolorze --border, bo tło kontenera pełni tam rolę linii siatki. Wtedy
+     potrzebne są OBIE reguły, nie jedna. */
   [data-theme="jade"] .home-section-learn .home-card.variant-row{
     flex-direction:column; align-items:flex-start; justify-content:flex-start;
     gap:12px; padding:18px; border-radius:26px;
@@ -15310,7 +15318,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.124';
+const APP_VERSION = '2026-09-04.125';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
