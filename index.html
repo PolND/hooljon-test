@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.128
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.135
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -583,6 +583,22 @@
      cicho się zepsuje - nagłówek zajmie jedną kolumnę i usiądzie wprost na
      kolorze --border, bo tło kontenera pełni tam rolę linii siatki. Wtedy
      potrzebne są OBIE reguły, nie jedna. */
+  /* GDYBY „Nauka" urosła do nieparzystej liczby kafli: samo grid-column:1/-1 na
+     kaflu NIE wystarczy, a w każdym motywie z innego powodu.
+
+       Jadeit  - reguła niżej robi z kafla kolumnę (flex-direction:column);
+                 na pełnej szerokości zostaje pusty pas po prawej.
+                 Poprawka: flex-direction:row + align-items:center.
+       Kobalt  - min-height:118px plus domyślne rozciąganie rzędu siatki daje
+                 kafel ~205px z pustym pasem pod tekstem.
+                 Poprawka: align-self:start + min-height:0.
+
+     Objaw ten sam, przyczyna inna - poprawka na jedną nie leczy drugiej.
+     Reguła .span-2 dla Jadeitu musi stać PO tej poniżej, bo nadpisuje jej
+     flex-direction przy tej samej specyficzności.
+
+     Nie używać :nth-child do wykrywania sieroty - nagłówki wsunięte kiedyś do
+     kontenera przesuną indeksy. Klasa na konkretnym kaflu. (Design, README-v5 §3) */
   [data-theme="jade"] .home-section-learn .home-card.variant-row{
     flex-direction:column; align-items:flex-start; justify-content:flex-start;
     gap:12px; padding:18px; border-radius:var(--radius);
@@ -606,6 +622,15 @@
     --font-ui:'Public Sans', system-ui, sans-serif;
     --font-ko:'Public Sans', 'Noto Serif KR', serif;
   }
+  /* UWAGA: linia siatki to nie obramowanie kafla - to TŁO tego kontenera
+     przeświecające przez rynienkę 1px. Wynika z tego zakaz: ten element nie może
+     dostać flex:1 ani height:100% w scrollerze. Nadmiar wysokości pod ostatnim
+     rzędem wypełniłby się kolorem --border i przy nawigacji dolnej pojawiłby się
+     pas kilkudziesięciu pikseli, wyglądający jak zamierzona krawędź pola.
+
+     Reguła ogólna: element, którego tło pełni rolę separatora, musi mieć wysokość
+     treści. flex:1 idzie na scroller wokół niego, z tłem --bg. Dotyczy też listy
+     słownika, gdzie Kobalt używa tego samego chwytu. (Design, README-v5 §2) */
   [data-theme="kobalt"] .home-section-learn{
     display:grid; grid-template-columns:1fr 1fr; gap:1px;
     background:var(--border); border-block:1px solid var(--border);
@@ -1287,6 +1312,13 @@
      zajęta (35 użyć jako rząd przycisków, display:flex; gap:8px). Wdrożenie pod
      tamtą nazwą rozwaliłoby wszystkie te miejsca, więc używamy prefiksu `dr-`.
      Reszta reguł 1:1 z v3 §1. */
+  /* To jest wzorzec .row z pakietu v3 §1.1 - wartości identyczne, nazwa
+     z przedrostkiem słownika. Wzorzec ma być REUŻYWALNY: wyniki słownika,
+     lista słówek w dziale, osiągnięcia, ustawienia. Jeśli budujesz kolejną
+     listę, użyj tych klas zamiast tworzyć trzecią nazwę na to samo.
+
+     min-width:0 na .dr-row-main jest OBOWIĄZKOWE - bez tego długie słowo
+     rozpycha wiersz zamiast się obciąć. */
   .dr-row{
     display:flex; align-items:center; gap:14px; padding:14px 0;
     border-bottom:1px solid var(--border); min-height:56px;
@@ -1558,6 +1590,28 @@
   .sc-node.sc-locked{opacity:0.4; cursor:default;}
 
   /* GENERATOR SCENARIUSZY */
+  /* Karty scenariuszy wg v4 §4 - role widoczne od razu, nie w szczegółach. */
+  .scen{
+    padding:16px 18px; margin-bottom:10px; background:var(--card);
+    border:1px solid var(--border); border-radius:var(--radius);
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .scen-top{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+  .scen-name{
+    flex:1; min-width:0; font-size:17px; font-weight:700; color:var(--ink);
+    font-family:var(--font-ui);
+  }
+  .scen-level{
+    flex:none; font-size:11px; font-weight:800; letter-spacing:.12em;
+    color:var(--hwang); font-family:var(--font-ui);
+  }
+  .scen-roles{ display:flex; flex-wrap:wrap; gap:6px; }
+  .role{
+    padding:6px 12px; border-radius:var(--radius-pill); border:1px solid var(--border);
+    color:var(--ink-dim); font-size:11.5px; font-family:var(--font-ui);
+  }
+  [data-theme="kobalt"] .scen{ border-radius:var(--radius); padding:15px 22px; }
+
   .scenario-card{
     background:linear-gradient(155deg, var(--card-hi), var(--card));
     border:1px solid var(--border);
@@ -2149,6 +2203,29 @@
     white-space:nowrap;
   }
   .premium-badge-btn.is-active{background:linear-gradient(135deg,var(--good),var(--good));}
+  /* ── PANEL SUBSKRYPCJI W MOTYWACH (v2 §3) ───────────────────────────────
+     Karty cenowe miały warianty dla Jadeitu i Kobaltu, ale tabela porównawcza,
+     zakładki planów i nagłówek nie - więc w tych motywach panel był przestylizowany
+     w połowie. Naprawa przez TOKENY, nie przez dopisywanie wyjątków dla każdego
+     motywu z osobna: wtedy kolejny motyw dostanie spójny wygląd za darmo. */
+  [data-theme="jade"] .compare-table th,
+  [data-theme="kobalt"] .compare-table th{ font-weight:800; letter-spacing:.06em; }
+  [data-theme="kobalt"] .compare-table th,
+  [data-theme="kobalt"] .compare-table td{ padding:9px 6px; }
+  /* Kobalt jest gęsty i techniczny - tabela bez zaokrągleń pasuje do jego rytmu. */
+  [data-theme="kobalt"] .compare-table{ font-size:13.5px; }
+  /* Jadeit robi z wierszy karty wszędzie indziej; w tabeli wystarczy oddech. */
+  [data-theme="jade"] .compare-table th,
+  [data-theme="jade"] .compare-table td{ padding:10px 6px; }
+
+  /* Zakładka wybranego planu: token akcentu zamiast domyślnego tła, żeby wybór
+     był widoczny w każdym motywie (spec: tier-tab[aria-selected]). */
+  .tier-tab.active,
+  .tier-tab[aria-selected="true"]{
+    background:var(--hwang); color:var(--on-accent, var(--bg)); border-color:var(--hwang);
+    font-weight:700;
+  }
+
   .compare-table{width:100%; border-collapse:collapse; margin:12px 0; font-size:14px;}
   .compare-table th, .compare-table td{
     text-align:left; padding:7px 6px; border-bottom:1px solid var(--border);
@@ -2477,6 +2554,31 @@
   .prog-day{ flex:1; height:32px; border-radius:8px; background:var(--surface-2); }
   .prog-day[data-done="true"]{ background:var(--hwang); }
   .prog-day[data-today="true"]{ background:0; border:1px dashed var(--border); }
+  /* Trzy miary jako wiersze (v4 §5). Bez wykresów - liczba po prawej,
+     etykieta po lewej, wyrównanie tabelaryczne żeby cyfry stały w kolumnie. */
+  .prog-stat{
+    display:flex; align-items:center; gap:14px; min-height:56px;
+    padding:14px 0; border-bottom:1px solid var(--border);
+  }
+  .prog-stat:last-child{ border-bottom:0; }
+  .prog-stat-label{ flex:1; min-width:0; font-size:15px; color:var(--ink); font-family:var(--font-ui); }
+  .prog-stat-value{
+    flex:none; font-family:var(--font-ko); font-size:20px; color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+  /* Jadeit i Kobalt mają --font-ko = Noto Serif KR; liczby w serifie wyglądają
+     tam przypadkowo, więc wracają do kroju interfejsu (uwaga z v4 §5). */
+  [data-theme="jade"] .prog-stat{
+    padding:15px 18px; border-bottom:0; margin-bottom:9px;
+    background:var(--card); border:1px solid var(--border); border-radius:22px;
+  }
+  [data-theme="jade"] .prog-stat-value,
+  [data-theme="kobalt"] .prog-stat-value{ font-family:var(--font-ui); font-weight:800; }
+  .prog-togo{
+    margin-top:10px; font-size:13.5px; color:var(--ink-dim);
+    font-family:var(--font-ui); text-align:center;
+  }
+  .prog-togo[data-done="true"]{ color:var(--good); }
   .prog-next{
     margin-top:14px; padding:16px 18px;
     background:var(--card); border:1px solid var(--border);
@@ -3859,27 +3961,6 @@
     margin-bottom:14px;
     padding-right:2px;
   }
-  .ai-bubble{
-    max-width:85%;
-    padding:10px 13px;
-    border-radius:var(--radius);
-    font-size:14.5px;
-    line-height:1.4;
-  }
-  .ai-bubble.bot{
-    align-self:flex-start;
-    background:var(--surface-2);
-    border:1px solid var(--border);
-    border-bottom-left-radius:4px;
-  }
-  .ai-bubble.user{
-    align-self:flex-end;
-    background:var(--hwang);
-    color:#FFFFFF;
-    border-bottom-right-radius:4px;
-  }
-  .ai-bubble .ai-ko{font-family:var(--font-ko); font-size:16px; font-weight:500;}
-  .ai-bubble .ai-pl{font-size:14px; opacity:0.8; margin-top:4px;}
   .ai-bubble .ai-errors{margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.25); font-size:14px;}
   .ai-bubble.bot .ai-errors{border-top-color:var(--border);}
   .ai-error-line{margin-bottom:2px;}
@@ -4586,6 +4667,11 @@
 
   /* Bąbelki renderuje istniejący JS jako .ai-bubble.bot/.user - stąd te nazwy
      zamiast .msg--bot/.msg--me z pakietu. Zachowanie 1:1 z v3 §4. */
+  /* Bąbelki rozmowy wg v3 §4. Reguły są zakresowane do .chat-log, więc obejmują
+     OBA tryby: głosowy (geminiVoiceTranscript) i tekstowy (aiChatTranscript).
+     Wcześniej tekstowy nie miał tej klasy i dostawał stary układ - ten sam
+     komponent wyglądał inaczej zależnie od trybu. Naprawione 2026-09-04;
+     przy okazji usunięte 5 martwych reguł bez prefiksu. */
   .chat-log .ai-bubble{
     max-width:82%; padding:15px 18px; display:flex; flex-direction:column; gap:7px;
     font-size:inherit; line-height:1.5;
@@ -5672,7 +5758,7 @@
         <span class="ai-usage-badge ai-calls-badge" id="aiUsageBadge" style="display:none;"></span>
         <div id="aiChatTargetBanner" class="ai-chat-target-banner" style="display:none;"></div>
         <div class="ai-chat-status" id="aiChatStatus" data-i18n="aiChatStatusDefault">Kliknij „Rozpocznij rozmowę” — bot przywita się pierwszy.</div>
-        <div class="ai-chat-transcript" id="aiChatTranscript"></div>
+        <div class="ai-chat-transcript chat-log" id="aiChatTranscript"></div>
 
         <div class="ai-chat-controls">
           <button class="primary" id="aiChatStartBtn" style="flex:1;">▶️ <span data-i18n="startConversation">Rozpocznij rozmowę</span></button>
@@ -5869,7 +5955,9 @@
            informacja to CIĄGŁOŚĆ, nie wartość. Dzień dzisiejszy przerywany,
            dopóki nie zrobisz powtórki. -->
       <div class="prog-week" id="progWeek"></div>
+      <div class="prog-togo" id="progToGo"></div>
       <div class="prog-next" id="progNext"></div>
+      <div id="progStats"></div>
     </div>
 
     <h4 class="achv-section-title" data-i18n="sageLadderTitle">Droga Mędrca</h4>
@@ -15346,7 +15434,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.128';
+const APP_VERSION = '2026-09-04.135';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -18880,6 +18968,50 @@ function renderDailyValueSummary(){
   });
 }
 
+/* ═══ PRÓG DNIA NAUKI ══════════════════════════════════════════════════════
+   Wcześniej wystarczała JEDNA odpowiedź, żeby zaliczyć dzień - kliknięcie
+   pojedynczej fiszki liczyło się tak samo jak przejście całej lekcji.
+   Ranga ma odzwierciedlać wykonaną pracę, nie samo zajrzenie do apki.
+
+   Próg: DZIESIĘĆ odpowiedzi albo JEDNA ukończona lekcja. Lekcja liczy się od
+   razu, bo to zawsze więcej niż dziesięć odpowiedzi - ktoś, kto ją przeszedł,
+   nie ma dopłacać klikaniem fiszek.
+
+   Licznik jest DZIENNY i resetuje się o północy. Trzymany lokalnie, bo służy
+   tylko do przekroczenia progu - samą serię nadal liczy WYŁĄCZNIE serwer
+   (register_daily_activity, migracja 0024), więc podniesienie progu nie osłabia
+   zabezpieczenia. Decyzja Damiana 2026-09-04. */
+const DZIEN_PROG_ODPOWIEDZI = 10;
+let odpowiedziDzis = (() => {
+  try{
+    const z = JSON.parse(localStorage.getItem('hooljon_odp_dzis') || 'null');
+    return (z && z.data === todayDateString()) ? z.n : 0;
+  }catch(e){ return 0; }
+})();
+
+function zapiszOdpowiedziDzis(){
+  try{ localStorage.setItem('hooljon_odp_dzis',
+    JSON.stringify({ data: todayDateString(), n: odpowiedziDzis })); }catch(e){}
+}
+
+/* Wołane przy KAŻDEJ odpowiedzi. Zwraca true, gdy próg właśnie przekroczono -
+   wtedy i tylko wtedy warto wołać registerDailyActivity(). */
+function policzOdpowiedz(){
+  const dzis = todayDateString();
+  try{
+    const z = JSON.parse(localStorage.getItem('hooljon_odp_dzis') || 'null');
+    if(!z || z.data !== dzis) odpowiedziDzis = 0;   // nowy dzień
+  }catch(e){}
+  odpowiedziDzis += 1;
+  zapiszOdpowiedziDzis();
+  return odpowiedziDzis >= DZIEN_PROG_ODPOWIEDZI;
+}
+
+/* Ile jeszcze do zaliczenia dnia - do pokazania w interfejsie. */
+function doProgu(){
+  return Math.max(0, DZIEN_PROG_ODPOWIEDZI - odpowiedziDzis);
+}
+
 async function registerDailyActivity(){
   const today = todayDateString();
   if(lastActiveDate === today) return;
@@ -19008,6 +19140,49 @@ function srsDueTomorrow(){
   return { ile, nowe };
 }
 
+/* Ile zostało do zaliczenia dnia. Bez tego próg jest niewidzialny: user robi
+   pięć fiszek, wychodzi i nie wie, że dzień się nie policzył. */
+function renderProgProg(){
+  const el = document.getElementById('progToGo');
+  if(!el) return;
+  const zostalo = doProgu();
+  const en = uiLang === 'en';
+  if(lastActiveDate === todayDateString()){
+    el.innerHTML = '✅ ' + (en ? 'Today counted towards your streak'
+                              : 'Dzisiejszy dzień zaliczony do serii');
+    el.dataset.done = 'true';
+    return;
+  }
+  el.dataset.done = 'false';
+  el.innerHTML = (en
+    ? `<b>${zostalo}</b> more answers to count today`
+    : `Jeszcze <b>${zostalo}</b> ${zostalo === 1 ? 'odpowiedź' : (zostalo < 5 ? 'odpowiedzi' : 'odpowiedzi')}, żeby zaliczyć dziś`);
+}
+
+/* Trzy miary. Wybrane tak, żeby każda mówiła coś, czego nie widać wyżej:
+   najdłuższa seria (rekord, nie bieżąca), zapas w kolejce powtórek i ile lekcji
+   za nami. Wszystkie liczone z danych, które i tak mamy. */
+function renderProgStats(){
+  const el = document.getElementById('progStats');
+  if(!el) return;
+  const en = uiLang === 'en';
+  let wKolejce = 0;
+  for(const ko in srsData) if(srsData[ko]) wKolejce++;
+  let lekcji = 0;
+  try{ lekcji = Object.keys(storyProgress || {}).filter(k => storyProgress[k]).length; }catch(e){}
+
+  const wiersze = [
+    [en ? 'Longest streak' : 'Najdłuższa seria', bestDayStreak + (en ? ' days' : ' dni')],
+    [en ? 'Cards in rotation' : 'Fiszek w powtórkach', String(wKolejce)],
+    [en ? 'Lessons completed' : 'Lekcji ukończonych', lekcji + ' / ' + STORY_LESSONS.length],
+  ];
+  el.innerHTML = wiersze.map(([etykieta, wartosc]) =>
+    `<div class="prog-stat">
+       <div class="prog-stat-label">${escapeHtml(etykieta)}</div>
+       <div class="prog-stat-value">${escapeHtml(wartosc)}</div>
+     </div>`).join('');
+}
+
 function renderProgNext(){
   const el = document.getElementById('progNext');
   if(!el) return;
@@ -19021,7 +19196,7 @@ function renderProgNext(){
 
 function renderAchievementsScreen(){
   document.getElementById('achvStreakNum').textContent = dayStreak;
-  try{ renderProgWeek(); renderProgNext(); }catch(e){ /* widok nie może psuć ekranu */ }
+  try{ renderProgWeek(); renderProgProg(); renderProgNext(); renderProgStats(); }catch(e){ /* widok nie może psuć ekranu */ }
   // Droga Mędrca: ranga i płomień z aktualnej serii. Warstwa wizualna - nie zmienia
   // niczego w tym, co user dostaje, ale pokazuje, że seria do czegoś prowadzi.
   try{
@@ -19317,7 +19492,8 @@ document.getElementById('vocabStudyEasyBtn').addEventListener('click', ()=>{
   srsRate(w.ko, 2, 'ko-pl');
   if(missedWords[w.ko]){ delete missedWords[w.ko]; saveMissed(); renderMissedPanel(); }
   playCorrectSound();
-  registerDailyActivity();
+  // Dzień zalicza się dopiero po 10 odpowiedziach - patrz policzOdpowiedz().
+  if(policzOdpowiedz()) registerDailyActivity();
   vocabStudyAdvance();
 });
 
@@ -19325,7 +19501,8 @@ document.getElementById('vocabStudyHardBtn').addEventListener('click', ()=>{
   const w = vocabStudyQueue[vocabStudyIndex];
   if(!w) return;
   srsRate(w.ko, 1, 'ko-pl');
-  registerDailyActivity();
+  // Dzień zalicza się dopiero po 10 odpowiedziach - patrz policzOdpowiedz().
+  if(policzOdpowiedz()) registerDailyActivity();
   reinsertIntoQueue(w, 5, 1); // wraca za ~5 kart, maks. 1 raz w tej sesji
   vocabStudyAdvance();
 });
@@ -19337,7 +19514,8 @@ document.getElementById('vocabStudyAgainBtn').addEventListener('click', ()=>{
   missedWords[w.ko] = {ko:w.ko, pl:w.pl, en:w.en, emoji:w.emoji, category:w.category, source:w.source};
   saveMissed();
   renderMissedPanel();
-  registerDailyActivity();
+  // Dzień zalicza się dopiero po 10 odpowiedziach - patrz policzOdpowiedz().
+  if(policzOdpowiedz()) registerDailyActivity();
   reinsertIntoQueue(w, 3, 2); // wraca za ~3 karty, maks. 2 razy w tej sesji
   vocabStudyAdvance();
 });
@@ -22152,7 +22330,8 @@ function finishStoryTestAnswer(isCorrect, correctText){
     : `<span>${uiLang === 'en' ? 'Correct answer' : 'Poprawna odpowiedź'}: ${escapeHtml(correctText)}</span>`;
   feedback.className = 'feedback ' + (isCorrect ? 'good' : 'bad');
   document.getElementById('storyNextRow').style.display = 'flex';
-  registerDailyActivity();
+  // Dzień zalicza się dopiero po 10 odpowiedziach - patrz policzOdpowiedz().
+  if(policzOdpowiedz()) registerDailyActivity();
 
   // KLUCZOWE PODŁĄCZENIE: do tej pory nic, czego nauczono w Trybie Opowieści (ani słówka,
   // ani gramatyka), nigdy nie trafiało do systemu SRS - raz przetestowane w ramach lekcji,
@@ -22264,6 +22443,9 @@ function finishStoryLesson(){
   const lesson = STORY_LESSONS[storyCurrentLessonIndex];
   markLessonDone(lesson.id);
   registerLessonCompletedToday();
+  // Ukończona lekcja zalicza dzień OD RAZU - to zawsze więcej pracy niż dziesięć
+  // pojedynczych odpowiedzi, więc nie każemy jeszcze dopłacać klikaniem fiszek.
+  registerDailyActivity();
 
   document.getElementById('storyQuestionCard').style.display = 'none';
   document.getElementById('storyChoiceGrid').style.display = 'none';
@@ -22419,7 +22601,8 @@ document.getElementById('sbCheckBtn').addEventListener('click', ()=>{
   document.getElementById('sbCheckBtn').style.display = 'none';
   document.getElementById('sbResetBtn').style.display = 'none';
   document.getElementById('sbNextRow').style.display = 'flex';
-  registerDailyActivity();
+  // Dzień zalicza się dopiero po 10 odpowiedziach - patrz policzOdpowiedz().
+  if(policzOdpowiedz()) registerDailyActivity();
 });
 
 document.getElementById('sbResetBtn').addEventListener('click', ()=>{
@@ -22847,7 +23030,8 @@ function grammarHandleAnswer(btn){
   if(grammarQuizSource === 'chapter' && grammarLevelKey){
     registerMastery(`grammar:${grammarLevelKey}`, isCorrect);
   }
-  registerDailyActivity();
+  // Dzień zalicza się dopiero po 10 odpowiedziach - patrz policzOdpowiedz().
+  if(policzOdpowiedz()) registerDailyActivity();
   renderStats();
   saveStats();
 
@@ -23753,6 +23937,7 @@ function finishRqQuiz(){
     ? `${rqCorrectCount} / ${total} correct (${pct}%)`
     : `${rqCorrectCount} / ${total} poprawnych (${pct}%)`;
   document.getElementById('rqResult').style.display = 'block';
+  // Ukończona całość (quiz, streszczenie, scenariusz) zalicza dzień od razu.
   registerDailyActivity();
 }
 
@@ -23840,6 +24025,7 @@ document.getElementById('retellSubmitBtn').addEventListener('click', async ()=>{
       <p style="font-size:14.5px; color:var(--ink-dim); margin-top:8px; line-height:1.5;">${escapeHtml(result.feedback)}</p>
     `;
     document.getElementById('retellFeedback').style.display = 'block';
+    // Ukończona całość (quiz, streszczenie, scenariusz) zalicza dzień od razu.
     registerDailyActivity();
   }catch(err){
     document.getElementById('retellFeedback').innerHTML = `<div class="feedback bad">⚠️ ${escapeHtml(translateAiErrorMessage(err.message) || 'Wystąpił błąd.')}</div>`;
@@ -23932,10 +24118,25 @@ function renderScenarioResults(cards){
     wrap.innerHTML = `<p class="hint-note">${uiLang === 'en' ? 'No cards generated. Try again.' : 'Nie udało się wygenerować kart. Spróbuj ponownie.'}</p>`;
     return;
   }
-  wrap.innerHTML = cards.map(card => `
-    <div class="scenario-card">
-      <div class="sc-title">${escapeHtml(card.title || '')}</div>
-      ${(card.roles || []).map(r => `
+  /* Układ z pakietu v4 §4. Sedno tamtej specyfikacji: ROLE SĄ WIDOCZNE OD RAZU,
+     bo to one decydują, czy scenariusz da się odegrać w grupie, która akurat
+     siedzi w sali. Prowadzący skanuje pod kątem „ilu mam ludzi", nie „o czym to".
+
+     Specyfikacja opisywała listę gotowych scenariuszy; my mamy generator, więc
+     przenoszę sam wzorzec: nagłówek z liczbą ról, chipy ról, potem zwroty. */
+  const en = uiLang === 'en';
+  wrap.innerHTML = cards.map(card => {
+    const role = card.roles || [];
+    const chipy = role.map(r =>
+      `<span class="role">${escapeHtml(r.role || '')}</span>`).join('');
+    return `
+    <div class="scen">
+      <div class="scen-top">
+        <div class="scen-name">${escapeHtml(card.title || '')}</div>
+        <div class="scen-level">${role.length} ${en ? (role.length === 1 ? 'ROLE' : 'ROLES') : (role.length === 1 ? 'ROLA' : 'RÓL')}</div>
+      </div>
+      ${chipy ? `<div class="scen-roles">${chipy}</div>` : ''}
+      ${role.map(r => `
         <div class="scenario-role">
           <div class="sr-name">${escapeHtml(r.role || '')}</div>
           ${(r.phrases || []).map(p => `
@@ -23944,8 +24145,8 @@ function renderScenarioResults(cards){
           `).join('')}
         </div>
       `).join('')}
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 document.getElementById('scenarioGenerateBtn').addEventListener('click', async ()=>{
@@ -23964,6 +24165,7 @@ document.getElementById('scenarioGenerateBtn').addEventListener('click', async (
   try{
     const cards = await generateScenarioCards(scenarioGroupSize, situationLabel, levelLabel, scenarioCount);
     renderScenarioResults(cards);
+    // Ukończona całość (quiz, streszczenie, scenariusz) zalicza dzień od razu.
     registerDailyActivity();
   }catch(err){
     document.getElementById('scenarioError').innerHTML = `<div class="feedback bad">⚠️ ${escapeHtml(translateAiErrorMessage(err.message) || 'Wystąpił błąd.')}</div>`;
@@ -25038,7 +25240,8 @@ document.getElementById('tierTabPro').addEventListener('click', ()=>{
 function finishVocabRound(isCorrect){
   totalAnswered += 1;
   if(isCorrect) totalCorrect += 1;
-  registerDailyActivity();
+  // Dzień zalicza się dopiero po 10 odpowiedziach - patrz policzOdpowiedz().
+  if(policzOdpowiedz()) registerDailyActivity();
 
   if(isCorrect){
     score += 1;
@@ -25911,7 +26114,8 @@ function conjNewRound(){
 function conjFinishRound(isCorrect, correctForm){
   totalAnswered += 1;
   if(isCorrect) totalCorrect += 1;
-  registerDailyActivity();
+  // Dzień zalicza się dopiero po 10 odpowiedziach - patrz policzOdpowiedz().
+  if(policzOdpowiedz()) registerDailyActivity();
   registerMastery(`conj:${conjPos}:${conjLevelNum}`, isCorrect);
 
   const breakdown = conjBreakdownHtml(conjCurrent, conjTense, correctForm);
