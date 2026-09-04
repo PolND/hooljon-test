@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.106
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.109
   Zbudowane na: 3ebe72b339cdf48ea743a7f0634c3a37 (.104 od Design) + 07df37e37663026b638282b6701a2df0 (.104 moja)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -774,8 +774,27 @@
       color:var(--hwang);
       opacity:0.03;
     }
+    /* Wewnątrz ramy wysokość liczy się od NIEJ, nie od okna. Bez tego ekran
+       quizu żądałby 100dvh i rozpychał ramę mimo ograniczenia. */
+    .wrap .quiz-vertical{ min-height:auto; }
+    .wrap .login-screen, .wrap .loading-screen{ min-height:auto; }
+
     .wrap{
       max-width:640px;
+      /* RAMA TELEFONU na szerokim ekranie. Bez ograniczenia wysokości apka
+         rozciągała się w dół przy pomniejszeniu widoku - 100dvh daje wtedy
+         bardzo dużo pikseli CSS, więc ekrany rosły w nieskończoność.
+         Wysokość dobrana proporcjonalnie do telefonu (640 x ~19.5:9),
+         z górnym ograniczeniem, żeby na monitorze 4K nie zajmowała całości.
+         Zgłoszone przez testera 2026-09-04. */
+      height:min(calc(100dvh - 96px), 900px);
+      max-height:900px;
+      /* Treść przewija się WEWNĄTRZ ramy, tak jak na telefonie - nie rozpycha
+         jej w dół. overflow-y na kontenerze, nie hidden, żeby dłuższe ekrany
+         (słownik, mapa lekcji) pozostały dostępne. */
+      overflow-y:auto;
+      overflow-x:hidden;
+      overscroll-behavior:contain;
       margin:48px auto;
       background:var(--card);
       border-radius:28px;
@@ -14981,7 +15000,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.106';
+const APP_VERSION = '2026-09-04.109';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -17319,6 +17338,7 @@ async function loadStorage(){
   applyPremiumUI();
   await loadDailyQuota();
   rebuildWordPool();
+  refreshFolderEditIfOpen();
   await loadCategories();
   renderStats();
   renderMissedPanel();
@@ -17526,6 +17546,16 @@ function renderFolderEdit(){
       await saveCustom(); rebuildWordPool(); renderFolderEdit();
     });
   });
+}
+
+/* Odświeżenie listy zestawu, jeśli user dodaje słowa Z WNĘTRZA otwartego zestawu.
+   Panel dodawania nakłada się na ekran, więc po zamknięciu lista pod spodem
+   pokazywałaby stan sprzed dodania - słowo byłoby zapisane, ale niewidoczne,
+   dopóki user nie wyszedłby i nie wrócił. Zgłoszone przez testera 2026-09-04. */
+function refreshFolderEditIfOpen(){
+  try{
+    if(currentScreen === 'folderEdit' && folderEditName) renderFolderEdit();
+  }catch(e){ /* odświeżenie widoku nie może psuć zapisu */ }
 }
 
 function rebuildWordPool(){
@@ -19946,7 +19976,7 @@ function renderDictSideCard(idx){
       ex: w.ex || '', exPl: w.exPl || '', exEn: w.exEn || '',
       level: w.level, category: 'Własne', source: 'picked'
     });
-    try{ await saveCustom(); rebuildWordPool(); }catch(e){}
+    try{ await saveCustom(); rebuildWordPool(); refreshFolderEditIfOpen(); }catch(e){}
     add.textContent = uiLang === 'en' ? 'Added ✓' : 'Dodano ✓';
   });
   const sp = document.getElementById('dsSpeakBtn');
@@ -22693,7 +22723,7 @@ async function openWordSheet(rawWord, el){
     if(hit && hit.en) obj.en = hit.en;
     customWords.push(obj);
     try{
-      await saveCustom(); rebuildWordPool();
+      await saveCustom(); rebuildWordPool(); refreshFolderEditIfOpen();
       if(selectedCategories && !selectedCategories.includes('Własne')){
         selectedCategories.push('Własne'); await saveCategories();
       }
@@ -24689,7 +24719,7 @@ document.getElementById('wordPickerSaveBtn').addEventListener('click', async () 
   document.getElementById('wordPickerSearch').value = '';
   document.getElementById('wordPickerResults').innerHTML = '';
   if(added > 0){
-    await saveCustom(); rebuildWordPool();
+    await saveCustom(); rebuildWordPool(); refreshFolderEditIfOpen();
     if(selectedCategories && !selectedCategories.includes('Własne')) selectedCategories.push('Własne');
     try{ await saveCategories(); renderCategoryPanel(); }catch(e){}
     document.getElementById('addPanel').classList.remove('open');
@@ -24735,7 +24765,7 @@ document.getElementById('folderEditDeleteBtn').addEventListener('click', async (
   if(!confirm(uiLang === 'en' ? `Delete set? ${count} word(s) move to "Unsorted".` : `Usunąć zestaw? ${count} słow(o/a) trafi do „Bez zestawu".`)) return;
   customWords.forEach(w => { if((w.folder || DEFAULT_FOLDER) === folderEditName) delete w.folder; });
   folderEditName = null;
-  await saveCustom(); rebuildWordPool(); setScreen('myWords');
+  await saveCustom(); rebuildWordPool(); refreshFolderEditIfOpen(); setScreen('myWords');
 });
 
 document.getElementById('btnAdd').addEventListener('click', ()=>{
@@ -24790,6 +24820,7 @@ document.getElementById('saveAdd').addEventListener('click', async ()=>{
   if(added > 0){
     await saveCustom();
     rebuildWordPool();
+    refreshFolderEditIfOpen();
     if(!selectedCategories.includes('Własne')) selectedCategories.push('Własne');
     await saveCategories();
     renderCategoryPanel();
@@ -24994,6 +25025,7 @@ document.getElementById('aiSaveAllBtn').addEventListener('click', async ()=>{
 
   await saveCustom();
   rebuildWordPool();
+  refreshFolderEditIfOpen();
   if(!selectedCategories.includes('Ze zdjęcia')) selectedCategories.push('Ze zdjęcia');
   await saveCategories();
   renderCategoryPanel();
@@ -25219,6 +25251,7 @@ document.getElementById('aiFileSaveAllBtn').addEventListener('click', async ()=>
 
   await saveCustom();
   rebuildWordPool();
+  refreshFolderEditIfOpen();
   if(!selectedCategories.includes('Z pliku')) selectedCategories.push('Z pliku');
   await saveCategories();
   renderCategoryPanel();
