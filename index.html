@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.122
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.124
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -790,7 +790,7 @@
          bardzo dużo pikseli CSS. Treść przewija się WEWNĄTRZ ramy, tak jak
          na telefonie. Zgłoszone przez testera 2026-09-04.
 
-         Świadomie NIE nadpisujemy wysokości quizu: syncCompassMetrics liczy ją
+         Świadomie NIE nadpisujemy wysokości quizu: syncQuizMetrics liczy ją
          z faktycznej pozycji elementu, więc wewnątrz ramy zmierzy ramę i sam
          się dostosuje. Nadpisanie na sztywno zepsułoby ten pomiar. */
       height:min(calc(100dvh - 96px), 900px);
@@ -929,17 +929,6 @@
   /* COMPASS */
   /* Wewnątrz kompasu siatka MUSI mieć dokładnie --dial - inaczej reguła pionowa
      liczy z jednej liczby, a rysuje się druga (v2 §4.2). */
-  .compass .grid{ width:var(--dial); max-width:var(--dial); }
-  .compass .ans-btn{
-    font-size:clamp(11px, calc(var(--dial) * 0.045), 15px);
-    hyphens:none; line-height:1.25;
-    word-break:normal; overflow-wrap:normal;
-    padding:6px 4px;
-  }
-  .compass .slot-c .center-word{
-    white-space:nowrap;
-    font-size:min(26px, calc(var(--dial) * 0.075));
-  }
   /* cztery pozycje kotwiczone do przeciwległych krawędzi kwadratu —
      dzięki identycznym wymiarom i symetrycznemu zakotwiczeniu odległość
      środka każdego przycisku od środka planszy jest zawsze taka sama */
@@ -1993,7 +1982,6 @@
   .switch input:checked + .track .knob{transform:translateX(16px);}
 
   @media (max-width:380px){
-    .compass{min-height:400px;}
   }
 
   /* AD SLOT — dyskretny baner, tylko dla darmowych użytkowników */
@@ -4083,7 +4071,7 @@
      Układ z makiety: postęp na górze, polecenie, słowo hero, cztery odpowiedzi
      jako pełnowymiarowe wiersze dosunięte do dołu - w zasięgu kciuka. */
   .quiz-vertical{
-    /* Wysokość ustawia syncCompassMetrics z FAKTYCZNEJ pozycji i dolnej krawędzi
+    /* Wysokość ustawia syncQuizMetrics z FAKTYCZNEJ pozycji i dolnej krawędzi
        ramy. Wartość z 100dvh była tu zbędna, a wewnątrz ramy wręcz szkodliwa:
        żądała więcej miejsca, niż rama ma. */
     display:flex; flex-direction:column;
@@ -5435,7 +5423,7 @@
            interfejsu, która operuje wierszami i kartami. Nazwy tokenów heuk/jeok/
            cheong/baek (kierunki świata) zostają w palecie, bo niosą tożsamość
            niezależnie od układu. Decyzja Damiana 2026-09-03. -->
-      <div class="quiz-vertical" id="vocabCompassWrap">
+      <div class="quiz-vertical" id="vocabQuizWrap">
         <div class="qv-progress" id="quizProgress"></div>
         <div class="qv-prompt" id="centerEyebrow">Wybierz tłumaczenie</div>
         <!-- Karta ze słowem. Po przejściu na układ pionowy słowo zostało bez ramki -
@@ -5509,146 +5497,17 @@
       <button class="tool-btn" id="btnReset" data-i18n="btnReset">Wyczyść postęp</button>
     </div>
 
-    <div class="panel" id="categoriesPanel">
-      <div class="modal-card">
-        <button class="modal-close" data-close="categoriesPanel" aria-label="Zamknij">✕</button>
-        <h3 data-i18n="categoriesTitle">Działy tematyczne</h3>
-        <p data-i18n="categoriesDesc">Zaznacz działy, z których mają losować się pytania — działa też w trybie „Powtórka błędów”, więc możesz mieszać trudne słówka z różnych tematów naraz, bez sztucznych ograniczeń.</p>
-        <div class="row" style="margin-top:0; margin-bottom:10px;">
-          <button class="tool-btn" id="catSelectAll" style="flex:1;" data-i18n="selectAll">Zaznacz wszystkie</button>
-          <button class="tool-btn" id="catSelectNone" style="flex:1;" data-i18n="deselectAll">Odznacz wszystkie</button>
-        </div>
-        <div class="category-chips" id="categoryChips"></div>
-      </div>
-    </div>
+    
 
     
 
-    <div class="panel" id="addPanel">
-      <div class="modal-card">
-        <button class="modal-close" data-close="addPanel" aria-label="Zamknij">✕</button>
-        <h3 data-i18n="addWordsTitle">Dodaj własne słówka</h3>
+    
 
-        <div id="folderSelectWrap" style="margin-bottom:10px;">
-          <label style="display:block; font-size:12.5px; color:var(--ink-dim); margin-bottom:5px;" data-i18n="folderSelectLabel">Zapisz do zestawu:</label>
-          <select id="folderSelect" style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-size:14.5px; font-family:var(--font-ui);"></select>
-        </div>
+    
 
-        <div class="row" style="margin-top:0;">
-          <button class="tool-btn addmode-tab active" id="addModeTypeBtn" style="flex:1;" data-i18n="addModeType">Wpisz ręcznie</button>
-          <button class="tool-btn addmode-tab" id="addModePickBtn" style="flex:1;" data-i18n="addModePick">Wybierz z bazy</button>
-        </div>
+    
 
-        <div id="addModeTypeBody">
-          <p id="addWordHint">Jedna linia = jedno słówko, w formacie: <b>koreański - polski</b><br>np. 사과 - jabłko</p>
-          <textarea id="addTextarea" placeholder="사과 - jabłko&#10;물 - woda"></textarea>
-          <div class="row">
-            <button class="primary" id="saveAdd" data-i18n="saveToDict">Zapisz do słownika</button>
-          </div>
-        </div>
-
-        <div id="addModePickBody" style="display:none;">
-          <p class="hint-note" data-i18n="pickerHint">Szukaj po koreańsku lub po polsku. Zaznacz słowa, które chcesz dodać do swoich fiszek.</p>
-          <input type="text" id="wordPickerSearch" placeholder="np. 사과 albo jabłko" style="width:100%; padding:11px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-size:15px; font-family:var(--font-ui);">
-          <div id="wordPickerResults" class="word-picker-results"></div>
-          <div class="row">
-            <button class="primary" id="wordPickerSaveBtn" style="flex:1;" disabled>
-              <span data-i18n="pickerSave">Dodaj zaznaczone</span> <span id="wordPickerCount"></span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel" id="aiFlashcardPanel">
-      <div class="modal-card">
-        <button class="modal-close" data-close="aiFlashcardPanel" aria-label="Zamknij">✕</button>
-        <h3>📷 <span data-i18n="aiFlashTitle">Fiszki ze zdjęcia (AI)</span></h3>
-
-        <div id="aiGateMsg" style="display:none;">
-          <p data-i18n="aiGateMsg">To funkcja Premium — AI odczytuje koreański tekst ze zdjęcia i proponuje tłumaczenia, które możesz edytować przed zapisaniem.</p>
-          <div class="row"><button class="primary" id="aiGoPremiumBtn" style="flex:1;" data-i18n="seePremium">Zobacz Premium</button></div>
-        </div>
-
-        <div id="aiFlashcardBody">
-          <p data-i18n="aiFlashBody">Zrób zdjęcie lub wybierz z galerii — menu, napis, podręcznik. AI odczyta koreańskie słowa i zaproponuje tłumaczenia.</p>
-          <input type="file" id="aiImageInput" accept="image/*" capture="environment" style="display:none;">
-          <div class="row" style="margin-top:0;">
-            <button class="tool-btn" id="aiPickImageBtn" style="flex:1;"><span data-i18n="takePickPhoto">Zrób / wybierz zdjęcie</span></button>
-          </div>
-
-          <div id="aiImagePreviewWrap" style="display:none; margin-top:12px; text-align:center;">
-            <img id="aiImagePreview" alt="Podgląd zdjęcia" style="max-width:100%; max-height:220px; border-radius:12px; border:1px solid var(--border);">
-          </div>
-
-          <div class="row" id="aiAnalyzeRow" style="display:none;">
-            <button class="primary" id="aiAnalyzeBtn" style="flex:1;" data-i18n="analyzePhoto">Analizuj zdjęcie (AI)</button>
-          </div>
-
-          <div id="aiLoading" class="hint-note" style="display:none;">Analizuję zdjęcie…</div>
-          <div id="aiErrorMsg" style="display:none; color:var(--bad); font-size:14.5px; margin-top:10px;"></div>
-
-          <div id="aiResultsWrap" style="display:none; margin-top:14px;">
-            <p style="font-size:14px; color:var(--ink-dim); margin-bottom:8px;" data-i18n="reviewBeforeSave">Sprawdź i popraw odczytane słówka przed zapisaniem:</p>
-            <div id="aiResultsList"></div>
-            <div class="row">
-              <button class="primary" id="aiSaveAllBtn" style="flex:1;" data-i18n="saveSelected">Zapisz zaznaczone do słownika</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel" id="aiFileImportPanel">
-      <div class="modal-card">
-        <button class="modal-close" data-close="aiFileImportPanel" aria-label="Zamknij">✕</button>
-        <h3>📄 <span data-i18n="aiFileTitle">Import słówek z pliku (AI)</span></h3>
-
-        <div id="aiFileGateMsg" style="display:none;">
-          <p data-i18n="aiFileGateMsg">To funkcja Premium — AI odczytuje plik Word/PDF i wyciąga z niego pary koreański-polski, które możesz sprawdzić przed zapisaniem.</p>
-          <div class="row"><button class="primary" id="aiFileGoPremiumBtn" style="flex:1;" data-i18n="seePremium">Zobacz Premium</button></div>
-        </div>
-
-        <div id="aiFileImportBody">
-          <p data-i18n="aiFileBody">Wgraj plik <b>.docx</b> (Word) lub <b>.pdf</b> ze swoimi zwrotami/powitaniami — AI znajdzie w nim pary koreański-polski.</p>
-          <input type="file" id="aiFileInput" accept=".pdf,.docx" style="display:none;">
-          <div class="row" style="margin-top:0;">
-            <button class="tool-btn" id="aiPickFileBtn" style="flex:1;"><span data-i18n="pickFile">Wybierz plik (.docx / .pdf)</span></button>
-          </div>
-          <div class="hint-note" style="text-align:left;" data-i18n="docHint">Starsze pliki .doc (nie .docx) nie są obsługiwane — zapisz jako .docx lub .pdf.</div>
-
-          <div id="aiFileNameWrap" style="display:none; margin-top:10px; font-size:14.5px; color:var(--ink-dim);">
-            📎 <span id="aiFileName"></span>
-          </div>
-
-          <div id="aiFileExtracting" class="hint-note" style="display:none;">Odczytuję plik…</div>
-
-          <div class="row" id="aiFileAnalyzeRow" style="display:none;">
-            <button class="primary" id="aiFileAnalyzeBtn" style="flex:1;" data-i18n="analyzeText">Analizuj tekst (AI)</button>
-          </div>
-
-          <div id="aiFileLoading" class="hint-note" style="display:none;">Szukam par koreański-polski…</div>
-          <div id="aiFileErrorMsg" style="display:none; color:var(--bad); font-size:14.5px; margin-top:10px;"></div>
-
-          <div id="aiFileResultsWrap" style="display:none; margin-top:14px;">
-            <p style="font-size:14px; color:var(--ink-dim); margin-bottom:8px;" data-i18n="reviewBeforeSave2">Sprawdź i popraw znalezione słówka/zwroty przed zapisaniem:</p>
-            <div id="aiFileResultsList"></div>
-            <div class="row">
-              <button class="primary" id="aiFileSaveAllBtn" style="flex:1;" data-i18n="saveSelected2">Zapisz zaznaczone do słownika</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel" id="missedPanel">
-      <div class="modal-card">
-        <button class="modal-close" data-close="missedPanel" aria-label="Zamknij">✕</button>
-        <h3 data-i18n="missedTitle">Słówka do powtórki</h3>
-        <p data-i18n="missedDesc">To słówka, w których ostatnio się pomyliłeś/aś. Wybierz tryb „Powtórka błędów”, żeby ćwiczyć tylko je.</p>
-        <div class="missed-list" id="missedList"></div>
-      </div>
-    </div>
+    
   </div>
 
   <div id="conjCategoryScreen" style="display:none;">
@@ -5892,69 +5751,11 @@
         <div id="readingReportBox" class="reading-report-box" style="display:none;"></div>
       </div>
 
-      <div class="panel" id="readingQuizPanel">
-        <div class="modal-card">
-          <button class="modal-close" data-close="readingQuizPanel" aria-label="Zamknij">✕</button>
-          <h3>📝 <span data-i18n="checkComprehension">Wybór a/b/c/d</span></h3>
-          <div class="ai-chat-status" id="rqProgress"></div>
-          <div class="center-word ko" id="rqQuestion" style="font-size:17px; font-family:var(--font-ui); text-align:left; line-height:1.5;">...</div>
-          <div class="grammar-choice-grid" id="rqChoiceGrid" style="margin-top:14px;"></div>
-          <div class="feedback" id="rqFeedback"></div>
-          <div class="row" id="rqNextRow" style="display:none; margin-top:10px;">
-            <button class="primary" id="rqNextBtn" style="flex:1;" data-i18n="grammarNextBtn">Dalej</button>
-          </div>
-          <div id="rqResult" style="display:none; text-align:center; margin-top:16px;">
-            <div style="font-size:36px;" id="rqResultIcon">🎉</div>
-            <div id="rqResultText" style="font-size:16px; font-weight:600; margin-top:8px; font-family:var(--font-ui);"></div>
-          </div>
-        </div>
-      </div>
+      
 
-      <div class="panel" id="readingRetellPanel">
-        <div class="modal-card">
-          <button class="modal-close" data-close="readingRetellPanel" aria-label="Zamknij">✕</button>
-          <h3>🗣️ <span data-i18n="retellBtn">Opowiedz swoimi słowami</span></h3>
+      
 
-          <div id="retellGateMsg" style="display:none;">
-            <p style="font-size:14.5px; color:var(--ink-dim); line-height:1.5;" data-i18n="retellGateMsg">Ocena swobodnej wypowiedzi przez AI to funkcja Premium Pro — reszta Czytania (czytanie na głos, śledzenie wymowy) jest dostępna w zwykłym Premium.</p>
-            <div class="row"><button class="primary" id="retellGoProBtn" style="flex:1;" data-i18n="seePremiumPro">Zobacz Premium Pro</button></div>
-          </div>
-
-          <div id="retellBody">
-            <p class="hint-note" style="text-align:left;" data-i18n="retellHint">Napisz kilka zdań (po polsku albo po koreańsku) o tym, o czym był tekst — nie musi być dokładne, liczy się ogólne zrozumienie.</p>
-            <textarea id="retellInput" rows="4" placeholder="..." style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-family:var(--font-ui); font-size:14.5px; resize:vertical;"></textarea>
-            <div class="row" style="margin-top:10px;">
-              <button class="primary" id="retellSubmitBtn" style="flex:1;" data-i18n="retellSubmit">Sprawdź</button>
-            </div>
-            <div id="retellLoading" style="display:none; text-align:center; margin-top:12px; color:var(--ink-dim); font-size:14.5px;" data-i18n="retellLoading">AI czyta Twoją odpowiedź…</div>
-            <div id="retellFeedback" style="display:none; margin-top:12px;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- DODAWANIE WŁASNEJ CZYTANKI -->
-      <div class="panel" id="addReadingPanel">
-        <div class="modal-card">
-          <button class="modal-close" data-close="addReadingPanel" aria-label="Zamknij">✕</button>
-          <h3 data-i18n="addReadingTitle">Dodaj własną czytankę</h3>
-          <p data-i18n="addReadingDesc">Wklej krótki fragment po koreańsku (kilka zdań / jeden akapit) — nie całe rozdziały czy książki. Tłumaczenie jest opcjonalne.</p>
-          <div class="login-field">
-            <label for="readingTitleInput" data-i18n="titleLabel">Tytuł</label>
-            <input type="text" id="readingTitleInput" placeholder="np. Mój dzień" maxlength="60">
-          </div>
-          <div class="login-field">
-            <label for="readingTextInput" data-i18n="koreanTextLabel">Tekst po koreańsku</label>
-            <textarea id="readingTextInput" placeholder="저는 아침에 일어나요..." maxlength="3000"></textarea>
-            <div class="reading-char-counter" id="readingCharCounter">0 / 3000 znaków</div>
-          </div>
-          <div class="hint-note" style="text-align:left; margin-top:0;" data-i18n="readingLimitNote">
-            Limit celowo ogranicza to do krótkich fragmentów do ćwiczeń — nie do wgrywania całych, chronionych prawem autorskim tekstów.
-          </div>
-          <div class="row">
-            <button class="primary" id="saveReadingBtn" style="flex:1;" data-i18n="saveReading">Zapisz czytankę</button>
-          </div>
-        </div>
-      </div>
+      
     </div>
   </div>
 
@@ -6411,7 +6212,216 @@
       </div>
     </div>
 
-          <div class="panel" id="premiumPanel">
+<div class="panel" id="categoriesPanel">
+      <div class="modal-card">
+        <button class="modal-close" data-close="categoriesPanel" aria-label="Zamknij">✕</button>
+        <h3 data-i18n="categoriesTitle">Działy tematyczne</h3>
+        <p data-i18n="categoriesDesc">Zaznacz działy, z których mają losować się pytania — działa też w trybie „Powtórka błędów”, więc możesz mieszać trudne słówka z różnych tematów naraz, bez sztucznych ograniczeń.</p>
+        <div class="row" style="margin-top:0; margin-bottom:10px;">
+          <button class="tool-btn" id="catSelectAll" style="flex:1;" data-i18n="selectAll">Zaznacz wszystkie</button>
+          <button class="tool-btn" id="catSelectNone" style="flex:1;" data-i18n="deselectAll">Odznacz wszystkie</button>
+        </div>
+        <div class="category-chips" id="categoryChips"></div>
+      </div>
+    </div>
+
+<div class="panel" id="addPanel">
+      <div class="modal-card">
+        <button class="modal-close" data-close="addPanel" aria-label="Zamknij">✕</button>
+        <h3 data-i18n="addWordsTitle">Dodaj własne słówka</h3>
+
+        <div id="folderSelectWrap" style="margin-bottom:10px;">
+          <label style="display:block; font-size:12.5px; color:var(--ink-dim); margin-bottom:5px;" data-i18n="folderSelectLabel">Zapisz do zestawu:</label>
+          <select id="folderSelect" style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-size:14.5px; font-family:var(--font-ui);"></select>
+        </div>
+
+        <div class="row" style="margin-top:0;">
+          <button class="tool-btn addmode-tab active" id="addModeTypeBtn" style="flex:1;" data-i18n="addModeType">Wpisz ręcznie</button>
+          <button class="tool-btn addmode-tab" id="addModePickBtn" style="flex:1;" data-i18n="addModePick">Wybierz z bazy</button>
+        </div>
+
+        <div id="addModeTypeBody">
+          <p id="addWordHint">Jedna linia = jedno słówko, w formacie: <b>koreański - polski</b><br>np. 사과 - jabłko</p>
+          <textarea id="addTextarea" placeholder="사과 - jabłko&#10;물 - woda"></textarea>
+          <div class="row">
+            <button class="primary" id="saveAdd" data-i18n="saveToDict">Zapisz do słownika</button>
+          </div>
+        </div>
+
+        <div id="addModePickBody" style="display:none;">
+          <p class="hint-note" data-i18n="pickerHint">Szukaj po koreańsku lub po polsku. Zaznacz słowa, które chcesz dodać do swoich fiszek.</p>
+          <input type="text" id="wordPickerSearch" placeholder="np. 사과 albo jabłko" style="width:100%; padding:11px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-size:15px; font-family:var(--font-ui);">
+          <div id="wordPickerResults" class="word-picker-results"></div>
+          <div class="row">
+            <button class="primary" id="wordPickerSaveBtn" style="flex:1;" disabled>
+              <span data-i18n="pickerSave">Dodaj zaznaczone</span> <span id="wordPickerCount"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<div class="panel" id="aiFlashcardPanel">
+      <div class="modal-card">
+        <button class="modal-close" data-close="aiFlashcardPanel" aria-label="Zamknij">✕</button>
+        <h3>📷 <span data-i18n="aiFlashTitle">Fiszki ze zdjęcia (AI)</span></h3>
+
+        <div id="aiGateMsg" style="display:none;">
+          <p data-i18n="aiGateMsg">To funkcja Premium — AI odczytuje koreański tekst ze zdjęcia i proponuje tłumaczenia, które możesz edytować przed zapisaniem.</p>
+          <div class="row"><button class="primary" id="aiGoPremiumBtn" style="flex:1;" data-i18n="seePremium">Zobacz Premium</button></div>
+        </div>
+
+        <div id="aiFlashcardBody">
+          <p data-i18n="aiFlashBody">Zrób zdjęcie lub wybierz z galerii — menu, napis, podręcznik. AI odczyta koreańskie słowa i zaproponuje tłumaczenia.</p>
+          <input type="file" id="aiImageInput" accept="image/*" capture="environment" style="display:none;">
+          <div class="row" style="margin-top:0;">
+            <button class="tool-btn" id="aiPickImageBtn" style="flex:1;"><span data-i18n="takePickPhoto">Zrób / wybierz zdjęcie</span></button>
+          </div>
+
+          <div id="aiImagePreviewWrap" style="display:none; margin-top:12px; text-align:center;">
+            <img id="aiImagePreview" alt="Podgląd zdjęcia" style="max-width:100%; max-height:220px; border-radius:12px; border:1px solid var(--border);">
+          </div>
+
+          <div class="row" id="aiAnalyzeRow" style="display:none;">
+            <button class="primary" id="aiAnalyzeBtn" style="flex:1;" data-i18n="analyzePhoto">Analizuj zdjęcie (AI)</button>
+          </div>
+
+          <div id="aiLoading" class="hint-note" style="display:none;">Analizuję zdjęcie…</div>
+          <div id="aiErrorMsg" style="display:none; color:var(--bad); font-size:14.5px; margin-top:10px;"></div>
+
+          <div id="aiResultsWrap" style="display:none; margin-top:14px;">
+            <p style="font-size:14px; color:var(--ink-dim); margin-bottom:8px;" data-i18n="reviewBeforeSave">Sprawdź i popraw odczytane słówka przed zapisaniem:</p>
+            <div id="aiResultsList"></div>
+            <div class="row">
+              <button class="primary" id="aiSaveAllBtn" style="flex:1;" data-i18n="saveSelected">Zapisz zaznaczone do słownika</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<div class="panel" id="aiFileImportPanel">
+      <div class="modal-card">
+        <button class="modal-close" data-close="aiFileImportPanel" aria-label="Zamknij">✕</button>
+        <h3>📄 <span data-i18n="aiFileTitle">Import słówek z pliku (AI)</span></h3>
+
+        <div id="aiFileGateMsg" style="display:none;">
+          <p data-i18n="aiFileGateMsg">To funkcja Premium — AI odczytuje plik Word/PDF i wyciąga z niego pary koreański-polski, które możesz sprawdzić przed zapisaniem.</p>
+          <div class="row"><button class="primary" id="aiFileGoPremiumBtn" style="flex:1;" data-i18n="seePremium">Zobacz Premium</button></div>
+        </div>
+
+        <div id="aiFileImportBody">
+          <p data-i18n="aiFileBody">Wgraj plik <b>.docx</b> (Word) lub <b>.pdf</b> ze swoimi zwrotami/powitaniami — AI znajdzie w nim pary koreański-polski.</p>
+          <input type="file" id="aiFileInput" accept=".pdf,.docx" style="display:none;">
+          <div class="row" style="margin-top:0;">
+            <button class="tool-btn" id="aiPickFileBtn" style="flex:1;"><span data-i18n="pickFile">Wybierz plik (.docx / .pdf)</span></button>
+          </div>
+          <div class="hint-note" style="text-align:left;" data-i18n="docHint">Starsze pliki .doc (nie .docx) nie są obsługiwane — zapisz jako .docx lub .pdf.</div>
+
+          <div id="aiFileNameWrap" style="display:none; margin-top:10px; font-size:14.5px; color:var(--ink-dim);">
+            📎 <span id="aiFileName"></span>
+          </div>
+
+          <div id="aiFileExtracting" class="hint-note" style="display:none;">Odczytuję plik…</div>
+
+          <div class="row" id="aiFileAnalyzeRow" style="display:none;">
+            <button class="primary" id="aiFileAnalyzeBtn" style="flex:1;" data-i18n="analyzeText">Analizuj tekst (AI)</button>
+          </div>
+
+          <div id="aiFileLoading" class="hint-note" style="display:none;">Szukam par koreański-polski…</div>
+          <div id="aiFileErrorMsg" style="display:none; color:var(--bad); font-size:14.5px; margin-top:10px;"></div>
+
+          <div id="aiFileResultsWrap" style="display:none; margin-top:14px;">
+            <p style="font-size:14px; color:var(--ink-dim); margin-bottom:8px;" data-i18n="reviewBeforeSave2">Sprawdź i popraw znalezione słówka/zwroty przed zapisaniem:</p>
+            <div id="aiFileResultsList"></div>
+            <div class="row">
+              <button class="primary" id="aiFileSaveAllBtn" style="flex:1;" data-i18n="saveSelected2">Zapisz zaznaczone do słownika</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<div class="panel" id="missedPanel">
+      <div class="modal-card">
+        <button class="modal-close" data-close="missedPanel" aria-label="Zamknij">✕</button>
+        <h3 data-i18n="missedTitle">Słówka do powtórki</h3>
+        <p data-i18n="missedDesc">To słówka, w których ostatnio się pomyliłeś/aś. Wybierz tryb „Powtórka błędów”, żeby ćwiczyć tylko je.</p>
+        <div class="missed-list" id="missedList"></div>
+      </div>
+    </div>
+
+<div class="panel" id="readingQuizPanel">
+        <div class="modal-card">
+          <button class="modal-close" data-close="readingQuizPanel" aria-label="Zamknij">✕</button>
+          <h3>📝 <span data-i18n="checkComprehension">Wybór a/b/c/d</span></h3>
+          <div class="ai-chat-status" id="rqProgress"></div>
+          <div class="center-word ko" id="rqQuestion" style="font-size:17px; font-family:var(--font-ui); text-align:left; line-height:1.5;">...</div>
+          <div class="grammar-choice-grid" id="rqChoiceGrid" style="margin-top:14px;"></div>
+          <div class="feedback" id="rqFeedback"></div>
+          <div class="row" id="rqNextRow" style="display:none; margin-top:10px;">
+            <button class="primary" id="rqNextBtn" style="flex:1;" data-i18n="grammarNextBtn">Dalej</button>
+          </div>
+          <div id="rqResult" style="display:none; text-align:center; margin-top:16px;">
+            <div style="font-size:36px;" id="rqResultIcon">🎉</div>
+            <div id="rqResultText" style="font-size:16px; font-weight:600; margin-top:8px; font-family:var(--font-ui);"></div>
+          </div>
+        </div>
+      </div>
+
+<div class="panel" id="readingRetellPanel">
+        <div class="modal-card">
+          <button class="modal-close" data-close="readingRetellPanel" aria-label="Zamknij">✕</button>
+          <h3>🗣️ <span data-i18n="retellBtn">Opowiedz swoimi słowami</span></h3>
+
+          <div id="retellGateMsg" style="display:none;">
+            <p style="font-size:14.5px; color:var(--ink-dim); line-height:1.5;" data-i18n="retellGateMsg">Ocena swobodnej wypowiedzi przez AI to funkcja Premium Pro — reszta Czytania (czytanie na głos, śledzenie wymowy) jest dostępna w zwykłym Premium.</p>
+            <div class="row"><button class="primary" id="retellGoProBtn" style="flex:1;" data-i18n="seePremiumPro">Zobacz Premium Pro</button></div>
+          </div>
+
+          <div id="retellBody">
+            <p class="hint-note" style="text-align:left;" data-i18n="retellHint">Napisz kilka zdań (po polsku albo po koreańsku) o tym, o czym był tekst — nie musi być dokładne, liczy się ogólne zrozumienie.</p>
+            <textarea id="retellInput" rows="4" placeholder="..." style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-family:var(--font-ui); font-size:14.5px; resize:vertical;"></textarea>
+            <div class="row" style="margin-top:10px;">
+              <button class="primary" id="retellSubmitBtn" style="flex:1;" data-i18n="retellSubmit">Sprawdź</button>
+            </div>
+            <div id="retellLoading" style="display:none; text-align:center; margin-top:12px; color:var(--ink-dim); font-size:14.5px;" data-i18n="retellLoading">AI czyta Twoją odpowiedź…</div>
+            <div id="retellFeedback" style="display:none; margin-top:12px;"></div>
+          </div>
+        </div>
+      </div>
+
+<!-- DODAWANIE WŁASNEJ CZYTANKI -->
+      <div class="panel" id="addReadingPanel">
+        <div class="modal-card">
+          <button class="modal-close" data-close="addReadingPanel" aria-label="Zamknij">✕</button>
+          <h3 data-i18n="addReadingTitle">Dodaj własną czytankę</h3>
+          <p data-i18n="addReadingDesc">Wklej krótki fragment po koreańsku (kilka zdań / jeden akapit) — nie całe rozdziały czy książki. Tłumaczenie jest opcjonalne.</p>
+          <div class="login-field">
+            <label for="readingTitleInput" data-i18n="titleLabel">Tytuł</label>
+            <input type="text" id="readingTitleInput" placeholder="np. Mój dzień" maxlength="60">
+          </div>
+          <div class="login-field">
+            <label for="readingTextInput" data-i18n="koreanTextLabel">Tekst po koreańsku</label>
+            <textarea id="readingTextInput" placeholder="저는 아침에 일어나요..." maxlength="3000"></textarea>
+            <div class="reading-char-counter" id="readingCharCounter">0 / 3000 znaków</div>
+          </div>
+          <div class="hint-note" style="text-align:left; margin-top:0;" data-i18n="readingLimitNote">
+            Limit celowo ogranicza to do krótkich fragmentów do ćwiczeń — nie do wgrywania całych, chronionych prawem autorskim tekstów.
+          </div>
+          <div class="row">
+            <button class="primary" id="saveReadingBtn" style="flex:1;" data-i18n="saveReading">Zapisz czytankę</button>
+          </div>
+        </div>
+      </div>
+
+    <!-- ══ PANELE ══════════════════════════════════════════════════════════
+         WSZYSTKIE panele leżą TUTAJ, bezpośrednio w .wrap - nigdy wewnątrz
+         ekranu. Panel w ekranie działa tylko wtedy, gdy ten ekran jest
+         widoczny; przy przełączeniu znika razem z nim, mimo że classList
+         ma "open". Kosztowało to dziś godzinę diagnozy przy kompendium.
+         Osiem paneli przeniesionych stąd 2026-09-04. -->
+                                          <div class="panel" id="premiumPanel">
     <div class="modal-card">
       <button class="modal-close" data-close="premiumPanel" aria-label="Zamknij">✕</button>
       <div class="premium-eyebrow" data-i18n="premiumEyebrow">Premium</div>
@@ -15300,7 +15310,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.122';
+const APP_VERSION = '2026-09-04.124';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15310,7 +15320,7 @@ const APP_VERSION = '2026-09-04.122';
 })();
 
 const SCREEN_IDS = {
-  login:'loginScreen', loading:'loadingScreen', home:'homeScreen', vocabMode:'vocabModeScreen', vocabDept:'vocabDeptScreen', vocab:'vocabScreen',
+  login:'loginScreen', loading:'loadingScreen', home:'homeScreen', vocabMode:'vocabModeScreen', vocabDept:'vocabDeptScreen',
   vocabStudy:'vocabStudyScreen', vocabLevel:'vocabLevelScreen',
   conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen', conjRef:'conjRefScreen',
   aiChat:'aiChatScreen', reading:'readingScreen',
@@ -15344,12 +15354,12 @@ const NAV_OWNS = {
 // Reguła 58% z v2 §4.2 jest wrażliwa dokładnie na dwie liczby: ile jest nad
 // tarczą i ile pod nią. W makiecie to po 86px, u nas nie - więc zamiast wpisywać
 // cudze wartości, mierzymy własne przy każdym wejściu na ekran i zmianie rozmiaru.
-function syncCompassMetrics(){
+function syncQuizMetrics(){
   // Po przejściu na układ pionowy (makieta 1b) geometria tarczy jest zbędna -
   // lista sama się układa. Zostaje jedynie zmniejszanie tekstu w przyciskach,
   // bo polskie tłumaczenia bywają dłuższe niż szerokość opcji, a zawinięcie
   // do drugiej linii rozjeżdża wysokość listy.
-  const c = document.getElementById('vocabCompassWrap');
+  const c = document.getElementById('vocabQuizWrap');
   if(!c) return;
 
   // Wysokość kolumny liczona z FAKTYCZNEJ pozycji, nie z 100dvh. Reguła CSS nie
@@ -15410,7 +15420,7 @@ function syncCompassMetrics(){
     }
   }
 }
-window.addEventListener('resize', () => { try{ syncCompassMetrics(); }catch(e){} });
+window.addEventListener('resize', () => { try{ syncQuizMetrics(); }catch(e){} });
 
 function syncAdHeight(){
   const ad = document.querySelector('.ad-slot');
@@ -15441,8 +15451,8 @@ function updateBottomNav(screen){
   }
   if(screen === 'home') refreshHomeChrome();
   try{ syncAdHeight(); }catch(e){}
-  try{ syncCompassMetrics(); }catch(e){}
-  requestAnimationFrame(() => { try{ syncCompassMetrics(); }catch(e){} });
+  try{ syncQuizMetrics(); }catch(e){}
+  requestAnimationFrame(() => { try{ syncQuizMetrics(); }catch(e){} });
 }
 
 document.getElementById('settingsBtn').addEventListener('click', () => setScreen('settings'));
@@ -19358,7 +19368,7 @@ document.getElementById('vocabToolsToggle').addEventListener('click', () => {
   bar.classList.toggle('is-collapsed', !open);
   btn.setAttribute('aria-expanded', open ? 'true' : 'false');
   btn.querySelector('.tr-chev').textContent = open ? '⌄' : '›';
-  try{ syncCompassMetrics(); }catch(e){}
+  try{ syncQuizMetrics(); }catch(e){}
 });
 
 document.getElementById('btnCategories').addEventListener('click', ()=>{
@@ -24443,7 +24453,7 @@ function newRound(){
   const pool = pickPool();
   const minRequired = typedVocabMode ? 1 : 4;
   if(!pool || pool.length < minRequired){
-    document.getElementById('vocabCompassWrap').style.display = '';
+    document.getElementById('vocabQuizWrap').style.display = '';
     document.getElementById('vocabTypedWrap').style.display = 'none';
     els.centerEyebrow.textContent = mode === 'review'
       ? (uiLang === 'en' ? 'REVIEW' : 'POWTÓRKA')
@@ -24468,7 +24478,7 @@ function newRound(){
   current = pool[idx];
 
   if(typedVocabMode){
-    document.getElementById('vocabCompassWrap').style.display = 'none';
+    document.getElementById('vocabQuizWrap').style.display = 'none';
     document.getElementById('vocabTypedWrap').style.display = 'block';
     document.getElementById('vocabEyebrowTyped').textContent = uiLang === 'en' ? 'IN ENGLISH' : 'PO POLSKU';
     document.getElementById('vocabWordTyped').textContent = tr(current);
@@ -24483,7 +24493,7 @@ function newRound(){
     return;
   }
 
-  document.getElementById('vocabCompassWrap').style.display = '';
+  document.getElementById('vocabQuizWrap').style.display = '';
   document.getElementById('vocabTypedWrap').style.display = 'none';
 
   // build 3 distractors z tej samej puli (wybranych działów) — preferuj TEN SAM dział
@@ -24609,7 +24619,7 @@ function showLimitLock(kind){
     document.getElementById('grammarFeedback').textContent = '';
     document.getElementById('grammarNextRow').style.display = 'none';
   } else {
-    document.getElementById('vocabCompassWrap').style.display = 'none';
+    document.getElementById('vocabQuizWrap').style.display = 'none';
     document.getElementById('vocabTypedWrap').style.display = 'none';
     els.feedback.textContent = '';
   }
@@ -24642,7 +24652,7 @@ function hideLimitLock(kind){
     if(typedVocabMode){
       document.getElementById('vocabTypedWrap').style.display = 'block';
     } else {
-      document.getElementById('vocabCompassWrap').style.display = '';
+      document.getElementById('vocabQuizWrap').style.display = '';
     }
   }
   if(countdownTimer){ clearInterval(countdownTimer); countdownTimer = null; }
