@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.118
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.119
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -4110,10 +4110,18 @@
     gap:12px; padding-bottom:6px; margin-top:20px;
   }
   .qv-choices .ans-btn, .qv-btn{
-    width:100%; padding:19px 20px; border-radius:var(--radius-lg);
-    background:var(--card); border:1px solid var(--border);
+    /* Nadpisujemy WSZYSTKO, co zostało po układzie kompasu: height:100% (każdy
+       przycisk chciał wypełnić kolumnę), obramowanie 2px w kolorze akcentu
+       i tekst w akcencie. W liście pionowej przycisk to karta, nie pigułka
+       kierunku świata. Zgłoszone przez testera 2026-09-04. */
+    width:100%; height:auto; min-height:0;
+    padding:19px 20px;
+    border-radius:var(--radius-lg);
+    background:var(--card);
+    border:1px solid var(--border);
+    color:var(--ink);
     font-size:16px; font-weight:600; font-family:var(--font-ui);
-    color:var(--ink); text-align:center; cursor:pointer;
+    text-align:center;
     box-shadow:var(--shadow-card);
   }
   /* Niskie ekrany: cztery pełnowymiarowe wiersze plus słowo nie mieszczą się
@@ -4138,11 +4146,11 @@
   .qv-choices .ans-btn.correct, .qv-btn.correct{
     background:color-mix(in srgb, var(--good) 10%, var(--card));
     border:1.5px solid var(--good); font-weight:700;
-  }
+   color:var(--ink);}
   .qv-choices .ans-btn.wrong, .qv-btn.wrong{
     background:color-mix(in srgb, var(--bad) 10%, var(--card));
     border:1.5px solid var(--bad);
-  }
+   color:var(--ink);}
   @supports not (background: color-mix(in srgb, red 10%, blue)){
     .qv-choices .ans-btn.correct, .qv-btn.correct{ background:var(--card-hi); }
     .qv-choices .ans-btn.wrong, .qv-btn.wrong{ background:var(--card-hi); }
@@ -15269,7 +15277,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.118';
+const APP_VERSION = '2026-09-04.119';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
