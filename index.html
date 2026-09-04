@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.112
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.115
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2744,6 +2744,161 @@
   [data-theme="jade"] .culture-title,
   [data-theme="kobalt"] .culture-title{ font-size:32px; font-weight:800; letter-spacing:-.03em; }
   .culture-list{ display:block; }
+
+  /* ══ MAKIETA 7d · ROZMOWA NA ŻYWO ═══════════════════════════════════════
+     Pusty ekran wypełniony treścią, która ma sens PRZED połączeniem: limit
+     minut jako pasek, poziom w segmented, scenariusz i trzy podpowiedzi.
+     Sam silnik rozmowy i logika limitu nietknięte - to tylko prezentacja. */
+  .lv-limit{ margin:12px 0 14px; }
+  .lv-limit-top{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:7px; }
+  .lv-limit-lab{ font-size:12.5px; color:var(--ink-dim); }
+  .lv-limit-val{ font:700 12.5px var(--font-ui); color:var(--ink); font-variant-numeric:tabular-nums; }
+  .lv-limit-bar{ height:4px; border-radius:var(--radius-pill); background:var(--surface-2); overflow:hidden; }
+  .lv-limit-bar i{ display:block; height:4px; background:var(--hwang); border-radius:var(--radius-pill); }
+
+  /* Poziom jako segmented, nie pigułki - spójnie z kulturą (7b) i koniugacją. */
+  #geminiLevelSelector.lv-levels{
+    display:flex; padding:3px; gap:0; margin-bottom:16px;
+    border-radius:var(--radius-pill); background:var(--surface-2);
+  }
+  #geminiLevelSelector.lv-levels .category-chip{
+    flex:1; min-height:40px; border:0; border-radius:var(--radius-pill);
+    background:0; color:var(--ink-dim); font:600 12.5px var(--font-ui); margin:0;
+  }
+  #geminiLevelSelector.lv-levels .category-chip.active{
+    background:var(--card); color:var(--ink); box-shadow:var(--shadow-card);
+  }
+
+  .lv-scenario{
+    padding:16px 18px; border-radius:var(--radius-lg);
+    background:var(--card); border:1px solid var(--border); margin-bottom:16px;
+  }
+  .lv-scen-lab{
+    font-size:11px; font-weight:500; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink-dim);
+  }
+  .lv-scen-ko{ font-family:var(--font-ko); font-size:22px; color:var(--ink); margin-top:6px; }
+  .lv-scen-pl{ font-size:13px; color:var(--ink-dim); margin-top:4px; text-wrap:pretty; }
+  .lv-hints-lab{
+    font-size:11px; font-weight:500; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink-dim); margin-bottom:8px;
+  }
+  .lv-hint{
+    display:flex; align-items:baseline; gap:12px; padding:11px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .lv-hint:last-child{ border-bottom:0; }
+  .lv-hint b{ font-family:var(--font-ko); font-size:16px; font-weight:400; color:var(--ink); flex:none; }
+  .lv-hint span{ font-size:12.5px; color:var(--ink-dim); min-width:0; }
+  [data-theme="jade"] .lv-scenario{ background:linear-gradient(160deg, var(--bg-glow), var(--accent-deep)); }
+
+  /* ══ MAKIETA 7a · DZIAŁY SŁÓWEK ═════════════════════════════════════════
+     Emoji w płytce 44px (jak w 1b), licznik jako badge --hwang zamiast szarej
+     liczby, "Wszystkie działy" na gradiencie jako jedyny wyróżniony kafel. */
+  .vd-head{ margin:2px 0 14px; }
+  .vd-title{ font-size:34px; font-weight:300; letter-spacing:-.02em; line-height:1.1; color:var(--ink); }
+  [data-theme="jade"] .vd-title, [data-theme="kobalt"] .vd-title{ font-size:32px; font-weight:800; letter-spacing:-.03em; }
+  .vd-sub{ font-size:12.5px; color:var(--ink-dim); margin-top:6px; }
+
+  #vocabDeptCards .dg-header{
+    display:flex; align-items:center; gap:14px; min-height:56px; padding:12px 0;
+    border-bottom:1px solid var(--border);
+  }
+  #vocabDeptCards .dg-icon{
+    flex:none; width:44px; height:44px; border-radius:15px;
+    background:var(--surface-2); display:flex; align-items:center;
+    justify-content:center; font-size:21px;
+  }
+  #vocabDeptCards .dg-title{ flex:1; min-width:0; font:600 15px var(--font-ui); color:var(--ink); }
+  #vocabDeptCards .dg-count{
+    flex:none; min-width:24px; padding:2px 8px; border-radius:var(--radius-pill);
+    background:var(--hwang); color:var(--on-accent);
+    font:700 12px var(--font-ui); text-align:center;
+  }
+  #vocabDeptCards .dg-chevron{ flex:none; color:var(--ink-dim); font-size:15px; }
+
+  /* Kafel działu wewnątrz grupy - ten sam wiersz, płytka mniejsza. */
+  #vocabDeptCards .dg-body .home-card{
+    background:0; border:0; box-shadow:none; border-radius:0;
+    padding:10px 0 10px 14px; gap:12px; min-height:52px;
+    border-bottom:1px solid var(--border);
+  }
+  #vocabDeptCards .dg-body .home-card .icon{
+    width:36px; height:36px; border-radius:12px; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; font-size:18px; flex:none;
+  }
+  #vocabDeptCards .dg-body .home-card .desc{ color:var(--ink-dim); font-size:12px; }
+
+  /* Jedyny wyróżniony kafel - "Wszystkie działy" na gradiencie. */
+  #vocabDeptCards .home-card[data-dept="__all__"]{
+    background:linear-gradient(160deg, var(--bg-glow), var(--accent-deep));
+    border:1px solid var(--border); border-radius:var(--radius-lg);
+    padding:16px 18px; margin-bottom:16px;
+  }
+  #vocabDeptCards .home-card[data-dept="__all__"] .icon{
+    width:44px; height:44px; border-radius:15px; flex:none;
+    background:var(--hwang-tint, var(--surface-2));
+    display:flex; align-items:center; justify-content:center; font-size:21px;
+  }
+  #vocabDeptCards .home-card[data-dept="__all__"] .title{ font-weight:700; }
+
+  #vocabDeptCards #vocabDeptFilterInput{
+    min-height:48px; padding:12px 16px; margin-bottom:14px;
+    border-radius:var(--field-radius, var(--radius-pill));
+    background:var(--card); border:1px solid var(--border);
+    color:var(--ink); font:400 15px var(--font-ui);
+  }
+
+  /* ══ MAKIETA 7b · LISTA LEKCJI KULTURY ═══════════════════════════════════
+     Segmented control zamiast pigułek, tytuł koreański NAD polskim (koreański
+     jest treścią - v3 §ai_chat), emoji zamknięte w płytce 44px jak w 1b. */
+  .culture-filters{
+    display:flex; padding:3px; gap:0;
+    border-radius:var(--radius-pill); background:var(--surface-2);
+  }
+  .culture-filters .chip{
+    flex:1; min-height:40px; border:0; border-radius:var(--radius-pill);
+    background:0; color:var(--ink-dim); font:600 12.5px var(--font-ui);
+  }
+  .culture-filters .chip[aria-pressed="true"]{
+    background:var(--card); color:var(--ink); box-shadow:var(--shadow-card);
+  }
+  .cl-row{
+    display:flex; align-items:center; gap:14px; width:100%;
+    min-height:56px; padding:12px 0; text-align:left; cursor:pointer;
+    background:0; border:0; border-bottom:1px solid var(--border);
+  }
+  .cl-row:last-child{ border-bottom:0; }
+  .cl-plate{
+    flex:none; width:44px; height:44px; border-radius:15px;
+    background:var(--surface-2); display:flex; align-items:center;
+    justify-content:center; font-size:21px;
+  }
+  .cl-main{ flex:1; min-width:0; }
+  .cl-ko{
+    font-family:var(--font-ko); font-size:17px; color:var(--ink); display:block;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .cl-pl{
+    font-size:12.5px; color:var(--ink-dim); display:block; margin-top:2px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .cl-mark{ flex:none; font-size:16px; color:var(--ink-dim); }
+  .cl-mark.done{ color:var(--good); }
+  [data-theme="jade"] .cl-row{
+    padding:12px 16px; border-bottom:0; margin-bottom:8px;
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  }
+  [data-theme="kobalt"] .cl-row{ padding:13px 22px; }
+
+  /* ══ MAKIETA 7c · LEKCJA KULTURY ═════════════════════════════════════════
+     Tekst siada na tle ekranu, nie w karcie - karta w karcie robiła z lekcji
+     pudełko w pudełku. Postęp jako pasek w nagłówku zamiast "1/6". */
+  .culture-progress{ height:3px; background:var(--border); border-radius:var(--radius-pill); margin:2px 0 14px; }
+  .culture-progress i{ display:block; height:3px; background:var(--hwang); border-radius:var(--radius-pill); }
+  #cultureTopicView .culture-card{
+    background:0; border:0; box-shadow:none; padding:0; border-radius:0;
+  }
   .culture-epoch{ display:flex; align-items:baseline; gap:8px; }
   .culture-epoch b{ font-family:var(--font-ko); font-weight:400; }
   .gutter-row.sb-tappable{ cursor:pointer; }
@@ -5545,7 +5700,23 @@
         <span class="ai-usage-badge" id="geminiSessionTimer" style="display:none;"></span>
       </div>
       <div id="geminiTargetBanner" class="ai-chat-target-banner" style="display:none;"></div>
-      <div id="geminiLevelSelector" class="category-chips" style="margin-bottom:10px;"></div>
+            <div class="lv-limit" id="geminiLimitWrap" style="display:none;">
+        <div class="lv-limit-top">
+          <span class="lv-limit-lab" data-i18n="lvLimitLabel">Limit w tym miesiącu</span>
+          <span class="lv-limit-val" id="geminiLimitVal"></span>
+        </div>
+        <div class="lv-limit-bar"><i id="geminiLimitBar" style="width:0%"></i></div>
+      </div>
+      <div id="geminiLevelSelector" class="category-chips lv-levels" style="margin-bottom:10px;"></div>
+      <div id="geminiPreCall">
+        <div class="lv-scenario">
+          <div class="lv-scen-lab" data-i18n="lvScenarioLabel">Scenariusz</div>
+          <div class="lv-scen-ko" id="lvScenKo">카페에서</div>
+          <div class="lv-scen-pl" id="lvScenPl" data-i18n="lvScenarioDesc">W kawiarni — zamawiasz i pytasz o polecenie</div>
+        </div>
+        <div class="lv-hints-lab" data-i18n="lvHintsLabel">Przyda się</div>
+        <div id="lvHints"></div>
+      </div>
       <div class="ai-chat-status" id="geminiVoiceStatus" data-i18n="geminiVoiceDefault">Dotknij „Połącz”, żeby rozpocząć rozmowę głosową.</div>
       <div class="ai-chat-transcript chat-log" id="geminiVoiceTranscript"></div>
       <!-- Trzy kropki "pisze". Jedyna nieustanna animacja w apce, więc
@@ -6008,7 +6179,10 @@
     <div id="cultureListView">
       <div class="culture-head">
         <div class="culture-title" data-i18n="cultureTitle">Historia i kultura</div>
-        <div class="dict-filters culture-filters" id="cultureTabs" role="tablist"></div>
+        <!-- Bez klasy dict-filters: to segmented control z 7b, a reguły chipsów
+             słownika (późniejsze w arkuszu, ta sama specyficzność) przebijały
+             stan aktywny na pełne wypełnienie akcentem. -->
+        <div class="culture-filters" id="cultureTabs" role="tablist"></div>
       </div>
       <div class="culture-list" id="cultureList"></div>
     </div>
@@ -6016,6 +6190,7 @@
     <div id="cultureTopicView" style="display:none;">
     <button class="back-btn" id="cultureBackToList" data-i18n="cultureBackToList">◀ Historia i kultura</button>
     <div class="ai-chat-status" id="cultureProgress"></div>
+    <div class="culture-progress" aria-hidden="true"><i id="cultureProgressBar" style="width:0%"></i></div>
     <div class="culture-card" id="cultureCard"></div>
 
     <div class="hanja-section" id="cultureQuizSection">
@@ -6993,6 +7168,18 @@ let geminiIsListening = false;
 let geminiPlaybackQueueTime = 0;
 let geminiSelectedLevel = 1; // domyślnie podstawowy
 
+const LV_HINTS = [
+  { ko:'주문할게요', pl:'Chciałbym zamówić', en:"I'd like to order" },
+  { ko:'추천해 주세요', pl:'Proszę o polecenie', en:'Please recommend something' },
+  { ko:'천천히 말해 주세요', pl:'Proszę mówić wolniej', en:'Please speak more slowly' },
+];
+function renderLiveHints(){
+  const box = document.getElementById('lvHints');
+  if(!box) return;
+  box.innerHTML = LV_HINTS.map(h => `
+    <div class="lv-hint"><b>${escapeHtml(h.ko)}</b><span>${escapeHtml(uiLang === 'en' ? h.en : h.pl)}</span></div>`).join('');
+}
+
 function renderGeminiLevelSelector(){
   const wrap = document.getElementById('geminiLevelSelector');
   if(!wrap) return;
@@ -7473,6 +7660,15 @@ async function loadGeminiUsageStatus(){
         ? `${used}/${limit} min this month`
         : `${used}/${limit} min w tym mies.`;
       badge.style.display = 'inline-block';
+    }
+    // Makieta 7d: te same liczby co plakietka, tylko jako pasek - nie liczymy
+    // niczego od nowa i nie dotykamy logiki limitu.
+    const lw = document.getElementById('geminiLimitWrap');
+    if(lw && limit > 0){
+      document.getElementById('geminiLimitVal').textContent = `${used} / ${limit} min`;
+      document.getElementById('geminiLimitBar').style.width =
+        Math.min(100, Math.round(used / limit * 100)) + '%';
+      lw.style.display = 'block';
     }
     if(headerBadge){
       // Krótsza wersja w headerze - "12/40 min" bez dopisku "w tym mies." przy każdym
@@ -15066,7 +15262,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.112';
+const APP_VERSION = '2026-09-04.115';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15334,6 +15530,7 @@ function setScreen(screen){
   // i kładł się paskiem przez słownik. Chowamy go przy każdej zmianie ekranu.
   try{ hideWordSheet(); }catch(e){}
   if(screen === 'culture') showCultureListView();
+  if(screen === 'aiChat') { try{ renderLiveHints(); }catch(e){} }
   if(screen === 'dictBrowse') renderDictDeptChips();
   if(screen === 'account') renderAccountScreen();
   if(screen === 'dictLevel') renderDictLevelCards();
@@ -15534,8 +15731,15 @@ function renderVocabDeptCards(){
       <div class="dg-body">${ungrouped.map(buildDeptCardHtml).join('')}</div>
     </div>` : '';
 
+  const deptCount = cats.length;
   wrap.innerHTML = `
-    <input type="text" id="vocabDeptFilterInput" class="report-comment-input" style="width:100%; box-sizing:border-box; margin-bottom:12px;" data-i18n-placeholder="deptFilterPlaceholder" placeholder="Szukaj działu…">
+    <div class="vd-head">
+      <div class="vd-title">${uiLang === 'en' ? 'Vocabulary' : 'Słówka'}</div>
+      <div class="vd-sub">${uiLang === 'en'
+        ? `${deptCount} sections · ${allWords.length} words`
+        : `${deptCount} działów · ${allWords.length} słówek`}</div>
+    </div>
+    <input type="text" id="vocabDeptFilterInput" style="width:100%; box-sizing:border-box;" data-i18n-placeholder="deptFilterPlaceholder" placeholder="Szukaj działu…">
     ${allCard}
     <div id="vocabDeptGroupsWrap">${groupsHtml}${ungroupedHtml}</div>
   `;
@@ -16024,6 +16228,10 @@ const I18N = {
   modeReview: { pl: 'Powtórka błędów', en: 'Mistake review' },
   toolsRowTitle: { pl: 'Narzędzia', en: 'Tools' },
   toolsRowSub: { pl: 'Działy · lista · dodaj · AI · trudne', en: 'Sections · list · add · AI · hard' },
+  lvLimitLabel: { pl: 'Limit w tym miesiącu', en: 'This month\'s limit' },
+  lvScenarioLabel: { pl: 'Scenariusz', en: 'Scenario' },
+  lvScenarioDesc: { pl: 'W kawiarni — zamawiasz i pytasz o polecenie', en: 'At a cafe — you order and ask for a recommendation' },
+  lvHintsLabel: { pl: 'Przyda się', en: 'Useful phrases' },
   answerModeLabel: { pl: 'Tryb odpowiedzi:', en: 'Answer mode:' },
   vocabTypedCheckBtn: { pl: 'Sprawdź', en: 'Check' },
   vkToggleLabelVocab: { pl: 'Klawiatura koreańska (myszką/dotykiem)', en: 'Korean keyboard (mouse/touch)' },
@@ -19644,6 +19852,10 @@ const CULTURE_TIMELINE = [
 ];
 
 let cultureTab = 'timeline';
+// Przeczytane lekcje - lokalnie, jak wibracje; to drobna preferencja widoku,
+// nie dane konta, więc nie idzie do STORAGE_KEYS ani na serwer.
+let cultureRead = {};
+try{ cultureRead = JSON.parse(localStorage.getItem('hooljon_culture_read') || '{}') || {}; }catch(e){ cultureRead = {}; }
 
 function renderCultureTabs(){
   const wrap = document.getElementById('cultureTabs');
@@ -19686,16 +19898,19 @@ function renderCultureList(){
   }
 
   if(cultureTab === 'customs'){
-    // Istniejące tematy kulturowe (CULTURE_TOPICS) nie znikają - stają się tą
-    // zakładką. Rynienka niesie emoji tematu, bo zwyczaj nie ma roku.
+    // Makieta 7b: płytka z emoji, tytuł koreański nad polskim, znacznik
+    // przeczytania po prawej. Wcześniej emoji siedziało w rynience roku,
+    // co było obejściem - zwyczaj nie ma roku, więc rynienka nie ma sensu.
+    const read = (typeof cultureRead === 'object' && cultureRead) ? cultureRead : {};
     list.innerHTML = CULTURE_TOPICS.map((c, i) => `
-      <div class="gutter-row sb-tappable" data-topic="${i}">
-        <div class="gutter" style="font-size:20px;">${c.icon}</div>
-        <div class="gutter-main">
-          <div class="gutter-title">${escapeHtml(uiLang === 'en' ? c.titleEn : c.titlePl)}</div>
-          <div class="gutter-body">${escapeHtml(c.title)}</div>
-        </div>
-      </div>`).join('');
+      <button type="button" class="cl-row" data-topic="${i}">
+        <span class="cl-plate" aria-hidden="true">${c.icon}</span>
+        <span class="cl-main">
+          <span class="cl-ko">${escapeHtml(c.title)}</span>
+          <span class="cl-pl">${escapeHtml(uiLang === 'en' ? c.titleEn : c.titlePl)}</span>
+        </span>
+        <span class="cl-mark${read[c.id] ? ' done' : ''}" aria-hidden="true">${read[c.id] ? '✓' : '›'}</span>
+      </button>`).join('');
     list.querySelectorAll('[data-topic]').forEach(row => row.addEventListener('click', () => {
       cultureIndex = parseInt(row.dataset.topic, 10);
       showCultureTopicView();
@@ -19724,6 +19939,16 @@ function showCultureTopicView(){
 function renderCultureScreen(){
   const c = CULTURE_TOPICS[cultureIndex];
   document.getElementById('cultureProgress').textContent = `${cultureIndex + 1} / ${CULTURE_TOPICS.length}`;
+  // Makieta 7c: pasek postępu zamiast samej liczby - "1/6" nie mówi, ile
+  // zostało, dopóki nie policzysz. Pasek mówi od razu.
+  const cpb = document.getElementById('cultureProgressBar');
+  if(cpb) cpb.style.width = Math.round((cultureIndex + 1) / CULTURE_TOPICS.length * 100) + '%';
+  // Zapamiętujemy przeczytane, żeby lista mogła pokazać ✓ (7b).
+  try{
+    if(typeof cultureRead !== 'object' || !cultureRead) window.cultureRead = {};
+    cultureRead[CULTURE_TOPICS[cultureIndex].id] = true;
+    localStorage.setItem('hooljon_culture_read', JSON.stringify(cultureRead));
+  }catch(e){}
 
   const bodyText = uiLang === 'en' ? c.bodyEn : c.body;
   const paragraphsHtml = bodyText.split('\n\n').map(p => `<p>${escapeHtml(p)}</p>`).join('');
