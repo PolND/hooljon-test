@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.103
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.104
   Zbudowane na: b9af347d66bb7edec6d0d416602953c4 (.78)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -5228,37 +5228,7 @@
       </div>
     </div>
 
-    <!-- KOMPENDIUM GRAMATYKI — nakładka, nie osobny ekran.
-         Odpowiedź na najczęstszy zarzut ze społeczności: "muszę wyjść z aplikacji
-         i szukać na Reddicie, dlaczego moja odpowiedź była zła". Panel otwiera się
-         NAD ćwiczeniem, więc nie gubi się kontekst ani postęp w rundzie. -->
-    <!-- OPUSZCZANIE PARTYKUŁ - wersja próbna. Interakcja JEST lekcją: klikasz
-         partykułę, ona znika, zdanie zsuwa się w jeden blok. Przy partykule
-         znaczeniowej (는/도/만) zamiast zniknąć - drga i tłumaczy dlaczego. -->
-    <div class="panel" id="particlePanel">
-      <div class="modal-card">
-        <button class="modal-close" data-close="particlePanel" aria-label="Zamknij">✕</button>
-        <h3 data-i18n="particleTitle">Partykuły w mowie potocznej</h3>
-        <p class="hint-note" data-i18n="particleHint">Dotknij partykuły, żeby ją opuścić — tak jak w mowie. Nie wszystkie da się usunąć.</p>
-        <div id="particleBoard"></div>
-        <div class="row" style="margin-top:12px;">
-          <button class="tool-btn" id="particlePrevBtn" style="flex:1;">‹</button>
-          <span id="particleProgress" class="hint-note" style="align-self:center;"></span>
-          <button class="tool-btn" id="particleNextBtn" style="flex:1;">›</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel" id="grammarRefPanel">
-      <div class="modal-card">
-        <button class="modal-close" data-close="grammarRefPanel" aria-label="Zamknij">✕</button>
-        <h3 data-i18n="grammarRefTitle">Kompendium gramatyki</h3>
-        <button class="tool-btn" id="openParticleBtn" style="width:100%; margin-bottom:10px;">🗣️ Partykuły w mowie potocznej</button>
-        <input type="text" id="grammarRefSearch" placeholder="np. 니까, partykuła, przeszły"
-               style="width:100%; padding:11px 12px; margin-bottom:10px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-size:15px; font-family:var(--font-ui);">
-        <div id="grammarRefResults" class="gref-results"></div>
-      </div>
-    </div>
+    
 
     <div class="panel" id="addPanel">
       <div class="modal-card">
@@ -6093,7 +6063,41 @@
     </div>
   </div>
 
-  <div class="panel" id="premiumPanel">
+<!-- OPUSZCZANIE PARTYKUŁ - wersja próbna. Interakcja JEST lekcją: klikasz
+         partykułę, ona znika, zdanie zsuwa się w jeden blok. Przy partykule
+         znaczeniowej (는/도/만) zamiast zniknąć - drga i tłumaczy dlaczego. -->
+    <div class="panel" id="particlePanel">
+      <div class="modal-card">
+        <button class="modal-close" data-close="particlePanel" aria-label="Zamknij">✕</button>
+        <h3 data-i18n="particleTitle">Partykuły w mowie potocznej</h3>
+        <p class="hint-note" data-i18n="particleHint">Dotknij partykuły, żeby ją opuścić — tak jak w mowie. Nie wszystkie da się usunąć.</p>
+        <div id="particleBoard"></div>
+        <div class="row" style="margin-top:12px;">
+          <button class="tool-btn" id="particlePrevBtn" style="flex:1;">‹</button>
+          <span id="particleProgress" class="hint-note" style="align-self:center;"></span>
+          <button class="tool-btn" id="particleNextBtn" style="flex:1;">›</button>
+        </div>
+      </div>
+    </div>
+
+<!-- KOMPENDIUM GRAMATYKI — nakładka, nie osobny ekran.
+         Odpowiedź na najczęstszy zarzut ze społeczności: "muszę wyjść z aplikacji
+         i szukać na Reddicie, dlaczego moja odpowiedź była zła". Panel otwiera się
+         NAD ćwiczeniem, więc nie gubi się kontekst ani postęp w rundzie. -->
+    
+
+    <div class="panel" id="grammarRefPanel">
+      <div class="modal-card">
+        <button class="modal-close" data-close="grammarRefPanel" aria-label="Zamknij">✕</button>
+        <h3 data-i18n="grammarRefTitle">Kompendium gramatyki</h3>
+        <button class="tool-btn" id="openParticleBtn" style="width:100%; margin-bottom:10px;">🗣️ Partykuły w mowie potocznej</button>
+        <input type="text" id="grammarRefSearch" placeholder="np. 니까, partykuła, przeszły"
+               style="width:100%; padding:11px 12px; margin-bottom:10px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-size:15px; font-family:var(--font-ui);">
+        <div id="grammarRefResults" class="gref-results"></div>
+      </div>
+    </div>
+
+          <div class="panel" id="premiumPanel">
     <div class="modal-card">
       <button class="modal-close" data-close="premiumPanel" aria-label="Zamknij">✕</button>
       <div class="premium-eyebrow" data-i18n="premiumEyebrow">Premium</div>
@@ -14956,7 +14960,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.103';
+const APP_VERSION = '2026-09-04.104';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
