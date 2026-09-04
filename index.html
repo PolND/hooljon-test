@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.125
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.128
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -585,7 +585,7 @@
      potrzebne są OBIE reguły, nie jedna. */
   [data-theme="jade"] .home-section-learn .home-card.variant-row{
     flex-direction:column; align-items:flex-start; justify-content:flex-start;
-    gap:12px; padding:18px; border-radius:26px;
+    gap:12px; padding:18px; border-radius:var(--radius);
   }
   /* Strzałka zakłada układ poziomy - w kaflu pionowym nie ma dla niej miejsca. */
   [data-theme="jade"] .home-section-learn .home-card.variant-row::after{ content:none; }
@@ -2469,6 +2469,24 @@
   .vacation-row .vac-lab, .vacation-row .vac-state{ font-size:12.5px; color:var(--ink-dim); }
   .vacation-row .vac-state{ color:var(--ink); }
   .vacation-row .vac-btn{ min-height:34px; padding:5px 12px; font-size:12.5px; }
+  /* ── TYDZIEŃ I PROGNOZA (pakiet v4 §5) ──────────────────────────────────
+     Bez wykresów: słupki na 360px to dziesięć nieczytelnych kresek. Siedem
+     kwadratów pokazuje ciągłość, a prognoza SRS jest jedynym elementem tego
+     ekranu, który prowadzi do akcji. */
+  .prog-week{ display:flex; gap:7px; margin-top:16px; }
+  .prog-day{ flex:1; height:32px; border-radius:8px; background:var(--surface-2); }
+  .prog-day[data-done="true"]{ background:var(--hwang); }
+  .prog-day[data-today="true"]{ background:0; border:1px dashed var(--border); }
+  .prog-next{
+    margin-top:14px; padding:16px 18px;
+    background:var(--card); border:1px solid var(--border);
+    border-radius:var(--field-radius);
+    display:flex; align-items:center; gap:14px;
+    font-size:14.5px; color:var(--ink); font-family:var(--font-ui);
+  }
+  .prog-next:empty{ display:none; }
+  [data-theme="jade"] .prog-day{ border-radius:9px; }
+
   .shield-row{
     margin-top:10px; display:flex; align-items:center; justify-content:center;
     gap:8px; flex-wrap:wrap;
@@ -3590,9 +3608,13 @@
     margin-bottom:5px;
   }
   .vk-row:last-child{margin-bottom:0;}
+  /* Klawisze klawiatury hangul: 34px wysokości było poniżej progu trafialności
+     kciukiem (~36px). Podniesione do 38px, szerokość z 30 na 34px. Audyt wizualny
+     wskazał ten ekran jako największe skupisko za małych celów dotyku - osiem
+     elementów przy tle wynoszącym zero na większości ekranów. 2026-09-04. */
   .vk-key{
-    min-width:30px;
-    height:34px;
+    min-width:34px;
+    height:38px;
     padding:0 6px;
     background:var(--card);
     border:1px solid var(--border);
@@ -4169,7 +4191,7 @@
     .qv-choices .ans-btn.wrong, .qv-btn.wrong{ background:var(--card-hi); }
   }
   [data-theme="kobalt"] .qv-btn, [data-theme="kobalt"] .qv-choices .ans-btn{ border-radius:var(--radius); font-weight:700; }
-  [data-theme="jade"] .qv-btn, [data-theme="jade"] .qv-choices .ans-btn{ border-radius:26px; }
+  [data-theme="jade"] .qv-btn, [data-theme="jade"] .qv-choices .ans-btn{ border-radius:var(--radius); }
 
   /* Transkrypcja wypowiedzi ucznia - oznaczona jako przybliżona. Rozpoznawanie mowy
      myli się przy akcencie nie-natywnym, a to większość naszych użytkowników. */
@@ -5842,6 +5864,12 @@
       <div class="sage-next" id="sageNext"></div>
       <div class="shield-row" id="shieldRow"></div>
       <div class="vacation-row" id="vacationRow"></div>
+
+      <!-- Tydzień i prognoza (pakiet v4 §5). Siedem kwadratów, nie słupków:
+           informacja to CIĄGŁOŚĆ, nie wartość. Dzień dzisiejszy przerywany,
+           dopóki nie zrobisz powtórki. -->
+      <div class="prog-week" id="progWeek"></div>
+      <div class="prog-next" id="progNext"></div>
     </div>
 
     <h4 class="achv-section-title" data-i18n="sageLadderTitle">Droga Mędrca</h4>
@@ -15318,7 +15346,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.125';
+const APP_VERSION = '2026-09-04.128';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -18941,8 +18969,59 @@ const DEPT_BADGE_ICONS = {
   'Emocje': '😊', 'Praca i zawody': '💼', 'Miesiące': '📅', 'Pory roku': '🍂', 'Transport': '🚌',
 };
 
+/* Tydzień: siedem kwadratów wstecz od dziś. Nie mamy historii per dzień, więc
+   wnioskujemy z serii - przy serii 12 dni wszystkie siedem jest zaliczonych,
+   przy serii 3 tylko trzy ostatnie. To przybliżenie, ale uczciwe: seria jest
+   liczona po stronie serwera i nie da się jej podrobić.
+
+   Dzień dzisiejszy jest przerywany, dopóki nie zrobisz powtórki - nie zaznaczamy
+   go z góry jako zaliczonego (pakiet v4 §5). */
+function renderProgWeek(){
+  const el = document.getElementById('progWeek');
+  if(!el) return;
+  // Dzień zaliczony, gdy data ostatniej aktywności to dzisiaj. lastActiveDate
+  // jest tą samą zmienną, na której opiera się liczenie serii.
+  const zrobioneDzis = (typeof lastActiveDate !== 'undefined')
+                       && lastActiveDate === todayValueDateString();
+  const kwadraty = [];
+  for(let i = 6; i >= 0; i--){
+    const dzisiaj = (i === 0);
+    // seria liczy dni WSTECZ od ostatniej aktywności; i=0 to dziś
+    const zaliczony = dzisiaj ? zrobioneDzis : (dayStreak > i);
+    kwadraty.push('<div class="prog-day"'
+      + (zaliczony ? ' data-done="true"' : '')
+      + (dzisiaj && !zaliczony ? ' data-today="true"' : '')
+      + '></div>');
+  }
+  el.innerHTML = kwadraty.join('');
+}
+
+/* Ile fiszek czeka jutro. Czyta kolejkę SRS, którą silnik i tak zna - bez
+   nowych obliczeń. To jedyny element tego ekranu prowadzący do akcji. */
+function srsDueTomorrow(){
+  const jutro = Date.now() + 24*60*60*1000;
+  let ile = 0, nowe = 0;
+  for(const ko in srsData){
+    const d = srsData[ko];
+    if(d && d.due && d.due <= jutro){ ile++; if((d.reps || 0) <= 1) nowe++; }
+  }
+  return { ile, nowe };
+}
+
+function renderProgNext(){
+  const el = document.getElementById('progNext');
+  if(!el) return;
+  const { ile, nowe } = srsDueTomorrow();
+  if(!ile){ el.innerHTML = ''; return; }
+  const en = uiLang === 'en';
+  el.innerHTML = '🔁 ' + (en
+    ? `Due tomorrow: <b>${ile}</b> cards, <b>${nowe}</b> of them new`
+    : `Jutro do powtórki: <b>${ile}</b> fiszek, z czego <b>${nowe}</b> nowych`);
+}
+
 function renderAchievementsScreen(){
   document.getElementById('achvStreakNum').textContent = dayStreak;
+  try{ renderProgWeek(); renderProgNext(); }catch(e){ /* widok nie może psuć ekranu */ }
   // Droga Mędrca: ranga i płomień z aktualnej serii. Warstwa wizualna - nie zmienia
   // niczego w tym, co user dostaje, ale pokazuje, że seria do czegoś prowadzi.
   try{
