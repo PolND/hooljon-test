@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.120
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.122
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -329,6 +329,15 @@
     font-size:17px; cursor:pointer; }
   .ws-top{ display:flex; align-items:baseline; gap:10px; }
   .word-ko{ font-family:var(--font-ko); font-size:26px; color:var(--ink); }
+  /* Notatka objaśniająca przy słowie - rozdzielona z tłumaczenia 2026-09-04.
+     Wcześniej siedziała w polu pl w nawiasie, więc na fiszce pojawiała się jako
+     część odpowiedzi: "przyszedłem odebrać paczkę (찾다 = tu: odbierać)".
+     Odpowiedź ma być krótka; wyjaśnienie to osobna warstwa. */
+  .word-note{
+    margin-top:6px; font-size:12.5px; line-height:1.5;
+    color:var(--ink-dim); font-family:var(--font-ui);
+    padding-left:10px; border-left:2px solid var(--border);
+  }
   .word-meta{ font-size:12px; color:var(--ink-dim); }
   .word-def{ font-size:15px; color:var(--ink); text-wrap:pretty;
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
@@ -4098,6 +4107,14 @@
   .quiz-vertical > .center-speak-btn,
   .quiz-vertical > #centerSourceBadge{ align-self:center; }
   .qv-emoji:empty{ display:none; }
+  /* Karta w układzie pionowym: dziedziczy wygląd z .center-card (gradient,
+     obramowanie, promień z motywu), ale nie jej wymiary z kompasu. */
+  .qv-card{
+    width:100%; height:auto; margin-top:14px;
+    padding:20px 16px; gap:2px;
+  }
+  .qv-card .qv-word, .qv-card .qv-emoji{ margin-top:0; }
+
   .qv-word{
     font-family:var(--font-ko); font-size:44px; font-weight:600;
     letter-spacing:-.01em; text-align:center; margin-top:14px; color:var(--ink);
@@ -5421,10 +5438,16 @@
       <div class="quiz-vertical" id="vocabCompassWrap">
         <div class="qv-progress" id="quizProgress"></div>
         <div class="qv-prompt" id="centerEyebrow">Wybierz tłumaczenie</div>
-        <div class="qv-emoji" id="centerEmoji"></div>
-        <div class="qv-word" id="centerWord">...</div>
-        <button class="center-speak-btn" id="centerSpeakBtn" title="Odsłuchaj wymowę" aria-label="Odsłuchaj wymowę">🔊</button>
-        <div id="centerSourceBadge"></div>
+        <!-- Karta ze słowem. Po przejściu na układ pionowy słowo zostało bez ramki -
+             wisiało w pustce, choć w trybie wpisywania miało kartę. Ta sama
+             .center-card, więc gradient, obramowanie i promień biorą się z motywu.
+             Zgłoszone przez testera 2026-09-04. -->
+        <div class="center-card qv-card">
+          <div class="qv-emoji" id="centerEmoji"></div>
+          <div class="qv-word" id="centerWord">...</div>
+          <button class="center-speak-btn" id="centerSpeakBtn" title="Odsłuchaj wymowę" aria-label="Odsłuchaj wymowę">🔊</button>
+          <div id="centerSourceBadge"></div>
+        </div>
         <div class="qv-choices" id="quizGrid">
           <button class="ans-btn qv-btn" data-slot="n"></button>
           <button class="ans-btn qv-btn" data-slot="w"></button>
@@ -10436,7 +10459,7 @@ const DEFAULT_WORDS = [
   {ko:"드러나다", pl:"ujawniać się", en:"to be revealed", category:"Słownictwo ogólne", level:2, pos:"verb", source:'krdict'},
   {ko:"드러내다", pl:"ujawniać", en:"to reveal", category:"Słownictwo ogólne", level:3, pos:"verb", source:'krdict'},
   {ko:"드리다", pl:"dawać (hon.)", en:"to give (hon.)", category:"Wydarzenia i aktywność społeczna", level:1, pos:"verb", source:'krdict'},
-  {ko:"들다 (1)", pl:"wchodzić; kosztować / wymagać (czasu, pieniędzy); podobać się (마음에 들다)", en:"to enter; to cost / to take (money, time); to be liked (마음에 들다)", category:"Czasowniki", level:3, source:'krdict'},
+  {ko:"들다 (1)", pl:"wchodzić; kosztować / wymagać (czasu, pieniędzy); podobać się", en:"to enter; to cost / to take (money, time); to be liked (마음에 들다)", category:"Czasowniki", level:3, source:'krdict',"note":"마음에 들다"},
   {ko:"들다 (2)", pl:"podnosić", en:"to lift", category:"Czasowniki", level:3, source:'krdict'},
   {ko:"들르다", pl:"wpaść (do kogoś)", en:"to drop by", category:"Dom i mieszkanie", level:1, pos:"verb", source:'krdict'},
   {ko:"들리다", pl:"być słyszanym", en:"to be heard", category:"Ciało, zdrowie i czynności fizyczne", level:1, pos:"verb", source:'krdict'},
@@ -10584,7 +10607,7 @@ const DEFAULT_WORDS = [
   {ko:"달라지다", pl:"zmieniać się", en:"to change", category:"Cechy i miary", level:2, pos:"verb", source:'krdict'},
   {ko:"달려가다", pl:"biec", en:"to run", category:"Ciało, zdrowie i czynności fizyczne", level:2, pos:"verb", source:'krdict'},
   {ko:"달리다 (1)", pl:"biec", en:"to run", category:"Czasowniki", level:3, source:'krdict'},
-  {ko:"달리다 (2)", pl:"wisieć, być przyczepionym; zależeć od (-에 달려 있다)", en:"to hang from, to be attached; to depend on (-에 달려 있다)", category:"Czasowniki", level:3, source:'krdict'},
+  {ko:"달리다 (2)", pl:"wisieć, być przyczepionym; zależeć od", en:"to hang from, to be attached; to depend on (-에 달려 있다)", category:"Czasowniki", level:3, source:'krdict',"note":"-에 달려 있다"},
   {ko:"달아나다", pl:"uciekać", en:"to run away", category:"Ciało, zdrowie i czynności fizyczne", level:2, pos:"verb", source:'krdict'},
   {ko:"닮다", pl:"przypominać", en:"to resemble", category:"Cechy i miary", level:1, pos:"verb", source:'krdict'},
   {ko:"담기다", pl:"być zawartym", en:"to be put in", category:"Jedzenie i kuchnia", level:2, pos:"verb", source:'krdict'},
@@ -10675,7 +10698,7 @@ const DEFAULT_WORDS = [
   {ko:"인간", pl:"człowiek", en:"human", category:"Rodzina i relacje", level:2, source:'krdict'},
   {ko:"사실", pl:"prawda", en:"truth", category:"Słownictwo ogólne", level:1, source:'krdict'},
   {ko:"뭐", pl:"coś", en:"something", category:"Logika i gramatyka pojęciowa", level:1, pos:"pronoun", source:'krdict'},
-  {ko:"점", pl:"cząstka złożeń: sklep (서점 księgarnia, 상점 sklep)", en:"compound element: shop (서점 bookshop)", category:"Cechy i miary", level:2, pos:"noun", source:'krdict'},
+  {ko:"점", pl:"cząstka złożeń: sklep", en:"compound element: shop (서점 bookshop)", category:"Cechy i miary", level:2, pos:"noun", source:'krdict',"note":"서점 księgarnia, 상점 sklep"},
   {ko:"시대", pl:"epoka", en:"era", category:"Czas i częstotliwość", level:2, pos:"noun", source:'krdict'},
   {ko:"다음", pl:"następny", en:"next", category:"Czas i częstotliwość", level:1, pos:"noun", source:'krdict'},
   {ko:"이러하다", pl:"taki", en:"be like this", category:"Logika i gramatyka pojęciowa", level:3, pos:"adjective", source:'krdict'},
@@ -10946,7 +10969,7 @@ const DEFAULT_WORDS = [
   {ko:"지난해", pl:"zeszły rok", en:"last year", category:"Czas i częstotliwość", level:1, pos:"noun", source:'krdict'},
   {ko:"표현", pl:"wyrażenie", en:"verbal expression", category:"Komunikacja i media", level:2, pos:"noun", source:'krdict'},
   {ko:"기분", pl:"nastrój", en:"mood", category:"Uczucia i charakter", level:1, pos:"noun", source:'krdict'},
-  {ko:"대", pl:"cząstka złożeń: epoka, pokolenie (시대 epoka, 현대 współczesność)", en:"compound element: era (시대 era)", category:"Cechy i miary", level:2, pos:"bound_noun", source:'krdict'},
+  {ko:"대", pl:"cząstka złożeń: epoka, pokolenie", en:"compound element: era (시대 era)", category:"Cechy i miary", level:2, pos:"bound_noun", source:'krdict',"note":"시대 epoka, 현대 współczesność"},
   {ko:"옷", pl:"ubrania", en:"clothes", category:"Wygląd i ubiór", level:1, pos:"noun", source:'krdict'},
   {ko:"기능", pl:"funkcja", en:"function", category:"Logika i gramatyka pojęciowa", level:2, pos:"noun", source:'krdict'},
   {ko:"순간", pl:"moment", en:"a moment", category:"Czas i częstotliwość", level:1, pos:"noun", source:'krdict'},
@@ -11019,7 +11042,7 @@ const DEFAULT_WORDS = [
   {ko:"잠", pl:"sen", en:"sleep", category:"Dom i mieszkanie", level:1, pos:"noun", source:'krdict'},
   {ko:"주로", pl:"głównie", en:"mainly", category:"Cechy i miary", level:2, pos:"adverb", source:'krdict'},
   {ko:"훨씬", pl:"znacznie", en:"by far", category:"Cechy i miary", level:1, pos:"adverb", source:'krdict'},
-  {ko:"면", pl:"cząstka złożeń: strona, powierzchnia (측면 aspekt, 표면 powierzchnia)", en:"compound element: side (측면 aspect)", category:"Wygląd i ubiór", level:2, pos:"noun", source:'krdict'},
+  {ko:"면", pl:"cząstka złożeń: strona, powierzchnia", en:"compound element: side (측면 aspect)", category:"Wygląd i ubiór", level:2, pos:"noun", source:'krdict',"note":"측면 aspekt, 표면 powierzchnia"},
   {ko:"통일", pl:"zjednoczenie", en:"unification", category:"Cechy i miary", level:2, pos:"noun", source:'krdict'},
   {ko:"건강", pl:"zdrowie", en:"health", category:"Ciało, zdrowie i czynności fizyczne", level:1, pos:"noun", source:'krdict'},
   {ko:"건물", pl:"budynek", en:"building", category:"Dom i mieszkanie", level:1, ex:"저 건물은 아주 높아요.", exPl:"Tamten budynek jest bardzo wysoki.", exEn:"That building is very tall.", source:'krdict'},
@@ -11074,7 +11097,7 @@ const DEFAULT_WORDS = [
   {ko:"오늘날", pl:"obecnie", en:"nowadays", category:"Czas i częstotliwość", level:2, pos:"noun", source:'krdict'},
   {ko:"잠시", pl:"chwilę", en:"for a little while", category:"Czas i częstotliwość", level:1, pos:"noun", source:'krdict'},
   {ko:"농업", pl:"rolnictwo", en:"agriculture", category:"Słownictwo ogólne", level:2, source:'krdict'},
-  {ko:"식", pl:"cząstka złożeń: styl, sposób (한국식 po koreańsku, 방식 metoda)", en:"compound element: style (한국식 Korean-style)", category:"Wydarzenia i aktywność społeczna", level:2, pos:"noun", source:'krdict'},
+  {ko:"식", pl:"cząstka złożeń: styl, sposób", en:"compound element: style (한국식 Korean-style)", category:"Wydarzenia i aktywność społeczna", level:2, pos:"noun", source:'krdict',"note":"한국식 po koreańsku, 방식 metoda"},
   {ko:"의견", pl:"opinia", en:"opinion", category:"Komunikacja i media", level:1, pos:"noun", source:'krdict'},
   {ko:"무대", pl:"scena", en:"stage", category:"Kultura i sztuka", level:2, pos:"noun", source:'krdict'},
   {ko:"사진", pl:"zdjęcie", en:"picture", category:"Kultura i sztuka", level:1, pos:"noun", ex:"나는 여행을 가면 기념으로 꼭 사진을 찍는다.", exPl:"Kiedy jadę w podróż, zawsze robię zdjęcia na pamiątkę.", exEn:"When I travel, I always take pictures as a keepsake.", source:'krdict'},
@@ -11180,7 +11203,7 @@ const DEFAULT_WORDS = [
   {ko:"잔", pl:"kieliszek / szklanka", en:"a cup / wine glass", category:"Cechy i miary", level:1, pos:"noun", source:'krdict'},
   {ko:"시인", pl:"poeta", en:"a poet", category:"Kultura i sztuka", level:2, pos:"noun", source:'krdict'},
   {ko:"언제", pl:"kiedy", en:"when", category:"Logika i gramatyka pojęciowa", level:1, pos:"pronoun", source:'krdict'},
-  {ko:"외", pl:"cząstka złożeń: zewnętrzny, poza (이외 poza tym, 외국 zagranica)", en:"compound element: outside (외국 foreign country)", category:"Logika i gramatyka pojęciowa", level:2, pos:"bound_noun", source:'krdict'},
+  {ko:"외", pl:"cząstka złożeń: zewnętrzny, poza", en:"compound element: outside (외국 foreign country)", category:"Logika i gramatyka pojęciowa", level:2, pos:"bound_noun", source:'krdict',"note":"이외 poza tym, 외국 zagranica"},
   {ko:"평가", pl:"ocena", en:"evaluation / appraisal", category:"Komunikacja i media", level:2, pos:"noun", source:'krdict'},
   {ko:"위치", pl:"pozycja / lokalizacja", en:"a position / a location", category:"Logika i gramatyka pojęciowa", level:2, pos:"noun", source:'krdict'},
   {ko:"가격", pl:"cena", en:"price", category:"Zakupy i pieniądze", level:1, pos:"noun", source:'krdict'},
@@ -11233,7 +11256,7 @@ const DEFAULT_WORDS = [
   {ko:"고통", pl:"ból", en:"suffering or agony", category:"Ciało, zdrowie i czynności fizyczne", level:2, pos:"noun", source:'krdict'},
   {ko:"공", pl:"piłka", en:"ball", category:"Hobby i czas wolny", level:1, pos:"noun", source:'krdict'},
   {ko:"오월", pl:"maj", en:"may", category:"Miesiące", level:1, source:'krdict'},
-  {ko:"과", pl:"cząstka złożeń: dział, wydział (학과 kierunek, 과학 nauka)", en:"compound element: department (학과 major)", category:"Szkoła i nauka", level:2, pos:"noun", source:'krdict'},
+  {ko:"과", pl:"cząstka złożeń: dział, wydział", en:"compound element: department (학과 major)", category:"Szkoła i nauka", level:2, pos:"noun", source:'krdict',"note":"학과 kierunek, 과학 nauka"},
   {ko:"멀리", pl:"daleko", en:"far away", category:"Logika i gramatyka pojęciowa", level:1, pos:"noun", source:'krdict'},
   {ko:"예정", pl:"plan", en:"a program / schedule", category:"Czas i częstotliwość", level:2, pos:"noun", source:'krdict'},
   {ko:"오빠", pl:"starszy brat", en:"older brother", category:"Rodzina i relacje", level:1, source:'krdict'},
@@ -11321,7 +11344,7 @@ const DEFAULT_WORDS = [
   {ko:"숨", pl:"oddech", en:"a breath", category:"Ciało, zdrowie i czynności fizyczne", level:1, pos:"noun", source:'krdict'},
   {ko:"행사", pl:"wydarzenie", en:"an event / a function", category:"Wydarzenia i aktywność społeczna", level:2, pos:"noun", source:'krdict'},
   {ko:"누나", pl:"starsza siostra (dla mężczyzny)", en:"older sister", category:"Rodzina i relacje", level:1, source:'krdict'},
-  {ko:"신", pl:"but (skrót od 신발)", en:"shoe (short for 신발)", category:"Wygląd i ubiór", level:1, pos:"noun", source:'krdict'},
+  {ko:"신", pl:"but", en:"shoe (short for 신발)", category:"Wygląd i ubiór", level:1, pos:"noun", source:'krdict',"note":"skrót od 신발"},
   {ko:"왕", pl:"król", en:"king", category:"Polityka i prawo", level:1, pos:"noun", source:'krdict'},
   {ko:"점점", pl:"coraz bardziej", en:"more and more", category:"Cechy i miary", level:1, pos:"adverb", source:'krdict'},
   {ko:"질문", pl:"pytanie", en:"a question", category:"Komunikacja i media", level:1, pos:"noun", source:'krdict'},
@@ -11392,7 +11415,7 @@ const DEFAULT_WORDS = [
   {ko:"저희", pl:"my (honoryfikatywnie)", en:"we", category:"Logika i gramatyka pojęciowa", level:1, pos:"pronoun", source:'krdict'},
   {ko:"교통", pl:"ruch drogowy", en:"traffic", category:"Transport i podróże", level:1, pos:"noun", source:'krdict'},
   {ko:"기구", pl:"struktura", en:"structure / framework", category:"Polityka i prawo", level:3, pos:"noun", industryModule:["Prawo i Administracja"], source:'krdict'},
-  {ko:"오랜", pl:"określnik przed rzeczownikiem: długoletni (오랜 친구 przyjaciel od lat)", en:"prenoun: long-standing (오랜 친구 old friend)", category:"Czas i częstotliwość", level:2, pos:"determiner", source:'krdict'},
+  {ko:"오랜", pl:"określnik przed rzeczownikiem: długoletni", en:"prenoun: long-standing (오랜 친구 old friend)", category:"Czas i częstotliwość", level:2, pos:"determiner", source:'krdict',"note":"오랜 친구 przyjaciel od lat"},
   {ko:"젊은이", pl:"młoda osoba", en:"young person", category:"Rodzina i relacje", level:2, source:'krdict'},
   {ko:"후보", pl:"kandydat", en:"candidature / candidacy", category:"Polityka i prawo", level:2, pos:"noun", industryModule:["Prawo i Administracja"], source:'krdict'},
   {ko:"과제", pl:"zadanie", en:"homework / assignment", category:"Szkoła i nauka", level:2, pos:"noun", source:'krdict'},
@@ -11412,7 +11435,7 @@ const DEFAULT_WORDS = [
   {ko:"장면", pl:"scena", en:"a scene", category:"Kultura i sztuka", level:2, pos:"noun", industryModule:["Media, Popkultura i K-Entertainment"], source:'krdict'},
   {ko:"점차", pl:"stopniowo", en:"gradually", category:"Cechy i miary", level:2, pos:"noun", source:'krdict'},
   {ko:"톤", pl:"tona", en:"a ton", category:"Cechy i miary", level:1, pos:"bound_noun", source:'krdict'},
-  {ko:"급", pl:"cząstka złożeń: stopień, poziom (초급 podstawowy, 고급 zaawansowany)", en:"compound element: level (초급 beginner level)", category:"Logika i gramatyka pojęciowa", level:2, pos:"adverb", source:'krdict'},
+  {ko:"급", pl:"cząstka złożeń: stopień, poziom", en:"compound element: level (초급 beginner level)", category:"Logika i gramatyka pojęciowa", level:2, pos:"adverb", source:'krdict',"note":"초급 podstawowy, 고급 zaawansowany"},
   {ko:"나머지", pl:"reszta", en:"the rest", category:"Cechy i miary", level:2, pos:"noun", source:'krdict'},
   {ko:"더불다", pl:"wraz z", en:"join in / do together", category:"Wydarzenia i aktywność społeczna", level:3, pos:"verb", source:'krdict'},
   {ko:"의사", pl:"lekarz", en:"a doctor", category:"Praca i kariera", level:1, source:'krdict'},
@@ -11503,7 +11526,7 @@ const DEFAULT_WORDS = [
   {ko:"재미", pl:"zabawa", en:"amusement", category:"Uczucia i charakter", level:1, pos:"noun", source:'krdict'},
   {ko:"기대", pl:"oczekiwanie", en:"expectation", category:"Wydarzenia i aktywność społeczna", level:2, pos:"noun", source:'krdict'},
   {ko:"식물", pl:"roślina", en:"plant", category:"Rośliny", level:1, pos:"noun", source:'krdict'},
-  {ko:"옛", pl:"określnik przed rzeczownikiem: dawny (옛날 dawne czasy, 옛집 stary dom)", en:"prenoun: old (옛날 old days)", category:"Czas i częstotliwość", level:2, pos:"determiner", source:'krdict'},
+  {ko:"옛", pl:"określnik przed rzeczownikiem: dawny", en:"prenoun: old (옛날 old days)", category:"Czas i częstotliwość", level:2, pos:"determiner", source:'krdict',"note":"옛날 dawne czasy, 옛집 stary dom"},
   {ko:"적어도", pl:"co najmniej", en:"at least", category:"Cechy i miary", level:2, pos:"adverb", source:'krdict'},
   {ko:"평", pl:"pyeong", en:"pyeong (2 m²)", category:"Cechy i miary", level:1, pos:"bound_noun", source:'krdict'},
   {ko:"권리", pl:"prawo", en:"right", category:"Słownictwo ogólne", level:2, source:'krdict'},
@@ -11517,7 +11540,7 @@ const DEFAULT_WORDS = [
   {ko:"분명히", pl:"wyraźnie", en:"obviously", category:"Cechy i miary", level:2, pos:"adverb", source:'krdict'},
   {ko:"시위", pl:"protest", en:"demonstration", category:"Wydarzenia i aktywność społeczna", level:3, pos:"noun", source:'krdict'},
   {ko:"아무것", pl:"cokolwiek", en:"anything", category:"Logika i gramatyka pojęciowa", level:1, pos:"noun", source:'krdict'},
-  {ko:"온", pl:"cząstka złożeń: cały (온종일 cały dzień, 온몸 całe ciało)", en:"compound element: whole (온종일 all day)", category:"Cechy i miary", level:2, pos:"determiner", source:'krdict'},
+  {ko:"온", pl:"cząstka złożeń: cały", en:"compound element: whole (온종일 all day)", category:"Cechy i miary", level:2, pos:"determiner", source:'krdict',"note":"온종일 cały dzień, 온몸 całe ciało"},
   {ko:"제외하다", pl:"wykluczyć", en:"exclude", category:"Słownictwo ogólne", level:2, source:'krdict'},
   {ko:"최대", pl:"największy", en:"the greatest", category:"Cechy i miary", level:2, pos:"noun", source:'krdict'},
   {ko:"평소", pl:"zwykle", en:"ordinary times", category:"Czas i częstotliwość", level:1, pos:"noun", source:'krdict'},
@@ -11567,7 +11590,7 @@ const DEFAULT_WORDS = [
   {ko:"실수", pl:"błąd", en:"mistake", category:"Słownictwo ogólne", level:1, source:'krdict'},
   {ko:"치료", pl:"leczenie", en:"medical treatment", category:"Ciało, zdrowie i czynności fizyczne", level:1, pos:"noun", source:'krdict'},
   {ko:"폭", pl:"szerokość", en:"width", category:"Cechy i miary", level:2, pos:"noun", source:'krdict'},
-  {ko:"호", pl:"cząstka złożeń: numer (1호선 linia nr 1, 번호 numer)", en:"compound element: number (번호 number)", category:"Cechy i miary", level:2, pos:"bound_noun", source:'krdict'},
+  {ko:"호", pl:"cząstka złożeń: numer", en:"compound element: number (번호 number)", category:"Cechy i miary", level:2, pos:"bound_noun", source:'krdict',"note":"1호선 linia nr 1, 번호 numer"},
   {ko:"부문", pl:"dział", en:"section / department", category:"Słownictwo ogólne", level:3, source:'krdict'},
   {ko:"시리즈", pl:"seria", en:"series", category:"Kultura i sztuka", level:1, pos:"noun", industryModule:["Media, Popkultura i K-Entertainment"], source:'krdict'},
   {ko:"임신", pl:"ciąża", en:"pregnant", category:"Słownictwo ogólne", level:2, source:'krdict'},
@@ -11638,7 +11661,7 @@ const DEFAULT_WORDS = [
   {ko:"상상", pl:"wyobraźnia", en:"imagination", category:"Logika i gramatyka pojęciowa", level:1, pos:"noun", source:'krdict'},
   {ko:"소득", pl:"dochód", en:"income", category:"Zakupy i pieniądze", level:3, pos:"noun", source:'krdict'},
   {ko:"수도", pl:"stolica", en:"capital city", category:"Dom i mieszkanie", level:1, pos:"noun", source:'krdict'},
-  {ko:"역", pl:"stacja (rola = 역할)", en:"station (role = 역할)", category:"Transport i podróże", level:1, pos:"noun", source:'krdict'},
+  {ko:"역", pl:"stacja", en:"station (role = 역할)", category:"Transport i podróże", level:1, pos:"noun", source:'krdict',"note":"rola = 역할"},
   {ko:"인식하다", pl:"rozpoznawać", en:"recognize", category:"Logika i gramatyka pojęciowa", level:1, pos:"verb", source:'krdict'},
   {ko:"침대", pl:"łóżko", en:"bed", category:"Dom i mieszkanie", level:1, pos:"noun", source:'krdict'},
   {ko:"권", pl:"tom", en:"volume / book", category:"Cechy i miary", level:1, pos:"bound_noun", source:'krdict'},
@@ -11701,7 +11724,7 @@ const DEFAULT_WORDS = [
   {ko:"법률", pl:"prawo", en:"law / statute", category:"Polityka i prawo", level:3, pos:"noun", industryModule:["Prawo i Administracja", "Wojskowość i Obronność"], source:'krdict'},
   {ko:"상처", pl:"rana", en:"wound", category:"Ciało, zdrowie i czynności fizyczne", level:1, pos:"noun", source:'krdict'},
   {ko:"지하철", pl:"metro", en:"subway", category:"Transport i podróże", level:1, source:'krdict'},
-  {ko:"현", pl:"cząstka złożeń: obecny (현재 teraz, 현대 współczesność)", en:"compound element: present (현재 now)", category:"Czas i częstotliwość", level:2, pos:"determiner", source:'krdict'},
+  {ko:"현", pl:"cząstka złożeń: obecny", en:"compound element: present (현재 now)", category:"Czas i częstotliwość", level:2, pos:"determiner", source:'krdict',"note":"현재 teraz, 현대 współczesność"},
   {ko:"화면", pl:"ekran", en:"screen", category:"Nauka i technologia", level:1, pos:"noun", industryModule:["Nauka, Technologia i IT"], ex:"컴퓨터 화면이 너무 작아요.", exPl:"Ekran komputera jest za mały.", exEn:"The computer screen is too small.", source:'krdict'},
   {ko:"대표적", pl:"reprezentatywny", en:"representative", category:"Czas i częstotliwość", level:2, pos:"noun", source:'krdict'},
   {ko:"만일", pl:"jeśli", en:"if / suppose", category:"Logika i gramatyka pojęciowa", level:3, pos:"noun", source:'krdict'},
@@ -12029,7 +12052,7 @@ const DEFAULT_WORDS = [
   {ko:"주머니", pl:"kieszeń", en:"pocket", category:"Wygląd i ubiór", level:1, pos:"noun", source:'krdict'},
   {ko:"계약", pl:"umowa", en:"contract", category:"Zakupy i pieniądze", level:2, pos:"noun", source:'krdict'},
   {ko:"과장", pl:"kierownik działu", en:"section head", category:"Praca i kariera", level:2, pos:"noun", industryModule:["Korporacja, Biznes i Kultura Pracy"], source:'krdict'},
-  {ko:"극", pl:"cząstka złożeń: sztuka, dramat (연극 teatr, 희극 komedia)", en:"compound element: drama (연극 theatre)", category:"Cechy i miary", level:3, pos:"noun", source:'krdict'},
+  {ko:"극", pl:"cząstka złożeń: sztuka, dramat", en:"compound element: drama (연극 theatre)", category:"Cechy i miary", level:3, pos:"noun", source:'krdict',"note":"연극 teatr, 희극 komedia"},
   {ko:"나란히", pl:"równo", en:"in a line", category:"Czas i częstotliwość", level:2, pos:"adverb", source:'krdict'},
   {ko:"다방", pl:"herbaciarnia", en:"tea room", category:"Hobby i czas wolny", level:2, pos:"noun", source:'krdict'},
   {ko:"성공", pl:"sukces", en:"success", category:"Słownictwo ogólne", level:1, source:'krdict'},
@@ -15100,20 +15123,20 @@ const DEFAULT_WORDS = [
   {ko:"저항", pl:"opór", en:"resistance", category:"Fizyka", level:2, pos:"noun", ex:"전선이 가늘수록 저항이 커진다.", exPl:"Im cieńszy przewód, tym większy opór.", exEn:"The thinner the wire, the greater the resistance.", source:'own'},
   {"ko":"여보세요?","pl":"halo? (wyłącznie przez telefon)","en":"hello? (on the phone only)","level":1,"ex":"여보세요? 민수 씨 휴대폰이에요?","exPl":"Halo? Czy to telefon pana Minsu?","exEn":"Hello? Is this Minsu's phone?","category":"Telefon i kontakt","source":"hooljon"},
   {"ko":"전화번호가 뭐예요?","pl":"jaki jest twój numer telefonu?","en":"what is your phone number?","level":1,"ex":"실례지만 전화번호가 뭐예요?","exPl":"Przepraszam, jaki jest twój numer telefonu?","exEn":"Excuse me, what is your phone number?","category":"Telefon i kontakt","source":"hooljon"},
-  {"ko":"제 번호는 010-1234-5678이에요.","pl":"mój numer to 010-1234-5678 (cyfry czyta się liczebnikami sinokoreańskimi: 공일공-일이삼사-오륙칠팔; zero = 공, nie 영)","en":"my number is 010-1234-5678 (digits are read with Sino-Korean numerals; zero = 공)","level":1,"ex":"제 번호는 010-1234-5678이에요. 언제든지 전화하세요.","exPl":"Mój numer to 010-1234-5678. Dzwoń, kiedy chcesz.","exEn":"My number is 010-1234-5678. Call me anytime.","category":"Telefon i kontakt","source":"hooljon"},
+  {"ko":"제 번호는 010-1234-5678이에요.","pl":"mój numer to 010-1234-5678","en":"my number is 010-1234-5678 (digits are read with Sino-Korean numerals; zero = 공)","level":1,"ex":"제 번호는 010-1234-5678이에요. 언제든지 전화하세요.","exPl":"Mój numer to 010-1234-5678. Dzwoń, kiedy chcesz.","exEn":"My number is 010-1234-5678. Call me anytime.","category":"Telefon i kontakt","source":"hooljon","note":"cyfry czyta się liczebnikami sinokoreańskimi: 공일공-일이삼사-오륙칠팔; zero = 공, nie 영"},
   {"ko":"번호 좀 가르쳐 주세요.","pl":"podaj mi proszę swój numer (dosł. naucz mnie numeru — tak się o niego prosi)","en":"please give me your number (lit. teach me your number)","level":1,"ex":"우리 다음에 만나요. 번호 좀 가르쳐 주세요.","exPl":"Spotkajmy się następnym razem. Podaj mi proszę numer.","exEn":"Let's meet next time. Please give me your number.","category":"Telefon i kontakt","source":"hooljon"},
-  {"ko":"지금 통화 괜찮아요?","pl":"czy możesz teraz rozmawiać? (통화 = rozmowa telefoniczna)","en":"can you talk now? (통화 = phone call)","level":1,"ex":"여보세요, 저 안나예요. 지금 통화 괜찮아요?","exPl":"Halo, tu Anna. Możesz teraz rozmawiać?","exEn":"Hello, this is Anna. Can you talk now?","category":"Telefon i kontakt","source":"hooljon"},
+  {"ko":"지금 통화 괜찮아요?","pl":"czy możesz teraz rozmawiać?","en":"can you talk now? (통화 = phone call)","level":1,"ex":"여보세요, 저 안나예요. 지금 통화 괜찮아요?","exPl":"Halo, tu Anna. Możesz teraz rozmawiać?","exEn":"Hello, this is Anna. Can you talk now?","category":"Telefon i kontakt","source":"hooljon","note":"통화 = rozmowa telefoniczna"},
   {"ko":"나중에 다시 전화할게요.","pl":"oddzwonię później","en":"I'll call you back later","level":1,"ex":"지금 회의가 있어요. 나중에 다시 전화할게요.","exPl":"Mam teraz zebranie. Oddzwonię później.","exEn":"I'm in a meeting now. I'll call you back later.","category":"Telefon i kontakt","source":"hooljon"},
-  {"ko":"문자 보낼게요.","pl":"wyślę ci SMS-a (문자 = wiadomość tekstowa)","en":"I'll text you (문자 = text message)","level":1,"ex":"주소는 문자 보낼게요. 확인해 주세요.","exPl":"Adres wyślę SMS-em. Sprawdź proszę.","exEn":"I'll text you the address. Please check it.","category":"Telefon i kontakt","source":"hooljon"},
+  {"ko":"문자 보낼게요.","pl":"wyślę ci SMS-a","en":"I'll text you (문자 = text message)","level":1,"ex":"주소는 문자 보낼게요. 확인해 주세요.","exPl":"Adres wyślę SMS-em. Sprawdź proszę.","exEn":"I'll text you the address. Please check it.","category":"Telefon i kontakt","source":"hooljon","note":"문자 = wiadomość tekstowa"},
   {"ko":"카톡 주세요.","pl":"napisz mi na KakaoTalk (w Korei pisze się na KakaoTalk częściej niż SMS-y)","en":"message me on KakaoTalk (Koreans use KakaoTalk more than texting)","level":1,"ex":"시간 있으면 카톡 주세요.","exPl":"Jak będziesz mieć czas, napisz na KakaoTalk.","exEn":"Message me on KakaoTalk when you have time.","category":"Telefon i kontakt","source":"hooljon"},
   {"ko":"잘 안 들려요.","pl":"słabo cię słyszę","en":"I can't hear you well","level":1,"ex":"여보세요? 잘 안 들려요. 다시 말해 주세요.","exPl":"Halo? Słabo cię słyszę. Powtórz proszę.","exEn":"Hello? I can't hear you well. Please say it again.","category":"Telefon i kontakt","source":"hooljon"},
   {"ko":"전화 잘못 거셨어요.","pl":"pomyłka (dosł. źle pan/pani wybrał(a) numer — utarty zwrot)","en":"you have the wrong number (set phrase)","level":1,"ex":"네? 여기 그런 사람 없어요. 전화 잘못 거셨어요.","exPl":"Słucham? Nie ma tu takiej osoby. To pomyłka.","exEn":"Pardon? There's no such person here. You have the wrong number.","category":"Telefon i kontakt","source":"hooljon"},
   {"ko":"이메일 주소가 뭐예요?","pl":"jaki jest twój adres e-mail?","en":"what is your email address?","level":1,"ex":"사진을 보낼게요. 이메일 주소가 뭐예요?","exPl":"Wyślę ci zdjęcia. Jaki masz adres e-mail?","exEn":"I'll send you the photos. What's your email address?","category":"Telefon i kontakt","source":"hooljon"},
-  {"ko":"골뱅이","pl":"małpa @ (dosł. ślimak morski — tak Koreańczycy czytają znak @; kropka = 점)","en":"the @ sign (lit. sea snail — how Koreans read @; dot = 점)","level":1,"ex":"제 이메일은 mina, 골뱅이, naver, 점, com이에요.","exPl":"Mój e-mail to mina, małpa, naver, kropka, com.","exEn":"My email is mina, at, naver, dot, com.","category":"Telefon i kontakt","source":"hooljon"},
+  {"ko":"골뱅이","pl":"małpa @","en":"the @ sign (lit. sea snail — how Koreans read @; dot = 점)","level":1,"ex":"제 이메일은 mina, 골뱅이, naver, 점, com이에요.","exPl":"Mój e-mail to mina, małpa, naver, kropka, com.","exEn":"My email is mina, at, naver, dot, com.","category":"Telefon i kontakt","source":"hooljon","note":"dosł. ślimak morski — tak Koreańczycy czytają znak @; kropka = 점"},
   {"ko":"배터리가 없어요.","pl":"padł mi telefon (dosł. nie ma baterii)","en":"my phone is dead (lit. there's no battery)","level":1,"ex":"죄송해요, 배터리가 없어요. 이따가 연락할게요.","exPl":"Przepraszam, pada mi telefon. Odezwę się później.","exEn":"Sorry, my battery is dead. I'll contact you later.","category":"Telefon i kontakt","source":"hooljon"},
   {"ko":"잠깐만요.","pl":"chwileczkę (uniwersalne: przez telefon i na żywo)","en":"just a moment (universal: on the phone and in person)","level":1,"ex":"잠깐만요. 펜 좀 찾을게요.","exPl":"Chwileczkę. Poszukam długopisu.","exEn":"Just a moment. Let me find a pen.","category":"Telefon i kontakt","source":"hooljon"},
   {"ko":"저기요!","pl":"przepraszam! (tak przywołuje się obsługę — głośno i śmiało; nie macha się ręką na kelnera)","en":"excuse me! (how you call staff — loudly and confidently)","level":1,"ex":"저기요! 주문할게요.","exPl":"Przepraszam! Chcę zamówić.","exEn":"Excuse me! I'd like to order.","category":"W restauracji","source":"hooljon"},
-  {"ko":"몇 분이세요?","pl":"ile osób? (pytanie obsługi przy wejściu; 분 = grzecznościowy liczebnik osób)","en":"how many people? (staff question at the door; 분 = honorific counter)","level":1,"ex":"어서 오세요. 몇 분이세요?","exPl":"Witamy. Ile osób?","exEn":"Welcome. How many people?","category":"W restauracji","source":"hooljon"},
+  {"ko":"몇 분이세요?","pl":"ile osób?","en":"how many people? (staff question at the door; 분 = honorific counter)","level":1,"ex":"어서 오세요. 몇 분이세요?","exPl":"Witamy. Ile osób?","exEn":"Welcome. How many people?","category":"W restauracji","source":"hooljon","note":"pytanie obsługi przy wejściu; 분 = grzecznościowy liczebnik osób"},
   {"ko":"두 명이에요.","pl":"dwie osoby","en":"two people","level":1,"ex":"몇 분이세요? — 두 명이에요.","exPl":"Ile osób? — Dwie.","exEn":"How many people? — Two.","category":"W restauracji","source":"hooljon"},
   {"ko":"메뉴판 좀 주세요.","pl":"poproszę menu","en":"the menu, please","level":1,"ex":"저기요, 메뉴판 좀 주세요.","exPl":"Przepraszam, poproszę menu.","exEn":"Excuse me, could I have the menu?","category":"W restauracji","source":"hooljon"},
   {"ko":"주문할게요.","pl":"chcę zamówić (dosł. zamówię — tak sygnalizuje się gotowość)","en":"I'd like to order (lit. I will order)","level":1,"ex":"저기요, 주문할게요. 비빔밥 하나 주세요.","exPl":"Przepraszam, zamawiam. Poproszę jeden bibimbap.","exEn":"Excuse me, I'd like to order. One bibimbap, please.","category":"W restauracji","source":"hooljon"},
@@ -15121,13 +15144,13 @@ const DEFAULT_WORDS = [
   {"ko":"이거 안 매워요?","pl":"czy to nie jest ostre?","en":"isn't this spicy?","level":1,"ex":"이거 안 매워요? — 네, 안 매워요.","exPl":"Czy to nie jest ostre? — Nie, nie jest.","exEn":"Isn't this spicy? — No, it's not.","category":"W restauracji","source":"hooljon"},
   {"ko":"안 맵게 해 주세요.","pl":"proszę zrobić nieostre","en":"please make it not spicy","level":1,"ex":"저는 아기하고 왔어요. 안 맵게 해 주세요.","exPl":"Jestem z dzieckiem. Proszę zrobić nieostre.","exEn":"I'm here with a baby. Please make it not spicy.","category":"W restauracji","source":"hooljon"},
   {"ko":"물 좀 더 주세요.","pl":"poproszę jeszcze wody (woda i przystawki banchan są darmowe — można prosić śmiało)","en":"more water, please (water and banchan side dishes are free — ask freely)","level":1,"ex":"저기요, 물 좀 더 주세요.","exPl":"Przepraszam, poproszę jeszcze wody.","exEn":"Excuse me, more water, please.","category":"W restauracji","source":"hooljon"},
-  {"ko":"포장해 주세요.","pl":"na wynos proszę (포장 = pakowanie; przy kasie wystarczy 포장이요)","en":"to go, please (포장 = packing)","level":1,"ex":"이거 포장해 주세요. 집에서 먹을게요.","exPl":"Proszę to zapakować na wynos. Zjem w domu.","exEn":"Please pack this to go. I'll eat it at home.","category":"W restauracji","source":"hooljon"},
+  {"ko":"포장해 주세요.","pl":"na wynos proszę","en":"to go, please (포장 = packing)","level":1,"ex":"이거 포장해 주세요. 집에서 먹을게요.","exPl":"Proszę to zapakować na wynos. Zjem w domu.","exEn":"Please pack this to go. I'll eat it at home.","category":"W restauracji","source":"hooljon","note":"포장 = pakowanie; przy kasie wystarczy 포장이요"},
   {"ko":"여기서 먹을 거예요.","pl":"zjem na miejscu","en":"I'll eat here","level":1,"ex":"포장이에요? — 아니요, 여기서 먹을 거예요.","exPl":"Na wynos? — Nie, zjem na miejscu.","exEn":"To go? — No, I'll eat here.","category":"W restauracji","source":"hooljon"},
   {"ko":"계산할게요.","pl":"poproszę rachunek (dosł. zapłacę; w Korei zwykle płaci się przy kasie, nie przy stoliku)","en":"the check, please (lit. I'll pay; in Korea you usually pay at the counter)","level":1,"ex":"저기요, 계산할게요. 카드 돼요?","exPl":"Przepraszam, płacę. Można kartą?","exEn":"Excuse me, I'd like to pay. Do you take cards?","category":"W restauracji","source":"hooljon"},
   {"ko":"따로따로 계산해 주세요.","pl":"proszę policzyć osobno","en":"separate checks, please","level":1,"ex":"우리 따로따로 계산해 주세요.","exPl":"Proszę policzyć nas osobno.","exEn":"Please give us separate checks.","category":"W restauracji","source":"hooljon"},
   {"ko":"화장실이 어디예요?","pl":"gdzie jest toaleta?","en":"where is the restroom?","level":1,"ex":"저기요, 화장실이 어디예요? — 이 층에 있어요.","exPl":"Przepraszam, gdzie jest toaleta? — Na tym piętrze.","exEn":"Excuse me, where is the restroom? — On this floor.","category":"W restauracji","source":"hooljon"},
-  {"ko":"리필 돼요?","pl":"czy jest dolewka? (리필 = refill, z angielskiego)","en":"can I get a refill? (리필 = refill)","level":1,"ex":"커피 리필 돼요? — 네, 돼요.","exPl":"Czy jest dolewka kawy? — Tak.","exEn":"Can I get a coffee refill? — Yes, you can.","category":"W restauracji","source":"hooljon"},
-  {"ko":"예약할 수 있어요?","pl":"czy mogę umówić wizytę? (예약 = rezerwacja/umówienie)","en":"can I make an appointment? (예약 = reservation)","level":1,"ex":"내일 오전에 예약할 수 있어요?","exPl":"Czy mogę umówić wizytę na jutro rano?","exEn":"Can I make an appointment for tomorrow morning?","category":"U lekarza i w aptece","source":"hooljon"},
+  {"ko":"리필 돼요?","pl":"czy jest dolewka?","en":"can I get a refill? (리필 = refill)","level":1,"ex":"커피 리필 돼요? — 네, 돼요.","exPl":"Czy jest dolewka kawy? — Tak.","exEn":"Can I get a coffee refill? — Yes, you can.","category":"W restauracji","source":"hooljon","note":"리필 = refill, z angielskiego"},
+  {"ko":"예약할 수 있어요?","pl":"czy mogę umówić wizytę?","en":"can I make an appointment? (예약 = reservation)","level":1,"ex":"내일 오전에 예약할 수 있어요?","exPl":"Czy mogę umówić wizytę na jutro rano?","exEn":"Can I make an appointment for tomorrow morning?","category":"U lekarza i w aptece","source":"hooljon","note":"예약 = rezerwacja/umówienie"},
   {"ko":"어디가 아파서 오셨어요?","pl":"co panu/pani dolega? (dosł. z jakim bólem pan/pani przyszedł/przyszła — pytanie w recepcji)","en":"what brings you in? (lit. where does it hurt that you came)","level":1,"ex":"어디가 아파서 오셨어요? — 목이 아파서 왔어요.","exPl":"Co panu dolega? — Przyszedłem, bo boli mnie gardło.","exEn":"What brings you in? — I came because my throat hurts.","category":"U lekarza i w aptece","source":"hooljon"},
   {"ko":"머리가 아파요.","pl":"boli mnie głowa","en":"I have a headache","level":1,"ex":"어제부터 머리가 아파요.","exPl":"Od wczoraj boli mnie głowa.","exEn":"I've had a headache since yesterday.","category":"U lekarza i w aptece","source":"hooljon"},
   {"ko":"배가 아파요.","pl":"boli mnie brzuch","en":"my stomach hurts","level":1,"ex":"점심을 먹고 배가 아파요.","exPl":"Po obiedzie boli mnie brzuch.","exEn":"My stomach hurts after lunch.","category":"U lekarza i w aptece","source":"hooljon"},
@@ -15135,52 +15158,52 @@ const DEFAULT_WORDS = [
   {"ko":"기침이 나요.","pl":"kaszlę (dosł. wychodzi kaszel)","en":"I have a cough","level":1,"ex":"밤에 기침이 많이 나요.","exPl":"W nocy dużo kaszlę.","exEn":"I cough a lot at night.","category":"U lekarza i w aptece","source":"hooljon"},
   {"ko":"콧물이 나요.","pl":"mam katar (dosł. leci mi z nosa)","en":"I have a runny nose","level":1,"ex":"콧물이 나요. 그리고 목도 아파요.","exPl":"Mam katar. I boli mnie też gardło.","exEn":"I have a runny nose. And my throat hurts too.","category":"U lekarza i w aptece","source":"hooljon"},
   {"ko":"소화가 안 돼요.","pl":"mam niestrawność (dosł. trawienie nie działa — bardzo częsty zwrot)","en":"I have indigestion (lit. digestion doesn't work — very common phrase)","level":1,"ex":"어제부터 소화가 안 돼요.","exPl":"Od wczoraj mam niestrawność.","exEn":"I've had indigestion since yesterday.","category":"U lekarza i w aptece","source":"hooljon"},
-  {"ko":"감기약 있어요?","pl":"czy jest lek na przeziębienie? (약 dokleja się do nazwy choroby: 감기약, 두통약)","en":"do you have cold medicine? (약 attaches to the illness: 감기약, 두통약)","level":1,"ex":"감기약 있어요? 열이 나요.","exPl":"Czy jest lek na przeziębienie? Mam gorączkę.","exEn":"Do you have cold medicine? I have a fever.","category":"U lekarza i w aptece","source":"hooljon"},
-  {"ko":"하루에 몇 번 먹어요?","pl":"ile razy dziennie brać? (lek po koreańsku się „je” — 먹다)","en":"how many times a day do I take it? (medicine is 'eaten' — 먹다)","level":1,"ex":"이 약은 하루에 몇 번 먹어요? — 세 번 드세요.","exPl":"Ile razy dziennie brać ten lek? — Trzy razy.","exEn":"How many times a day do I take this? — Three times.","category":"U lekarza i w aptece","source":"hooljon"},
-  {"ko":"식후에 드세요.","pl":"proszę brać po jedzeniu (usłyszysz w aptece; 식후 = po posiłku, 식전 = przed)","en":"take it after meals (you'll hear this at the pharmacy; 식후 = after meals)","level":1,"ex":"이 약은 식후에 드세요.","exPl":"Ten lek proszę brać po jedzeniu.","exEn":"Take this medicine after meals.","category":"U lekarza i w aptece","source":"hooljon"},
-  {"ko":"진통제 주세요.","pl":"poproszę środek przeciwbólowy (진통제)","en":"painkillers, please (진통제)","level":1,"ex":"머리가 아파요. 진통제 주세요.","exPl":"Boli mnie głowa. Poproszę środek przeciwbólowy.","exEn":"I have a headache. Painkillers, please.","category":"U lekarza i w aptece","source":"hooljon"},
-  {"ko":"처방전이 필요해요?","pl":"czy potrzebna jest recepta? (처방전 = recepta)","en":"do I need a prescription? (처방전 = prescription)","level":1,"ex":"이 약은 처방전이 필요해요? — 네, 필요해요.","exPl":"Czy na ten lek potrzebna jest recepta? — Tak.","exEn":"Do I need a prescription for this? — Yes, you do.","category":"U lekarza i w aptece","source":"hooljon"},
+  {"ko":"감기약 있어요?","pl":"czy jest lek na przeziębienie?","en":"do you have cold medicine? (약 attaches to the illness: 감기약, 두통약)","level":1,"ex":"감기약 있어요? 열이 나요.","exPl":"Czy jest lek na przeziębienie? Mam gorączkę.","exEn":"Do you have cold medicine? I have a fever.","category":"U lekarza i w aptece","source":"hooljon","note":"약 dokleja się do nazwy choroby: 감기약, 두통약"},
+  {"ko":"하루에 몇 번 먹어요?","pl":"ile razy dziennie brać?","en":"how many times a day do I take it? (medicine is 'eaten' — 먹다)","level":1,"ex":"이 약은 하루에 몇 번 먹어요? — 세 번 드세요.","exPl":"Ile razy dziennie brać ten lek? — Trzy razy.","exEn":"How many times a day do I take this? — Three times.","category":"U lekarza i w aptece","source":"hooljon","note":"lek po koreańsku się „je” — 먹다"},
+  {"ko":"식후에 드세요.","pl":"proszę brać po jedzeniu","en":"take it after meals (you'll hear this at the pharmacy; 식후 = after meals)","level":1,"ex":"이 약은 식후에 드세요.","exPl":"Ten lek proszę brać po jedzeniu.","exEn":"Take this medicine after meals.","category":"U lekarza i w aptece","source":"hooljon","note":"usłyszysz w aptece; 식후 = po posiłku, 식전 = przed"},
+  {"ko":"진통제 주세요.","pl":"poproszę środek przeciwbólowy","en":"painkillers, please (진통제)","level":1,"ex":"머리가 아파요. 진통제 주세요.","exPl":"Boli mnie głowa. Poproszę środek przeciwbólowy.","exEn":"I have a headache. Painkillers, please.","category":"U lekarza i w aptece","source":"hooljon","note":"진통제"},
+  {"ko":"처방전이 필요해요?","pl":"czy potrzebna jest recepta?","en":"do I need a prescription? (처방전 = prescription)","level":1,"ex":"이 약은 처방전이 필요해요? — 네, 필요해요.","exPl":"Czy na ten lek potrzebna jest recepta? — Tak.","exEn":"Do I need a prescription for this? — Yes, you do.","category":"U lekarza i w aptece","source":"hooljon","note":"처방전 = recepta"},
   {"ko":"저는 한국 보험이 없어요.","pl":"nie mam koreańskiego ubezpieczenia (ważne: bez niego wizyta kosztuje więcej — zapytaj o cenę)","en":"I don't have Korean insurance (without it a visit costs more)","level":1,"ex":"저는 한국 보험이 없어요. 얼마예요?","exPl":"Nie mam koreańskiego ubezpieczenia. Ile to kosztuje?","exEn":"I don't have Korean insurance. How much is it?","category":"U lekarza i w aptece","source":"hooljon"},
-  {"ko":"이 소포를 폴란드로 보내고 싶어요.","pl":"chcę wysłać tę paczkę do Polski (소포 = paczka pocztowa)","en":"I'd like to send this parcel to Poland (소포 = parcel)","level":1,"ex":"이 소포를 폴란드로 보내고 싶어요. 얼마예요?","exPl":"Chcę wysłać tę paczkę do Polski. Ile to kosztuje?","exEn":"I'd like to send this parcel to Poland. How much is it?","category":"Na poczcie i w kurierze","source":"hooljon"},
+  {"ko":"이 소포를 폴란드로 보내고 싶어요.","pl":"chcę wysłać tę paczkę do Polski","en":"I'd like to send this parcel to Poland (소포 = parcel)","level":1,"ex":"이 소포를 폴란드로 보내고 싶어요. 얼마예요?","exPl":"Chcę wysłać tę paczkę do Polski. Ile to kosztuje?","exEn":"I'd like to send this parcel to Poland. How much is it?","category":"Na poczcie i w kurierze","source":"hooljon","note":"소포 = paczka pocztowa"},
   {"ko":"폴란드까지 얼마나 걸려요?","pl":"ile potrwa (przesyłka) do Polski?","en":"how long does it take to Poland?","level":1,"ex":"폴란드까지 얼마나 걸려요? — 일주일 걸려요.","exPl":"Ile idzie przesyłka do Polski? — Tydzień.","exEn":"How long does it take to Poland? — A week.","category":"Na poczcie i w kurierze","source":"hooljon"},
-  {"ko":"배로 보내 주세요.","pl":"proszę wysłać drogą morską (배 = statek; wolniej, ale dużo taniej)","en":"please send it by sea (배 = ship; slower but much cheaper)","level":1,"ex":"비행기는 비싸요. 배로 보내 주세요.","exPl":"Lotnicza jest droga. Proszę wysłać drogą morską.","exEn":"Air mail is expensive. Please send it by sea.","category":"Na poczcie i w kurierze","source":"hooljon"},
+  {"ko":"배로 보내 주세요.","pl":"proszę wysłać drogą morską","en":"please send it by sea (배 = ship; slower but much cheaper)","level":1,"ex":"비행기는 비싸요. 배로 보내 주세요.","exPl":"Lotnicza jest droga. Proszę wysłać drogą morską.","exEn":"Air mail is expensive. Please send it by sea.","category":"Na poczcie i w kurierze","source":"hooljon","note":"배 = statek; wolniej, ale dużo taniej"},
   {"ko":"EMS로 보내 주세요.","pl":"proszę wysłać EMS-em (EMS = międzynarodowa przesyłka ekspresowa poczty)","en":"please send it by EMS (international express mail)","level":1,"ex":"빨리 필요해요. EMS로 보내 주세요.","exPl":"Potrzebne szybko. Proszę wysłać EMS-em.","exEn":"It's needed quickly. Please send it by EMS.","category":"Na poczcie i w kurierze","source":"hooljon"},
   {"ko":"안에 뭐가 들어 있어요?","pl":"co jest w środku? (standardowe pytanie urzędnika przy nadaniu)","en":"what's inside? (standard clerk question)","level":1,"ex":"안에 뭐가 들어 있어요? — 책하고 옷이에요.","exPl":"Co jest w środku? — Książki i ubrania.","exEn":"What's inside? — Books and clothes.","category":"Na poczcie i w kurierze","source":"hooljon"},
   {"ko":"이거 유리예요. 조심해 주세요.","pl":"to szkło, proszę ostrożnie","en":"this is glass, please be careful","level":1,"ex":"이거 유리예요. 조심해 주세요. — 네, 알겠습니다.","exPl":"To szkło, proszę ostrożnie. — Dobrze, rozumiem.","exEn":"This is glass, please be careful. — Understood.","category":"Na poczcie i w kurierze","source":"hooljon"},
-  {"ko":"우표 주세요.","pl":"poproszę znaczek (우표)","en":"a stamp, please (우표)","level":1,"ex":"폴란드까지 엽서를 보내요. 우표 주세요.","exPl":"Wysyłam pocztówkę do Polski. Poproszę znaczek.","exEn":"I'm sending a postcard to Poland. A stamp, please.","category":"Na poczcie i w kurierze","source":"hooljon"},
-  {"ko":"등기로 보내 주세요.","pl":"proszę wysłać poleconym (등기 = przesyłka rejestrowana)","en":"please send it by registered mail (등기)","level":1,"ex":"이거 등기로 보내 주세요. 얼마예요?","exPl":"Proszę wysłać to poleconym. Ile płacę?","exEn":"Please send this by registered mail. How much?","category":"Na poczcie i w kurierze","source":"hooljon"},
-  {"ko":"택배를 보내고 싶어요.","pl":"chcę nadać przesyłkę kurierską (택배 — w Korei nada się ją nawet w sklepie convenience)","en":"I'd like to send a package by courier (택배 — you can even send it from a convenience store)","level":1,"ex":"편의점에서 택배를 보내고 싶어요.","exPl":"Chcę nadać paczkę kurierską w sklepie convenience.","exEn":"I'd like to send a courier package from the convenience store.","category":"Na poczcie i w kurierze","source":"hooljon"},
+  {"ko":"우표 주세요.","pl":"poproszę znaczek","en":"a stamp, please (우표)","level":1,"ex":"폴란드까지 엽서를 보내요. 우표 주세요.","exPl":"Wysyłam pocztówkę do Polski. Poproszę znaczek.","exEn":"I'm sending a postcard to Poland. A stamp, please.","category":"Na poczcie i w kurierze","source":"hooljon","note":"우표"},
+  {"ko":"등기로 보내 주세요.","pl":"proszę wysłać poleconym","en":"please send it by registered mail (등기)","level":1,"ex":"이거 등기로 보내 주세요. 얼마예요?","exPl":"Proszę wysłać to poleconym. Ile płacę?","exEn":"Please send this by registered mail. How much?","category":"Na poczcie i w kurierze","source":"hooljon","note":"등기 = przesyłka rejestrowana"},
+  {"ko":"택배를 보내고 싶어요.","pl":"chcę nadać przesyłkę kurierską","en":"I'd like to send a package by courier (택배 — you can even send it from a convenience store)","level":1,"ex":"편의점에서 택배를 보내고 싶어요.","exPl":"Chcę nadać paczkę kurierską w sklepie convenience.","exEn":"I'd like to send a courier package from the convenience store.","category":"Na poczcie i w kurierze","source":"hooljon","note":"택배 — w Korei nada się ją nawet w sklepie convenience"},
   {"ko":"택배가 언제 와요?","pl":"kiedy przyjdzie przesyłka?","en":"when will the package arrive?","level":1,"ex":"제 택배가 언제 와요? — 내일 도착해요.","exPl":"Kiedy przyjdzie moja przesyłka? — Jutro.","exEn":"When will my package arrive? — Tomorrow.","category":"Na poczcie i w kurierze","source":"hooljon"},
-  {"ko":"소포를 찾으러 왔어요.","pl":"przyszedłem/przyszłam odebrać paczkę (찾다 = tu: odbierać)","en":"I came to pick up a parcel","level":1,"ex":"안녕하세요. 소포를 찾으러 왔어요.","exPl":"Dzień dobry. Przyszedłem odebrać paczkę.","exEn":"Hello. I came to pick up a parcel.","category":"Na poczcie i w kurierze","source":"hooljon"},
-  {"ko":"여기에 사인해 주세요.","pl":"proszę tu podpisać (사인 = podpis, z ang. sign)","en":"please sign here (사인 = signature)","level":1,"ex":"택배 왔습니다. 여기에 사인해 주세요.","exPl":"Przesyłka! Proszę tu podpisać.","exEn":"Delivery! Please sign here.","category":"Na poczcie i w kurierze","source":"hooljon"},
+  {"ko":"소포를 찾으러 왔어요.","pl":"przyszedłem/przyszłam odebrać paczkę","en":"I came to pick up a parcel","level":1,"ex":"안녕하세요. 소포를 찾으러 왔어요.","exPl":"Dzień dobry. Przyszedłem odebrać paczkę.","exEn":"Hello. I came to pick up a parcel.","category":"Na poczcie i w kurierze","source":"hooljon","note":"찾다 = tu: odbierać"},
+  {"ko":"여기에 사인해 주세요.","pl":"proszę tu podpisać","en":"please sign here (사인 = signature)","level":1,"ex":"택배 왔습니다. 여기에 사인해 주세요.","exPl":"Przesyłka! Proszę tu podpisać.","exEn":"Delivery! Please sign here.","category":"Na poczcie i w kurierze","source":"hooljon","note":"사인 = podpis, z ang. sign"},
   {"ko":"주소를 여기에 쓰세요.","pl":"adres proszę wpisać tutaj","en":"write the address here","level":1,"ex":"주소를 여기에 쓰세요. 그리고 이름도 쓰세요.","exPl":"Adres proszę wpisać tutaj. I imię też.","exEn":"Write the address here. And your name too.","category":"Na poczcie i w kurierze","source":"hooljon"},
-  {"ko":"서울행 표 한 장 주세요.","pl":"poproszę jeden bilet do Seulu (X행 = w kierunku X; 장 = liczebnik na bilety)","en":"one ticket to Seoul, please (X행 = bound for X; 장 = counter for tickets)","level":1,"ex":"서울행 표 한 장 주세요. 얼마예요?","exPl":"Poproszę jeden bilet do Seulu. Ile kosztuje?","exEn":"One ticket to Seoul, please. How much is it?","category":"Bilety i podróż","source":"hooljon"},
-  {"ko":"편도로 주세요.","pl":"w jedną stronę proszę (편도 = bilet w jedną stronę)","en":"one-way, please (편도 = one-way)","level":1,"ex":"왕복이에요? — 아니요, 편도로 주세요.","exPl":"Powrotny? — Nie, w jedną stronę.","exEn":"Round trip? — No, one-way, please.","category":"Bilety i podróż","source":"hooljon"},
-  {"ko":"왕복으로 주세요.","pl":"powrotny proszę (왕복 = tam i z powrotem)","en":"round trip, please (왕복 = round trip)","level":1,"ex":"왕복으로 주세요. 토요일에 돌아와요.","exPl":"Poproszę powrotny. Wracam w sobotę.","exEn":"Round trip, please. I'm coming back on Saturday.","category":"Bilety i podróż","source":"hooljon"},
+  {"ko":"서울행 표 한 장 주세요.","pl":"poproszę jeden bilet do Seulu","en":"one ticket to Seoul, please (X행 = bound for X; 장 = counter for tickets)","level":1,"ex":"서울행 표 한 장 주세요. 얼마예요?","exPl":"Poproszę jeden bilet do Seulu. Ile kosztuje?","exEn":"One ticket to Seoul, please. How much is it?","category":"Bilety i podróż","source":"hooljon","note":"X행 = w kierunku X; 장 = liczebnik na bilety"},
+  {"ko":"편도로 주세요.","pl":"w jedną stronę proszę","en":"one-way, please (편도 = one-way)","level":1,"ex":"왕복이에요? — 아니요, 편도로 주세요.","exPl":"Powrotny? — Nie, w jedną stronę.","exEn":"Round trip? — No, one-way, please.","category":"Bilety i podróż","source":"hooljon","note":"편도 = bilet w jedną stronę"},
+  {"ko":"왕복으로 주세요.","pl":"powrotny proszę","en":"round trip, please (왕복 = round trip)","level":1,"ex":"왕복으로 주세요. 토요일에 돌아와요.","exPl":"Poproszę powrotny. Wracam w sobotę.","exEn":"Round trip, please. I'm coming back on Saturday.","category":"Bilety i podróż","source":"hooljon","note":"왕복 = tam i z powrotem"},
   {"ko":"다음 기차는 몇 시에 있어요?","pl":"o której jest następny pociąg?","en":"what time is the next train?","level":1,"ex":"부산에 가요. 다음 기차는 몇 시에 있어요?","exPl":"Jadę do Busanu. O której jest następny pociąg?","exEn":"I'm going to Busan. What time is the next train?","category":"Bilety i podróż","source":"hooljon"},
-  {"ko":"몇 번 승강장이에요?","pl":"który to peron? (승강장 albo 타는 곳 = peron)","en":"which platform is it? (승강장 = platform)","level":1,"ex":"이 기차는 몇 번 승강장이에요? — 삼 번이에요.","exPl":"Z którego peronu ten pociąg? — Z trzeciego.","exEn":"Which platform is this train? — Platform three.","category":"Bilety i podróż","source":"hooljon"},
+  {"ko":"몇 번 승강장이에요?","pl":"który to peron?","en":"which platform is it? (승강장 = platform)","level":1,"ex":"이 기차는 몇 번 승강장이에요? — 삼 번이에요.","exPl":"Z którego peronu ten pociąg? — Z trzeciego.","exEn":"Which platform is this train? — Platform three.","category":"Bilety i podróż","source":"hooljon","note":"승강장 albo 타는 곳 = peron"},
   {"ko":"이 기차 부산에 가요?","pl":"czy ten pociąg jedzie do Busanu?","en":"does this train go to Busan?","level":1,"ex":"실례합니다. 이 기차 부산에 가요?","exPl":"Przepraszam. Czy ten pociąg jedzie do Busanu?","exEn":"Excuse me. Does this train go to Busan?","category":"Bilety i podróż","source":"hooljon"},
-  {"ko":"어디에서 갈아타요?","pl":"gdzie się przesiadam? (갈아타다 = przesiadać się)","en":"where do I transfer? (갈아타다 = to transfer)","level":1,"ex":"서울역에 가요. 어디에서 갈아타요?","exPl":"Jadę na Dworzec Seulski. Gdzie się przesiadam?","exEn":"I'm going to Seoul Station. Where do I transfer?","category":"Bilety i podróż","source":"hooljon"},
-  {"ko":"이번 역은 서울역입니다.","pl":"stacja: Dworzec Seulski (komunikat w metrze — styl formalny 합니다체)","en":"this stop is Seoul Station (subway announcement — formal style)","level":1,"ex":"이번 역은 서울역입니다. — 아, 여기서 내려요!","exPl":"Stacja: Dworzec Seulski. — O, tu wysiadamy!","exEn":"This stop is Seoul Station. — Oh, we get off here!","category":"Bilety i podróż","source":"hooljon"},
-  {"ko":"여기서 내려요.","pl":"wysiadam tutaj (내리다 = wysiadać)","en":"I get off here (내리다 = to get off)","level":1,"ex":"명동에 가요? 그럼 여기서 내려요.","exPl":"Jedziesz do Myeongdongu? To wysiadasz tutaj.","exEn":"Going to Myeongdong? Then you get off here.","category":"Bilety i podróż","source":"hooljon"},
+  {"ko":"어디에서 갈아타요?","pl":"gdzie się przesiadam?","en":"where do I transfer? (갈아타다 = to transfer)","level":1,"ex":"서울역에 가요. 어디에서 갈아타요?","exPl":"Jadę na Dworzec Seulski. Gdzie się przesiadam?","exEn":"I'm going to Seoul Station. Where do I transfer?","category":"Bilety i podróż","source":"hooljon","note":"갈아타다 = przesiadać się"},
+  {"ko":"이번 역은 서울역입니다.","pl":"stacja: Dworzec Seulski","en":"this stop is Seoul Station (subway announcement — formal style)","level":1,"ex":"이번 역은 서울역입니다. — 아, 여기서 내려요!","exPl":"Stacja: Dworzec Seulski. — O, tu wysiadamy!","exEn":"This stop is Seoul Station. — Oh, we get off here!","category":"Bilety i podróż","source":"hooljon","note":"komunikat w metrze — styl formalny 합니다체"},
+  {"ko":"여기서 내려요.","pl":"wysiadam tutaj","en":"I get off here (내리다 = to get off)","level":1,"ex":"명동에 가요? 그럼 여기서 내려요.","exPl":"Jedziesz do Myeongdongu? To wysiadasz tutaj.","exEn":"Going to Myeongdong? Then you get off here.","category":"Bilety i podróż","source":"hooljon","note":"내리다 = wysiadać"},
   {"ko":"교통카드 주세요.","pl":"poproszę kartę transportową (T-money — do metra i autobusów, kupisz w każdym sklepie convenience)","en":"a transit card, please (T-money — for subway and buses, sold at any convenience store)","level":1,"ex":"교통카드 주세요. 얼마예요?","exPl":"Poproszę kartę transportową. Ile kosztuje?","exEn":"A transit card, please. How much is it?","category":"Bilety i podróż","source":"hooljon"},
-  {"ko":"충전해 주세요.","pl":"proszę doładować (kartę; 충전 = doładowanie)","en":"please top it up (충전 = top-up/recharge)","level":1,"ex":"이 카드에 만 원 충전해 주세요.","exPl":"Proszę doładować tę kartę na dziesięć tysięcy wonów.","exEn":"Please top up this card with ten thousand won.","category":"Bilety i podróż","source":"hooljon"},
-  {"ko":"막차가 몇 시예요?","pl":"o której jest ostatni kurs? (막차 = ostatni autobus/metro; 첫차 = pierwszy)","en":"what time is the last one? (막차 = last bus/train; 첫차 = first)","level":1,"ex":"지하철 막차가 몇 시예요? — 열두 시예요.","exPl":"O której jest ostatnie metro? — O dwunastej.","exEn":"What time is the last subway? — At twelve.","category":"Bilety i podróż","source":"hooljon"},
-  {"ko":"몇 호선이에요?","pl":"która to linia metra? (호선 = linia; linie czyta się sinokoreańsko: 이 호선)","en":"which subway line is it? (호선 = line)","level":1,"ex":"강남역은 몇 호선이에요? — 이 호선이에요.","exPl":"Która linia jedzie do Gangnam? — Druga.","exEn":"Which line is Gangnam Station on? — Line two.","category":"Bilety i podróż","source":"hooljon"},
+  {"ko":"충전해 주세요.","pl":"proszę doładować","en":"please top it up (충전 = top-up/recharge)","level":1,"ex":"이 카드에 만 원 충전해 주세요.","exPl":"Proszę doładować tę kartę na dziesięć tysięcy wonów.","exEn":"Please top up this card with ten thousand won.","category":"Bilety i podróż","source":"hooljon","note":"kartę; 충전 = doładowanie"},
+  {"ko":"막차가 몇 시예요?","pl":"o której jest ostatni kurs?","en":"what time is the last one? (막차 = last bus/train; 첫차 = first)","level":1,"ex":"지하철 막차가 몇 시예요? — 열두 시예요.","exPl":"O której jest ostatnie metro? — O dwunastej.","exEn":"What time is the last subway? — At twelve.","category":"Bilety i podróż","source":"hooljon","note":"막차 = ostatni autobus/metro; 첫차 = pierwszy"},
+  {"ko":"몇 호선이에요?","pl":"która to linia metra?","en":"which subway line is it? (호선 = line)","level":1,"ex":"강남역은 몇 호선이에요? — 이 호선이에요.","exPl":"Która linia jedzie do Gangnam? — Druga.","exEn":"Which line is Gangnam Station on? — Line two.","category":"Bilety i podróż","source":"hooljon","note":"호선 = linia; linie czyta się sinokoreańsko: 이 호선"},
   {"ko":"공항까지 얼마나 걸려요?","pl":"ile trwa dojazd na lotnisko?","en":"how long does it take to the airport?","level":1,"ex":"공항까지 얼마나 걸려요? — 한 시간 걸려요.","exPl":"Ile jedzie się na lotnisko? — Godzinę.","exEn":"How long to the airport? — An hour.","category":"Bilety i podróż","source":"hooljon"},
   {"ko":"이거 얼마예요?","pl":"ile to kosztuje?","en":"how much is this?","level":1,"ex":"저기요, 이거 얼마예요? — 만 원이에요.","exPl":"Przepraszam, ile to kosztuje? — Dziesięć tysięcy wonów.","exEn":"Excuse me, how much is this? — Ten thousand won.","category":"Zakupy i usługi","source":"hooljon"},
   {"ko":"너무 비싸요. 깎아 주세요.","pl":"za drogo, proszę opuścić (targowanie jest OK na targu, nie w sklepie sieciowym)","en":"too expensive, please give me a discount (haggling is fine at markets, not chain stores)","level":1,"ex":"너무 비싸요. 조금만 깎아 주세요.","exPl":"Za drogo. Proszę choć trochę opuścić.","exEn":"Too expensive. Please knock a little off.","category":"Zakupy i usługi","source":"hooljon"},
   {"ko":"이거 좀 보여 주세요.","pl":"proszę mi to pokazać","en":"please show me this one","level":1,"ex":"저기요, 이거 좀 보여 주세요.","exPl":"Przepraszam, proszę mi to pokazać.","exEn":"Excuse me, please show me this one.","category":"Zakupy i usługi","source":"hooljon"},
   {"ko":"입어 봐도 돼요?","pl":"czy mogę przymierzyć?","en":"may I try it on?","level":1,"ex":"이 티셔츠 입어 봐도 돼요? — 네, 저기에서 입어 보세요.","exPl":"Mogę przymierzyć ten T-shirt? — Tak, tam proszę.","exEn":"May I try this T-shirt on? — Yes, over there.","category":"Zakupy i usługi","source":"hooljon"},
   {"ko":"다른 사이즈 있어요?","pl":"czy jest inny rozmiar?","en":"do you have another size?","level":1,"ex":"이거 너무 작아요. 다른 사이즈 있어요?","exPl":"To jest za małe. Czy jest inny rozmiar?","exEn":"This is too small. Do you have another size?","category":"Zakupy i usługi","source":"hooljon"},
-  {"ko":"이거 세일해요?","pl":"czy to jest w promocji? (세일 = wyprzedaż; procenty czyta się 프로: 30프로)","en":"is this on sale? (세일 = sale; percent is read 프로)","level":1,"ex":"이 신발 세일해요? — 네, 삼십 프로 세일이에요.","exPl":"Czy te buty są przecenione? — Tak, o trzydzieści procent.","exEn":"Are these shoes on sale? — Yes, thirty percent off.","category":"Zakupy i usługi","source":"hooljon"},
+  {"ko":"이거 세일해요?","pl":"czy to jest w promocji?","en":"is this on sale? (세일 = sale; percent is read 프로)","level":1,"ex":"이 신발 세일해요? — 네, 삼십 프로 세일이에요.","exPl":"Czy te buty są przecenione? — Tak, o trzydzieści procent.","exEn":"Are these shoes on sale? — Yes, thirty percent off.","category":"Zakupy i usługi","source":"hooljon","note":"세일 = wyprzedaż; procenty czyta się 프로: 30프로"},
   {"ko":"카드로 계산할게요.","pl":"zapłacę kartą (w Korei kartą zapłacisz prawie wszędzie)","en":"I'll pay by card (cards work almost everywhere in Korea)","level":1,"ex":"카드로 계산할게요. — 네, 카드 주세요.","exPl":"Zapłacę kartą. — Dobrze, poproszę kartę.","exEn":"I'll pay by card. — Sure, your card, please.","category":"Zakupy i usługi","source":"hooljon"},
-  {"ko":"현금으로 낼게요.","pl":"zapłacę gotówką (내다 = płacić)","en":"I'll pay in cash (내다 = to pay)","level":1,"ex":"카드가 없어요. 현금으로 낼게요.","exPl":"Nie mam karty. Zapłacę gotówką.","exEn":"I don't have a card. I'll pay in cash.","category":"Zakupy i usługi","source":"hooljon"},
-  {"ko":"영수증 필요 없어요.","pl":"paragon niepotrzebny (kasjer zawsze zapyta: 영수증 드릴까요?)","en":"no receipt needed (the cashier will always ask: 영수증 드릴까요?)","level":1,"ex":"영수증 드릴까요? — 아니요, 필요 없어요.","exPl":"Wydrukować paragon? — Nie, dziękuję.","exEn":"Would you like a receipt? — No, thank you.","category":"Zakupy i usługi","source":"hooljon"},
-  {"ko":"봉투 하나 주세요.","pl":"poproszę reklamówkę (봉투 — w Korei płatna, zwykle 50–100 wonów)","en":"one bag, please (봉투 — costs extra in Korea)","level":1,"ex":"봉투 하나 주세요. — 오십 원이에요.","exPl":"Poproszę reklamówkę. — Pięćdziesiąt wonów.","exEn":"One bag, please. — Fifty won.","category":"Zakupy i usługi","source":"hooljon"},
-  {"ko":"이거 교환할 수 있어요?","pl":"czy mogę to wymienić? (교환 = wymiana towaru)","en":"can I exchange this? (교환 = exchange)","level":1,"ex":"사이즈가 안 맞아요. 이거 교환할 수 있어요?","exPl":"Rozmiar nie pasuje. Mogę to wymienić?","exEn":"The size doesn't fit. Can I exchange this?","category":"Zakupy i usługi","source":"hooljon"},
-  {"ko":"환불해 주세요.","pl":"proszę o zwrot pieniędzy (환불 = zwrot; przygotuj paragon — 영수증)","en":"I'd like a refund (환불 = refund; have your receipt ready)","level":1,"ex":"이거 환불해 주세요. 영수증 여기 있어요.","exPl":"Proszę o zwrot za to. Tu jest paragon.","exEn":"I'd like a refund for this. Here's the receipt.","category":"Zakupy i usługi","source":"hooljon"},
-  {"ko":"그냥 좀 볼게요.","pl":"tylko się rozglądam (standardowa odpowiedź na pytanie sprzedawcy 뭐 찾으세요? — czego pan/pani szuka?)","en":"I'm just looking (the standard reply to a clerk's 뭐 찾으세요?)","level":1,"ex":"뭐 찾으세요? — 아니요, 그냥 좀 볼게요.","exPl":"Czego pan szuka? — Nic, tylko się rozglądam.","exEn":"What are you looking for? — Nothing, just looking.","category":"Zakupy i usługi","source":"hooljon"},
+  {"ko":"현금으로 낼게요.","pl":"zapłacę gotówką","en":"I'll pay in cash (내다 = to pay)","level":1,"ex":"카드가 없어요. 현금으로 낼게요.","exPl":"Nie mam karty. Zapłacę gotówką.","exEn":"I don't have a card. I'll pay in cash.","category":"Zakupy i usługi","source":"hooljon","note":"내다 = płacić"},
+  {"ko":"영수증 필요 없어요.","pl":"paragon niepotrzebny","en":"no receipt needed (the cashier will always ask: 영수증 드릴까요?)","level":1,"ex":"영수증 드릴까요? — 아니요, 필요 없어요.","exPl":"Wydrukować paragon? — Nie, dziękuję.","exEn":"Would you like a receipt? — No, thank you.","category":"Zakupy i usługi","source":"hooljon","note":"kasjer zawsze zapyta: 영수증 드릴까요?"},
+  {"ko":"봉투 하나 주세요.","pl":"poproszę reklamówkę","en":"one bag, please (봉투 — costs extra in Korea)","level":1,"ex":"봉투 하나 주세요. — 오십 원이에요.","exPl":"Poproszę reklamówkę. — Pięćdziesiąt wonów.","exEn":"One bag, please. — Fifty won.","category":"Zakupy i usługi","source":"hooljon","note":"봉투 — w Korei płatna, zwykle 50–100 wonów"},
+  {"ko":"이거 교환할 수 있어요?","pl":"czy mogę to wymienić?","en":"can I exchange this? (교환 = exchange)","level":1,"ex":"사이즈가 안 맞아요. 이거 교환할 수 있어요?","exPl":"Rozmiar nie pasuje. Mogę to wymienić?","exEn":"The size doesn't fit. Can I exchange this?","category":"Zakupy i usługi","source":"hooljon","note":"교환 = wymiana towaru"},
+  {"ko":"환불해 주세요.","pl":"proszę o zwrot pieniędzy","en":"I'd like a refund (환불 = refund; have your receipt ready)","level":1,"ex":"이거 환불해 주세요. 영수증 여기 있어요.","exPl":"Proszę o zwrot za to. Tu jest paragon.","exEn":"I'd like a refund for this. Here's the receipt.","category":"Zakupy i usługi","source":"hooljon","note":"환불 = zwrot; przygotuj paragon — 영수증"},
+  {"ko":"그냥 좀 볼게요.","pl":"tylko się rozglądam","en":"I'm just looking (the standard reply to a clerk's 뭐 찾으세요?)","level":1,"ex":"뭐 찾으세요? — 아니요, 그냥 좀 볼게요.","exPl":"Czego pan szuka? — Nic, tylko się rozglądam.","exEn":"What are you looking for? — Nothing, just looking.","category":"Zakupy i usługi","source":"hooljon","note":"standardowa odpowiedź na pytanie sprzedawcy 뭐 찾으세요? — czego pan/pani szuka?"},
   {"ko":"포인트 카드 있으세요?","pl":"czy ma pan/pani kartę lojalnościową? (standardowe pytanie kasjera przy każdych zakupach)","en":"do you have a points card? (a standard cashier question)","level":1,"ex":"포인트 카드 있으세요? — 아니요, 없어요.","exPl":"Ma pan kartę lojalnościową? — Nie, nie mam.","exEn":"Do you have a points card? — No, I don't.","category":"Zakupy i usługi","source":"hooljon"}
 ];
 
@@ -15277,7 +15300,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.120';
+const APP_VERSION = '2026-09-04.122';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -23045,6 +23068,7 @@ async function openWordSheet(rawWord, el){
   sheet.innerHTML = `
     <div class="ws-top"><span class="word-ko">${escapeHtml(shown)}</span><span class="word-meta">${escapeHtml(meta)}</span></div>
     ${def ? `<div class="word-def">${escapeHtml(def)}</div>` : ''}
+    ${(hit && hit.note) ? `<div class="word-note">${escapeHtml(hit.note)}</div>` : ''}
     ${hanjaBlock}
     ${exBlock}
     <div class="word-actions">
