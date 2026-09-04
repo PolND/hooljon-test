@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.109
-  Zbudowane na: 3ebe72b339cdf48ea743a7f0634c3a37 (.104 od Design) + 07df37e37663026b638282b6701a2df0 (.104 moja)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.111
+  Zbudowane na: 6b52a60a39174be2a1e4370a89c8a535 (.105 Design) + baa154ba3ba4950c532d405b8158e03b (.109 moja)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
   pliki z tym samym .NN są różne. Przy każdym buildzie wpisz sumę pliku wejściowego.
@@ -774,24 +774,18 @@
       color:var(--hwang);
       opacity:0.03;
     }
-    /* Wewnątrz ramy wysokość liczy się od NIEJ, nie od okna. Bez tego ekran
-       quizu żądałby 100dvh i rozpychał ramę mimo ograniczenia. */
-    .wrap .quiz-vertical{ min-height:auto; }
-    .wrap .login-screen, .wrap .loading-screen{ min-height:auto; }
-
     .wrap{
       max-width:640px;
       /* RAMA TELEFONU na szerokim ekranie. Bez ograniczenia wysokości apka
          rozciągała się w dół przy pomniejszeniu widoku - 100dvh daje wtedy
-         bardzo dużo pikseli CSS, więc ekrany rosły w nieskończoność.
-         Wysokość dobrana proporcjonalnie do telefonu (640 x ~19.5:9),
-         z górnym ograniczeniem, żeby na monitorze 4K nie zajmowała całości.
-         Zgłoszone przez testera 2026-09-04. */
+         bardzo dużo pikseli CSS. Treść przewija się WEWNĄTRZ ramy, tak jak
+         na telefonie. Zgłoszone przez testera 2026-09-04.
+
+         Świadomie NIE nadpisujemy wysokości quizu: syncCompassMetrics liczy ją
+         z faktycznej pozycji elementu, więc wewnątrz ramy zmierzy ramę i sam
+         się dostosuje. Nadpisanie na sztywno zepsułoby ten pomiar. */
       height:min(calc(100dvh - 96px), 900px);
       max-height:900px;
-      /* Treść przewija się WEWNĄTRZ ramy, tak jak na telefonie - nie rozpycha
-         jej w dół. overflow-y na kontenerze, nie hidden, żeby dłuższe ekrany
-         (słownik, mapa lekcji) pozostały dostępne. */
       overflow-y:auto;
       overflow-x:hidden;
       overscroll-behavior:contain;
@@ -3890,6 +3884,10 @@
     color:var(--ink-dim); text-align:center; font-family:var(--font-ui);
   }
   .qv-emoji{ font-size:40px; text-align:center; margin-top:10px; line-height:1; }
+  /* .quiz-vertical to kolumna flex bez align-items, więc dziecko o stałej
+     szerokości (34px) rozciąga się do lewej krawędzi zamiast siedzieć pod
+     słowem. Blokom tekstowym stretch nie przeszkadza, temu owszem. */
+  .quiz-vertical > .center-speak-btn{ align-self:center; }
   .qv-emoji:empty{ display:none; }
   .qv-word{
     font-family:var(--font-ko); font-size:44px; font-weight:600;
@@ -3902,27 +3900,43 @@
     flex:1; display:flex; flex-direction:column; justify-content:flex-end;
     gap:12px; padding-bottom:6px; margin-top:20px;
   }
-  .qv-btn{
+  .qv-choices .ans-btn, .qv-btn{
     width:100%; padding:19px 20px; border-radius:var(--radius-lg);
     background:var(--card); border:1px solid var(--border);
     font-size:16px; font-weight:600; font-family:var(--font-ui);
     color:var(--ink); text-align:center; cursor:pointer;
     box-shadow:var(--shadow-card);
   }
-  .qv-btn:hover, .qv-btn:active{ background:var(--card-hi); }
+  /* Niskie ekrany: cztery pełnowymiarowe wiersze plus słowo nie mieszczą się
+     nad nawigacją. Zamiast pozwolić im wypaść pod pasek, ściskamy je - układ
+     zostaje ten sam, zmienia się tylko gęstość. Progi wyznaczone pomiarem:
+     przy 740px brakowało 8px, przy 640px 86px. */
+  @media (max-height:780px){
+    .qv-word{ font-size:36px; margin-top:10px; }
+    .qv-choices{ gap:9px; margin-top:12px; }
+    .qv-choices .ans-btn{ padding:14px 18px; font-size:15px; }
+  }
+  @media (max-height:680px){
+    .qv-word{ font-size:30px; margin-top:6px; }
+    .qv-emoji{ font-size:28px; margin-top:6px; }
+    .qv-progress{ margin-bottom:8px; }
+    .qv-choices{ gap:7px; margin-top:8px; }
+    .qv-choices .ans-btn{ padding:11px 16px; font-size:14.5px; }
+  }
+  .qv-choices .ans-btn:hover, .qv-btn:hover, .qv-btn:active{ background:var(--card-hi); }
   /* Stan poprawny/błędny - obramowanie zamiast pełnego wypełnienia, zgodnie
      z decyzją z kroku 6 redesignu (pełne tło skakało w układzie). */
-  .qv-btn.correct{
+  .qv-choices .ans-btn.correct, .qv-btn.correct{
     background:color-mix(in srgb, var(--good) 10%, var(--card));
     border:1.5px solid var(--good); font-weight:700;
   }
-  .qv-btn.wrong{
+  .qv-choices .ans-btn.wrong, .qv-btn.wrong{
     background:color-mix(in srgb, var(--bad) 10%, var(--card));
     border:1.5px solid var(--bad);
   }
   @supports not (background: color-mix(in srgb, red 10%, blue)){
-    .qv-btn.correct{ background:var(--card-hi); }
-    .qv-btn.wrong{ background:var(--card-hi); }
+    .qv-choices .ans-btn.correct, .qv-btn.correct{ background:var(--card-hi); }
+    .qv-choices .ans-btn.wrong, .qv-btn.wrong{ background:var(--card-hi); }
   }
   [data-theme="kobalt"] .qv-btn{ border-radius:var(--radius); font-weight:700; }
   [data-theme="jade"] .qv-btn{ border-radius:26px; }
@@ -5169,16 +5183,6 @@
       <button class="mode-btn" data-mode="pl-ko" id="modeBtnPlKo">PL → KO</button>
       <button class="mode-btn" data-mode="mixed" data-i18n="modeMixed">Mieszane</button>
       <button class="mode-btn" data-mode="review" data-i18n="modeReview">Powtórka błędów</button>
-    </div>
-
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;">
-      <label class="imgtoggle" style="margin-bottom:0;">
-        <span class="switch">
-          <input type="checkbox" id="imgToggle" checked>
-          <span class="track"><span class="knob"></span></span>
-        </span>
-        <span data-i18n="showImageLabel">Pokazuj obrazek przy słowie</span>
-      </label>
     </div>
 
     <div class="input-mode-row">
@@ -14917,7 +14921,12 @@ let customWords = [];
 let missedWords = {}; // { ko: {ko,pl,emoji,category,count} }
 let allWords = [...DEFAULT_WORDS];
 let selectedCategories = null; // null = jeszcze nie wczytano; potem tablica nazw działów
-let showImage = true;
+/* Przełącznik "Pokazuj obrazek" usunięty 2026-09-04 (decyzja Damiana): zajmował
+   cały wiersz nad quizem, przez co na niskich ekranach odpowiedzi wypadały pod
+   nawigację. Emoji ZOSTAJE widoczne - to nie ono zabierało miejsce, tylko
+   przełącznik. Zmienna trzymana jako stała, żeby nie przepisywać sześciu miejsc,
+   które z niej korzystają. */
+const showImage = true;
 let isPremium = false;
 let isPremiumPro = false; // true tylko dla wyższego poziomu (Premium Pro) - bramkuje funkcje AI
 let premiumTier = 'free'; // 'free' | 'basic' | 'pro' - jedno źródło prawdy, isPremium/isPremiumPro są z niego derywowane
@@ -15000,7 +15009,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.109';
+const APP_VERSION = '2026-09-04.111';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15051,13 +15060,40 @@ function syncCompassMetrics(){
   // do drugiej linii rozjeżdża wysokość listy.
   const c = document.getElementById('vocabCompassWrap');
   if(!c) return;
+
+  // Wysokość kolumny liczona z FAKTYCZNEJ pozycji, nie z 100dvh. Reguła CSS nie
+  // wie, ile nad nią zajmują nagłówek, przełączniki trybu i pasek postępu, więc
+  // dół kolumny lądował poniżej okna - a że odpowiedzi są dosunięte do dołu
+  // (justify-content:flex-end), wypadały pod pasek nawigacji. Ten sam wzorzec
+  // co syncReaderHeight. Naprawione 2026-09-04.
+  const vis = el => {
+    if(!el || getComputedStyle(el).display === 'none') return 0;
+    const r = el.getBoundingClientRect();
+    return r.height ? Math.max(0, window.innerHeight - r.top) : 0;
+  };
+  const chrome = Math.max(vis(document.getElementById('bottomNav')),
+                          vis(document.getElementById('adSlot')));
+  const top = c.getBoundingClientRect().top;
+  c.style.minHeight = Math.max(320, window.innerHeight - top - chrome - 8) + 'px';
+  // Mierzymy szerokość SAMEGO TEKSTU (Range), nie bloku. Poprzednia wersja
+  // porównywała scrollWidth elementu pełnej szerokości z szerokością kontenera
+  // minus padding - a to jest prawdziwe praktycznie zawsze, więc pętla zbijała
+  // każdy napis do swojego minimum (przyciski do 12px, słowo do 20px)
+  // niezależnie od tego, czy cokolwiek wystawało. Naprawione 2026-09-04.
+  const textWidth = el => {
+    const r = document.createRange();
+    r.selectNodeContents(el);
+    return r.getBoundingClientRect().width;
+  };
   c.querySelectorAll('.ans-btn').forEach(btn => {
     btn.style.fontSize = '';
     if(!btn.textContent.trim()) return;
-    let size = parseFloat(getComputedStyle(btn).fontSize);
-    const room = btn.getBoundingClientRect().width - 40; // padding 20px z każdej strony
+    const cs = getComputedStyle(btn);
+    const room = btn.getBoundingClientRect().width
+               - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    let size = parseFloat(cs.fontSize);
     let guard = 10;
-    while(btn.scrollWidth > room && size > 12 && guard--){
+    while(textWidth(btn) > room && size > 12 && guard--){
       size -= 0.5; btn.style.fontSize = size + 'px';
     }
   });
@@ -15067,8 +15103,9 @@ function syncCompassMetrics(){
     word.style.fontSize = '';
     let size = parseFloat(getComputedStyle(word).fontSize);
     const room = c.getBoundingClientRect().width - 20;
+    const measure = () => textWidth(word);
     let guard = 14;
-    while(word.scrollWidth > room && size > 20 && guard--){
+    while(measure() > room && size > 20 && guard--){
       size -= 2; word.style.fontSize = size + 'px';
     }
   }
@@ -15928,7 +15965,6 @@ const I18N = {
   modePlKo: { pl: 'PL → KO', en: 'EN → KO' },
   modeMixed: { pl: 'Mieszane', en: 'Mixed' },
   modeReview: { pl: 'Powtórka błędów', en: 'Mistake review' },
-  showImageLabel: { pl: 'Pokazuj obrazek przy słowie', en: 'Show image with word' },
   answerModeLabel: { pl: 'Tryb odpowiedzi:', en: 'Answer mode:' },
   vocabTypedCheckBtn: { pl: 'Sprawdź', en: 'Check' },
   vkToggleLabelVocab: { pl: 'Klawiatura koreańska (myszką/dotykiem)', en: 'Korean keyboard (mouse/touch)' },
@@ -17320,11 +17356,6 @@ async function loadStorage(){
     const s = await window.storage.get(STORAGE_KEYS.stats);
     if(s && s.value){ const st = JSON.parse(s.value); score = st.score||0; streak = st.streak||0; }
   }catch(e){}
-  try{
-    const im = await window.storage.get(STORAGE_KEYS.showImg);
-    if(im && im.value !== undefined && im.value !== null){ showImage = JSON.parse(im.value); }
-  }catch(e){ showImage = true; }
-  document.getElementById('imgToggle').checked = showImage;
   try{
     const p = await window.storage.get(STORAGE_KEYS.premium);
     if(p && p.value !== undefined && p.value !== null){
@@ -24655,12 +24686,6 @@ document.querySelectorAll('.mode-btn').forEach(btn=>{
   });
 });
 
-document.getElementById('imgToggle').addEventListener('change', async (e)=>{
-  showImage = e.target.checked;
-  try{ await window.storage.set(STORAGE_KEYS.showImg, JSON.stringify(showImage)); }catch(err){}
-  els.centerEmoji.textContent = (showImage && current && current.emoji) ? current.emoji : '';
-  els.centerEmoji.style.display = (showImage && current && current.emoji) ? '' : 'none';
-});
 
 document.getElementById('grammarRefSearch').addEventListener('input', (e) => renderGrammarRef(e.target.value));
 
@@ -24729,7 +24754,6 @@ document.getElementById('wordPickerSaveBtn').addEventListener('click', async () 
 document.getElementById('myWordsAddBtn').addEventListener('click', () => {
   document.getElementById('addPanel').classList.add('open'); updateFolderSelect();
 });
-
 /* Dodawanie słów Z WNĘTRZA zestawu. Wcześniej ekran zestawu miał tylko zmianę
    nazwy i usunięcie - user, który chciał dopisać słowo do otwartego zestawu,
    musiał się cofnąć i wybrać go ponownie w rozwijanej liście.
@@ -24742,6 +24766,7 @@ document.getElementById('folderEditAddBtn').addEventListener('click', () => {
   const sel = document.getElementById('folderSelect');
   if(sel && folderEditName) sel.value = folderEditName;
 });
+
 document.getElementById('myWordsNewFolderBtn').addEventListener('click', () => {
   const name = (prompt(uiLang === 'en' ? 'Name for the new set:' : 'Nazwa nowego zestawu:', '') || '').trim();
   if(!name || name === DEFAULT_FOLDER) return;
