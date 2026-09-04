@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-03.99
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.101
   Zbudowane na: b9af347d66bb7edec6d0d416602953c4 (.78)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -8615,7 +8615,7 @@ const GRAMMAR_LEVELS = {
         { pattern:'N에서 (miejsce dynamiczne — gdzie coś się dzieje)', sentence:'저는 학교___ 공부해요.', answer:'에서', choices:['에서','에','을','의'], full:'저는 학교에서 공부해요.', pl:'Uczę się w szkole.', en:'I study at school.', explain:'에서 oznacza miejsce, w którym coś się dzieje (czynność dynamiczna) — w odróżnieniu od 에, używanego przy miejscu statycznym lub kierunku ruchu.', explainEn:'에서 marks the place where an action happens (dynamic location) - unlike 에, used for static location or direction of movement.' , conjHtml:"<div class=\"conj-rule\">Czynność dzieje się w tym miejscu (dynamiczne) → 에서:</div><div class=\"conj-step\"><span class=\"conj-stem\">학교</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">학교에서 공부해요</span></div><div class=\"conj-rule\">Miejsce statyczne (jest/znajduje się), albo kierunek ruchu → 에:</div><div class=\"conj-step\"><span class=\"conj-stem\">학교</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">학교에 가요</span></div>", conjHtmlEn:"<div class=\"conj-rule\">The action happens at this place (dynamic) → 에서:</div><div class=\"conj-step\"><span class=\"conj-stem\">학교</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">학교에서 공부해요</span></div><div class=\"conj-rule\">A static location (is/exists), or direction of movement → 에:</div><div class=\"conj-step\"><span class=\"conj-stem\">학교</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">학교에 가요</span></div>", moreExamples:[{"sentence":"우리는 공원___ 운동해요.","answer":"에서","choices":["에서","에","로","까지"],"full":"우리는 공원에서 운동해요.","pl":"Ćwiczymy w parku.","en":"We exercise in the park."},{"sentence":"어제 시장___ 과일을 샀어요.","answer":"에서","choices":["에서","에","부터","의"],"full":"어제 시장에서 과일을 샀어요.","pl":"Wczoraj kupiłem/am owoce na targu.","en":"I bought fruit at the market yesterday."},{"sentence":"형은 부엌___ 요리해요.","answer":"에서","choices":["에서","에","를","과"],"full":"형은 부엌에서 요리해요.","pl":"Starszy brat gotuje w kuchni.","en":"My older brother is cooking in the kitchen."},{"sentence":"저는 매일 카페___ 숙제를 해요.","answer":"에서","choices":["에서","에","를","부터"],"full":"저는 매일 카페에서 숙제를 해요.","pl":"Codziennie odrabiam lekcje w kawiarni.","en":"I do my homework at a cafe every day."},{"sentence":"우리 가족은 주말에 강___ 낚시해요.","answer":"에서","choices":["에서","에","을","처럼"],"full":"우리 가족은 주말에 강에서 낚시해요.","pl":"W weekendy nasza rodzina łowi ryby nad rzeką.","en":"On weekends my family fishes at the river."},{"sentence":"동생은 방___ 춤 연습을 해요.","answer":"에서","choices":["에서","에","이","까지"],"full":"동생은 방에서 춤 연습을 해요.","pl":"Młodsza siostra ćwiczy taniec w pokoju.","en":"My younger sibling practices dancing in their room."}]},
         { pattern:'V-았/었- (czas przeszły)', sentence:'어제 저는 친구를 ___.', answer:'만났어요', choices:['만났어요','만나요','만날 거예요','만납니다'], full:'어제 저는 친구를 만났어요.', pl:'Wczoraj spotkałem/am przyjaciela.', en:'Yesterday I met a friend.', explain:'-았/었- to wskaźnik czasu przeszłego — wybór między 았 a 었 zależy od ostatniej samogłoski rdzenia czasownika.', explainEn:'-았/었- marks the past tense - the choice between 았 and 었 depends on the last vowel of the verb stem.' , conjHtml:"<div class=\"conj-rule\">Jeśli słowo po skreśleniu końcówki 다 kończy się na ㅏ lub ㅗ, dodajemy -았어요:</div><div class=\"conj-step\"><span>가<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">가</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">갔어요</span></div><div class=\"conj-note\">가 + 았어요 — te same samogłoski się nie powtarzają, więc zlewają się w jedną</div><div class=\"conj-rule\">Jeśli słowo po skreśleniu końcówki 다 kończy się na każdą inną samogłoskę, dodajemy -었어요:</div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹었어요</span></div><div class=\"conj-rule\">Czasowniki zakończone na -하다 zawsze przyjmują formę -했어요:</div><div class=\"conj-step\"><span>공부하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">공부하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">공부했어요</span></div>", conjHtmlEn:"<div class=\"conj-rule\">If the word, after removing the -다 ending, ends in ㅏ or ㅗ, we add -았어요:</div><div class=\"conj-step\"><span>가<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">가</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">갔어요</span></div><div class=\"conj-note\">가 + 았어요 — identical vowels do not repeat, they merge into one</div><div class=\"conj-rule\">If it ends in any other vowel, we add -었어요:</div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹었어요</span></div><div class=\"conj-rule\">Verbs ending in -하다 always take the form -했어요:</div><div class=\"conj-step\"><span>공부하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">공부하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">공부했어요</span></div>", moreExamples:[{"sentence":"지난주에 새 신발을 ___.","answer":"샀어요","choices":["샀어요","사요","살 거예요","삽니다"],"full":"지난주에 새 신발을 샀어요.","pl":"W zeszłym tygodniu kupiłem/am nowe buty.","en":"I bought new shoes last week."},{"sentence":"어젯밤에 일찍 ___.","answer":"잤어요","choices":["잤어요","자요","잘 거예요","잡니다"],"full":"어젯밤에 일찍 잤어요.","pl":"Wczoraj wieczorem wcześnie poszedłem/poszłam spać.","en":"I went to bed early last night."},{"sentence":"아까 문자를 ___.","answer":"보냈어요","choices":["보냈어요","보내요","보낼 거예요","보냅니다"],"full":"아까 문자를 보냈어요.","pl":"Przed chwilą wysłałem/am SMS-a.","en":"I sent a text message a moment ago."},{"sentence":"어제 도서관에서 책을 두 권 ___.","answer":"빌렸어요","choices":["빌렸어요","빌려요","빌리었어요","빌렸요"],"full":"어제 도서관에서 책을 두 권 빌렸어요.","pl":"Wczoraj wypożyczyłem/am z biblioteki dwie książki.","en":"Yesterday I borrowed two books from the library."},{"sentence":"아까 공원에서 사진을 많이 ___.","answer":"찍었어요","choices":["찍었어요","찍어요","찍았어요","찍겠어요"],"full":"아까 공원에서 사진을 많이 찍었어요.","pl":"Przed chwilą zrobiłem/am w parku dużo zdjęć.","en":"I took a lot of photos in the park a little while ago."},{"sentence":"지난달에 처음으로 김치를 ___.","answer":"만들었어요","choices":["만들었어요","만들어요","만들았어요","만드렀어요"],"full":"지난달에 처음으로 김치를 만들었어요.","pl":"W zeszłym miesiącu pierwszy raz zrobiłem/am kimchi.","en":"Last month I made kimchi for the first time."}]},
         { pattern:'V-(으)ㄹ 거예요 (czas przyszły, zamiar/plan)', sentence:'내일 저는 영화를 ___.', answer:'볼 거예요', choices:['볼 거예요','봐요','봤어요','봅니다'], full:'내일 저는 영화를 볼 거예요.', pl:'Jutro obejrzę film.', en:'Tomorrow I will watch a movie.', explain:'-(으)ㄹ 거예요 wyraża zamierzoną lub planowaną czynność w przyszłości.', explainEn:'-(으)ㄹ 거예요 expresses an intended or planned future action.' , conjHtml:"<div class=\"conj-rule\">Jeśli słowo po skreśleniu końcówki 다 kończy się na spółgłoskę, dodajemy -을 거예요:</div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹을 거예요</span></div><div class=\"conj-rule\">Jeśli kończy się na samogłoskę, dodajemy -ㄹ 거예요:</div><div class=\"conj-step\"><span>보<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">보</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">볼 거예요</span></div>", conjHtmlEn:"<div class=\"conj-rule\">If the word, after removing the -다 ending, ends in a consonant, we add -을 거예요:</div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹을 거예요</span></div><div class=\"conj-rule\">If it ends in a vowel, we add -ㄹ 거예요:</div><div class=\"conj-step\"><span>보<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">보</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">볼 거예요</span></div>", moreExamples:[{"sentence":"방학에 부산에 ___.","answer":"갈 거예요","choices":["갈 거예요","가요","갔어요","갑니다"],"full":"방학에 부산에 갈 거예요.","pl":"W wakacje pojadę do Busan.","en":"I will go to Busan during the vacation."},{"sentence":"내일 친구에게 선물을 ___.","answer":"줄 거예요","choices":["줄 거예요","줘요","줬어요","줍니다"],"full":"내일 친구에게 선물을 줄 거예요.","pl":"Jutro dam przyjacielowi prezent.","en":"I will give my friend a present tomorrow."},{"sentence":"다음 주부터 운동을 ___.","answer":"시작할 거예요","choices":["시작할 거예요","시작해요","시작했어요","시작합시다"],"full":"다음 주부터 운동을 시작할 거예요.","pl":"Od przyszłego tygodnia zacznę ćwiczyć.","en":"I will start exercising next week."},{"sentence":"이번 겨울에 스키를 ___.","answer":"배울 거예요","choices":["배울 거예요","배운 거예요","배우을 거예요","배웠을 거예요"],"full":"이번 겨울에 스키를 배울 거예요.","pl":"Tej zimy nauczę się jeździć na nartach.","en":"This winter I am going to learn to ski."},{"sentence":"내일 아침에 빨래를 ___.","answer":"할 거예요","choices":["할 거예요","한 거예요","하을 거예요","했어요"],"full":"내일 아침에 빨래를 할 거예요.","pl":"Jutro rano zrobię pranie.","en":"Tomorrow morning I will do the laundry."},{"sentence":"주말에 집에서 푹 ___.","answer":"쉴 거예요","choices":["쉴 거예요","쉬을 거예요","쉰 거예요","쉬는 거예요"],"full":"주말에 집에서 푹 쉴 거예요.","pl":"W weekend porządnie odpocznę w domu.","en":"This weekend I will rest well at home."}]},
-        { pattern:'V-고 있다 (czas progresywny — czynność w toku)', sentence:'지금 저는 밥을 ___.', answer:'먹고 있어요', choices:['먹고 있어요','먹어요','먹었어요','먹을 거예요'], full:'지금 저는 밥을 먹고 있어요.', pl:'Teraz właśnie jem.', en:'Right now I am eating.', explain:'-고 있다 wyraża czynność odbywającą się w danym momencie — polski odpowiednik "właśnie coś robię".', explainEn:'-고 있다 expresses an action happening right at this moment - equivalent to "I am (currently) doing something".' , conjHtml:"<div class=\"conj-rule\">Niezależnie od tego, na co kończy się słowo po skreśleniu końcówki 다, zawsze dodajemy -고 있다:</div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹고 있다</span></div>", conjHtmlEn:"<div class=\"conj-rule\">No matter what the word ends in after removing the -다 ending, we always add -고 있다:</div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹고 있다</span></div>", moreExamples:[{"sentence":"지금 밖에 비가 많이 ___.","answer":"오고 있어요","choices":["오고 있어요","오고 있아요","왔고 있어요","오고 없어요"],"full":"지금 밖에 비가 많이 오고 있어요.","pl":"Na zewnątrz teraz mocno pada.","en":"It is raining hard outside right now."},{"sentence":"친구가 지금 버스를 ___.","answer":"기다리고 있어요","choices":["기다리고 있어요","기다리고 있았어요","기다려고 있어요","기다리고 이어요"],"full":"친구가 지금 버스를 기다리고 있어요.","pl":"Przyjaciel czeka teraz na autobus.","en":"My friend is waiting for the bus right now."},{"sentence":"저는 요즘 태권도를 ___.","answer":"배우고 있어요","choices":["배우고 있어요","배고 있어요","배우고 았어요","배웠고 있어요"],"full":"저는 요즘 태권도를 배우고 있어요.","pl":"Ostatnio uczę się taekwondo.","en":"I am learning taekwondo these days."}]},
+        { pattern:'V-고 있다 (czas progresywny — czynność w toku)', sentence:'지금 저는 밥을 ___.', answer:'먹고 있어요', choices:['먹고 있어요','먹어요','먹었어요','먹을 거예요'], full:'지금 저는 밥을 먹고 있어요.', pl:'Teraz właśnie jem.', en:'Right now I am eating.', explain:'-고 있다 wyraża czynność odbywającą się w danym momencie — polski odpowiednik "właśnie coś robię".', explainEn:'-고 있다 expresses an action happening right at this moment - equivalent to "I am (currently) doing something".' , conjHtml:"<div class=\"conj-rule\">Niezależnie od tego, na co kończy się słowo po skreśleniu końcówki 다, zawsze dodajemy -고 있다:</div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹고 있다</span></div>", conjHtmlEn:"<div class=\"conj-rule\">No matter what the word ends in after removing the -다 ending, we always add -고 있다:</div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹고 있다</span></div>", moreExamples:[{"sentence":"지금 밖에 비가 많이 ___.","answer":"오고 있어요","choices":["오고 있어요","오고 있아요","왔고 있어요","오고 없어요"],"full":"지금 밖에 비가 많이 오고 있어요.","pl":"Na zewnątrz teraz mocno pada.","en":"It is raining hard outside right now."},{"sentence":"친구가 지금 버스를 ___.","answer":"기다리고 있어요","choices":["기다리고 있어요","기다리고 있았어요","기다려고 있어요","기다리고 이어요"],"full":"친구가 지금 버스를 기다리고 있어요.","pl":"Przyjaciel czeka teraz na autobus.","en":"My friend is waiting for the bus right now."},{"sentence":"저는 요즘 태권도를 ___.","answer":"배우고 있어요","choices":["배우고 있어요","배고 있어요","배우고 았어요","배웠고 있어요"],"full":"저는 요즘 태권도를 배우고 있어요.","pl":"Ostatnio uczę się taekwondo.","en":"I am learning taekwondo these days."},{"sentence":"아이가 방에서 책을 ___.","answer":"읽고 있어요","choices":["읽고 있어요","읽고 있아요","읽었고 있어요","읽고 없어요"],"full":"아이가 방에서 책을 읽고 있어요.","pl":"Dziecko czyta właśnie książkę w pokoju.","en":"The child is reading a book in the room."},{"sentence":"아버지는 지금 ___.","answer":"일하고 있어요","choices":["일하고 있어요","일하고 있았어요","일해고 있어요","일하고 이어요"],"full":"아버지는 지금 일하고 있어요.","pl":"Tata właśnie teraz pracuje.","en":"My father is working right now."},{"sentence":"아이가 지금 ___.","answer":"자고 있어요","choices":["자고 있어요","자고 있아요","잤고 있어요","자고 없어요"],"full":"아이가 지금 자고 있어요.","pl":"Dziecko właśnie teraz śpi.","en":"The child is sleeping right now."}]},
         { pattern:'A/V-았/었었어요 (czas zaprzeszły)', sentence:'저는 예전에 서울에 ___.', answer:'살았었어요', choices:['살았었어요','살아요','살았어요','살 거예요'], full:'저는 예전에 서울에 살았었어요.', pl:'Kiedyś mieszkałem/am w Seulu (już nie mieszkam).', en:'I used to live in Seoul (not anymore).', explain:'-았/었었어요 (czas zaprzeszły) podkreśla, że coś zdarzyło się dawno temu i jest już całkowicie zakończone — mocniejszy kontrast z teraźniejszością niż zwykły czas przeszły.', explainEn:'-았/었었어요 (past perfect) emphasizes that something happened long ago and is now completely over - a stronger contrast with the present than the simple past tense.' , conjHtml:"<div class=\"conj-rule\">Jeśli słowo po skreśleniu końcówki 다 kończy się na ㅏ lub ㅗ, dodajemy -았었어요:</div><div class=\"conj-step\"><span>가<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">가</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">갔었어요</span></div><div class=\"conj-note\">가 + 았었어요 — te same samogłoski się nie powtarzają, więc zlewają się w jedną</div><div class=\"conj-rule\">Jeśli słowo po skreśleniu końcówki 다 kończy się na każdą inną samogłoskę, dodajemy -었었어요:</div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹었었어요</span></div><div class=\"conj-rule\">Czasowniki zakończone na -하다 zawsze przyjmują formę -했었어요:</div><div class=\"conj-step\"><span>공부하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">공부하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">공부했었어요</span></div>", conjHtmlEn:"<div class=\"conj-rule\">If the word, after removing the -다 ending, ends in ㅏ or ㅗ, we add -았었어요:</div><div class=\"conj-step\"><span>가<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">가</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">갔었어요</span></div><div class=\"conj-note\">가 + 았었어요 — identical vowels do not repeat, they merge into one</div><div class=\"conj-rule\">If it ends in any other vowel, we add -었었어요:</div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹었었어요</span></div><div class=\"conj-rule\">Verbs ending in -하다 always take the form -했었어요:</div><div class=\"conj-step\"><span>공부하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">공부하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">공부했었어요</span></div>", moreExamples:[{"sentence":"대학교 때 기타를 ___.","answer":"배웠었어요","choices":["배웠었어요","배웠어요","배워요","배울 거예요"],"full":"대학교 때 기타를 배웠었어요.","pl":"Na studiach uczyłem/am się grać na gitarze (dawno temu, już nie gram).","en":"I used to learn guitar in college (long ago, not anymore)."},{"sentence":"옛날에 그 가수를 정말 ___.","answer":"좋아했었어요","choices":["좋아했었어요","좋아했어요","좋아해요","좋아할 거예요"],"full":"옛날에 그 가수를 정말 좋아했었어요.","pl":"Dawno temu naprawdę lubiłem/am tego piosenkarza (to zamknięta przeszłość).","en":"Long ago I really used to like that singer (completely in the past)."},{"sentence":"어릴 때 개를 ___.","answer":"키웠었어요","choices":["키웠었어요","키웠어요","키워요","키웁니다"],"full":"어릴 때 개를 키웠었어요.","pl":"W dzieciństwie miałem/am psa (dawno temu).","en":"I used to have a dog as a child (long ago)."},{"sentence":"고등학교 때 축구를 ___.","answer":"했었어요","choices":["했었어요","해요","하겠어요","했었요"],"full":"고등학교 때 축구를 했었어요.","pl":"W liceum grałem/am w piłkę nożną (już nie gram).","en":"I used to play soccer in high school (not anymore)."},{"sentence":"예전에는 매운 음식을 잘 ___.","answer":"먹었었어요","choices":["먹었었어요","먹요","먹었었요","먹겠어요"],"full":"예전에는 매운 음식을 잘 먹었었어요.","pl":"Kiedyś dobrze jadałem/am ostre potrawy (teraz już nie).","en":"I used to eat spicy food well (not anymore)."},{"sentence":"결혼 전에는 부산에서 ___.","answer":"일했었어요","choices":["일했었어요","일해었어요","일하았어요","일할 거예요"],"full":"결혼 전에는 부산에서 일했었어요.","pl":"Przed ślubem pracowałem/am w Busanie (zamknięty okres).","en":"Before getting married I used to work in Busan."}]},
       ]},
       { id:4, title:'Negacja i spójniki składniowe', ready:true, items:[
@@ -9209,12 +9209,12 @@ const DEFAULT_WORDS = [
   {ko:"벅차오르다", pl:"wzruszony", en:"overwhelmed", category:"Uczucia i charakter", level:3, pos:"verb", source:'krdict'},
   {ko:"보잘것없다", pl:"bezwartościowy", en:"worthless", category:"Cechy i miary", level:3, pos:"adjective", source:'krdict'},
   {ko:"부유하다", pl:"bogaty", en:"wealthy", category:"Cechy i miary", level:3, pos:"verb", source:'krdict'},
-  {ko:"분별있다", pl:"rozsądny", en:"sensible", category:"Przymiotniki", level:3, source:'krdict'},
+  {ko:"분별 있다", pl:"rozsądny", en:"sensible", category:"Przymiotniki", level:3, source:'krdict'},
   {ko:"불길하다", pl:"złowieszczy", en:"ominous", category:"Uczucia i charakter", level:3, pos:"adjective", source:'krdict'},
   {ko:"비루하다", pl:"nędzny, marny, poniżający", en:"shabby, lowly, wretched", category:"Przymiotniki", level:3, source:'krdict'},
   {ko:"빈약하다", pl:"słaby", en:"weak", category:"Cechy i miary", level:3, pos:"adjective", source:'krdict'},
   {ko:"뻣뻣하다", pl:"sztywny", en:"stiff", category:"Cechy i miary", level:3, pos:"adjective", source:'krdict'},
-  {ko:"사려깊다", pl:"rozważny, roztropny", en:"thoughtful, prudent", category:"Przymiotniki", level:3, source:'krdict'},
+  {ko:"사려 깊다", pl:"rozważny, roztropny", en:"thoughtful, prudent", category:"Przymiotniki", level:3, source:'krdict'},
   {ko:"산뜻하다", pl:"świeży", en:"fresh", category:"Pogoda i pory roku", level:3, pos:"adjective", source:'krdict'},
   {ko:"생뚱맞다", pl:"przypadkowy", en:"random", category:"Uczucia i charakter", level:3, pos:"adjective", source:'krdict'},
   {ko:"서먹하다", pl:"niezręczny", en:"awkward", category:"Słownictwo ogólne", level:3, pos:"adjective", source:'krdict'},
@@ -9258,7 +9258,7 @@ const DEFAULT_WORDS = [
   {ko:"자그마하다", pl:"niewielki", en:"small", category:"Cechy i miary", level:3, pos:"adjective", source:'krdict'},
   {ko:"자상하다", pl:"troskliwy", en:"thoughtful", category:"Uczucia i charakter", level:3, pos:"adjective", source:'krdict'},
   {ko:"잔잔하다", pl:"spokojny", en:"calm", category:"Cechy i miary", level:3, pos:"adjective", source:'krdict'},
-  {ko:"잘난척하다", pl:"wywyższać się, zgrywać ważnego", en:"to show off, to act superior", category:"Przymiotniki", level:3, source:'krdict'},
+  {ko:"잘난 척하다", pl:"wywyższać się, zgrywać ważnego", en:"to show off, to act superior", category:"Przymiotniki", level:3, source:'krdict'},
   {ko:"재빠르다", pl:"szybki", en:"quick", category:"Uczucia i charakter", level:3, pos:"adjective", source:'krdict'},
   {ko:"저조하다", pl:"słaby", en:"poor / low", category:"Cechy i miary", level:3, pos:"adjective", source:'krdict'},
   {ko:"적막하다", pl:"cichy", en:"silent", category:"Cechy i miary", level:3, pos:"adjective", source:'krdict'},
@@ -9326,7 +9326,7 @@ const DEFAULT_WORDS = [
   {ko:"흥청거리다", pl:"huczny", en:"boisterous", category:"Zakupy i pieniądze", level:3, pos:"verb", source:'krdict'},
   {ko:"힐끗하다", pl:"przelotny", en:"glance", category:"Ciało, zdrowie i czynności fizyczne", level:3, pos:"verb", source:'krdict'},
   {ko:"가냘프다", pl:"kruchy", en:"fragile", category:"Wygląd i ubiór", level:3, pos:"adjective", industryModule:["Moda, Uroda i K-Beauty"], source:'krdict'},
-  {ko:"가득차다", pl:"być pełnym, wypełnić się po brzegi", en:"to be full, to be filled up", category:"Przymiotniki", level:3, source:'krdict'},
+  {ko:"가득 차다", pl:"być pełnym, wypełnić się po brzegi", en:"to be full, to be filled up", category:"Przymiotniki", level:3, source:'krdict'},
   {ko:"가라앉다", pl:"przygaszony", en:"calm / sunken", category:"Cechy i miary", level:2, pos:"verb", source:'krdict'},
   {ko:"가련하다", pl:"żałosny", en:"pitiful", category:"Uczucia i charakter", level:3, pos:"adjective", source:'krdict'},
   {ko:"가무스름하다", pl:"ciemny", en:"dusky", category:"Przymiotniki", level:3, source:'krdict'},
@@ -9334,7 +9334,7 @@ const DEFAULT_WORDS = [
   {ko:"간절하다", pl:"szczery", en:"earnest", category:"Uczucia i charakter", level:3, pos:"adjective", source:'krdict'},
   {ko:"감미롭다", pl:"słodki", en:"sweet", category:"Cechy i miary", level:3, pos:"adjective", source:'krdict'},
   {ko:"감성적이다", pl:"emocjonalny", en:"emotional", category:"Przymiotniki", level:3, source:'krdict'},
-  {ko:"감칠맛나다", pl:"smakowity", en:"savory", category:"Przymiotniki", level:3, source:'krdict'},
+  {ko:"감칠맛 나다", pl:"smakowity", en:"savory", category:"Przymiotniki", level:3, source:'krdict'},
   {ko:"거세다", pl:"gwałtowny", en:"fierce", category:"Cechy i miary", level:3, pos:"adjective", source:'krdict'},
   {ko:"거창하다", pl:"przesadny", en:"grandiose", category:"Cechy i miary", level:3, pos:"adjective", source:'krdict'},
   {ko:"거칠다", pl:"szorstki", en:"rough", category:"Cechy i miary", level:2, pos:"adjective", source:'krdict'},
@@ -9358,7 +9358,7 @@ const DEFAULT_WORDS = [
   {ko:"굳세다", pl:"silny", en:"strong", category:"Uczucia i charakter", level:3, pos:"adjective", source:'krdict'},
   {ko:"굼뜨다", pl:"ociężały", en:"slow", category:"Cechy i miary", level:3, pos:"adjective", source:'krdict'},
   {ko:"귀찮다", pl:"uciążliwy", en:"annoying", category:"Uczucia i charakter", level:3, pos:"adjective", source:'krdict'},
-  {ko:"기가막히다", pl:"niesamowity, zdumiewający; też: oburzający, nie do wiary", en:"amazing, incredible; also: outrageous, dumbfounding", category:"Przymiotniki", level:3, source:'krdict'},
+  {ko:"기가 막히다", pl:"niesamowity, zdumiewający; też: oburzający, nie do wiary", en:"amazing, incredible; also: outrageous, dumbfounding", category:"Przymiotniki", level:3, source:'krdict'},
   {ko:"까다롭다", pl:"wybredny", en:"fussy", category:"Uczucia i charakter", level:3, pos:"adjective", source:'krdict'},
   {ko:"깔끔하다", pl:"schludny", en:"neat", category:"Uczucia i charakter", level:3, pos:"adjective", source:'krdict'},
   {ko:"꺼림칙하다", pl:"niepewny", en:"uncomfortable", category:"Uczucia i charakter", level:3, pos:"adjective", source:'krdict'},
@@ -9694,10 +9694,10 @@ const DEFAULT_WORDS = [
   {ko:"끈기 있다", pl:"być wytrwałym", en:"to be persistent", category:"Czasowniki", level:3, source:'krdict'},
   {ko:"나열하다", pl:"wyliczać", en:"to list", category:"Cechy i miary", level:3, pos:"verb", source:'krdict'},
   {ko:"낚다", pl:"łowić", en:"to fish", category:"Dom i mieszkanie", level:3, pos:"verb", source:'krdict'},
-  {ko:"내버려두다", pl:"zostawiać w spokoju", en:"to leave alone", category:"Czasowniki", level:3, source:'krdict'},
+  {ko:"내버려 두다", pl:"zostawiać w spokoju", en:"to leave alone", category:"Czasowniki", level:3, source:'krdict'},
   {ko:"노출하다", pl:"odsłaniać", en:"to expose", category:"Słownictwo ogólne", level:3, pos:"verb", source:'krdict'},
   {ko:"놀리다", pl:"dokuczać", en:"to tease", category:"Komunikacja i media", level:3, pos:"verb", source:'krdict'},
-  {ko:"누워있다", pl:"leżeć (być w pozycji leżącej)", en:"to be lying down", category:"Czasowniki", level:3, source:'krdict'},
+  {ko:"누워 있다", pl:"leżeć (być w pozycji leżącej)", en:"to be lying down", category:"Czasowniki", level:3, source:'krdict'},
   {ko:"느긋하다", pl:"być wyluzowanym", en:"to be relaxed", category:"Uczucia i charakter", level:3, pos:"adjective", source:'krdict'},
   {ko:"다듬다", pl:"przycinać", en:"to trim", category:"Ciało, zdrowie i czynności fizyczne", level:2, pos:"verb", source:'krdict'},
   {ko:"달래다", pl:"uspokajać", en:"to soothe", category:"Komunikacja i media", level:3, pos:"verb", source:'krdict'},
@@ -9718,7 +9718,7 @@ const DEFAULT_WORDS = [
   {ko:"들썩이다", pl:"podskakiwać", en:"to move up and down", category:"Ciało, zdrowie i czynności fizyczne", level:3, pos:"verb", source:'krdict'},
   {ko:"따르다", pl:"podążać", en:"to follow", category:"Wydarzenia i aktywność społeczna", level:2, pos:"verb", source:'krdict'},
   {ko:"떠돌다", pl:"błąkać się", en:"to wander", category:"Ciało, zdrowie i czynności fizyczne", level:3, pos:"verb", source:'krdict'},
-  {ko:"떼어내다", pl:"odrywać", en:"to detach", category:"Czasowniki", level:3, source:'krdict'},
+  {ko:"떼어 내다", pl:"odrywać", en:"to detach", category:"Czasowniki", level:3, source:'krdict'},
   {ko:"똑같다", pl:"być takim samym", en:"to be the same", category:"Cechy i miary", level:1, pos:"adjective", source:'krdict'},
   {ko:"뛰어넘다", pl:"przeskakiwać", en:"to jump over", category:"Ciało, zdrowie i czynności fizyczne", level:3, pos:"verb", source:'krdict'},
   {ko:"뜯다", pl:"rozrywać", en:"to tear", category:"Ciało, zdrowie i czynności fizyczne", level:3, pos:"verb", source:'krdict'},
@@ -9765,7 +9765,7 @@ const DEFAULT_WORDS = [
   {ko:"손보다", pl:"naprawiać", en:"to repair", category:"Dom i mieszkanie", level:3, pos:"verb", source:'krdict'},
   {ko:"수고하다", pl:"trudzić się", en:"to work hard", category:"Słownictwo ogólne", level:3, pos:"verb", source:'krdict'},
   {ko:"수리하다", pl:"naprawiać", en:"to repair", category:"Nauka i technologia", level:3, pos:"verb", industryModule:["Nauka, Technologia i IT"], ex:"아버지는 고장 난 텔레비전을 직접 수리하셨다.", exPl:"Tata sam naprawił zepsuty telewizor.", exEn:"Dad repaired the broken television himself.", source:'krdict'},
-  {ko:"숨쉬다", pl:"oddychać", en:"to breathe", category:"Czasowniki", level:3, source:'krdict'},
+  {ko:"숨 쉬다", pl:"oddychać", en:"to breathe", category:"Czasowniki", level:3, source:'krdict'},
   {ko:"스치다", pl:"musnąć", en:"to graze", category:"Ciało, zdrowie i czynności fizyczne", level:2, pos:"verb", source:'krdict'},
   {ko:"시들다", pl:"więdnąć", en:"to wither", category:"Zwierzęta", level:3, pos:"verb", source:'krdict'},
   {ko:"실컷", pl:"robić do woli", en:"to do fully", category:"Cechy i miary", level:3, pos:"adverb", source:'krdict'},
@@ -9858,7 +9858,7 @@ const DEFAULT_WORDS = [
   {ko:"개다", pl:"przejaśniać się", en:"to clear up (weather)", category:"Pogoda i pory roku", level:3, pos:"verb", source:'krdict'},
   {ko:"거절하다", pl:"odmawiać", en:"to refuse", category:"Wydarzenia i aktywność społeczna", level:3, pos:"verb", source:'krdict'},
   {ko:"건설하다", pl:"budować", en:"to build", category:"Wydarzenia i aktywność społeczna", level:3, pos:"verb", source:'krdict'},
-  {ko:"걸어두다", pl:"powiesić", en:"to hang up", category:"Czasowniki", level:3, source:'krdict'},
+  {ko:"걸어 두다", pl:"powiesić", en:"to hang up", category:"Czasowniki", level:3, source:'krdict'},
   {ko:"겹치다", pl:"nakładać się", en:"to overlap", category:"Cechy i miary", level:3, pos:"verb", source:'krdict'},
   {ko:"고백하다", pl:"wyznawać", en:"to confess", category:"Komunikacja i media", level:3, pos:"verb", source:'krdict'},
   {ko:"고용하다", pl:"zatrudniać", en:"to hire", category:"Zakupy i pieniądze", level:3, pos:"verb", source:'krdict'},
@@ -14915,7 +14915,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-03.99';
+const APP_VERSION = '2026-09-04.101';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -17525,12 +17525,81 @@ const LAT_MAX = 1.15;
 let latencyBaselines = { 'ko-pl': LAT_SEED_MS, 'pl-ko': LAT_SEED_MS };
 let questionShownAt = 0;
 
-function markQuestionShown(){ questionShownAt = Date.now(); }
+function markQuestionShown(){ questionShownAt = Date.now(); resetHesitation(); }
+
+/* ═══ PARALIŻ WYBORU ═══════════════════════════════════════════════════════
+   Czas spalony na dotknięciach ROZPOCZĘTYCH i PORZUCONYCH przed ostateczną
+   odpowiedzią. Palec ląduje na opcji, wędruje na inną, wraca - to inny stan
+   pamięci niż powolne, ale pewne przypomnienie.
+
+   Sam czas odpowiedzi tego nie rozróżnia: dwie sekundy wahania między dwiema
+   opcjami i dwie sekundy spokojnego przypominania dają tę samą liczbę.
+
+   Pomysł z pakietu Synapse Core. Ich implementacja jest reactowa i mierzy przez
+   gesty; my używamy zdarzeń wskaźnika, bo działają tak samo na dotyku i myszy.
+
+   NIE zmienia harmonogramu - na razie tylko zbieramy sygnał. Wpięcie go w SRS
+   wymagałoby kalibracji na prawdziwych danych, a tej nie mamy. */
+let hesitationMs = 0;        // suma czasu porzuconych dotknięć
+let abortedTouches = 0;      // ile razy user zmienił zdanie
+let touchStartedAt = 0;      // otwarte dotknięcie, jeszcze niezatwierdzone
+
+/* Statystyki wahania - trzymane lokalnie, agregowane, bez wysyłki na serwer.
+   Służą do odpowiedzi na jedno pytanie: czy wahanie w ogóle koreluje z tym,
+   że słowo wypada z pamięci. Dopiero mając tę odpowiedź warto ruszać SRS. */
+let hesitationStats = (()=>{ try{ return JSON.parse(localStorage.getItem('hooljon_hesitation')||'null') || {n:0, withHesitation:0, totalMs:0, maxAborts:0}; }catch(e){ return {n:0, withHesitation:0, totalMs:0, maxAborts:0}; } })();
+
+function recordHesitation(reactionMs){
+  hesitationStats.n += 1;
+  if(abortedTouches > 0){
+    hesitationStats.withHesitation += 1;
+    hesitationStats.totalMs += hesitationMs;
+    hesitationStats.maxAborts = Math.max(hesitationStats.maxAborts, abortedTouches);
+  }
+  // Zapis co dziesiątą odpowiedź - localStorage przy każdej byłby marnotrawstwem.
+  if(hesitationStats.n % 10 === 0){
+    try{ localStorage.setItem('hooljon_hesitation', JSON.stringify(hesitationStats)); }catch(e){}
+  }
+  resetHesitation();
+}
+
+function resetHesitation(){ hesitationMs = 0; abortedTouches = 0; touchStartedAt = 0; }
+
+function noteTouchStart(){
+  // Drugie dotknięcie bez zwolnienia pierwszego = poprzednie porzucone.
+  if(touchStartedAt) noteTouchAbort();
+  touchStartedAt = Date.now();
+}
+
+function noteTouchAbort(){
+  if(!touchStartedAt) return;
+  const d = Date.now() - touchStartedAt;
+  if(d > 0 && d < 10000) hesitationMs += d;   // odcięcie odstających
+  abortedTouches += 1;
+  touchStartedAt = 0;
+}
+
+function noteTouchCommit(){ touchStartedAt = 0; }
+
+/* Podpięcie globalne przez delegację - działa dla wszystkich przycisków
+   odpowiedzi, także tych tworzonych dynamicznie po każdym pytaniu. */
+document.addEventListener('pointerdown', (e)=>{
+  if(e.target.closest && e.target.closest('.ans-btn')) noteTouchStart();
+}, true);
+document.addEventListener('pointerup', (e)=>{
+  if(e.target.closest && e.target.closest('.ans-btn')) noteTouchCommit();
+  else noteTouchAbort();   // palec zwolniony POZA opcją = wycofanie się
+}, true);
+document.addEventListener('pointercancel', ()=> noteTouchAbort(), true);
 
 function latencyFactor(direction){
   if(!questionShownAt) return 1;
   const raw = Date.now() - questionShownAt;
   questionShownAt = 0;
+  // Zapis paraliżu wyboru - na razie tylko do statystyk, bez wpływu na interwał.
+  // Wpięcie w SRS wymaga kalibracji na prawdziwych danych: nie wiemy jeszcze,
+  // ile wahania oznacza słabszą pamięć, a ile po prostu ostrożność.
+  try{ recordHesitation(raw); }catch(e){ /* pomiar nie może psuć nauki */ }
   if(raw < 250) return 1;
   const dir = (direction === 'pl-ko') ? 'pl-ko' : 'ko-pl';
   const capped = Math.min(raw, LAT_OUTLIER_MS);
