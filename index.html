@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.102
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.103
   Zbudowane na: b9af347d66bb7edec6d0d416602953c4 (.78)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -3926,6 +3926,28 @@
     border-left:3px solid var(--hwang);
     font-size:14px; line-height:1.55; color:var(--ink);
   }
+  /* Opuszczanie partykuł - zdanie jako klikalne tokeny. */
+  .pd-sentence{
+    font-family:var(--font-ko); font-size:26px; text-align:center;
+    margin:18px 0; line-height:1.6; min-height:44px;
+  }
+  .pd-tok{ display:inline-block; }
+  .pd-part{
+    display:inline-block; cursor:pointer; border-radius:6px; padding:0 2px;
+    background:color-mix(in srgb, var(--hwang) 14%, transparent);
+    transition:opacity .22s ease, transform .22s ease, background .18s ease;
+  }
+  .pd-part:hover{ background:color-mix(in srgb, var(--hwang) 26%, transparent); }
+  .pd-part.dropped{ opacity:0; transform:translateY(14px); pointer-events:none; }
+  /* Partykuła znaczeniowa nie znika - drga, żeby pokazać że jest przytwierdzona. */
+  @keyframes pd-shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+  .pd-part.locked{ animation:pd-shake .32s ease; background:color-mix(in srgb, var(--bad) 20%, transparent); }
+  .pd-note{
+    margin-top:14px; padding:12px 14px; border-radius:12px;
+    background:var(--surface-2); font-size:13.5px; line-height:1.55; color:var(--ink);
+    min-height:20px;
+  }
+  .pd-pl{ text-align:center; font-size:13.5px; color:var(--ink-dim); margin-top:-6px; }
   .cmp-card{
     margin-top:12px; padding:12px 14px; border-radius:14px;
     background:var(--surface-2); border-left:3px solid var(--hwang);
@@ -5210,10 +5232,28 @@
          Odpowiedź na najczęstszy zarzut ze społeczności: "muszę wyjść z aplikacji
          i szukać na Reddicie, dlaczego moja odpowiedź była zła". Panel otwiera się
          NAD ćwiczeniem, więc nie gubi się kontekst ani postęp w rundzie. -->
+    <!-- OPUSZCZANIE PARTYKUŁ - wersja próbna. Interakcja JEST lekcją: klikasz
+         partykułę, ona znika, zdanie zsuwa się w jeden blok. Przy partykule
+         znaczeniowej (는/도/만) zamiast zniknąć - drga i tłumaczy dlaczego. -->
+    <div class="panel" id="particlePanel">
+      <div class="modal-card">
+        <button class="modal-close" data-close="particlePanel" aria-label="Zamknij">✕</button>
+        <h3 data-i18n="particleTitle">Partykuły w mowie potocznej</h3>
+        <p class="hint-note" data-i18n="particleHint">Dotknij partykuły, żeby ją opuścić — tak jak w mowie. Nie wszystkie da się usunąć.</p>
+        <div id="particleBoard"></div>
+        <div class="row" style="margin-top:12px;">
+          <button class="tool-btn" id="particlePrevBtn" style="flex:1;">‹</button>
+          <span id="particleProgress" class="hint-note" style="align-self:center;"></span>
+          <button class="tool-btn" id="particleNextBtn" style="flex:1;">›</button>
+        </div>
+      </div>
+    </div>
+
     <div class="panel" id="grammarRefPanel">
       <div class="modal-card">
         <button class="modal-close" data-close="grammarRefPanel" aria-label="Zamknij">✕</button>
         <h3 data-i18n="grammarRefTitle">Kompendium gramatyki</h3>
+        <button class="tool-btn" id="openParticleBtn" style="width:100%; margin-bottom:10px;">🗣️ Partykuły w mowie potocznej</button>
         <input type="text" id="grammarRefSearch" placeholder="np. 니까, partykuła, przeszły"
                style="width:100%; padding:11px 12px; margin-bottom:10px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); font-size:15px; font-family:var(--font-ui);">
         <div id="grammarRefResults" class="gref-results"></div>
@@ -14916,7 +14956,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.102';
+const APP_VERSION = '2026-09-04.103';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15624,6 +15664,8 @@ const I18N = {
   reportPanelTitle: { pl: 'Zgłoś błąd', en: 'Report an issue' },
   navLearn: { pl: 'Nauka', en: 'Learn' },
   grammarRefTitle: { pl: 'Kompendium gramatyki', en: 'Grammar reference' },
+  particleTitle: { pl: 'Partykuły w mowie potocznej', en: 'Particles in casual speech' },
+  particleHint: { pl: 'Dotknij partykuły, żeby ją opuścić — tak jak w mowie. Nie wszystkie da się usunąć.', en: 'Tap a particle to drop it, the way speakers do. Not all of them can go.' },
   addModeType: { pl: 'Wpisz ręcznie', en: 'Type manually' },
   addModePick: { pl: 'Wybierz z bazy', en: 'Pick from dictionary' },
   pickerHint: { pl: 'Szukaj po koreańsku lub po polsku. Zaznacz słowa, które chcesz dodać do swoich fiszek.', en: 'Search in Korean or English. Tap the words you want to add.' },
@@ -17995,6 +18037,38 @@ function unverifiedPatterns(){
   return out;
 }
 
+/* ═══ OPUSZCZANIE PARTYKUŁ (wersja próbna) ═════════════════════════════════
+   Uczymy czternastu wzorców o partykułach i ZERO o tym, że w mowie potocznej
+   znikają. User kończy kurs wiedząc, że mówi się 밥을 먹었어, włącza serial
+   i słyszy 밥 먹었어 - i nie wie, czy to błąd, dialekt, czy luka w nauce.
+
+   Zasada, którą to ćwiczy: partykuły PRZYPADKA (을/를, 이/가) w prostych
+   zdaniach potocznych opuszcza się swobodnie. Partykuły ZNACZENIOWE
+   (는 kontrast, 도 włączenie, 만 wyłączność) - nigdy, bo niosą sens,
+   którego nie da się odtworzyć z kontekstu.
+
+   verified:false - to treść wymagająca sprawdzenia przez native speakera,
+   tak samo jak nowe wzorce gramatyczne. Zestaw jest celowo mały (8 zdań):
+   to wersja próbna, nie kompletny moduł. */
+const PARTICLE_DROP = [
+  { full:'밥을 먹었어.', dropped:'밥 먹었어.', particle:'을', droppable:true,
+    pl:'Zjadłem.', note:'Partykuła dopełnienia — w mowie potocznej znika swobodnie.', verified:false },
+  { full:'물을 마셔.', dropped:'물 마셔.', particle:'을', droppable:true,
+    pl:'Pij wodę.', note:'To samo: dopełnienie jest jasne z kontekstu.', verified:false },
+  { full:'커피를 마실래?', dropped:'커피 마실래?', particle:'를', droppable:true,
+    pl:'Napijesz się kawy?', note:'Pytanie potoczne — partykuła zbędna.', verified:false },
+  { full:'친구가 왔어.', dropped:'친구 왔어.', particle:'가', droppable:true,
+    pl:'Przyszedł kolega.', note:'Partykuła podmiotu też znika, gdy podmiot jest oczywisty.', verified:false },
+  { full:'저는 학생이에요.', dropped:null, particle:'는', droppable:false,
+    pl:'Ja jestem uczniem.', note:'는 niesie KONTRAST („ja, w odróżnieniu od innych"). Bez niego zdanie traci sens, który miało nieść.', verified:false },
+  { full:'저도 갈게요.', dropped:null, particle:'도', droppable:false,
+    pl:'Ja też pójdę.', note:'도 znaczy „też". Usunięcie zmienia wypowiedź na zwykłe „pójdę".', verified:false },
+  { full:'물만 주세요.', dropped:null, particle:'만', droppable:false,
+    pl:'Poproszę tylko wodę.', note:'만 znaczy „tylko". Bez niego prosisz po prostu o wodę.', verified:false },
+  { full:'학교에서 만나요.', dropped:null, particle:'에서', droppable:false,
+    pl:'Spotkajmy się w szkole.', note:'에서 wskazuje miejsce. Bez niego nie wiadomo, gdzie.', verified:false },
+];
+
 const CONFUSABLE_PAIRS = [
   { a:"A/V-(으)니까 (przyczyna przed sugestią/poleceniem)", b:"-아/어 가지고 (potoczny odpowiednik -아서)", compare:{"pl":"Obie formy podają przyczynę, ale rządzą nimi inne zasady. -(으)니까 to jedyny z tej pary wybór, gdy po przyczynie następuje polecenie, prośba lub propozycja (-세요, -읍시다, -을까요) — i tu -아/어 가지고, tak samo jak -아/어서, byłoby błędem gramatycznym. -아/어 가지고 żyje w swobodnej mowie: łączy czynność z jej rezultatem lub kolejnym krokiem i brzmi naturalnie tylko w zdaniach oznajmujących. W zwykłym stwierdzeniu przyczyny obie bywają możliwe, ale różni je rejestr: 가지고 jest wyraźnie potoczne.","en":"Both give a reason, but different rules govern them. -(으)니까 is the only choice here when the reason is followed by a command, request, or suggestion (-세요, -읍시다, -을까요) — in that position -아/어 가지고, just like -아/어서, is a grammar error. -아/어 가지고 lives in casual speech: it links an action to its result or next step and sounds natural only in plain statements. In a neutral statement of cause both can appear, but the register differs: 가지고 is distinctly colloquial.","exampleA":"길이 미끄러우니까 천천히 운전하세요.","exampleAPl":"Droga jest śliska, więc proszę jechać powoli (przyczyna + polecenie → tylko -니까).","exampleAEn":"The road is slippery, so please drive slowly (reason + command → only -니까 works).","exampleB":"돈을 모아 가지고 여행을 갔어요.","exampleBPl":"Uzbierałem pieniądze i (mając je) pojechałem w podróż (potoczna sekwencja — zdanie oznajmujące).","exampleBEn":"I saved up money and went on a trip with it (casual sequence — plain statement)."} },
   { a:"N은/는 N이에요/예요", b:"N이/가 있어요 [없어요]", compare:{"pl":"To dwa różne typy zdań, które początkującym zlewają się w jedno „coś jest”. N이에요 stawia znak równości między dwiema rzeczami: A jest B (tożsamość). 있어요 mówi tylko, że coś istnieje albo że ktoś coś ma — niczego z niczym nie utożsamia. Stąd inna partykuła: temat zdania dostaje 은/는, a to, czego istnienie stwierdzamy, dostaje 이/가. Test praktyczny: jeśli po polsku pasuje „mam / jest (gdzieś)”, to 있어요; jeśli „to jest…”, to 이에요.","en":"These are two different sentence types that beginners blur into one ”something is”. N이에요 puts an equals sign between two things: A is B (identity). 있어요 only states that something exists or that someone has it — nothing is being equated. Hence the different particle: the sentence topic takes 은/는, while the thing whose existence is asserted takes 이/가. Practical test: if Polish ”I have / there is” fits, use 있어요; if ”this is...”, use 이에요.","exampleA":"그 사람은 제 동생이에요.","exampleAPl":"Ta osoba to mój młodszy brat (tożsamość: on = mój brat).","exampleAEn":"That person is my younger brother (identity: he = my brother).","exampleB":"저는 동생이 있어요.","exampleBPl":"Mam młodszego brata (istnienie/posiadanie — nikogo z nikim nie utożsamiam).","exampleBEn":"I have a younger brother (existence/possession — nothing is equated)."} },
@@ -18110,6 +18184,64 @@ function openGrammarRef(prefill){
   if(inp) inp.value = prefill || '';
   renderGrammarRef(prefill || '');
   document.getElementById('grammarRefPanel').classList.add('open');
+}
+
+/* Ćwiczenie opuszczania partykuł. Zdanie renderowane jako tokeny; partykuła
+   jest klikalna. Opuszczalna - znika z animacją, a zdanie zsuwa się w jeden
+   blok. Nieopuszczalna - drga i wyjaśnia, co niesie.
+
+   To celowo NIE jest quiz z punktacją. Chodzi o pokazanie zjawiska, nie
+   sprawdzenie go - user ma zobaczyć, że 밥을 먹었어 i 밥 먹었어 to to samo
+   zdanie w dwóch rejestrach. */
+let particleIndex = 0;
+
+function renderParticleBoard(){
+  const board = document.getElementById('particleBoard');
+  if(!board) return;
+  const it = PARTICLE_DROP[particleIndex];
+  const en = uiLang === 'en';
+
+  // Rozbicie zdania na część przed partykułą, partykułę i resztę.
+  const at = it.full.indexOf(it.particle);
+  const before = it.full.slice(0, at);
+  const after = it.full.slice(at + it.particle.length);
+
+  board.innerHTML = `
+    <div class="pd-sentence">
+      <span class="pd-tok">${escapeHtml(before)}</span><span class="pd-part" id="pdPart">${escapeHtml(it.particle)}</span><span class="pd-tok">${escapeHtml(after)}</span>
+    </div>
+    <div class="pd-pl">${escapeHtml(it.pl)}</div>
+    <div class="pd-note" id="pdNote">${en ? 'Tap the highlighted particle.' : 'Dotknij podświetlonej partykuły.'}</div>`;
+
+  const prog = document.getElementById('particleProgress');
+  if(prog) prog.textContent = (particleIndex + 1) + ' / ' + PARTICLE_DROP.length;
+
+  const part = document.getElementById('pdPart');
+  const note = document.getElementById('pdNote');
+  if(!part) return;
+  part.addEventListener('click', () => {
+    if(it.droppable){
+      part.classList.add('dropped');
+      // Po zniknięciu partykuły pokazujemy wersję potoczną w całości -
+      // user widzi, że to nadal to samo zdanie, tylko zsunięte.
+      setTimeout(() => {
+        const sent = board.querySelector('.pd-sentence');
+        if(sent) sent.textContent = it.dropped;
+      }, 240);
+      note.innerHTML = `<b>${escapeHtml(it.dropped)}</b> — ${escapeHtml(it.note)}`;
+    } else {
+      part.classList.remove('locked');
+      void part.offsetWidth;          // wymuszenie ponownego uruchomienia animacji
+      part.classList.add('locked');
+      note.innerHTML = `⚠️ ${escapeHtml(it.note)}`;
+    }
+  });
+}
+
+function openParticlePanel(){
+  particleIndex = 0;
+  renderParticleBoard();
+  document.getElementById('particlePanel').classList.add('open');
 }
 
 function comparisonsFor(pattern){
@@ -24457,6 +24589,21 @@ document.getElementById('imgToggle').addEventListener('change', async (e)=>{
 });
 
 document.getElementById('grammarRefSearch').addEventListener('input', (e) => renderGrammarRef(e.target.value));
+
+document.getElementById('openParticleBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  // Kompendium zostaje otwarte pod spodem - user wraca do niego po zamknięciu.
+  openParticlePanel();
+});
+
+document.getElementById('particlePrevBtn').addEventListener('click', ()=>{
+  particleIndex = (particleIndex - 1 + PARTICLE_DROP.length) % PARTICLE_DROP.length;
+  renderParticleBoard();
+});
+document.getElementById('particleNextBtn').addEventListener('click', ()=>{
+  particleIndex = (particleIndex + 1) % PARTICLE_DROP.length;
+  renderParticleBoard();
+});
 
 document.getElementById('openReportsBtn').addEventListener('click', () => { setScreen('reports'); loadReports(); });
 document.getElementById('reportsRefreshBtn').addEventListener('click', loadReports);
