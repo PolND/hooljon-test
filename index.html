@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.150
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.156
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -569,9 +569,43 @@
      kontener ma display:contents, więc kafle są wierszami (variant-row) i
      flex-direction:column rozbijał im układ - ikona lądowała nad tekstem
      zamiast obok. Zgłoszone przez testera 2026-09-04. */
+  /* Układ WSPÓLNY dla wszystkich motywów - kafel jest kontenerem flex.
+     Bez tego w Papierze, Hanji i Neonie kafle Nauki traciły układ całkowicie:
+     selektor .home-screen > .home-card.variant-row ich nie łapie, bo leżą
+     w .home-section-learn, a display:contents nie zmienia drzewa DOM dla
+     selektorów - tylko dla układu. Efekt: siedem elementów wychodziło poza
+     rodzica. Znalezione audytem po motywach 2026-09-04. */
+  /* Blok tekstu w kaflu - wspólny dla kafli poziomów, działów i menu.
+     Wcześniej kafle poziomów miały flex:1 wpisane inline, więc nie dało się
+     ich dopasować do reszty bez grzebania w szablonie JS. */
+  .hc-main{ flex:1; min-width:0; }
+
+  /* Glif poziomu w polu o tym samym kształcie co na kaflach działów -
+     kółko w Jadeicie, kwadrat w Kobalcie, neutralne pole w pozostałych. */
+  #vocabLevelCards .home-card .icon{
+    flex:none; width:44px; height:44px; border-radius:var(--radius);
+    display:grid; place-items:center;
+    background:var(--surface-2); color:var(--hwang);
+    font-family:var(--font-ko); font-size:20px;
+  }
+  [data-theme="jade"] #vocabLevelCards .home-card .icon{ border-radius:50%; }
+  [data-theme="kobalt"] #vocabLevelCards .home-card .icon{
+    border-radius:6px; background:var(--card-hi); color:var(--ink);
+  }
+
+  /* Kafle Nauki ORAZ kafle poziomów i działów - ten sam wzorzec wiersza.
+     Kafle poziomów miały wcześniej tylko regułę bazową (.home-card), czyli
+     cień i promień, ale bez display:flex - ikona i tekst nie układały się
+     w wiersz. Stąd wrażenie, że nie pasują do reszty. 2026-09-04. */
+  .home-section-learn .home-card,
+  #vocabLevelCards .home-card,
+  #vocabDeptCards .dg-body .home-card{
+    display:flex; align-items:center; gap:14px; padding:14px 16px;
+  }
+  /* Kolumna TYLKO w motywach z siatką - tam kafel jest kartą, nie wierszem. */
   [data-theme="jade"] .home-section-learn .home-card,
   [data-theme="kobalt"] .home-section-learn .home-card{
-    padding:12px 14px; display:flex; flex-direction:column; gap:8px;
+    padding:12px 14px; flex-direction:column; align-items:flex-start; gap:8px;
   }
   .home-section-learn .home-card .icon{ flex:none; }
   /* Skala typograficzna jest WSPÓLNA dla wszystkich motywów - to nie układ,
@@ -2261,6 +2295,10 @@
   .interstitial-card button:disabled{opacity:0.5; cursor:default;}
 
   /* MOTYW */
+  /* Obszar dotyku powiększony PRZEZROCZYSTYM ::after, nie wymiarami przycisku.
+     min-height rozciągnąłby okrąg 26px w owal - wygląd musi zostać, rośnie tylko
+     cel. Ta sama technika pasuje wszędzie, gdzie ikona jest mniejsza niż 36px.
+     Audyt wizualny 2026-09-04. */
   .theme-toggle-btn{
     width:26px;
     height:26px;
@@ -2275,7 +2313,9 @@
     cursor:pointer;
     padding:0;
     line-height:1;
-    transition:transform .15s ease;
+    transition:transform .15s ease; position:relative;}
+  .theme-toggle-btn::after{
+    content:''; position:absolute; inset:-6px; border-radius:50%;
   }
   .theme-toggle-btn:hover{transform:scale(1.08); border-color:var(--hwang);}
 
@@ -3811,6 +3851,11 @@
     color:var(--ink-dim);
     cursor:pointer;
     justify-content:center;
+    /* Obszar dotyku co najmniej 40px. Sam przełącznik ma 22px wysokości, a to
+       poniżej progu trafialności kciukiem - audyt wizualny wskazał ten ekran
+       jako największe skupisko za małych celów. Powiększamy ETYKIETĘ, nie
+       przełącznik: wygląd zostaje, cel rośnie. 2026-09-04. */
+    min-height:40px;
   }
   .vk-keyboard{
     margin-top:10px;
@@ -15571,7 +15616,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.150';
+const APP_VERSION = '2026-09-04.156';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15982,7 +16027,7 @@ function buildDeptCardHtml(cat){
   return `
     <div class="home-card" role="button" tabindex="0" data-dept="${escapeHtml(cat)}">
       <span class="icon">${DEPT_BADGE_ICONS[cat] || '📁'}</span>
-      <span style="flex:1;">
+      <span class="hc-main">
         <div class="title">${trCat(cat)}</div>
         <div class="desc">${uiLang === 'en' ? `${count} words` : `${count} słówek`}</div>
       </span>
@@ -16011,7 +16056,7 @@ function renderVocabDeptCards(){
   const allCard = `
     <div class="home-card" role="button" tabindex="0" data-dept="__all__">
       <span class="icon">🗂️</span>
-      <span style="flex:1;">
+      <span class="hc-main">
         <div class="title">${uiLang === 'en' ? 'All sections' : 'Wszystkie działy'}</div>
         <div class="desc">${uiLang === 'en' ? `All topics · ${allWords.length} words` : `Wszystkie tematy · ${allWords.length} słówek`}</div>
       </span>
@@ -16096,9 +16141,9 @@ function renderVocabDeptCards(){
 }
 
 const LEVEL_META = [
-  {level:1, icon:'🌱', label:'Podstawowy', labelEn:'Basic', sub:'TOPIK 1–2 · CEFR A1–A2', title:'Yusaeng (유생)'},
-  {level:2, icon:'🌿', label:'Średniozaawansowany', labelEn:'Intermediate', sub:'TOPIK 3–4 · CEFR B1–B2', title:'Seonbi (선비)'},
-  {level:3, icon:'🌳', label:'Zaawansowany', labelEn:'Advanced', sub:'TOPIK 3–4+ · CEFR B1–B2+', title:'Jiphyeon (집현)'},
+  {level:1, icon: '초', label:'Podstawowy', labelEn:'Basic', sub:'TOPIK 1–2 · CEFR A1–A2', title:'Yusaeng (유생)'},
+  {level:2, icon: '중', label:'Średniozaawansowany', labelEn:'Intermediate', sub:'TOPIK 3–4 · CEFR B1–B2', title:'Seonbi (선비)'},
+  {level:3, icon: '고', label:'Zaawansowany', labelEn:'Advanced', sub:'TOPIK 3–4+ · CEFR B1–B2+', title:'Jiphyeon (집현)'},
 ];
 
 function buildVocabLevelCardsHTML(perLevelCounts, totalCount){
@@ -16109,7 +16154,7 @@ function buildVocabLevelCardsHTML(perLevelCounts, totalCount){
     return `
     <div class="home-card${locked ? ' locked' : ''}" role="button" tabindex="0" data-level="${meta.level}" ${locked ? 'aria-disabled="true"' : ''}>
       <span class="icon">${meta.icon}</span>
-      <span style="flex:1;">
+      <span class="hc-main">
         <div class="title">${uiLang === 'en' ? meta.labelEn : meta.label} <span class="level-badge ${locked ? 'soon' : 'ready'}">${meta.sub}</span></div>
         <div class="desc">${uiLang === 'en' ? `${count} words` : `${count} słówek`} · ${meta.title}</div>
       </span>
@@ -16119,7 +16164,7 @@ function buildVocabLevelCardsHTML(perLevelCounts, totalCount){
   const allCard = `
     <div class="home-card" role="button" tabindex="0" data-level="all">
       <span class="icon">🗂️</span>
-      <span style="flex:1;">
+      <span class="hc-main">
         <div class="title">${uiLang === 'en' ? 'All (no level filter)' : 'Wszystkie (bez podziału na poziom)'}</div>
         <div class="desc">${uiLang === 'en' ? `${totalCount} words` : `${totalCount} słówek`}</div>
       </span>
@@ -20817,7 +20862,7 @@ function renderDictLevelCards(){
   wrap.innerHTML = LEVEL_META.map(meta => `
     <button class="home-card" data-level="${meta.level}">
       <span class="icon">${meta.icon}</span>
-      <span style="flex:1;">
+      <span class="hc-main">
         <div class="title">${uiLang === 'en' ? meta.labelEn : meta.label} <span class="level-badge ready">${meta.sub}</span></div>
         <div class="desc">${meta.title}</div>
       </span>
@@ -22978,7 +23023,7 @@ function renderGrammarChapterCards(){
     return `
     <div class="home-card${ch.ready ? '' : ' locked'}" role="button" tabindex="0" data-chapter="${ch.id}">
       <span class="icon">${ch.ready ? '🎯' : '🔒'}</span>
-      <span style="flex:1;">
+      <span class="hc-main">
         <div class="title">${ch.title} ${badge}</div>
         <div class="desc">${ch.ready ? (uiLang === 'en' ? 'Ready to practice' : 'Gotowe do ćwiczeń') : (uiLang === 'en' ? 'In progress' : 'W przygotowaniu')}</div>
       </span>
