@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.178
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.185
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -8746,7 +8746,7 @@ const ONBOARDING_STEPS = [
   {
     icon: '🔁',
     title: { pl: 'Ucz się we właściwym tempie', en: 'Learn at the right pace' },
-    body: { pl: 'Każdy dział ma poziomy — Podstawowy, Średniozaawansowany, Zaawansowany. System sam przypomni Ci o powtórkach dokładnie wtedy, gdy najłatwiej byłoby zapomnieć.', en: 'Every section has levels — Basic, Intermediate, Advanced. The system reminds you to review exactly when you are about to forget.' },
+    body: { pl: 'Każdy dział ma poziomy — Podstawowy, Średniozaawansowany, Wyższy średni. System sam przypomni Ci o powtórkach dokładnie wtedy, gdy najłatwiej byłoby zapomnieć.', en: 'Every section has levels — Basic, Intermediate, Upper-intermediate. The system reminds you to review exactly when you are about to forget.' },
   },
   {
     icon: '🚀',
@@ -9645,7 +9645,7 @@ const GRAMMAR_LEVELS = {
     ]
   },
   advanced: {
-    label: 'Zaawansowany',
+    label: 'Wyższy średni',
     title: 'Jiphyeon (집현)',
     topik: 'TOPIK II (poziom 5–6)',
     cefr: 'CEFR B1–B2+',
@@ -11389,7 +11389,7 @@ const DEFAULT_WORDS = [
   {ko:"배", pl:"łódź", en:"boat", category:"Transport i podróże", level:1, source:'krdict'},
   {ko:"내", pl:"wewnątrz", en:"inside", category:"Logika i gramatyka pojęciowa", level:1, pos:"pronoun", source:'krdict'},
   {ko:"모양", pl:"kształt", en:"shape", category:"Cechy i miary", level:1, pos:"noun", source:'krdict'},
-  {ko:"산", pl:"góra", en:"mountain", category:"Pogoda i pory roku", level:1, ex:"주말에 산에 가요.", exPl:"W weekend jadę w góry.", exEn:"I go to the mountain on weekends.", source:'krdict'},
+  {ko:"산", pl:"góra; (chem.) kwas", en:"mountain", category:"Pogoda i pory roku", level:1, ex:"주말에 산에 가요.", exPl:"W weekend jadę w góry.", exEn:"I go to the mountain on weekends.", source:'krdict'},
   {ko:"새", pl:"ptak", en:"bird", category:"Zwierzęta", level:1, pos:"noun", source:'krdict'},
   {ko:"하지만", pl:"ale", en:"but", category:"Logika i gramatyka pojęciowa", level:1, pos:"adverb", source:'krdict'},
   {ko:"조건", pl:"warunek", en:"condition", category:"Słownictwo ogólne", level:2, source:'krdict'},
@@ -11599,7 +11599,7 @@ const DEFAULT_WORDS = [
   {ko:"지구", pl:"ziemia", en:"earth", category:"Pogoda i pory roku", level:1, ex:"우리는 지구를 지켜야 해요.", exPl:"Musimy chronić Ziemię.", exEn:"We must protect the earth.", source:'krdict'},
   {ko:"번째", pl:"który raz", en:"how many times", category:"Cechy i miary", level:1, pos:"bound_noun", source:'krdict'},
   {ko:"소비자", pl:"konsument", en:"consumer", category:"Zakupy i pieniądze", level:2, pos:"noun", industryModule:["Korporacja, Biznes i Kultura Pracy"], source:'krdict'},
-  {ko:"규모", pl:"skala", en:"scale", category:"Cechy i miary", level:2, pos:"noun", source:'krdict'},
+  {ko:"규모", pl:"skala; (geol.) magnituda", en:"scale", category:"Cechy i miary", level:2, pos:"noun", source:'krdict'},
   {ko:"기준", pl:"standard", en:"standard", category:"Słownictwo ogólne", level:2, source:'krdict'},
   {ko:"반드시", pl:"koniecznie", en:"certainly", category:"Cechy i miary", level:1, pos:"adverb", source:'krdict'},
   {ko:"셈", pl:"zamiar", en:"intention", category:"Logika i gramatyka pojęciowa", level:3, pos:"noun", source:'krdict'},
@@ -11628,7 +11628,7 @@ const DEFAULT_WORDS = [
   {ko:"지식", pl:"wiedza", en:"knowledge", category:"Logika i gramatyka pojęciowa", level:2, pos:"noun", source:'krdict'},
   {ko:"여전히", pl:"nadal", en:"still", category:"Uczucia i charakter", level:2, pos:"adverb", source:'krdict'},
   {ko:"주인", pl:"właściciel", en:"owner", category:"Zakupy i pieniądze", level:1, pos:"noun", source:'krdict'},
-  {ko:"선", pl:"linia", en:"line", category:"Cechy i miary", level:1, pos:"noun", source:'krdict'},
+  {ko:"선", pl:"linia; (filoz.) dobro", en:"line", category:"Cechy i miary", level:1, pos:"noun", source:'krdict'},
   {ko:"인류", pl:"ludzkość", en:"humanity", category:"Słownictwo ogólne", level:3, source:'krdict'},
   {ko:"특징", pl:"cecha", en:"feature", category:"Słownictwo ogólne", level:2, source:'krdict'},
   {ko:"선수", pl:"zawodnik", en:"athlete", category:"Praca i kariera", level:1, pos:"noun", ex:"그는 유명한 축구 선수예요.", exPl:"On jest znanym piłkarzem.", exEn:"He is a famous soccer player.", source:'krdict'},
@@ -11778,7 +11778,7 @@ const DEFAULT_WORDS = [
   {ko:"노인", pl:"starsza osoba", en:"old person", category:"Rodzina i relacje", level:1, source:'krdict'},
   {ko:"영어", pl:"angielski", en:"english language", category:"Komunikacja i media", level:1, pos:"noun", source:'krdict'},
   {ko:"출신", pl:"pochodzenie", en:"origin / background", category:"Logika i gramatyka pojęciowa", level:2, pos:"noun", source:'krdict'},
-  {ko:"결정", pl:"decyzja", en:"decision", category:"Logika i gramatyka pojęciowa", level:1, pos:"noun", source:'krdict'},
+  {ko:"결정", pl:"decyzja; (geol.) kryształ", en:"decision", category:"Logika i gramatyka pojęciowa", level:1, pos:"noun", source:'krdict'},
   {ko:"경향", pl:"tendencja", en:"tendency / trend", category:"Cechy i miary", level:3, pos:"noun", source:'krdict'},
   {ko:"기록", pl:"zapis", en:"record / document", category:"Komunikacja i media", level:2, pos:"noun", source:'krdict'},
   {ko:"나름", pl:"zależnie od", en:"depending on", category:"Uczucia i charakter", level:2, pos:"bound_noun", source:'krdict'},
@@ -12199,7 +12199,7 @@ const DEFAULT_WORDS = [
   {ko:"태양", pl:"słońce", en:"the sun", category:"Pogoda i pory roku", level:1, ex:"한낮의 태양은 모든 것을 태워 버릴 듯 뜨거웠다.", exPl:"Południowe słońce było tak gorące, jakby miało wszystko spalić.", exEn:"The midday sun was so hot it seemed like it would burn everything.", source:'krdict'},
   {ko:"틀림없다", pl:"na pewno", en:"no mistake", category:"Cechy i miary", level:2, pos:"adjective", source:'krdict'},
   {ko:"프로", pl:"profesjonalista", en:"professional", category:"Praca i kariera", level:2, pos:"noun", source:'krdict'},
-  {ko:"공급", pl:"dostawa", en:"supply", category:"Zakupy i pieniądze", level:3, pos:"noun", source:'krdict'},
+  {ko:"공급", pl:"dostawa; (ekon.) podaż", en:"supply", category:"Zakupy i pieniądze", level:3, pos:"noun", source:'krdict'},
   {ko:"도로", pl:"droga", en:"road", category:"Transport i podróże", level:1, pos:"noun", source:'krdict'},
   {ko:"잘못", pl:"błąd", en:"mistake", category:"Uczucia i charakter", level:1, pos:"noun", source:'krdict'},
   {ko:"균형", pl:"równowaga", en:"balance", category:"Cechy i miary", level:2, pos:"noun", source:'krdict'},
@@ -12276,7 +12276,7 @@ const DEFAULT_WORDS = [
   {ko:"실험", pl:"eksperyment", en:"experiment", category:"Szkoła i nauka", level:2, pos:"noun", source:'krdict'},
   {ko:"용기", pl:"odwaga", en:"bravery", category:"Uczucia i charakter", level:2, pos:"noun", source:'krdict'},
   {ko:"토론", pl:"debata", en:"debate", category:"Komunikacja i media", level:2, pos:"noun", source:'krdict'},
-  {ko:"핵", pl:"rdzeń", en:"nucleus / core", category:"Nauka i technologia", level:1, pos:"noun", industryModule:["Nauka, Technologia i IT"], source:'krdict'},
+  {ko:"핵", pl:"rdzeń; (geol.) jądro Ziemi", en:"nucleus / core", category:"Nauka i technologia", level:1, pos:"noun", industryModule:["Nauka, Technologia i IT"], source:'krdict'},
   {ko:"고급", pl:"wysokiej klasy", en:"high rank / first class", category:"Cechy i miary", level:2, pos:"noun", source:'krdict'},
   {ko:"고생", pl:"trud", en:"hardship", category:"Słownictwo ogólne", level:1, source:'krdict'},
   {ko:"수석", pl:"najlepszy", en:"top seat", category:"Przyroda i geografia", level:3, pos:"noun", source:'krdict'},
@@ -13140,7 +13140,7 @@ const DEFAULT_WORDS = [
   {ko:"집어넣다", pl:"włożyć", en:"put in", category:"Ciało, zdrowie i czynności fizyczne", level:2, pos:"verb", source:'krdict'},
   {ko:"통계", pl:"statystyka", en:"statistics", category:"Szkoła i nauka", level:2, pos:"noun", industryModule:["Nauka, Technologia i IT"], source:'krdict'},
   {ko:"파일", pl:"plik", en:"file", category:"Praca i kariera", level:2, pos:"noun", industryModule:["Korporacja, Biznes i Kultura Pracy", "Nauka, Technologia i IT"], source:'krdict'},
-  {ko:"판", pl:"runda", en:"match / game", category:"Cechy i miary", level:2, pos:"bound_noun", source:'krdict'},
+  {ko:"판", pl:"runda; (geol.) płyta tektoniczna", en:"match / game", category:"Cechy i miary", level:2, pos:"bound_noun", source:'krdict'},
   {ko:"피해자", pl:"poszkodowany", en:"injured party", category:"Słownictwo ogólne", level:2, source:'krdict'},
   {ko:"필수적", pl:"niezbędny", en:"necessary", category:"Cechy i miary", level:2, pos:"noun", source:'krdict'},
   {ko:"학용품", pl:"przybory szkolne", en:"school supplies", category:"Szkoła i nauka", level:2, pos:"noun", source:'krdict'},
@@ -13365,7 +13365,7 @@ const DEFAULT_WORDS = [
   {ko:"서민", pl:"lud", en:"common people", category:"Zakupy i pieniądze", level:2, pos:"noun", source:'krdict'},
   {ko:"석", pl:"miejsce", en:"seat", category:"Cechy i miary", level:2, pos:"determiner", source:'krdict'},
   {ko:"선정하다", pl:"wybierać", en:"select", category:"Wydarzenia i aktywność społeczna", level:2, pos:"verb", source:'krdict'},
-  {ko:"소수", pl:"mniejszość", en:"small number", category:"Szkoła i nauka", level:2, pos:"noun", industryModule:["Nauka, Technologia i IT"], source:'krdict'},
+  {ko:"소수", pl:"mniejszość; (mat.) liczba pierwsza", en:"small number", category:"Szkoła i nauka", level:2, pos:"noun", industryModule:["Nauka, Technologia i IT"], source:'krdict'},
   {ko:"쇼", pl:"pokaz", en:"show", category:"Kultura i sztuka", level:2, pos:"noun", industryModule:["Media, Popkultura i K-Entertainment"], source:'krdict'},
   {ko:"수학", pl:"matematyka", en:"mathematics", category:"Szkoła i nauka", level:1, pos:"noun", source:'krdict'},
   {ko:"시어머니", pl:"teściowa", en:"husband's mother", category:"Rodzina i relacje", level:2, pos:"noun", source:'krdict'},
@@ -14031,7 +14031,7 @@ const DEFAULT_WORDS = [
   {ko:"보존하다", pl:"zachowywać", en:"preserve", category:"Polityka i prawo", level:3, pos:"verb", industryModule:["Prawo i Administracja"], source:'krdict'},
   {ko:"빨다", pl:"ssać", en:"suck", category:"Dom i mieszkanie", level:3, pos:"verb", source:'krdict'},
   {ko:"빼놓다", pl:"pominąć", en:"leave out", category:"Słownictwo ogólne", level:3, source:'krdict'},
-  {ko:"사상", pl:"w historii", en:"in history", category:"Czas i częstotliwość", level:3, pos:"noun", source:'krdict'},
+  {ko:"사상", pl:"w historii; (filoz.) myśl, doktryna", en:"in history", category:"Czas i częstotliwość", level:3, pos:"noun", source:'krdict'},
   {ko:"사춘기", pl:"dojrzewanie", en:"puberty", category:"Czas i częstotliwość", level:3, pos:"noun", source:'krdict'},
   {ko:"상반기", pl:"pierwsza połowa", en:"first half", category:"Czas i częstotliwość", level:3, pos:"noun", source:'krdict'},
   {ko:"서점", pl:"księgarnia", en:"bookstore", category:"Szkoła i nauka", level:1, pos:"noun", source:'krdict'},
@@ -14060,7 +14060,7 @@ const DEFAULT_WORDS = [
   {ko:"존경하다", pl:"szanować", en:"respect", category:"Wydarzenia i aktywność społeczna", level:3, pos:"verb", source:'krdict'},
   {ko:"종소리", pl:"dźwięk dzwonu", en:"sound of a bell", category:"Słownictwo ogólne", level:3, source:'krdict'},
   {ko:"중순", pl:"połowa miesiąca", en:"middle of the month", category:"Czas i częstotliwość", level:3, pos:"noun", source:'krdict'},
-  {ko:"지각", pl:"percepcja", en:"perception", category:"Szkoła i nauka", level:3, pos:"noun", source:'krdict'},
+  {ko:"지각", pl:"percepcja; (geol.) skorupa ziemska", en:"perception", category:"Szkoła i nauka", level:3, pos:"noun", source:'krdict'},
   {ko:"직선", pl:"linia prosta", en:"straight line", category:"Cechy i miary", level:3, pos:"noun", source:'krdict'},
   {ko:"참외", pl:"melon", en:"melon", category:"Jedzenie i kuchnia", level:3, pos:"noun", source:'krdict'},
   {ko:"체하다", pl:"udawać", en:"pretend", category:"Ciało, zdrowie i czynności fizyczne", level:3, pos:"verb", industryModule:["Medycyna i Ochrona Zdrowia"], source:'krdict'},
@@ -15352,7 +15352,7 @@ const DEFAULT_WORDS = [
   {ko:"풍경", pl:"krajobraz", en:"landscape / scenery", category:"Hobby i czas wolny", level:3, pos:"noun", source:'krdict'},
   {ko:"아프리카", pl:"Afryka", en:"africa", category:"Przyroda i geografia", level:3, pos:"noun", source:'krdict'},
   {ko:"근본", pl:"podstawa", en:"foundation / basis", category:"Słownictwo ogólne", level:3, source:'krdict'},
-  {ko:"정리", pl:"porządkowanie", en:"arrangement / organization", category:"Dom i mieszkanie", level:3, pos:"noun", source:'krdict'},
+  {ko:"정리", pl:"porządkowanie; (mat.) twierdzenie", en:"arrangement / organization", category:"Dom i mieszkanie", level:3, pos:"noun", source:'krdict'},
   {ko:"도쿄(동경)", pl:"Tokio", en:"tokyo", category:"Słownictwo ogólne", level:3, source:'krdict'},
   {ko:"워낙", pl:"z natury", en:"by nature / inherently", category:"Cechy i miary", level:3, pos:"adverb", source:'krdict'},
   {ko:"독일", pl:"Niemcy", en:"germany", category:"Przyroda i geografia", level:1, pos:"noun", source:'krdict'},
@@ -15365,7 +15365,7 @@ const DEFAULT_WORDS = [
   {ko:"아시아", pl:"Azja", en:"asia", category:"Przyroda i geografia", level:3, pos:"noun", source:'krdict'},
   {ko:"인천", pl:"Incheon", en:"incheon city", category:"Przyroda i geografia", level:1, pos:"noun", source:'krdict'},
   {ko:"거기", pl:"tam", en:"there", category:"Logika i gramatyka pojęciowa", level:1, pos:"pronoun", source:'krdict'},
-  {ko:"일식", pl:"kuchnia japońska", en:"japanese food", category:"Jedzenie i kuchnia", level:3, pos:"noun", source:'krdict'},
+  {ko:"일식", pl:"kuchnia japońska; (astr.) zaćmienie Słońca", en:"japanese food", category:"Jedzenie i kuchnia", level:3, pos:"noun", source:'krdict'},
   {ko:"작은딸", pl:"młodsza córka", en:"younger daughter", category:"Rodzina i relacje", level:1, source:'krdict'},
   {ko:"저곳", pl:"tamto miejsce", en:"that place over there", category:"Logika i gramatyka pojęciowa", level:3, pos:"pronoun", source:'krdict'},
   {ko:"초등학생", pl:"uczeń szkoły podstawowej", en:"elementary school student", category:"Szkoła i nauka", level:3, pos:"noun", source:'krdict'},
@@ -15872,7 +15872,125 @@ const DEFAULT_WORDS = [
 {"ko": "제품에 하자가 있어서 교환을 요청합니다.", "pl": "Produkt ma wadę, proszę o wymianę.", "en": "The product is defective, so I'm requesting an exchange.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "하자 = wada (prawnie); 요청하다 – formalne „wnosić o”"},
 {"ko": "무상 수리가 가능한지 확인 부탁드립니다.", "pl": "Proszę sprawdzić, czy możliwa jest bezpłatna naprawa.", "en": "Please check if a free repair is possible.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "무상 = nieodpłatny; 유상 = płatny"},
 {"ko": "세금 계산서 발행해 주십시오.", "pl": "Proszę wystawić fakturę VAT.", "en": "Please issue a tax invoice.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "세금 계산서 = faktura dla firm; wymaga 사업자 번호"},
-{"ko": "담당자와 직접 이야기하고 싶습니다.", "pl": "Chcę porozmawiać bezpośrednio z osobą odpowiedzialną.", "en": "I'd like to speak directly with the person in charge.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon"}
+{"ko": "담당자와 직접 이야기하고 싶습니다.", "pl": "Chcę porozmawiać bezpośrednio z osobą odpowiedzialną.", "en": "I'd like to speak directly with the person in charge.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon"},
+{"ko": "빙하기", "pl": "epoka lodowcowa", "en": "ice age", "category": "prehistoria", "level": 2, "ex": "마지막 빙하기는 약 1만 년 전에 끝났다.", "exPl": "Ostatnia epoka lodowcowa skończyła się około 10 tysięcy lat temu.", "source": "hooljon"},
+{"ko": "선사 시대", "pl": "prehistoria", "en": "prehistoric era", "category": "prehistoria", "level": 2, "ex": "선사 시대의 인류는 문자를 남기지 않았다.", "exPl": "Ludzie w prehistorii nie zostawili po sobie pisma.", "source": "hooljon"},
+{"ko": "구석기 시대", "pl": "paleolit", "en": "Paleolithic period", "category": "prehistoria", "level": 3, "ex": "구석기 시대 사람들은 돌을 깨서 도구를 만들었다.", "exPl": "Ludzie paleolitu wytwarzali narzędzia, rozłupując kamienie.", "source": "hooljon"},
+{"ko": "신석기 시대", "pl": "neolit", "en": "Neolithic period", "category": "prehistoria", "level": 3, "ex": "신석기 시대에 농경이 시작되었다.", "exPl": "W neolicie rozpoczęło się rolnictwo.", "source": "hooljon"},
+{"ko": "고고학", "pl": "archeologia", "en": "archaeology", "category": "prehistoria", "level": 2, "ex": "고고학은 유물을 통해 과거의 생활을 연구한다.", "exPl": "Archeologia bada dawne życie na podstawie zabytków.", "source": "hooljon"},
+{"ko": "발굴하다", "pl": "prowadzić wykopaliska, odkopywać", "en": "to excavate", "category": "prehistoria", "level": 2, "ex": "연구팀이 공룡 알 화석을 발굴했다.", "exPl": "Zespół badawczy odkopał skamieniałe jaja dinozaurów.", "source": "hooljon"},
+{"ko": "연대 측정", "pl": "datowanie", "en": "dating (of age)", "category": "prehistoria", "level": 3, "ex": "방사성 탄소 연대 측정으로 뼈의 나이를 알아냈다.", "exPl": "Wiek kości ustalono metodą datowania radiowęglowego.", "source": "hooljon"},
+{"ko": "행성", "pl": "planeta", "en": "planet", "category": "astronomia", "level": 2, "ex": "태양 주위를 도는 행성은 여덟 개다.", "exPl": "Wokół Słońca krąży osiem planet.", "source": "hooljon"},
+{"ko": "태양계", "pl": "Układ Słoneczny", "en": "solar system", "category": "astronomia", "level": 2, "ex": "태양계에서 가장 큰 행성은 목성이다.", "exPl": "Największą planetą Układu Słonecznego jest Jowisz.", "source": "hooljon"},
+{"ko": "은하", "pl": "galaktyka", "en": "galaxy", "category": "astronomia", "level": 2, "ex": "우주에는 수천억 개의 은하가 있다.", "exPl": "We wszechświecie są setki miliardów galaktyk.", "source": "hooljon"},
+{"ko": "혜성", "pl": "kometa", "en": "comet", "category": "astronomia", "level": 2, "ex": "이 혜성은 76년마다 지구 가까이 온다.", "exPl": "Ta kometa zbliża się do Ziemi co 76 lat.", "source": "hooljon"},
+{"ko": "궤도", "pl": "orbita", "en": "orbit", "category": "astronomia", "level": 2, "ex": "인공위성은 정해진 궤도를 따라 지구를 돈다.", "exPl": "Sztuczny satelita okrąża Ziemię po wyznaczonej orbicie.", "source": "hooljon"},
+{"ko": "별자리", "pl": "gwiazdozbiór", "en": "constellation", "category": "astronomia", "level": 2, "ex": "겨울 밤하늘에서는 오리온 별자리를 쉽게 찾을 수 있다.", "exPl": "Na zimowym niebie łatwo odnaleźć gwiazdozbiór Oriona.", "source": "hooljon"},
+{"ko": "광년", "pl": "rok świetlny", "en": "light-year", "category": "astronomia", "level": 3, "ex": "가장 가까운 별은 지구에서 4광년 떨어져 있다.", "exPl": "Najbliższa gwiazda jest oddalona od Ziemi o 4 lata świetlne.", "source": "hooljon"},
+{"ko": "효소", "pl": "enzym", "en": "enzyme", "category": "biologia", "level": 3, "ex": "효소는 몸속에서 화학 반응의 속도를 높인다.", "exPl": "Enzymy przyspieszają reakcje chemiczne w organizmie.", "source": "hooljon"},
+{"ko": "돌연변이", "pl": "mutacja", "en": "mutation", "category": "biologia", "level": 3, "ex": "돌연변이는 진화의 원동력 가운데 하나다.", "exPl": "Mutacje są jedną z sił napędowych ewolucji.", "source": "hooljon"},
+{"ko": "호르몬", "pl": "hormon", "en": "hormone", "category": "biologia", "level": 2, "ex": "호르몬은 혈액을 타고 온몸으로 퍼진다.", "exPl": "Hormony rozchodzą się po całym ciele wraz z krwią.", "source": "hooljon"},
+{"ko": "먹이 사슬", "pl": "łańcuch pokarmowy", "en": "food chain", "category": "biologia", "level": 2, "ex": "먹이 사슬의 맨 위에는 보통 육식 동물이 있다.", "exPl": "Na szczycie łańcucha pokarmowego stoją zazwyczaj drapieżniki.", "source": "hooljon"},
+{"ko": "유전", "pl": "dziedziczenie", "en": "heredity", "category": "biologia", "level": 2, "ex": "눈 색깔은 부모에게서 유전된다.", "exPl": "Kolor oczu jest dziedziczony po rodzicach.", "source": "hooljon"},
+{"ko": "산화", "pl": "utlenianie", "en": "oxidation", "category": "chemia", "level": 3, "ex": "철이 녹스는 것은 산화 반응이다.", "exPl": "Rdzewienie żelaza to reakcja utleniania.", "source": "hooljon"},
+{"ko": "연소", "pl": "spalanie", "en": "combustion", "category": "chemia", "level": 3, "ex": "연소에는 반드시 산소가 필요하다.", "exPl": "Do spalania niezbędny jest tlen.", "source": "hooljon"},
+{"ko": "결합", "pl": "wiązanie", "en": "bond", "category": "chemia", "level": 2, "ex": "물 분자는 수소와 산소의 결합으로 이루어진다.", "exPl": "Cząsteczka wody powstaje z wiązania wodoru i tlenu.", "source": "hooljon"},
+{"ko": "주기율표", "pl": "układ okresowy", "en": "periodic table", "category": "chemia", "level": 2, "ex": "주기율표에는 118개의 원소가 실려 있다.", "exPl": "W układzie okresowym znajduje się 118 pierwiastków.", "source": "hooljon"},
+{"ko": "이온", "pl": "jon", "en": "ion", "category": "chemia", "level": 3, "ex": "소금이 물에 녹으면 이온으로 나뉜다.", "exPl": "Sól rozpuszczona w wodzie rozpada się na jony.", "source": "hooljon"},
+{"ko": "농도", "pl": "stężenie", "en": "concentration", "category": "chemia", "level": 2, "ex": "농도가 높을수록 반응이 빨라진다.", "exPl": "Im wyższe stężenie, tym szybsza reakcja.", "source": "hooljon"},
+{"ko": "끓는점", "pl": "temperatura wrzenia", "en": "boiling point", "category": "chemia", "level": 2, "ex": "물의 끓는점은 높은 산에서는 100도보다 낮다.", "exPl": "Temperatura wrzenia wody wysoko w górach jest niższa niż 100 stopni.", "source": "hooljon"},
+{"ko": "가속도", "pl": "przyspieszenie", "en": "acceleration", "category": "fizyka", "level": 3, "ex": "가속도는 속도가 얼마나 빨리 변하는지를 나타낸다.", "exPl": "Przyspieszenie określa, jak szybko zmienia się prędkość.", "source": "hooljon"},
+{"ko": "관성", "pl": "bezwładność", "en": "inertia", "category": "fizyka", "level": 3, "ex": "버스가 갑자기 멈추면 관성 때문에 몸이 앞으로 쏠린다.", "exPl": "Gdy autobus nagle hamuje, bezwładność pcha ciało do przodu.", "source": "hooljon"},
+{"ko": "밀도", "pl": "gęstość", "en": "density", "category": "fizyka", "level": 2, "ex": "얼음은 물보다 밀도가 낮아서 물에 뜬다.", "exPl": "Lód ma mniejszą gęstość niż woda, dlatego na niej pływa.", "source": "hooljon"},
+{"ko": "입자", "pl": "cząstka", "en": "particle", "category": "fizyka", "level": 2, "ex": "모든 물질은 아주 작은 입자로 이루어져 있다.", "exPl": "Cała materia składa się z bardzo małych cząstek.", "source": "hooljon"},
+{"ko": "굴절", "pl": "załamanie (światła)", "en": "refraction", "category": "fizyka", "level": 3, "ex": "빛이 물속으로 들어갈 때 굴절이 일어난다.", "exPl": "Gdy światło wchodzi do wody, następuje załamanie.", "source": "hooljon"},
+{"ko": "진공", "pl": "próżnia", "en": "vacuum", "category": "fizyka", "level": 2, "ex": "진공에서는 소리가 전달되지 않는다.", "exPl": "W próżni dźwięk się nie rozchodzi.", "source": "hooljon"},
+{"ko": "방사능", "pl": "promieniotwórczość", "en": "radioactivity", "category": "fizyka", "level": 3, "ex": "방사능은 눈에 보이지 않지만 측정할 수 있다.", "exPl": "Promieniotwórczości nie widać, ale można ją zmierzyć.", "source": "hooljon"},
+{"ko": "맨틀", "pl": "płaszcz ziemski", "en": "mantle", "category": "geologia", "level": 3, "ex": "맨틀은 지각 아래에서 천천히 움직인다.", "exPl": "Płaszcz ziemski powoli przemieszcza się pod skorupą.", "source": "hooljon"},
+{"ko": "단층", "pl": "uskok", "en": "fault", "category": "geologia", "level": 3, "ex": "단층을 따라 땅이 어긋나면서 지진이 발생했다.", "exPl": "Ziemia przesunęła się wzdłuż uskoku i doszło do trzęsienia.", "source": "hooljon"},
+{"ko": "습곡", "pl": "fałd", "en": "fold", "category": "geologia", "level": 3, "ex": "산맥의 습곡은 수백만 년에 걸쳐 만들어졌다.", "exPl": "Fałdy w łańcuchu górskim powstawały przez miliony lat.", "source": "hooljon"},
+{"ko": "침식", "pl": "erozja", "en": "erosion", "category": "geologia", "level": 2, "ex": "강물의 침식으로 깊은 계곡이 생겼다.", "exPl": "Erozja rzeczna wyżłobiła głęboką dolinę.", "source": "hooljon"},
+{"ko": "풍화", "pl": "wietrzenie", "en": "weathering", "category": "geologia", "level": 3, "ex": "바위는 오랜 풍화를 거쳐 모래가 된다.", "exPl": "Skała po długim wietrzeniu zamienia się w piasek.", "source": "hooljon"},
+{"ko": "퇴적", "pl": "osadzanie, sedymentacja", "en": "sedimentation", "category": "geologia", "level": 3, "ex": "강 하구에는 퇴적으로 넓은 평야가 생긴다.", "exPl": "W ujściu rzeki przez osadzanie powstaje szeroka równina.", "source": "hooljon"},
+{"ko": "퇴적암", "pl": "skała osadowa", "en": "sedimentary rock", "category": "geologia", "level": 3, "ex": "화석은 대부분 퇴적암에서 발견된다.", "exPl": "Skamieliny znajduje się głównie w skałach osadowych.", "source": "hooljon"},
+{"ko": "화성암", "pl": "skała magmowa", "en": "igneous rock", "category": "geologia", "level": 3, "ex": "화성암은 마그마가 식어서 굳은 것이다.", "exPl": "Skała magmowa to zastygła magma.", "source": "hooljon"},
+{"ko": "변성암", "pl": "skała metamorficzna", "en": "metamorphic rock", "category": "geologia", "level": 3, "ex": "대리석은 석회암이 변한 변성암이다.", "exPl": "Marmur to skała metamorficzna powstała z wapienia.", "source": "hooljon"},
+{"ko": "광물", "pl": "minerał", "en": "mineral", "category": "geologia", "level": 2, "ex": "지구에는 5천 종이 넘는 광물이 알려져 있다.", "exPl": "Na Ziemi znanych jest ponad 5 tysięcy minerałów.", "source": "hooljon"},
+{"ko": "용암", "pl": "lawa", "en": "lava", "category": "geologia", "level": 2, "ex": "용암이 식으면 검은 바위가 된다.", "exPl": "Gdy lawa stygnie, zamienia się w czarną skałę.", "source": "hooljon"},
+{"ko": "마그마", "pl": "magma", "en": "magma", "category": "geologia", "level": 2, "ex": "마그마는 땅속 깊은 곳에 녹아 있는 암석이다.", "exPl": "Magma to stopiona skała głęboko pod ziemią.", "source": "hooljon"},
+{"ko": "분화하다", "pl": "wybuchać (o wulkanie)", "en": "to erupt", "category": "geologia", "level": 2, "ex": "이 화산은 100년 만에 다시 분화했다.", "exPl": "Ten wulkan wybuchł ponownie po stu latach.", "source": "hooljon"},
+{"ko": "빙하", "pl": "lodowiec", "en": "glacier", "category": "geologia", "level": 2, "ex": "빙하가 녹으면서 해수면이 올라가고 있다.", "exPl": "Lodowce topnieją i poziom morza się podnosi.", "source": "hooljon"},
+{"ko": "지하수", "pl": "wody gruntowe", "en": "groundwater", "category": "geologia", "level": 2, "ex": "마을 사람들은 지하수를 식수로 쓴다.", "exPl": "Mieszkańcy wsi używają wód gruntowych jako wody pitnej.", "source": "hooljon"},
+{"ko": "석탄", "pl": "węgiel kamienny", "en": "coal", "category": "geologia", "level": 2, "ex": "석탄은 오래전 식물이 땅속에서 변한 것이다.", "exPl": "Węgiel kamienny powstał z dawnych roślin przeobrażonych pod ziemią.", "source": "hooljon"},
+{"ko": "석회암", "pl": "wapień", "en": "limestone", "category": "geologia", "level": 3, "ex": "석회암 지대에는 동굴이 많다.", "exPl": "Na terenach wapiennych jest wiele jaskiń.", "source": "hooljon"},
+{"ko": "동굴", "pl": "jaskinia", "en": "cave", "category": "geologia", "level": 2, "ex": "이 동굴은 물이 바위를 녹여서 만들어졌다.", "exPl": "Ta jaskinia powstała, gdy woda rozpuściła skałę.", "source": "hooljon"},
+{"ko": "지형", "pl": "ukształtowanie terenu", "en": "landform, terrain", "category": "geologia", "level": 2, "ex": "한반도의 지형은 동쪽이 높고 서쪽이 낮다.", "exPl": "Ukształtowanie Półwyspu Koreańskiego jest wysokie na wschodzie i niskie na zachodzie.", "source": "hooljon"},
+{"ko": "온천", "pl": "gorące źródło", "en": "hot spring", "category": "geologia", "level": 2, "ex": "온천은 땅속 열로 데워진 지하수다.", "exPl": "Gorące źródło to woda gruntowa podgrzana ciepłem wnętrza Ziemi.", "source": "hooljon"},
+{"ko": "방정식", "pl": "równanie", "en": "equation", "category": "matematyka", "level": 2, "ex": "이 방정식의 해는 두 개다.", "exPl": "To równanie ma dwa rozwiązania.", "source": "hooljon"},
+{"ko": "함수", "pl": "funkcja", "en": "function", "category": "matematyka", "level": 2, "ex": "함수는 하나의 값을 다른 값에 대응시킨다.", "exPl": "Funkcja przyporządkowuje jednej wartości inną wartość.", "source": "hooljon"},
+{"ko": "변수", "pl": "zmienna", "en": "variable", "category": "matematyka", "level": 2, "ex": "수학에서 변수는 보통 x나 y로 나타낸다.", "exPl": "W matematyce zmienne oznacza się zwykle przez x lub y.", "source": "hooljon"},
+{"ko": "미분", "pl": "różniczkowanie, pochodna", "en": "differentiation", "category": "matematyka", "level": 3, "ex": "미분을 이용하면 순간 속도를 구할 수 있다.", "exPl": "Za pomocą pochodnej można wyznaczyć prędkość chwilową.", "source": "hooljon"},
+{"ko": "적분", "pl": "całkowanie, całka", "en": "integration", "category": "matematyka", "level": 3, "ex": "적분으로 곡선 아래의 넓이를 계산한다.", "exPl": "Całką oblicza się pole pod krzywą.", "source": "hooljon"},
+{"ko": "극한", "pl": "granica", "en": "limit", "category": "matematyka", "level": 3, "ex": "극한 개념은 미적분의 기초가 된다.", "exPl": "Pojęcie granicy jest podstawą rachunku różniczkowego i całkowego.", "source": "hooljon"},
+{"ko": "확률", "pl": "prawdopodobieństwo", "en": "probability", "category": "matematyka", "level": 2, "ex": "동전을 던져 앞면이 나올 확률은 2분의 1이다.", "exPl": "Prawdopodobieństwo wyrzucenia orła wynosi jedną drugą.", "source": "hooljon"},
+{"ko": "집합", "pl": "zbiór", "en": "set", "category": "matematyka", "level": 2, "ex": "짝수의 집합은 무한하다.", "exPl": "Zbiór liczb parzystych jest nieskończony.", "source": "hooljon"},
+{"ko": "증명", "pl": "dowód", "en": "proof", "category": "matematyka", "level": 2, "ex": "이 정리의 증명은 300년 동안 아무도 찾지 못했다.", "exPl": "Dowodu tego twierdzenia nikt nie znalazł przez 300 lat.", "source": "hooljon"},
+{"ko": "수열", "pl": "ciąg", "en": "sequence", "category": "matematyka", "level": 3, "ex": "피보나치 수열은 앞의 두 수를 더해 만든다.", "exPl": "Ciąg Fibonacciego tworzy się, dodając dwie poprzednie liczby.", "source": "hooljon"},
+{"ko": "행렬", "pl": "macierz", "en": "matrix", "category": "matematyka", "level": 3, "ex": "컴퓨터 그래픽은 행렬 계산으로 이루어진다.", "exPl": "Grafika komputerowa opiera się na obliczeniach macierzowych.", "source": "hooljon"},
+{"ko": "벡터", "pl": "wektor", "en": "vector", "category": "matematyka", "level": 3, "ex": "벡터는 크기와 방향을 함께 가진다.", "exPl": "Wektor ma jednocześnie wartość i kierunek.", "source": "hooljon"},
+{"ko": "좌표", "pl": "współrzędne", "en": "coordinates", "category": "matematyka", "level": 2, "ex": "지도 위의 위치는 좌표로 나타낼 수 있다.", "exPl": "Położenie na mapie można zapisać za pomocą współrzędnych.", "source": "hooljon"},
+{"ko": "기울기", "pl": "nachylenie, współczynnik kierunkowy", "en": "slope", "category": "matematyka", "level": 3, "ex": "직선의 기울기가 클수록 그래프가 가파르다.", "exPl": "Im większe nachylenie prostej, tym bardziej stromy wykres.", "source": "hooljon"},
+{"ko": "분수", "pl": "ułamek", "en": "fraction", "category": "matematyka", "level": 2, "ex": "분수는 위의 분자와 아래의 분모로 이루어진다.", "exPl": "Ułamek składa się z licznika na górze i mianownika na dole.", "source": "hooljon"},
+{"ko": "무한대", "pl": "nieskończoność", "en": "infinity", "category": "matematyka", "level": 2, "ex": "자연수는 무한대까지 계속된다.", "exPl": "Liczby naturalne ciągną się aż do nieskończoności.", "source": "hooljon"},
+{"ko": "정수", "pl": "liczba całkowita", "en": "integer", "category": "matematyka", "level": 2, "ex": "정수에는 음수와 0도 포함된다.", "exPl": "Do liczb całkowitych należą też liczby ujemne i zero.", "source": "hooljon"},
+{"ko": "지수", "pl": "wykładnik, potęga", "en": "exponent", "category": "matematyka", "level": 3, "ex": "세균은 지수적으로 늘어난다.", "exPl": "Bakterie mnożą się wykładniczo.", "source": "hooljon"},
+{"ko": "각도", "pl": "kąt", "en": "angle", "category": "matematyka", "level": 2, "ex": "삼각형의 세 각도를 더하면 180도다.", "exPl": "Suma trzech kątów trójkąta wynosi 180 stopni.", "source": "hooljon"},
+{"ko": "넓이", "pl": "pole powierzchni", "en": "area", "category": "matematyka", "level": 2, "ex": "원의 넓이는 반지름의 제곱에 파이를 곱한 것이다.", "exPl": "Pole koła to promień do kwadratu pomnożony przez pi.", "source": "hooljon"},
+{"ko": "인식", "pl": "poznanie", "en": "cognition, knowledge", "category": "filozofia", "level": 3, "ex": "우리의 인식은 감각에 의해 제한된다.", "exPl": "Nasze poznanie jest ograniczone przez zmysły.", "source": "hooljon"},
+{"ko": "윤리", "pl": "etyka", "en": "ethics", "category": "filozofia", "level": 2, "ex": "윤리는 무엇이 옳은 행동인지 묻는다.", "exPl": "Etyka pyta, jakie postępowanie jest słuszne.", "source": "hooljon"},
+{"ko": "논증", "pl": "argumentacja", "en": "argument, reasoning", "category": "filozofia", "level": 3, "ex": "좋은 논증은 참인 전제에서 출발한다.", "exPl": "Dobra argumentacja wychodzi od prawdziwych przesłanek.", "source": "hooljon"},
+{"ko": "전제", "pl": "przesłanka", "en": "premise", "category": "filozofia", "level": 3, "ex": "이 결론은 잘못된 전제 위에 서 있다.", "exPl": "Ten wniosek opiera się na fałszywej przesłance.", "source": "hooljon"},
+{"ko": "모순", "pl": "sprzeczność", "en": "contradiction", "category": "filozofia", "level": 2, "ex": "그의 주장에는 모순이 있다.", "exPl": "W jego twierdzeniu jest sprzeczność.", "source": "hooljon"},
+{"ko": "자유 의지", "pl": "wolna wola", "en": "free will", "category": "filozofia", "level": 3, "ex": "자유 의지가 있는지는 여전히 논쟁거리다.", "exPl": "Czy istnieje wolna wola, wciąż pozostaje przedmiotem sporu.", "source": "hooljon"},
+{"ko": "자아", "pl": "ja, jaźń", "en": "self, ego", "category": "filozofia", "level": 3, "ex": "자아는 시간이 지나도 같은 존재로 남는가?", "exPl": "Czy jaźń pozostaje tym samym bytem mimo upływu czasu?", "source": "hooljon"},
+{"ko": "정의", "pl": "sprawiedliwość", "en": "justice", "category": "filozofia", "level": 2, "ex": "플라톤은 정의가 무엇인지 묻는 책을 썼다.", "exPl": "Platon napisał księgę pytającą, czym jest sprawiedliwość.", "source": "hooljon"},
+{"ko": "악", "pl": "zło", "en": "evil", "category": "filozofia", "level": 3, "ex": "악의 문제는 종교 철학의 오랜 주제다.", "exPl": "Problem zła jest odwiecznym tematem filozofii religii.", "source": "hooljon"},
+{"ko": "회의주의", "pl": "sceptycyzm", "en": "skepticism", "category": "filozofia", "level": 3, "ex": "회의주의는 확실한 지식이 가능한지 의심한다.", "exPl": "Sceptycyzm wątpi, czy pewna wiedza jest możliwa.", "source": "hooljon"},
+{"ko": "형이상학", "pl": "metafizyka", "en": "metaphysics", "category": "filozofia", "level": 3, "ex": "형이상학은 존재 자체를 묻는 학문이다.", "exPl": "Metafizyka to nauka pytająca o samo istnienie.", "source": "hooljon"},
+{"ko": "개념", "pl": "pojęcie", "en": "concept", "category": "filozofia", "level": 2, "ex": "시간이라는 개념은 문화마다 다르게 이해된다.", "exPl": "Pojęcie czasu jest rozumiane różnie w różnych kulturach.", "source": "hooljon"},
+{"ko": "원리", "pl": "zasada, reguła", "en": "principle", "category": "filozofia", "level": 2, "ex": "칸트는 도덕의 보편적 원리를 찾으려 했다.", "exPl": "Kant szukał uniwersalnej zasady moralności.", "source": "hooljon"},
+{"ko": "실존", "pl": "egzystencja", "en": "existence", "category": "filozofia", "level": 3, "ex": "실존주의는 인간이 스스로 삶의 의미를 만든다고 본다.", "exPl": "Egzystencjalizm zakłada, że człowiek sam nadaje życiu sens.", "source": "hooljon"},
+{"ko": "인식론", "pl": "epistemologia", "en": "epistemology", "category": "filozofia", "level": 3, "ex": "인식론은 우리가 무엇을 어떻게 알 수 있는지 묻는다.", "exPl": "Epistemologia pyta, co i w jaki sposób możemy wiedzieć.", "source": "hooljon"},
+{"ko": "유물론", "pl": "materializm", "en": "materialism", "category": "filozofia", "level": 3, "ex": "유물론은 정신도 물질에서 나온다고 본다.", "exPl": "Materializm uznaje, że także umysł pochodzi z materii.", "source": "hooljon"},
+{"ko": "이원론", "pl": "dualizm", "en": "dualism", "category": "filozofia", "level": 3, "ex": "데카르트의 이원론은 몸과 마음을 둘로 나눈다.", "exPl": "Dualizm Kartezjusza rozdziela ciało i umysł.", "source": "hooljon"},
+{"ko": "은유", "pl": "metafora", "en": "metaphor", "category": "literatura", "level": 3, "ex": "시인은 인생을 강에 비유하는 은유를 자주 쓴다.", "exPl": "Poeta często używa metafory porównującej życie do rzeki.", "source": "hooljon"},
+{"ko": "결말", "pl": "zakończenie", "en": "ending", "category": "literatura", "level": 2, "ex": "이 영화는 결말이 열려 있어서 해석이 다양하다.", "exPl": "Ten film ma otwarte zakończenie, więc interpretacje są różne.", "source": "hooljon"},
+{"ko": "화자", "pl": "narrator", "en": "narrator", "category": "literatura", "level": 3, "ex": "이 소설의 화자는 이야기 속 인물이 아니다.", "exPl": "Narrator tej powieści nie jest postacią z opowieści.", "source": "hooljon"},
+{"ko": "인플레이션", "pl": "inflacja", "en": "inflation", "category": "ekonomia", "level": 2, "ex": "인플레이션이 심하면 돈의 가치가 떨어진다.", "exPl": "Przy silnej inflacji wartość pieniądza spada.", "source": "hooljon"},
+{"ko": "금리", "pl": "stopa procentowa", "en": "interest rate", "category": "ekonomia", "level": 2, "ex": "중앙은행이 금리를 올리자 대출이 줄었다.", "exPl": "Gdy bank centralny podniósł stopy procentowe, liczba kredytów spadła.", "source": "hooljon"},
+{"ko": "자본", "pl": "kapitał", "en": "capital", "category": "ekonomia", "level": 2, "ex": "기업은 자본을 모아 공장을 짓는다.", "exPl": "Firma gromadzi kapitał, żeby zbudować fabrykę.", "source": "hooljon"},
+{"ko": "관세", "pl": "cło", "en": "tariff", "category": "ekonomia", "level": 3, "ex": "관세를 높이면 외국 상품이 비싸진다.", "exPl": "Podniesienie ceł sprawia, że zagraniczne towary drożeją.", "source": "hooljon"},
+{"ko": "국내총생산", "pl": "produkt krajowy brutto", "en": "gross domestic product", "category": "ekonomia", "level": 3, "ex": "국내총생산은 한 나라의 경제 규모를 나타낸다.", "exPl": "Produkt krajowy brutto pokazuje wielkość gospodarki danego kraju.", "source": "hooljon"},
+{"ko": "경기 침체", "pl": "recesja", "en": "recession", "category": "ekonomia", "level": 3, "ex": "경기 침체가 길어지면서 실업자가 늘었다.", "exPl": "Przedłużająca się recesja zwiększyła liczbę bezrobotnych.", "source": "hooljon"},
+{"ko": "실업률", "pl": "stopa bezrobocia", "en": "unemployment rate", "category": "ekonomia", "level": 2, "ex": "청년 실업률이 다시 높아졌다.", "exPl": "Stopa bezrobocia wśród młodych znów wzrosła.", "source": "hooljon"},
+{"ko": "화폐", "pl": "pieniądz, waluta", "en": "currency, money", "category": "ekonomia", "level": 2, "ex": "화폐가 생기기 전에는 물건을 서로 바꿨다.", "exPl": "Zanim powstał pieniądz, wymieniano się towarami.", "source": "hooljon"},
+{"ko": "독점", "pl": "monopol", "en": "monopoly", "category": "ekonomia", "level": 3, "ex": "한 회사가 시장을 독점하면 가격 경쟁이 사라진다.", "exPl": "Gdy jedna firma ma monopol na rynku, znika konkurencja cenowa.", "source": "hooljon"},
+{"ko": "채권", "pl": "obligacja", "en": "bond", "category": "ekonomia", "level": 3, "ex": "채권은 주식보다 안전하지만 수익이 낮다.", "exPl": "Obligacje są bezpieczniejsze niż akcje, ale dają niższy zysk.", "source": "hooljon"},
+{"ko": "적자", "pl": "deficyt", "en": "deficit", "category": "ekonomia", "level": 3, "ex": "그 회사는 3년째 적자를 내고 있다.", "exPl": "Ta firma trzeci rok z rzędu notuje deficyt.", "source": "hooljon"},
+{"ko": "흑자", "pl": "nadwyżka", "en": "surplus", "category": "ekonomia", "level": 3, "ex": "무역 흑자가 사상 최대를 기록했다.", "exPl": "Nadwyżka handlowa osiągnęła rekordowy poziom.", "source": "hooljon"},
+{"ko": "인지", "pl": "poznanie (procesy poznawcze)", "en": "cognition", "category": "psychologia", "level": 3, "ex": "인지 심리학은 사람이 정보를 어떻게 처리하는지 연구한다.", "exPl": "Psychologia poznawcza bada, jak człowiek przetwarza informacje.", "source": "hooljon"},
+{"ko": "무의식", "pl": "podświadomość, nieświadomość", "en": "the unconscious", "category": "psychologia", "level": 3, "ex": "무의식은 우리가 모르는 사이에 행동에 영향을 준다.", "exPl": "Nieświadomość wpływa na zachowanie, choć tego nie zauważamy.", "source": "hooljon"},
+{"ko": "동기", "pl": "motywacja", "en": "motivation", "category": "psychologia", "level": 2, "ex": "동기가 강할수록 학습 효과가 높다.", "exPl": "Im silniejsza motywacja, tym lepsze efekty nauki.", "source": "hooljon"},
+{"ko": "애착", "pl": "przywiązanie", "en": "attachment", "category": "psychologia", "level": 3, "ex": "어린 시절의 애착은 어른이 된 뒤의 관계에도 영향을 준다.", "exPl": "Przywiązanie z dzieciństwa wpływa na relacje w dorosłym życiu.", "source": "hooljon"},
+{"ko": "자존감", "pl": "poczucie własnej wartości", "en": "self-esteem", "category": "psychologia", "level": 2, "ex": "자존감이 높은 사람은 실패를 덜 두려워한다.", "exPl": "Osoby o wysokim poczuciu własnej wartości mniej boją się porażki.", "source": "hooljon"},
+{"ko": "공감", "pl": "empatia", "en": "empathy", "category": "psychologia", "level": 2, "ex": "공감 능력은 어릴 때부터 길러진다.", "exPl": "Zdolność do empatii kształtuje się od dzieciństwa.", "source": "hooljon"},
+{"ko": "충동", "pl": "impuls, popęd", "en": "impulse", "category": "psychologia", "level": 3, "ex": "충동을 조절하는 능력은 앞이마 부분의 뇌와 관련이 있다.", "exPl": "Zdolność kontroli impulsów wiąże się z przednią częścią mózgu.", "source": "hooljon"},
+{"ko": "집중력", "pl": "koncentracja", "en": "concentration", "category": "psychologia", "level": 2, "ex": "스마트폰 알림은 집중력을 크게 떨어뜨린다.", "exPl": "Powiadomienia w smartfonie znacznie obniżają koncentrację.", "source": "hooljon"},
+{"ko": "본능", "pl": "instynkt", "en": "instinct", "category": "psychologia", "level": 2, "ex": "아기가 엄마 목소리를 알아듣는 것은 본능에 가깝다.", "exPl": "To, że niemowlę rozpoznaje głos matki, jest bliskie instynktowi.", "source": "hooljon"},
+{"ko": "욕구", "pl": "potrzeba, pragnienie", "en": "need, desire", "category": "psychologia", "level": 3, "ex": "매슬로는 인간의 욕구를 다섯 단계로 나누었다.", "exPl": "Maslow podzielił ludzkie potrzeby na pięć poziomów.", "source": "hooljon"},
+{"ko": "좌절", "pl": "frustracja", "en": "frustration", "category": "psychologia", "level": 3, "ex": "목표가 막히면 좌절을 느끼고 때로 공격적으로 변한다.", "exPl": "Gdy cel jest zablokowany, odczuwamy frustrację i czasem stajemy się agresywni.", "source": "hooljon"},
+{"ko": "조건화", "pl": "warunkowanie", "en": "conditioning", "category": "psychologia", "level": 3, "ex": "파블로프의 개 실험은 조건화의 대표적인 예다.", "exPl": "Eksperyment Pawłowa z psem to klasyczny przykład warunkowania.", "source": "hooljon"},
+{"ko": "방어 기제", "pl": "mechanizm obronny", "en": "defense mechanism", "category": "psychologia", "level": 3, "ex": "부정은 가장 흔한 방어 기제 가운데 하나다.", "exPl": "Zaprzeczanie jest jednym z najczęstszych mechanizmów obronnych.", "source": "hooljon"}
 ];
 
 const STORAGE_KEYS = { custom:"custom-words", missed:"missed-words", stats:"session-stats", showImg:"show-image", premium:"premium-status", daily:"daily-quota", categories:"selected-categories", theme:"theme-preference", loggedIn:"logged-in-status", account:"account-info", readings:"custom-readings", uiLang:"translation-language", sound:"sound-enabled", srs:"srs-data", dayStreak:"day-streak", badges:"earned-badges", mastery:"mastery-stats", dailyValue:"daily-value-stats", storyProgress:"story-progress" };
@@ -15968,7 +16086,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.178';
+const APP_VERSION = '2026-09-05.185';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -16340,25 +16458,30 @@ document.querySelectorAll('.home-card[data-vocab-flow]').forEach(card=>{
 // po category, bo część słów (np. 대륙, 지진) słusznie należy też do innych, ogólniejszych
 // działów - jawna lista pozwala reużywać je tutaj bez duplikowania wpisów w bazie.
 const ACADEMY_DOMAINS = [
-  { id:'prehistoria', icon:'🦕', name:{pl:'Historia i prehistoria', en:'History and prehistory'}, unlocked:true,
-    wordKos:["공룡","화석","화석 연료","매머드","고생대","신생대","지질학","지층","암석","대륙","화산","지진","멸종","진화","중생대","트라이아스기","쥐라기","백악기"] },
-  { id:'astronomia', icon:'🔭', name:{pl:'Astronomia i kosmos', en:'Astronomy and space'}, unlocked:true,
-    wordKos:["하늘","별","지구","태양","밤하늘","달빛","우주","햇빛","보름달","둥근달","북두칠성","새벽달","달나라","달무리","반달","초승달"] },
-  { id:'biologia', icon:'🧬', name:{pl:'Biologia', en:'Biology'}, unlocked:true,
-    wordKos:["세포","유전자","진화","디엔에이","세균","바이러스","광합성","생태계","유기체","번식하다","서식지","멸종위기종","신진대사","면역","분자","염색체","미생물","단백질"] },
-  { id:'chemia', icon:'⚗️', name:{pl:'Chemia', en:'Chemistry'}, unlocked:true,
-    wordKos:["원소","화합물","산소","수소","탄소","질소","염기","반응","용액","기체","액체","고체","원자","분자량","촉매","화학식","금속"] },
-  { id:'fizyka', icon:'⚛️', name:{pl:'Fizyka', en:'Physics'}, unlocked:true,
-    wordKos:["에너지","힘","속도","중력","질량","운동","전기","자기장","파동","온도","압력","전류","전압","저항","빛","소리","진동"] },
-  { id:'geologia', icon:'🌋', name:{pl:'Geologia', en:'Geology'}, unlocked:false },
-  { id:'matematyka', icon:'📐', name:{pl:'Matematyka zaawansowana', en:'Advanced mathematics'}, unlocked:false },
-  { id:'filozofia', icon:'🏺', name:{pl:'Filozofia', en:'Philosophy'}, unlocked:false },
-  { id:'literatura', icon:'📖', name:{pl:'Literatura', en:'Literature'}, unlocked:true,
-    wordKos:["소설","문학","동화책","고전","원고","줄거리","독서하다","장르","번역","전개","로맨스","펴내다","표지","감상문","그림책","동화","연애시","도서명","이야기책","소설책"] },
-  { id:'sztuka', icon:'🖼️', name:{pl:'Sztuka', en:'Art'}, unlocked:true,
+  { id:"prehistoria", icon:"🦕", name:{pl:"Historia i prehistoria", en:"History and prehistory"}, unlocked:true,
+    wordKos:["공룡","화석","화석 연료","매머드","고생대","신생대","지질학","지층","암석","대륙","화산","지진","멸종","진화","중생대","트라이아스기","쥐라기","백악기","빙하기","선사 시대","구석기 시대","신석기 시대","고고학","발굴하다","연대 측정"] },
+  { id:"astronomia", icon:"🔭", name:{pl:"Astronomia i kosmos", en:"Astronomy and space"}, unlocked:true,
+    wordKos:["하늘","별","지구","태양","밤하늘","달빛","우주","햇빛","보름달","둥근달","북두칠성","새벽달","달나라","달무리","반달","초승달","행성","태양계","은하","혜성","궤도","일식","별자리","망원경","광년"] },
+  { id:"biologia", icon:"🧬", name:{pl:"Biologia", en:"Biology"}, unlocked:true,
+    wordKos:["세포","유전자","진화","디엔에이","세균","바이러스","광합성","생태계","유기체","번식하다","서식지","멸종위기종","신진대사","면역","분자","염색체","미생물","단백질","효소","돌연변이","종","신경","호르몬","먹이 사슬","유전"] },
+  { id:"chemia", icon:"⚗️", name:{pl:"Chemia", en:"Chemistry"}, unlocked:true,
+    wordKos:["원소","화합물","산소","수소","탄소","질소","염기","반응","용액","기체","액체","고체","원자","분자량","촉매","화학식","금속","산","산화","연소","결합","주기율표","이온","농도","끓는점"] },
+  { id:"fizyka", icon:"⚛️", name:{pl:"Fizyka", en:"Physics"}, unlocked:true,
+    wordKos:["에너지","힘","속도","중력","질량","운동","전기","자기장","파동","온도","압력","전류","전압","저항","빛","소리","진동","마찰","가속도","관성","밀도","입자","굴절","진공","방사능"] },
+  { id:"geologia", icon:"🌋", name:{pl:"Geologia", en:"Geology"}, unlocked:true,
+    wordKos:["지각","맨틀","핵","판","단층","습곡","침식","풍화","퇴적","퇴적암","화성암","변성암","광물","결정","용암","마그마","분화하다","규모","빙하","지하수","석탄","석회암","동굴","지형","온천"] },
+  { id:"matematyka", icon:"📐", name:{pl:"Matematyka zaawansowana", en:"Advanced mathematics"}, unlocked:true,
+    wordKos:["방정식","함수","변수","미분","적분","극한","확률","통계","평균","집합","정리","증명","수열","행렬","벡터","좌표","기울기","소수","분수","무한대","정수","지수","각도","넓이","비율"] },
+  { id:"filozofia", icon:"🏺", name:{pl:"Filozofia", en:"Philosophy"}, unlocked:true,
+    wordKos:["이성","인식","윤리","도덕","논리","논증","전제","결론","모순","본질","자유 의지","의식","자아","정의","선","악","회의주의","형이상학","개념","원리","사상","실존","인식론","유물론","이원론"] },
+  { id:"literatura", icon:"📖", name:{pl:"Literatura", en:"Literature"}, unlocked:true,
+    wordKos:["소설","문학","동화책","고전","원고","줄거리","독서하다","장르","번역","전개","로맨스","펴내다","표지","감상문","그림책","동화","연애시","도서명","이야기책","소설책","주인공","은유","갈등","결말","화자"] },
+  { id:"sztuka", icon:"🖼️", name:{pl:"Sztuka", en:"Art"}, unlocked:true,
     wordKos:["예술","미술","그림","그리기","작품","초상화","도자기","무용","춤","발레","만화","만화책","사진","이미지","예술적","데생","색칠","색칠하다","창작되다","창작하다","크레용","크레파스","흥행작","개인전","그림물감","명화","물감","미술품","스케치","스케치북","스케치하다","아티스트","소공연","대상"] },
-  { id:'ekonomia', icon:'📈', name:{pl:'Ekonomia zaawansowana', en:'Advanced economics'}, unlocked:false },
-  { id:'psychologia', icon:'🧠', name:{pl:'Psychologia', en:'Psychology'}, unlocked:false },
+  { id:"ekonomia", icon:"📈", name:{pl:"Ekonomia zaawansowana", en:"Advanced economics"}, unlocked:true,
+    wordKos:["수요","공급","인플레이션","금리","환율","자본","투자","소비","생산","무역","관세","국내총생산","경기 침체","실업률","화폐","재정","예산","독점","주식","채권","부채","임금","수출","적자","흑자"] },
+  { id:"psychologia", icon:"🧠", name:{pl:"Psychologia", en:"Psychology"}, unlocked:true,
+    wordKos:["행동","기억","감정","인지","무의식","동기","성격","학습","습관","보상","애착","자존감","공감","발달","태도","충동","불안","집중력","심리","본능","욕구","좌절","자극","조건화","방어 기제"] },
 ];
 
 function renderAcademyGrid(){
@@ -16546,10 +16669,21 @@ function renderVocabDeptCards(){
   });
 }
 
+/* NAZWY POZIOMÓW — uczciwe wobec treści (2026-09-05).
+
+   Było: Podstawowy / Średniozaawansowany / Zaawansowany, przy czym „Zaawansowany"
+   miał etykietę TOPIK 3–4+, czyli prawie tę samą co poziom niżej. Audyt pokrycia
+   wykazał, że treść „zaawansowana" to w większości 3–4급, nie 5–6급 - nazwa
+   obiecywała C1, a materiał kończy się na B2.
+
+   Jest: 초 Podstawowy (TOPIK 1–2) / 중 Średniozaawansowany (TOPIK 3) /
+   상 Wyższy średni (TOPIK 4). Trzy poziomy wyraźnie się różnią, a glif 고 (고급)
+   ZOSTAJE WOLNY na prawdziwy poziom zaawansowany, gdy powstanie treść C1–C2.
+   To lepsze niż przemianowanie później, gdy użytkownicy przyzwyczają się do nazw. */
 const LEVEL_META = [
   {level:1, icon: '초', label:'Podstawowy', labelEn:'Basic', sub:'TOPIK 1–2 · CEFR A1–A2', title:'Yusaeng (유생)'},
-  {level:2, icon: '중', label:'Średniozaawansowany', labelEn:'Intermediate', sub:'TOPIK 3–4 · CEFR B1–B2', title:'Seonbi (선비)'},
-  {level:3, icon: '고', label:'Zaawansowany', labelEn:'Advanced', sub:'TOPIK 3–4+ · CEFR B1–B2+', title:'Jiphyeon (집현)'},
+  {level:2, icon: '중', label:'Średniozaawansowany', labelEn:'Intermediate', sub:'TOPIK 3 · CEFR B1', title:'Seonbi (선비)'},
+  {level:3, icon: '상', label:'Wyższy średni', labelEn:'Upper-intermediate', sub:'TOPIK 4 · CEFR B2', title:'Jiphyeon (집현)'},
 ];
 
 function buildVocabLevelCardsHTML(perLevelCounts, totalCount){
@@ -19207,6 +19341,58 @@ const PARTICLE_DROP = [
     pl:'Poproszę tylko wodę.', note:'만 znaczy „tylko". Bez niego prosisz po prostu o wodę.', verified:false },
   { full:'학교에서 만나요.', dropped:null, particle:'에서', droppable:false,
     pl:'Spotkajmy się w szkole.', note:'에서 wskazuje miejsce. Bez niego nie wiadomo, gdzie.', verified:false },
+  {"full": "영화를 봤어.", "dropped": "영화 봤어.", "particle": "를", "droppable": true, "pl": "Obejrzałem film.", "note": "Dopełnienie – w opowiadaniu o tym, co się robiło, partykuła znika naturalnie.", "verified": false},
+  {"full": "점심을 먹자.", "dropped": "점심 먹자.", "particle": "을", "droppable": true, "pl": "Chodźmy na obiad.", "note": "Propozycja w mowie potocznej – 점심 먹자 to najczęstsza forma.", "verified": false},
+  {"full": "문을 닫아 줘.", "dropped": "문 닫아 줘.", "particle": "을", "droppable": true, "pl": "Zamknij drzwi.", "note": "Prośba – dopełnienie jest jedno i oczywiste, partykuła nic nie dodaje.", "verified": false},
+  {"full": "책을 읽고 있어요.", "dropped": "책 읽고 있어요.", "particle": "을", "droppable": true, "pl": "Czytam książkę.", "note": "Czynność w toku – w rozmowie 책 읽고 있어요 brzmi swobodniej.", "verified": false},
+  {"full": "사진을 찍어 줄까?", "dropped": "사진 찍어 줄까?", "particle": "을", "droppable": true, "pl": "Zrobić ci zdjęcie?", "note": "Pytanie z ofertą – dopełnienie widać, partykuła zbędna.", "verified": false},
+  {"full": "우산을 가져왔어?", "dropped": "우산 가져왔어?", "particle": "을", "droppable": true, "pl": "Wziąłeś parasol?", "note": "Pytanie o rzecz – w mowie 우산 가져왔어? jest naturalniejsze.", "verified": false},
+  {"full": "손을 씻었어?", "dropped": "손 씻었어?", "particle": "을", "droppable": true, "pl": "Umyłeś ręce?", "note": "Codzienne polecenia i pytania w domu prawie nigdy nie mają 을/를.", "verified": false},
+  {"full": "돈을 냈어요.", "dropped": "돈 냈어요.", "particle": "을", "droppable": true, "pl": "Zapłaciłem.", "note": "Wyrażenie stałe – 돈 내다 funkcjonuje niemal jak jedno słowo.", "verified": false},
+  {"full": "음악을 들을래?", "dropped": "음악 들을래?", "particle": "을", "droppable": true, "pl": "Posłuchasz muzyki?", "note": "Propozycja – dopełnienie oczywiste.", "verified": false},
+  {"full": "한국어를 배워요.", "dropped": "한국어 배워요.", "particle": "를", "droppable": true, "pl": "Uczę się koreańskiego.", "note": "Odpowiedź na „czego się uczysz?” – w rozmowie 한국어 배워요.", "verified": false},
+  {"full": "택시를 탈까?", "dropped": "택시 탈까?", "particle": "를", "droppable": true, "pl": "Weźmiemy taksówkę?", "note": "Propozycja – 택시 타다, 버스 타다, 지하철 타다 mówi się zwykle bez partykuły.", "verified": false},
+  {"full": "이름을 잊어버렸어.", "dropped": "이름 잊어버렸어.", "particle": "을", "droppable": true, "pl": "Zapomniałem imienia.", "note": "Dopełnienie stoi tuż przed czasownikiem – wtedy partykuła znika najłatwiej.", "verified": false},
+  {"full": "전화를 받았어?", "dropped": "전화 받았어?", "particle": "를", "droppable": true, "pl": "Odebrałeś telefon?", "note": "Wyrażenie 전화 받다 – prawie zawsze bez partykuły w mowie.", "verified": false},
+  {"full": "게임을 하자.", "dropped": "게임 하자.", "particle": "을", "droppable": true, "pl": "Zagrajmy w grę.", "note": "Rzeczownik + 하다 – partykuła między nimi znika jako pierwsza.", "verified": false},
+  {"full": "아침을 안 먹었어.", "dropped": "아침 안 먹었어.", "particle": "을", "droppable": true, "pl": "Nie jadłem śniadania.", "note": "Przeczenie nie zmienia zasady – dopełnienie jasne, partykuła zbędna.", "verified": false},
+  {"full": "창문을 열어도 돼?", "dropped": "창문 열어도 돼?", "particle": "을", "droppable": true, "pl": "Mogę otworzyć okno?", "note": "Pytanie o pozwolenie – w domu czy w biurze mówi się 창문 열어도 돼?", "verified": false},
+  {"full": "선물을 샀어.", "dropped": "선물 샀어.", "particle": "을", "droppable": true, "pl": "Kupiłem prezent.", "note": "Krótkie zdanie z jednym dopełnieniem – typowy przypadek opuszczenia.", "verified": false},
+  {"full": "숙제를 다 했어.", "dropped": "숙제 다 했어.", "particle": "를", "droppable": true, "pl": "Skończyłem zadanie.", "note": "Przysłówek 다 między dopełnieniem a czasownikiem nie przeszkadza w opuszczeniu.", "verified": false},
+  {"full": "커피를 한 잔 사 줄게.", "dropped": "커피 한 잔 사 줄게.", "particle": "를", "droppable": true, "pl": "Postawię ci kawę.", "note": "Dopełnienie z liczebnikiem – partykuła nadal zbędna.", "verified": false},
+  {"full": "약을 먹었어?", "dropped": "약 먹었어?", "particle": "을", "droppable": true, "pl": "Wziąłeś lekarstwo?", "note": "Wyrażenie 약 먹다 – w mowie codziennej praktycznie zawsze bez 을.", "verified": false},
+  {"full": "비가 와.", "dropped": "비 와.", "particle": "가", "droppable": true, "pl": "Pada deszcz.", "note": "Podmiot pogodowy – w rozmowie 비 와, 눈 와 są zupełnie zwyczajne.", "verified": false},
+  {"full": "배가 고파.", "dropped": "배 고파.", "particle": "가", "droppable": true, "pl": "Jestem głodny.", "note": "Wyrażenie stałe – 배 고파 to najczęstsza forma w mowie.", "verified": false},
+  {"full": "시간이 없어.", "dropped": "시간 없어.", "particle": "이", "droppable": true, "pl": "Nie mam czasu.", "note": "Zdanie z 없다 – podmiot jest oczywisty, partykuła znika.", "verified": false},
+  {"full": "버스가 왔어.", "dropped": "버스 왔어.", "particle": "가", "droppable": true, "pl": "Przyjechał autobus.", "note": "Podmiot to jedyna nowa informacja – partykuła nic nie precyzuje.", "verified": false},
+  {"full": "머리가 아파.", "dropped": "머리 아파.", "particle": "가", "droppable": true, "pl": "Boli mnie głowa.", "note": "Wyrażenia o bólu w mowie potocznej – 머리 아파, 배 아파.", "verified": false},
+  {"full": "엄마가 전화했어.", "dropped": "엄마 전화했어.", "particle": "가", "droppable": true, "pl": "Mama dzwoniła.", "note": "Podmiot osobowy w swobodnej relacji – 엄마 전화했어 brzmi naturalnie.", "verified": false},
+  {"full": "눈이 오네.", "dropped": "눈 오네.", "particle": "이", "droppable": true, "pl": "O, pada śnieg.", "note": "Zdanie z zaskoczeniem – w mowie 눈 오네.", "verified": false},
+  {"full": "돈이 없어.", "dropped": "돈 없어.", "particle": "이", "droppable": true, "pl": "Nie mam pieniędzy.", "note": "Zdanie z 없다 – jedna z najczęstszych form bez partykuły.", "verified": false},
+  {"full": "기분이 좋아.", "dropped": "기분 좋아.", "particle": "이", "droppable": true, "pl": "Mam dobry humor.", "note": "Wyrażenie 기분 좋다 – w mowie niemal zawsze bez 이.", "verified": false},
+  {"full": "친구가 기다려.", "dropped": "친구 기다려.", "particle": "가", "droppable": true, "pl": "Kolega czeka.", "note": "Krótki komunikat – podmiot oczywisty.", "verified": false},
+  {"full": "다음 주에 갈게.", "dropped": "다음 주 갈게.", "particle": "에", "droppable": true, "pl": "Pojadę w przyszłym tygodniu.", "note": "Okolicznik czasu – 다음 주, 이번 주, 주말 w mowie często stoją bez 에.", "verified": false},
+  {"full": "주말에 뭐 해?", "dropped": "주말 뭐 해?", "particle": "에", "droppable": true, "pl": "Co robisz w weekend?", "note": "Pytanie o plany – 주말 뭐 해? to codzienna forma.", "verified": false},
+  {"full": "나는 안 갈래.", "dropped": null, "particle": "는", "droppable": false, "pl": "Ja nie idę.", "note": "는 przeciwstawia: „ja, w odróżnieniu od was”. Bez niego to tylko „nie idę”, bez podkreślenia, że inni owszem.", "verified": false},
+  {"full": "이건 좀 비싸.", "dropped": null, "particle": "은", "droppable": false, "pl": "To akurat jest drogie.", "note": "은 wyróżnia jedną rzecz spośród innych: „ta – w przeciwieństwie do reszty”. Bez niego znika porównanie.", "verified": false},
+  {"full": "오늘은 집에 있을래.", "dropped": null, "particle": "은", "droppable": false, "pl": "Dzisiaj zostanę w domu.", "note": "은 sugeruje „dziś, w odróżnieniu od innych dni”. Bez niego zdanie nie mówi, że to wyjątek.", "verified": false},
+  {"full": "너도 올 거야?", "dropped": null, "particle": "도", "droppable": false, "pl": "Ty też przyjdziesz?", "note": "도 znaczy „też”. Bez niego pytasz po prostu, czy przyjdzie, i znika informacja, że ktoś inny już się zgodził.", "verified": false},
+  {"full": "커피도 주세요.", "dropped": null, "particle": "도", "droppable": false, "pl": "Poproszę też kawę.", "note": "도 dodaje kawę do wcześniejszego zamówienia. Bez niego zamawiasz samą kawę.", "verified": false},
+  {"full": "이것만 주세요.", "dropped": null, "particle": "만", "droppable": false, "pl": "Poproszę tylko to.", "note": "만 ogranicza do jednej rzeczy. Bez niego prosisz o „to” i sprzedawca może dołożyć resztę.", "verified": false},
+  {"full": "한 번만 더 해 봐.", "dropped": null, "particle": "만", "droppable": false, "pl": "Spróbuj jeszcze tylko raz.", "note": "만 oznacza „tylko raz, nie więcej”. Bez niego prośba traci ograniczenie.", "verified": false},
+  {"full": "집에서 먹을래.", "dropped": null, "particle": "에서", "droppable": false, "pl": "Zjem w domu.", "note": "에서 mówi, gdzie odbywa się czynność. Bez niego 집 먹을래 brzmi jak „zjem dom”.", "verified": false},
+  {"full": "카페에서 만나자.", "dropped": null, "particle": "에서", "droppable": false, "pl": "Spotkajmy się w kawiarni.", "note": "에서 wskazuje miejsce spotkania. Bez niego zdanie jest niegramatyczne.", "verified": false},
+  {"full": "친구한테 물어봤어.", "dropped": null, "particle": "한테", "droppable": false, "pl": "Zapytałem kolegę.", "note": "한테 wskazuje, KOGO zapytałeś. Bez niego 친구 물어봤어 nie wiadomo, czy pytałeś kolegę, czy o kolegę.", "verified": false},
+  {"full": "동생한테 줬어.", "dropped": null, "particle": "한테", "droppable": false, "pl": "Dałem młodszemu bratu.", "note": "한테 mówi, komu. Bez niego brat staje się rzeczą, którą dałeś.", "verified": false},
+  {"full": "선생님께 여쭤봐.", "dropped": null, "particle": "께", "droppable": false, "pl": "Zapytaj nauczyciela.", "note": "께 to grzecznościowe „komu”. Bez niego zdanie nie wskazuje adresata pytania.", "verified": false},
+  {"full": "지하철로 갈게.", "dropped": null, "particle": "로", "droppable": false, "pl": "Pojadę metrem.", "note": "로 mówi, czym jedziesz. Bez niego 지하철 갈게 znaczy „pójdę do metra”, nie „pojadę metrem”.", "verified": false},
+  {"full": "왼쪽으로 가.", "dropped": null, "particle": "으로", "droppable": false, "pl": "Idź w lewo.", "note": "으로 wskazuje kierunek. Bez niego 왼쪽 가 nie jest poprawnym zdaniem.", "verified": false},
+  {"full": "젓가락으로 먹어.", "dropped": null, "particle": "으로", "droppable": false, "pl": "Jedz pałeczkami.", "note": "으로 oznacza narzędzie. Bez niego 젓가락 먹어 to „jedz pałeczki”.", "verified": false},
+  {"full": "나보다 키가 커.", "dropped": null, "particle": "보다", "droppable": false, "pl": "Jest wyższy ode mnie.", "note": "보다 tworzy porównanie: „niż ja”. Bez niego 나 키가 커 znaczy „ja jestem wysoki”.", "verified": false},
+  {"full": "여기보다 저기가 좋아.", "dropped": null, "particle": "보다", "droppable": false, "pl": "Tam jest lepiej niż tu.", "note": "보다 wskazuje punkt odniesienia. Bez niego zdanie mówi tylko, że tam jest dobrze.", "verified": false},
+  {"full": "아홉 시까지 와.", "dropped": null, "particle": "까지", "droppable": false, "pl": "Przyjdź do dziewiątej.", "note": "까지 wyznacza granicę: „najpóźniej o dziewiątej”. Bez niego 아홉 시 와 znaczy „przyjdź o dziewiątej”.", "verified": false},
+  {"full": "내일부터 시작할게.", "dropped": null, "particle": "부터", "droppable": false, "pl": "Zacznę od jutra.", "note": "부터 oznacza początek: „od jutra i dalej”. Bez niego 내일 시작할게 to tylko „zacznę jutro”.", "verified": false},
+  {"full": "여기부터 저기까지 다 내 자리야.", "dropped": null, "particle": "부터", "droppable": false, "pl": "Stąd aż dotąd to wszystko moje miejsce.", "note": "부터…까지 wyznacza zakres. Bez nich wyliczasz dwa punkty, ale nie mówisz, że chodzi o wszystko pomiędzy.", "verified": false}
 ];
 
 const CONFUSABLE_PAIRS = [
@@ -22012,7 +22198,7 @@ async function finishPlacementTest(){
   const levelLabels = {
     basic: uiLang === 'en' ? 'Basic' : 'Podstawowy',
     intermediate: uiLang === 'en' ? 'Intermediate' : 'Średniozaawansowany',
-    advanced: uiLang === 'en' ? 'Advanced' : 'Zaawansowany',
+    advanced: uiLang === 'en' ? 'Upper-intermediate' : 'Wyższy średni',
   };
 
   const unlocked = [];
@@ -23771,7 +23957,26 @@ function grammarNewRound(){
 
   bumpDailyQuota('grammar');
 
-  grammarCurrent = items[Math.floor(Math.random() * items.length)];
+  /* Losujemy najpierw WZORZEC, potem JEDNO Z SIEDMIU jego zdań.
+     Wcześniej w trybie powtórek items zawierało same obiekty bazowe, więc SRS
+     pokazywał zawsze to samo, pierwsze zdanie - po trzech powtórkach user
+     rozpoznawał je po dwóch słowach i zaliczał z pamięci leksykalnej, nie
+     gramatycznej. Pozostałe sześć zdań było dostępne wyłącznie przez „Poćwicz".
+
+     Klucz SRS to wzorzec (gram:pattern), nie zdanie, więc podmiana zdania
+     niczego nie psuje w harmonogramie - zmienia tylko to, co user widzi.
+     Zgłoszone 2026-09-05. */
+  const wybranyWzorzec = items[Math.floor(Math.random() * items.length)];
+  const wszystkieZdania = [wybranyWzorzec, ...(wybranyWzorzec.moreExamples || [])];
+  const wylosowane = wszystkieZdania[Math.floor(Math.random() * wszystkieZdania.length)];
+  // moreExamples nie niosą pattern ani explain - bierzemy je z wzorca nadrzędnego.
+  grammarCurrent = (wylosowane === wybranyWzorzec) ? wybranyWzorzec : {
+    ...wylosowane,
+    pattern: wybranyWzorzec.pattern,
+    explain: wybranyWzorzec.explain,
+    conjHtml: wybranyWzorzec.conjHtml,
+    verified: wybranyWzorzec.verified,
+  };
 
   document.getElementById('grammarPatternLabel').textContent = grammarCurrent.pattern;
   document.getElementById('grammarSentence').textContent = grammarCurrent.sentence;
@@ -24210,7 +24415,7 @@ function renderReadingList(){
   const LEVEL_LABELS = {
     1: { pl:'Podstawowy', en:'Basic' },
     2: { pl:'Średniozaawansowany', en:'Intermediate' },
-    3: { pl:'Zaawansowany', en:'Advanced' },
+    3: { pl:'Wyższy średni', en:'Upper-intermediate' },
   };
 
   // Dwa wejścia do tego samego tekstu: cichy czytnik (darmowy) i czytanie
@@ -24834,7 +25039,7 @@ const SCENARIO_GROUP_SIZES = [
 const SCENARIO_LEVELS = [
   {id:'basic', label:'Podstawowy', labelEn:'Basic'},
   {id:'intermediate', label:'Średniozaawansowany', labelEn:'Intermediate'},
-  {id:'advanced', label:'Zaawansowany', labelEn:'Advanced'},
+  {id:'advanced', label:'Wyższy średni', labelEn:'Upper-intermediate'},
 ];
 const SCENARIO_SITUATIONS = [
   {id:'restaurant', label:'Restauracja', labelEn:'Restaurant'},
