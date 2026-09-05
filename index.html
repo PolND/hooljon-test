@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.206
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.209
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2701,6 +2701,15 @@
   .odp-status{
     font-size:13px; color:var(--ink-dim); font-family:var(--font-ui);
     min-height:20px; margin-top:10px; text-align:center;
+  }
+  .odp-pudlo-btn{
+    margin-top:16px; min-height:56px; width:100%; max-width:280px;
+    border-radius:var(--radius-lg); border:1px solid var(--border);
+    background:var(--card); color:var(--ink-dim);
+    font:600 15px var(--font-ui); cursor:pointer;
+  }
+  .odp-pudlo-btn:active, .odp-pudlo-btn.wcisniety{
+    background:var(--bad); color:var(--bg); border-color:var(--bad);
   }
   .odp-stop{ margin-top:26px; min-width:180px; min-height:52px; font-size:16px; }
 
@@ -5568,19 +5577,10 @@
         <span class="icon">듣</span>
         <span class="hc-main">
           <div class="title" data-i18n="odpTitle">Odpytywanie głosem</div>
-          <div class="desc" data-i18n="odpDesc">Bez patrzenia na ekran — w samochodzie, na spacerze, przy gotowaniu.</div>
+          <div class="desc" id="odpytywanieDesc">Bez patrzenia na ekran — w samochodzie, na spacerze, przy gotowaniu.</div>
         </span>
       </button>
-      <!-- Wersja Pro: Gemini prowadzi odpytywanie i reaguje na odpowiedzi.
-           Kafel POD darmowym, bo darmowy jest ścieżką domyślną - płatny ma być
-           wyborem, nie pierwszą rzeczą, w którą user trafia. -->
-      <button class="home-card" id="haksaOdpytujeCard">
-        <span class="icon">학</span>
-        <span class="hc-main">
-          <div class="title" data-i18n="haksaDrillTitle">Haksa odpytuje <span class="level-badge soon">PRO</span></div>
-          <div class="desc" data-i18n="haksaDrillDesc">Rozmowa z lektorem AI zamiast robota — reaguje na to, co powiesz. Liczy się w limit minut.</div>
-        </span>
-      </button>
+      
     </div>
   </div>
 
@@ -6848,6 +6848,11 @@
       <div class="modal-card odp-card">
         <div id="odpytywanieKarta"></div>
         <div class="odp-status" id="odpytywanieStatus"></div>
+        <!-- Oznaczenie pudła DOTYKIEM. Rozpoznawanie mowy zależy od usługi Google
+             i bywa zablokowane (Brave, brak HTTPS, blokada sieciowa) - bez tego
+             przycisku nie byłoby żadnego sposobu powiedzenia apce „nie umiałem".
+             Duży cel, żeby dało się trafić bez patrzenia. -->
+        <button type="button" class="odp-pudlo-btn" id="odpPudloBtn" data-i18n="odpNieUmiem">Nie umiałem</button>
         <label class="vk-toggle-row odp-toggle">
           <span class="switch"><input type="checkbox" id="odpOcenaToggle"><span class="track"><span class="knob"></span></span></span>
           <span data-i18n="odpOcena">Oceniaj moje odpowiedzi</span>
@@ -16348,7 +16353,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.206';
+const APP_VERSION = '2026-09-05.209';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -16564,6 +16569,17 @@ function setScreen(screen){
   ['addPanel','missedPanel','categoriesPanel','premiumPanel','aiFlashcardPanel','aiFileImportPanel','wordListPanel','accountPanel','addReadingPanel','grammarPreviewPanel'].forEach(id=>{
     document.getElementById(id).classList.remove('open');
   });
+  if(screen === 'vocabMode'){
+    /* Opis mówi, co user DOSTANIE po kliknięciu. Bez tego „liczy się w limit
+       minut" straszyłoby darmowych, których to nie dotyczy, a Pro nie wiedziałby,
+       że dostaje wersję z AI. */
+    const d = document.getElementById('odpytywanieDesc');
+    if(d) d.textContent = isPremiumPro
+      ? (uiLang === 'en' ? 'Haksa quizzes you and reacts to your answers. Counts toward your minutes.'
+                         : 'Haksa odpytuje i reaguje na Twoje odpowiedzi. Liczy się w limit minut.')
+      : (uiLang === 'en' ? 'Hands-free — in the car, on a walk, while cooking.'
+                         : 'Bez patrzenia na ekran — w samochodzie, na spacerze, przy gotowaniu.');
+  }
   if(screen === 'vocabMode' || screen === 'home'){
     const dueCount = getDueCount();
     const leechCount = getLeechWords().length;
@@ -17177,6 +17193,7 @@ const I18N = {
   odpDesc: { pl: 'Bez patrzenia na ekran — w samochodzie, na spacerze, przy gotowaniu.', en: 'Hands-free — in the car, on a walk, while cooking.' },
   odpStop: { pl: 'Zakończ', en: 'Stop' },
   odpOcena: { pl: 'Oceniaj moje odpowiedzi', en: 'Check my answers' },
+  odpNieUmiem: { pl: 'Nie umiałem', en: "Didn't know it" },
   haksaDrillTitle: { pl: 'Haksa odpytuje', en: 'Haksa quizzes you' },
   haksaDrillDesc: { pl: 'Rozmowa z lektorem AI zamiast robota — reaguje na to, co powiesz. Liczy się w limit minut.', en: 'A real AI tutor instead of a robot — responds to what you say. Counts toward your minutes.' },
   particleHint: { pl: 'Dotknij partykuły, żeby ją opuścić — tak jak w mowie. Nie wszystkie da się usunąć.', en: 'Tap a particle to drop it, the way speakers do. Not all of them can go.' },
@@ -18458,6 +18475,7 @@ const ODP_PUDLO = [
   'Prawie.', 'Nie tym razem.', 'Jeszcze raz to usłyszysz.', 'Spokojnie, wróci.',
 ];
 let odpSeria = 0;
+let odpytywanieRecznePudlo = false;   // ustawiane przyciskiem „Nie umiałem"
 
 const losuj = (t) => t[Math.floor(Math.random() * t.length)];
 
@@ -18501,6 +18519,7 @@ async function odpytywanieRunda(){
 
   /* Pauza na odpowiedź. Z oceną - nasłuchujemy; bez - po prostu czekamy. */
   let werdykt = null, uslyszane = '';
+  odpytywanieRecznePudlo = false;
   if(odpytywanieOcenia){
     /* Odstęp po syntezie. Zdarzenie onend dla SpeechSynthesisUtterance potrafi
        odpalić się ułamek sekundy PRZED faktycznym ucichnięciem głośnika -
@@ -18535,6 +18554,18 @@ async function odpytywanieRunda(){
       // przy każdym słowie. User może włączyć ponownie po naprawieniu uprawnień.
       /* Wyłączamy ocenę TYLKO przy trwałych przeszkodach. Błąd sieci czy
          jednorazowa awaria nie powinny gasić funkcji na całą sesję. */
+      /* Błąd sieci przy rozpoznawaniu to zwykle NIE brak internetu, tylko
+         zablokowany endpoint Google (Brave, blokada DNS, brak HTTPS). Mówimy
+         to wprost i kierujemy na przycisk, który działa zawsze - inaczej user
+         zostaje z komunikatem, z którym nic nie może zrobić. */
+      if(wynik.blad === 'blad' && wynik.kod === 'network'){
+        odpytywanieOcenia = false;
+        const t = document.getElementById('odpOcenaToggle');
+        if(t) t.checked = false;
+        odpytywanieStatus(uiLang === 'en'
+          ? 'Speech check blocked by the browser — use "Didn\'t know it" instead.'
+          : 'Przeglądarka blokuje rozpoznawanie — używaj przycisku „Nie umiałem".');
+      }
       if(wynik.blad === 'brak' || wynik.blad === 'odmowa'){
         odpytywanieOcenia = false;
         const t = document.getElementById('odpOcenaToggle');
@@ -18574,7 +18605,11 @@ async function odpytywanieRunda(){
      odpowiedział dobrze, byłoby gorsze niż brak danych - zafałszowałoby
      harmonogram powtórek, na którym opiera się cała nauka.
      Zgłoszone przez Damiana 2026-09-05. */
-  if(odpytywanieOcenia && werdykt !== null){
+  /* Ręczne „Nie umiałem" ma PIERWSZEŃSTWO nad rozpoznaniem. User wie lepiej niż
+     silnik, czy trafił - a przy zablokowanym rozpoznawaniu to jedyne źródło prawdy. */
+  if(odpytywanieRecznePudlo) werdykt = false;
+
+  if(werdykt !== null){
     /* Zerujemy znacznik czasu PRZED zapisem. latencyFactor mierzy namysł, a tutaj
        pauza jest STAŁA - czas nie niesie informacji o sile pamięci. Bez tego
        pierwsza odpowiedź po wyjściu z quizu użyłaby znacznika sprzed sesji
@@ -27257,14 +27292,31 @@ document.getElementById('openParticleBtn').addEventListener('click', (e)=>{
   openParticlePanel();
 });
 
-document.getElementById('haksaOdpytujeCard').addEventListener('click', haksaOdpytujeStart);
+/* JEDNO wejście, wariant wybiera się sam. Dwa kafle na tę samą funkcję zmuszały
+   usera do rozumienia, czym różni się „Odpytywanie" od „Haksa odpytuje" - a to
+   nasz problem techniczny, nie jego. Pro dostaje Gemini, reszta wersję lokalną.
+   Zgłoszone przez Damiana 2026-09-05. */
 document.getElementById('odpytywanieCard').addEventListener('click', ()=>{
+  if(isPremiumPro){ haksaOdpytujeStart(); return; }
   /* Kierunek i pauzę bierzemy z tego, co user ustawił w ćwiczeniach - nie
      dokładamy kolejnego ekranu konfiguracji przed rozpoczęciem. */
   odpytywanieKierunek = (typeof direction !== 'undefined' && direction === 'pl-ko') ? 'pl-ko' : 'ko-pl';
   odpytywanieStart();
 });
 document.getElementById('odpytywanieStopBtn').addEventListener('click', ()=> odpytywanieStop(false));
+
+/* „Nie umiałem" - jedyny sposób oznaczenia błędu, który NIE zależy od
+   rozpoznawania mowy. Działa w każdej przeglądarce i bez internetu.
+   Kliknięcie w dowolnym momencie rundy zapisuje bieżące słowo jako pudło. */
+document.getElementById('odpPudloBtn').addEventListener('click', ()=>{
+  const w = odpytywanieKolejka[odpytywanieIdx];
+  if(!w || !odpytywanieAktywne) return;
+  odpytywanieRecznePudlo = true;
+  const b = document.getElementById('odpPudloBtn');
+  b.classList.add('wcisniety');
+  setTimeout(()=> b.classList.remove('wcisniety'), 400);
+  odpytywanieStatus(uiLang === 'en' ? 'Marked — it will come back.' : 'Zaznaczone — wróci.');
+});
 
 /* Ocena domyślnie wyłączona: wymaga mikrofonu, a przy prowadzeniu i hałasie
    drogi bywa zawodna. User włącza ją świadomie i sam ocenia, czy pomaga. */
