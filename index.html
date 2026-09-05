@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.224
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.225
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -6954,7 +6954,7 @@
          komentarz przy rankingRysuj. -->
     <div class="panel" id="rankingPanel">
       <div class="modal-card">
-        <button class="modal-close" data-close-panel="rankingPanel">✕</button>
+        <button class="modal-close" data-close="rankingPanel" aria-label="Zamknij">✕</button>
         <h3 data-i18n="rankingTitle">Ranking</h3>
         <div class="dict-filters" id="rankingZakladki">
           <button type="button" class="chip active" data-board="season" data-i18n="rankSeason">Sezon</button>
@@ -31242,7 +31242,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.224';
+const APP_VERSION = '2026-09-05.225';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
