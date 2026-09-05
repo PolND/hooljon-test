@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.176
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.177
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -5611,7 +5611,8 @@
          słowa zmienia się obok. Bez tego kliknięcie słowa ZASTĘPUJE listę i przy
          przeglądaniu dziesięciu słów to dziesięć razy tam i z powrotem.
          Poniżej 1100px prawa kolumna jest ukryta i działa stara nawigacja. -->
-    <div class="dict-split">
+    <div class="cho-bar" id="dictBrowseChoBar"></div>
+        <div class="dict-split">
       <div id="dictBrowseRows" class="dict-list"></div>
       <aside class="dict-side" id="dictBrowseSide" aria-live="polite"></aside>
     </div>
@@ -15967,7 +15968,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.176';
+const APP_VERSION = '2026-09-05.177';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -21210,11 +21211,19 @@ async function loadDictBrowse(){
   if(seq !== dictBrowseSeq) return;   // przyszła już nowsza odpowiedź
 
   dictBrowseShown = DICT_PAGE; // nowe wyniki - wracamy na początek
-  dictBrowseList = list.sort((a, b) => (a.ko || '').localeCompare(b.ko || '', 'ko'));
+  // Przy SZUKANIU zostaje kolejność po trafności (자동차 przed lawetą).
+  // Bez frazy - alfabetycznie, bo wtedy lista służy do przeglądania i szukania
+  // wzrokiem. Wcześniej sortowanie alfabetyczne kasowało trafność zawsze.
+  dictBrowseList = q
+    ? list
+    : list.sort((a, b) => (a.ko || '').localeCompare(b.ko || '', 'ko'));
   renderDictBrowseRows();
 }
 
 function renderDictBrowseRows(){
+  // Pasek 초성 także tutaj - to główny ekran przeglądania słownika i tu
+  // przewijanie boli najbardziej. Wcześniej dodałem go tylko do listy działu.
+  try{ renderChoBar(dictBrowseList || [], 'dictBrowseChoBar', 'dictBrowseRows'); }catch(e){}
   const wrap = document.getElementById('dictBrowseRows');
   const count = document.getElementById('dictBrowseCount');
   const words = dictBrowseList;
@@ -21485,8 +21494,8 @@ function choseongOf(text){
 
    Przewijamy do nagłówka sekcji, nie do pierwszego wiersza - inaczej nagłówek
    „ㅈ" zostaje nad krawędzią i nie widać, gdzie się jest. */
-function renderChoBar(words){
-  const bar = document.getElementById('dictChoBar');
+function renderChoBar(words, barId, rowsId){
+  const bar = document.getElementById(barId || 'dictChoBar');
   if(!bar) return;
   const obecne = new Set(words.map(w => choseongOf(w.ko)));
   const litery = [...CHOSEONG, '#'];
@@ -21496,7 +21505,7 @@ function renderChoBar(words){
   bar.querySelectorAll('.cho-btn:not([disabled])').forEach(btn => {
     btn.addEventListener('click', () => {
       const cel = btn.dataset.cho;
-      const rows = document.getElementById('dictWordListRows');
+      const rows = document.getElementById(rowsId || 'dictWordListRows');
       const naglowki = [...rows.querySelectorAll('.section-sticky')];
       const h = naglowki.find(x => x.textContent.trim() === cel);
       if(h){ h.scrollIntoView({ behavior:'smooth', block:'start' }); return; }
