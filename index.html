@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.244
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.245
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2810,6 +2810,10 @@
   .odp-stop{ margin-top:26px; min-width:180px; min-height:52px; font-size:16px; }
 
   .prog-week{ display:flex; gap:7px; margin-top:16px; }
+  /* 8px CELOWO, nie z tokenu: to kwadraty 32px w pasku tygodnia. Promień
+     motywu (26px w Jadeicie) zamieniłby je w kółka i zniknęłaby informacja
+     o ciągłości, którą niosą właśnie jako kwadraty. Audyt to zgłasza - słusznie,
+     bo nie wie o tym zamiarze. 2026-09-05. */
   .prog-day{ flex:1; height:32px; border-radius:8px; background:var(--surface-2); }
   .prog-day[data-done="true"]{ background:var(--hwang); }
   .prog-day[data-today="true"]{ background:0; border:1px dashed var(--border); }
@@ -3221,7 +3225,7 @@
      tam przypadkowo, więc wracają do kroju interfejsu (uwaga z v4 §5). */
   [data-theme="jade"] .prog-stat{
     padding:15px 18px; border-bottom:0; margin-bottom:9px;
-    background:var(--card); border:1px solid var(--border); border-radius:22px;
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
   }
   [data-theme="jade"] .prog-stat-value,
   [data-theme="kobalt"] .prog-stat-value{ font-family:var(--font-ui); font-weight:800; }
@@ -52494,7 +52498,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.244';
+const APP_VERSION = '2026-09-05.245';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
