@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.220
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.221
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -31242,7 +31242,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.220';
+const APP_VERSION = '2026-09-05.221';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -35719,11 +35719,15 @@ async function rankingSync(){
   catch(e){}
 }
 
+/* Parametry RPC mają przedrostek p_ - taka jest konwencja w migracjach tego
+   projektu. PostgREST zwraca 404 przy niezgodnej nazwie parametru, nie 400,
+   więc wygląda to jak „funkcja nie istnieje". Sprawdzone 2026-09-05 przez
+   pg_get_function_arguments. */
 async function rankingWczytaj(){
   const box = document.getElementById('rankingTresc');
   if(box) box.innerHTML = `<p class="hint-note">${uiLang === 'en' ? 'Loading…' : 'Ładowanie…'}</p>`;
   try{
-    const { data, error } = await sb.rpc('leaderboard_view', { board: rankingTablica });
+    const { data, error } = await sb.rpc('leaderboard_view', { p_board: rankingTablica });
     if(error) throw error;
     rankingDane = data;
     rankingRysuj();
@@ -35786,7 +35790,7 @@ async function rankingDolacz(){
     return;
   }
   try{
-    const { data, error } = await sb.rpc('leaderboard_join', { nick });
+    const { data, error } = await sb.rpc('leaderboard_join', { p_nick: nick });
     if(error) throw error;
     if(data && data.error){
       alert(uiLang === 'en' ? 'That nickname is taken.' : 'Ten pseudonim jest zajęty.');
