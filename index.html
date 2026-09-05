@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.245
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.249
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2147,13 +2147,17 @@
     cursor:pointer;
     font-size:14.5px;
   }
+  /* --btn-radius zamiast 8px na sztywno. Token był zdefiniowany w pięciu motywach
+     (Jadeit 24px, Kobalt 14px, pozostałe pigułka lub promień karty), ale GŁÓWNY
+     przycisk apki - 52 użycia - go nie używał. W Jadeicie i Kobalcie odstawał
+     od wszystkiego dookoła. Znalezione audytem po motywach 2026-09-05. */
   button.primary{
     background:var(--hwang);
     color:#FFFFFF;
     border:none;
     font-weight:600;
     padding:9px 14px;
-    border-radius:8px;
+    border-radius:var(--btn-radius);
     cursor:pointer;
     font-size:14.5px;
   }
@@ -3427,13 +3431,6 @@
   /* Zapowiedź następnej kreski: która jest w kolejce i od którego końca się
      ją pisze. To wskazanie, nie ocena - brak tej informacji powoduje
      najczęstszy błąd uczących się, czyli rysowanie od złej strony. */
-  .pis-inked .pis-zapowiedz{
-    stroke:var(--ink); stroke-opacity:.18; stroke-dasharray:4 5;
-  }
-  .pis-inked .pis-punkt{
-    fill:var(--hwang); fill-opacity:.9;
-    animation:pis-punkt 1400ms ease-in-out infinite;
-  }
   /* Kierunek widoczny już w trakcie ciągnięcia - ta sama reguła co w pisOcen,
      tylko pokazana przed puszczeniem palca. */
   .pis-inked .pis-zly{ stroke:var(--bad); }
@@ -3446,14 +3443,9 @@
   }
   .pis-inked .pis-wzor-punkt{ fill:var(--good); fill-opacity:.85; }
   .pis-inked.pis-zanik{ animation:pis-zanik 420ms ease-out both; }
-  @keyframes pis-punkt{
-    0%,100%{ transform:scale(1); fill-opacity:.9; }
-    50%{ transform:scale(1.35); fill-opacity:.55; }
-  }
   @keyframes pis-wzor{ from{ stroke-dashoffset:120; } to{ stroke-dashoffset:0; } }
   @keyframes pis-zanik{ from{ opacity:1; } to{ opacity:0; } }
   @media (prefers-reduced-motion: reduce){
-    .pis-inked .pis-punkt{ animation:none; }
     .pis-inked .pis-wzor-obok{ animation:none; stroke-dasharray:none; }
     .pis-inked.pis-zanik{ animation:none; opacity:0; }
   }
@@ -52498,7 +52490,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.245';
+const APP_VERSION = '2026-09-05.249';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -59649,16 +59641,13 @@ function pisRysuj(el){
   const wzor = pisItem ? pisWzorzec(pisItem) : [];
   let out = '';
 
-  /* Zapowiedź: następna kreska wzorcowa i punkt jej początku. Pokazywana
-     zawsze, także przed pierwszą próbą - ustalone z Damianem 2026-09-05. */
-  const nast = wzor[pisRysowane.length];
-  if(nast && !pisAktywna){
-    const w = pisKonce(nast);
-    if(w){
-      out += pisLamana([{x:w.x1,y:w.y1},{x:w.x2,y:w.y2}], 'pis-zapowiedz');
-      out += `<circle class="pis-punkt" cx="${w.x1}" cy="${w.y1}" r="3.4" style="transform-origin:${w.x1}px ${w.y1}px"/>`;
-    }
-  }
+  /* ZAPOWIEDŹ USUNIĘTA 2026-09-05. Dublowała animację „Odtwórz ponownie",
+     która stoi wyżej na tym samym ekranie i pokazuje to samo lepiej: pełny
+     wzorzec rysowany po kolei, zamiast przygaszonej linii i pulsującego punktu.
+     Dwa środki na jedną informację, gorszy zostaje. Zgłoszone przez Damiana.
+
+     Wzorzec pokazywany PO BŁĘDZIE (pis-wzor-obok) zostaje - to inna sytuacja:
+     odpowiedź na konkretną pomyłkę, nie podpowiedź z góry. */
 
   if(pisWzorObok !== null && wzor[pisWzorObok]){
     const w = pisKonce(wzor[pisWzorObok]);
