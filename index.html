@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.187
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.189
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -16177,7 +16177,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.187';
+const APP_VERSION = '2026-09-05.189';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -21041,38 +21041,94 @@ function renderHanjaScreen(){
     moreSection.style.display = 'none';
   }
 
-  renderHanjaQuiz(h);
+  /* Quiz co piąty znak, nie przy każdym. Sekcję chowamy, gdy nie jest jego kolej -
+     dzięki temu nauka znaku nie kończy się natychmiast pytaniem o niego samego. */
+  hanjaZapamietaj(hanjaIndex);
+  const sekcjaQuizu = document.getElementById('hanjaQuizSection');
+  if(hanjaCzasNaQuiz()){
+    hanjaOdQuizu = 0;
+    if(sekcjaQuizu) sekcjaQuizu.style.display = '';
+    renderHanjaQuizPowtorka();
+  } else if(sekcjaQuizu){
+    sekcjaQuizu.style.display = 'none';
+  }
   document.getElementById('hanjaPrevBtn').disabled = hanjaIndex === 0;
 }
 
-function pickHanjaQuizWord(h){
-  const pool = [...h.words, ...(h.moreWords || [])];
-  return pool[Math.floor(Math.random() * pool.length)];
-}
+/* pickHanjaQuizWord USUNIĘTE razem z renderHanjaQuiz - bez wywołań. */
 
 let hanjaQuizLocked = false;
 
-function renderHanjaQuiz(h){
-  hanjaQuizLocked = false;
-  const quizWord = pickHanjaQuizWord(h);
-  const correctText = uiLang === 'en' ? quizWord.en : quizWord.pl;
-  const distractorsPool = DEFAULT_WORDS.filter(x => x.ko !== quizWord.ko);
-  const distractors = shuffle(distractorsPool).slice(0, 3).map(x => tr(x));
-  const choices = shuffle([correctText, ...distractors]);
+/* ═══ QUIZ CO PIĄTY ZNAK ═════════════════════════════════════════════════════
+   Wcześniej quiz pojawiał się przy KAŻDYM znaku, a dystraktory losowano
+   z całego DEFAULT_WORDS. „Co oznacza 학교?" z opcjami „szkoła / marchewka /
+   pojutrze / zazdrość" nie sprawdzało niczego - wystarczyło zgadnąć po sensie.
 
-  document.getElementById('hanjaQuizQ').textContent = uiLang === 'en'
-    ? `What does "${quizWord.ko}" mean?`
-    : `Co oznacza "${quizWord.ko}"?`;
-  document.getElementById('hanjaQuizFeedback').innerHTML = '';
-  document.getElementById('hanjaQuizFeedback').className = 'feedback';
+   Teraz: quiz co piąty znak, z materiału JUŻ PRZEROBIONEGO, a dystraktory
+   pochodzą z innych poznanych znaków hanja. To pierwszy moment, w którym
+   pytanie faktycznie wymaga rozróżnienia. Zaproponowane przez Damiana 2026-09-05. */
+const HANJA_QUIZ_CO = 5;
+let hanjaOdQuizu = 0;          // ile znaków obejrzano od ostatniego quizu
+let hanjaPoznane = [];         // indeksy znaków, które user widział
+
+function hanjaZapamietaj(i){
+  if(!hanjaPoznane.includes(i)) hanjaPoznane.push(i);
+}
+
+function hanjaCzasNaQuiz(){
+  // Minimum cztery poznane znaki - inaczej nie ma z czego zrobić czterech opcji.
+  return hanjaOdQuizu >= HANJA_QUIZ_CO && hanjaPoznane.length >= 4;
+}
+
+/* Pytanie z materiału przerobionego. Dystraktory to znaczenia INNYCH poznanych
+   znaków - w tej samej konwencji i o podobnej długości, więc nie da się
+   ich odsiać na oko. */
+function renderHanjaQuizPowtorka(){
+  const pula = hanjaPoznane.map(i => HANJA_CHARACTERS[i]);
+  const cel = pula[Math.floor(Math.random() * pula.length)];
+  const en = uiLang === 'en';
+  const dobra = en ? cel.meaningEn : cel.meaning;
+  const inne = shuffle(pula.filter(x => x.char !== cel.char))
+    .slice(0, 3)
+    .map(x => en ? x.meaningEn : x.meaning);
+  const opcje = shuffle([dobra, ...inne]);
+
+  document.getElementById('hanjaQuizQ').textContent = en
+    ? `What does the character ${cel.char} mean?`
+    : `Co oznacza znak ${cel.char}?`;
+  const fb = document.getElementById('hanjaQuizFeedback');
+  fb.innerHTML = ''; fb.className = 'feedback';
+  hanjaQuizLocked = false;
 
   const grid = document.getElementById('hanjaQuizChoices');
-  grid.innerHTML = choices.map(opt => `<button type="button" class="ans-btn" data-choice="${escapeHtml(opt).replace(/"/g,'&quot;')}">${escapeHtml(opt)}</button>`).join('');
-  grid.querySelectorAll('.ans-btn').forEach(btn=>{
-    btn.dataset.isCorrect = (btn.dataset.choice === correctText) ? '1' : '0';
-    btn.addEventListener('click', ()=> handleHanjaQuizAnswer(btn));
+  grid.innerHTML = opcje.map(o =>
+    `<button type="button" class="ans-btn" data-ok="${o === dobra ? '1' : '0'}">${escapeHtml(o)}</button>`
+  ).join('');
+  grid.querySelectorAll('.ans-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      if(hanjaQuizLocked) return;
+      hanjaQuizLocked = true;
+      const ok = b.dataset.ok === '1';
+      grid.querySelectorAll('.ans-btn').forEach(x => {
+        if(x.dataset.ok === '1') x.classList.add('correct');
+        else if(x === b) x.classList.add('wrong');
+        else x.classList.add('dim');
+      });
+      fb.className = 'feedback ' + (ok ? 'good' : 'bad');
+      fb.textContent = ok
+        ? (en ? 'Correct.' : 'Dobrze.')
+        : (en ? `${cel.char} means: ${dobra}` : `${cel.char} znaczy: ${dobra}`);
+      if(ok){ bumpStreak(); playCorrectSound(); } else { streak = 0; playWrongSound(); }
+      if(policzOdpowiedz()) registerDailyActivity();
+    });
   });
 }
+
+/* renderHanjaQuiz(h) USUNIĘTE 2026-09-05: pytało o słowo z aktualnie
+   oglądanego znaku, natychmiast po jego pokazaniu, a dystraktory losowało
+   z całego DEFAULT_WORDS. Zastąpione przez renderHanjaQuizPowtorka() -
+   co piąty znak, z materiału przerobionego, z dystraktorami z innych
+   poznanych znaków. */
 
 function handleHanjaQuizAnswer(btn){
   if(hanjaQuizLocked) return;
@@ -21097,6 +21153,7 @@ document.getElementById('hanjaPrevBtn').addEventListener('click', ()=>{
   if(hanjaIndex > 0){ hanjaIndex -= 1; renderHanjaScreen(); }
 });
 document.getElementById('hanjaNextBtn').addEventListener('click', ()=>{
+  hanjaOdQuizu += 1;                       // licznik do quizu co piąty znak
   hanjaIndex = (hanjaIndex + 1) % HANJA_CHARACTERS.length;
   renderHanjaScreen();
 });
