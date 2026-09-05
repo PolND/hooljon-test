@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.166
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.167
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -15857,7 +15857,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.166';
+const APP_VERSION = '2026-09-05.167';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -21047,6 +21047,8 @@ function dictBrowseChipsHTML(){
    Bez frazy: pobieramy stronę wg filtrów. Z frazą: dokładamy wynik wyszukiwania
    po całej bazie (bo filtrowana strona to tylko pierwsze N wierszy), scalamy po
    id i dopiero na tym nakładamy poziom i dział po stronie klienta. */
+let dictBrowseTotal = null;   // prawdziwa liczba wierszy w bazie dla bieżącego filtra
+
 async function loadDictBrowse(){
   const seq = ++dictBrowseSeq;
   const input = document.getElementById('dictBrowseSearch');
@@ -21061,6 +21063,15 @@ async function loadDictBrowse(){
   // 2000 wierszy to 46 ms do pierwszej klatki i 16,5 ms na klatkę przy scrollu,
   // czyli nadal 60 fps. 5872 daje 22 ms na klatkę - stąd ten próg.
   const limit = (dictBrowseLevel || dictBrowseDept) ? 2000 : 500;
+  // Prawdziwa liczba pasujących wierszy - osobne, tanie zapytanie licznikowe
+  // (head:true, bez pobierania danych). Tylko gdy nie ma frazy: przy szukaniu
+  // pokazujemy wyniki, nie sumę działu.
+  dictBrowseTotal = null;
+  if(!q){
+    countDictionaryWords(dictBrowseLevel, dictBrowseDept || null)
+      .then(n => { if(seq === dictBrowseSeq){ dictBrowseTotal = n; renderDictBrowseRows(); } })
+      .catch(()=>{});
+  }
   let list = await fetchDictionaryWords(dictBrowseLevel, dictBrowseDept, limit);
   if(q){
     const hits = await searchDictionaryWords(q, 200);
@@ -21086,9 +21097,15 @@ function renderDictBrowseRows(){
   const count = document.getElementById('dictBrowseCount');
   const words = dictBrowseList;
   const shown = Math.min(dictBrowseShown, words.length);
+  /* Suma z BAZY, nie z pobranej próbki. Wcześniej pokazywaliśmy words.length,
+     czyli wartość limitu (500 albo 2000) - przy dziale z 4125 pozycjami user
+     widział „1000 słów" i miał podstawy sądzić, że to wszystko.
+     Zgłoszone przez Damiana 2026-09-05. */
+  const wSumie = (typeof dictBrowseTotal === "number" && dictBrowseTotal >= words.length)
+    ? dictBrowseTotal : words.length;
   count.textContent = uiLang === 'en'
-    ? (shown < words.length ? `${shown} of ${words.length} words` : `${words.length} word${words.length === 1 ? '' : 's'}`)
-    : (shown < words.length ? `${shown} z ${words.length} słów` : `${words.length} ${words.length === 1 ? 'słowo' : 'słów'}`);
+    ? (shown < wSumie ? `${shown} of ${wSumie} words` : `${wSumie} word${wSumie === 1 ? '' : 's'}`)
+    : (shown < wSumie ? `${shown} z ${wSumie} słów` : `${wSumie} ${wSumie === 1 ? 'słowo' : 'słów'}`);
   if(!words.length){
     wrap.innerHTML = `<p class="hint-note" style="text-align:center; padding:20px;">${uiLang === 'en' ? 'No matches.' : 'Brak dopasowań.'}</p>`;
     return;
