@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.249
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.254
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -665,7 +665,6 @@
   .home-screen > .home-card.variant-row .icon{
     flex:none; width:26px; text-align:center; font-size:19px; color:var(--ink-dim);
   }
-
 
   /* Typografia One UI - wspólna dla Jadeitu i Kobaltu. Wg type_scale z pakietu:
      "screen-title-oneui": 36px / 800, letter-spacing -.03em. To NIE jest kosmetyka,
@@ -1982,7 +1981,6 @@
   .ans-btn:active{transform:scale(0.95);}
   .ans-btn:disabled{cursor:default;}
 
-
   /* ── STANY ODPOWIEDZI (redesign, krok 6) ──────────────────────────────
      Wg pakietu: obramowanie 1.5px + tło 10%, zamiast pełnego wypełnienia kolorem.
      Tekst zostaje w kolorze semantycznym (nie biały), więc kontrast nie zależy od
@@ -2914,7 +2912,6 @@
      to decyzja o tożsamości, nie ustawienie. */
   #progSzkola:empty{ display:none; }
 
-
   .pcz-naglowek{
     font:700 11px var(--font-ui); letter-spacing:.12em; text-transform:uppercase;
     color:var(--ink-dim); margin:22px 0 10px;
@@ -3016,7 +3013,6 @@
     .pcz-zwoj:has(.pcz-nowa){ animation:none; }
   }
   @keyframes pcz-fade{ from{ opacity:0; } to{ opacity:1; } }
-
 
   .bd-oprawa{
     position:fixed; inset:0; z-index:1200;
@@ -3621,6 +3617,21 @@
     font-size:11px; font-weight:500; letter-spacing:.16em; text-transform:uppercase;
     color:var(--ink-dim); margin-bottom:8px;
   }
+  /* W trybie odpytywania chowamy scenariusz i podpowiedzi - to inna aktywność
+     niż swobodna rozmowa i pokazywanie „W kawiarni" wprowadza w błąd. */
+  .drill-info{ display:none; }
+  .tryb-odpytywania .drill-info{
+    display:block; padding:16px 18px; margin-bottom:14px;
+    background:var(--card); border:1px solid var(--hwang);
+    border-radius:var(--radius-lg); text-align:center;
+  }
+  .drill-tytul{ font:800 17px var(--font-ui); color:var(--hwang); }
+  .drill-opis{ font-size:13.5px; color:var(--ink-dim); margin-top:5px; }
+  .tryb-odpytywania #lvScenario,
+  .tryb-odpytywania #lvHints,
+  .tryb-odpytywania .lv-scenario,
+  .tryb-odpytywania .lv-hints-wrap{ display:none !important; }
+
   .lv-hint{
     display:flex; align-items:baseline; gap:12px; padding:11px 0;
     border-bottom:1px solid var(--border);
@@ -5437,9 +5448,6 @@
   .bn-tab .bn-ico{ display:block; }
   [data-theme="kobalt"] .bn-tab .bn-ico{ display:none; }
 
-
-
-
   /* ══ v3 §3 · KONIUGACJA · widok odmiany ══════════════════════════════════
      Żadnej tabeli. Czas siedzi w segmented control, trzy rejestry są wierszami
      pod spodem - jedna oś w przełączniku, druga w treści. Tabela rejestr × czas
@@ -6205,7 +6213,6 @@
     </div>
   </div>
 
-
 <div id="accountScreen" style="display:none;">
   <button class="back-btn" data-back="modeSelect" data-i18n="backModeSelect">Wróć</button>
 
@@ -6529,17 +6536,6 @@
       <button class="tool-btn" id="btnReset" data-i18n="btnReset">Wyczyść postęp</button>
     </div>
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
   </div>
 
   <div id="conjCategoryScreen" style="display:none;">
@@ -6619,6 +6615,7 @@
     </div>
 
     <div id="aiChatBody">
+      <div id="drillInfo" class="drill-info"></div>
       <div class="chat-head">
         <span class="chat-avatar" aria-hidden="true">학</span>
         <span style="flex:1; min-width:0;">
@@ -6793,11 +6790,6 @@
         <div id="readingReportBox" class="reading-report-box" style="display:none;"></div>
       </div>
 
-      
-
-      
-
-      
     </div>
   </div>
 
@@ -7276,7 +7268,6 @@
          Odpowiedź na najczęstszy zarzut ze społeczności: "muszę wyjść z aplikacji
          i szukać na Reddicie, dlaczego moja odpowiedź była zła". Panel otwiera się
          NAD ćwiczeniem, więc nie gubi się kontekst ani postęp w rundzie. -->
-    
 
     <div class="panel" id="grammarRefPanel">
       <div class="modal-card">
@@ -7656,7 +7647,6 @@
   <div id="launchReadinessDetail" style="display:none; margin-top:8px; padding-top:8px; border-top:1px solid #333; line-height:1.8; max-height:55vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y;"></div>
 </div>
 
-
 <!-- Arkusz słowa: wspólny dla wszystkich ekranów z tekstem koreańskim.
      Poza .wrap, bo jest pozycjonowany na stałe u dołu okna. -->
 <div class="word-sheet" id="wordSheet" hidden></div>
@@ -7825,7 +7815,6 @@ document.getElementById('launchReadinessBar').addEventListener('click', (e) => {
 
 renderLaunchReadinessBar();
 /* ═══════════════════════════ KONIEC WSKAŹNIKA GOTOWOŚCI ═══════════════════════════ */
-
 
 // Zabezpieczenie diagnostyczne: jeśli SDK Supabase (ładowane z zewnętrznego CDN, patrz
 // <script src> w <head>) z jakiegokolwiek powodu nie zdążyło się wczytać - najczęściej
@@ -8727,12 +8716,19 @@ function resetGeminiButtonsToReady(){
        Czyścimy stan, żeby kolejne kliknięcie „Rozmowa" nie próbowało wysłać
        tej samej wadliwej listy. */
     if(event.code === 4010){
+      /* Przekaźnik odrzucił tryb odpytywania - najczęściej dlatego, że migracja
+         z mode=drill nie jest jeszcze wdrożona. Zamiast zostawiać usera z błędem,
+         schodzimy do wersji lokalnej, która działa zawsze i robi to samo, tylko
+         bez reakcji AI. Zgłoszone przez Damiana 2026-09-05. */
       geminiDrillWords = null;
+      const sc = document.getElementById('aiChatScreen');
+      if(sc) sc.classList.remove('tryb-odpytywania');
       setGeminiVoiceStatus(uiLang === 'en'
-        ? 'Could not start the drill — word list rejected.'
-        : 'Nie udało się rozpocząć odpytywania — lista słów odrzucona.');
+        ? 'Switching to the offline drill…' : 'Przechodzę na odpytywanie lokalne…');
+      setTimeout(() => { setScreen('vocabMode'); odpytywanieStart(); }, 900);
       return;
     }
+
     if(event.code === 4008){
       setGeminiVoiceStatus(uiLang === 'en'
         ? 'No answer came back. Tap the microphone and say it again.'
@@ -52490,7 +52486,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.249';
+const APP_VERSION = '2026-09-05.254';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -53665,7 +53661,6 @@ function applyI18n(){
   });
 }
 
-
 // Zwraca tłumaczenie słowa/zdania w aktualnie wybranym języku, z bezpiecznym fallbackiem
 // (np. własne słówka dodane przez użytkownika mają zwykle tylko pole .pl)
 function tr(obj){
@@ -54467,12 +54462,46 @@ let odpytywaniePauza = 6000;
 let odpytywanieTimer = null;
 let odpytywanieWakeLock = null;
 
+/* ═══ WYBÓR GŁOSU ═══════════════════════════════════════════════════════════
+   Przeglądarki mają zwykle kilka głosów koreańskich i domyślny bywa najgorszy.
+   Wybieramy najlepszy dostępny wg trzech kryteriów, w tej kolejności:
+
+     1. głos ZDALNY (localService === false) - to głosy z serwera dostawcy,
+        wyraźnie lepsze od wbudowanych; na Androidzie i w Chrome to zwykle
+        Google, na iOS Siri
+     2. nazwa zawierająca „Google", „Neural", „Premium", „Enhanced"
+     3. cokolwiek pasującego do języka
+
+   Lista głosów bywa pusta przy pierwszym wywołaniu - przeglądarka ładuje ją
+   asynchronicznie. Stąd zapamiętywanie po pierwszym udanym odczycie.
+   Ustalone z Damianem 2026-09-05: różnica między planami ma być w JAKOŚCI
+   LEKTORA, nie w mechanice - to pierwsza część tej różnicy, dostępna dla
+   wszystkich za darmo. */
+let glosyCache = null;
+
+function najlepszyGlos(jezyk){
+  try{
+    const wszystkie = window.speechSynthesis.getVoices();
+    if(!wszystkie || !wszystkie.length) return null;
+    glosyCache = wszystkie;
+    const pasujace = wszystkie.filter(v => v.lang && v.lang.toLowerCase().startsWith(jezyk.slice(0,2).toLowerCase()));
+    if(!pasujace.length) return null;
+    const dobre = /google|neural|premium|enhanced|natural|wavenet/i;
+    return pasujace.find(v => !v.localService && dobre.test(v.name))
+        || pasujace.find(v => !v.localService)
+        || pasujace.find(v => dobre.test(v.name))
+        || pasujace[0];
+  }catch(e){ return null; }
+}
+
 function mow(tekst, jezyk){
   return new Promise((res) => {
     if(!tekst || !('speechSynthesis' in window)) return res();
     try{
       const u = new SpeechSynthesisUtterance(tekst);
       u.lang = jezyk;
+      const g = najlepszyGlos(jezyk);
+      if(g) u.voice = g;
       u.rate = jezyk === 'ko-KR' ? 0.9 : 1.0;
       u.onend = () => res();
       u.onerror = () => res();          // błąd nie może zatrzymać pętli
@@ -54849,22 +54878,9 @@ function zakodujSlowa(lista){
   return btoa(bin);
 }
 
-async function haksaOdpytujeStart(){
-  if(!isPremiumPro){
-    alert(uiLang === 'en' ? 'This mode requires Premium Pro.' : 'Ten tryb wymaga Premium Pro.');
-    return;
-  }
-  const pula = zbudujKolejkeOdpytywania().slice(0, 20);   // przekaźnik i tak przycina do 20
-  if(pula.length < 3){
-    alert(uiLang === 'en' ? 'Too few words in this selection.' : 'Za mało słów w tym wyborze.');
-    return;
-  }
-  /* Parametry trafiają do connectGeminiRelay przez zmienne modułu - ten sam
-     wzorzec, co targetPattern przy ćwiczeniu wzorca gramatycznego. */
-  geminiDrillWords = zakodujSlowa(pula);
-  setScreen('aiChat');
-  connectGeminiRelay();
-}
+/* haksaOdpytujeStart USUNIĘTE 2026-09-05: prowadziło Premium do ekranu rozmowy
+   z Gemini zamiast do odpytywania. Różnica między planami ma być w GŁOSIE,
+   nie w tym, co użytkownik robi. */
 
 let geminiDrillWords = null;   // ustawione tylko na czas sesji odpytywania
 
@@ -54965,6 +54981,9 @@ function speakKorean(text){
     window.speechSynthesis.cancel(); // przerywa ewentualne poprzednie odtwarzanie, żeby się nie nakładały
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ko-KR';
+    // Najlepszy dostępny głos, nie domyślny - dotyczy CAŁEJ apki, nie tylko
+    // odpytywania: fiszki, czytanki, przykłady gramatyczne.
+    { const g = najlepszyGlos('ko-KR'); if(g) utterance.voice = g; }
     utterance.rate = 0.9; // odrobinę wolniej niż domyślne tempo - łatwiej się uczyć
     window.speechSynthesis.speak(utterance);
   }catch(e){ /* cicho - brak głosu koreańskiego w systemie itp., nie blokujemy reszty interfejsu */ }
@@ -56597,7 +56616,6 @@ function sageRankFor(days){
   const next = SAGE_RANKS.find(r => r.from > days) || null;
   return { rank: cur, next, toNext: next ? next.from - days : 0 };
 }
-
 
 function todayDateString(d){
   return (d || new Date()).toISOString().slice(0, 10);
@@ -59398,7 +59416,6 @@ function showDictWordCardView(){
 }
 document.getElementById('dictWordCardBackBtn').addEventListener('click', showDictWordListView);
 
-
 document.getElementById('readingSizeBtn').addEventListener('click', () => {
   readerSizeIdx = (readerSizeIdx + 1) % READER_SIZES.length;
   // Zmienna siedzi na :root, ale czytają ją tylko elementy tekstu czytanki -
@@ -59441,7 +59458,6 @@ document.getElementById('dictWordNextBtn').addEventListener('click', ()=>{
   dictWordIndex = (dictWordIndex + 1) % dictWordQueue.length;
   renderDictWordCard();
 });
-
 
 function renderHangulScreen(){
   const showQuiz = hangulStage === 'quiz';
@@ -62411,7 +62427,6 @@ let readerSentences = [];
 const READER_SIZES = [19, 21, 24];
 let readerSizeIdx = 1;
 
-
 // Pasek nawigacji jest na tym ekranie ukryty, ale baner reklamowy nie -
 // odejmujemy więc tylko jego wysokość.
 function syncReaderHeight(){
@@ -62423,8 +62438,6 @@ function syncReaderHeight(){
 }
 window.addEventListener('resize', syncReaderHeight);
 window.addEventListener('resize', () => { const s=document.getElementById('wordSheet'); if(s && !s.hidden) placeWordSheet(); });
-
-
 
 function renderReadingList(){
   const wrap = document.getElementById('readingListCards');
@@ -62494,7 +62507,6 @@ function renderReadingList(){
     });
   });
 }
-
 
 function openReading(reading){
   // Sprawdzenie wsparcia od razu przy wejściu. Wcześniej komunikat pojawiał się
@@ -63677,7 +63689,6 @@ document.getElementById('aiChatGoPremiumBtn').addEventListener('click', ()=>{
   document.getElementById('premiumPanel').classList.add('open');
 });
 
-
 function renderVirtualKeyboard(gridId){
   const grid = document.getElementById(gridId);
   const consonants = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
@@ -63715,7 +63726,6 @@ document.getElementById('vkToggleVocab').addEventListener('change', (e)=>{
 document.getElementById('vkToggleConj').addEventListener('change', (e)=>{
   document.getElementById('vkGridConj').style.display = e.target.checked ? 'block' : 'none';
 });
-
 
 function sourceBadgeHtml(source){
   if(source === 'manual') return '<span class="source-badge manual">Twoje słówko</span>';
@@ -63850,7 +63860,6 @@ document.getElementById('vocabTypedToggle').addEventListener('change', (e)=>{
     : (uiLang === 'en' ? 'Choice (4 answers)' : 'Wybór (4 odpowiedzi)');
   newRound();
 });
-
 
 function todayKey(){
   const d = new Date();
@@ -64347,7 +64356,6 @@ document.querySelectorAll('.mode-btn').forEach(btn=>{
   });
 });
 
-
 document.getElementById('grammarRefSearch').addEventListener('input', (e) => renderGrammarRef(e.target.value));
 
 document.getElementById('openParticleBtn').addEventListener('click', (e)=>{
@@ -64361,7 +64369,10 @@ document.getElementById('openParticleBtn').addEventListener('click', (e)=>{
    nasz problem techniczny, nie jego. Pro dostaje Gemini, reszta wersję lokalną.
    Zgłoszone przez Damiana 2026-09-05. */
 document.getElementById('odpytywanieCard').addEventListener('click', ()=>{
-  if(isPremiumPro){ haksaOdpytujeStart(); return; }
+  /* JEDNA ścieżka dla wszystkich. Premium różni się WYŁĄCZNIE jakością lektora,
+     nie mechaniką - wcześniej prowadziło do ekranu rozmowy z Gemini, czyli
+     zupełnie innej aktywności ze scenariuszem i podpowiedziami.
+     Ustalone z Damianem 2026-09-05. */
   /* Kierunek i pauzę bierzemy z tego, co user ustawił w ćwiczeniach - nie
      dokładamy kolejnego ekranu konfiguracji przed rozpoczęciem. */
   odpytywanieKierunek = (typeof direction !== 'undefined' && direction === 'pl-ko') ? 'pl-ko' : 'ko-pl';
@@ -65074,7 +65085,6 @@ function renderTenseChips(){
     });
   });
 }
-
 
 // ══ v3 §3 · WIDOK ODMIANY ════════════════════════════════════════════════
 // Trzy rejestry × trzy czasy biorą się WYŁĄCZNIE z pól w KOREAN_VERBS - żadnej
