@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.172
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.175
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -4969,6 +4969,23 @@
   .ds-acts{ display:flex; gap:8px; flex-wrap:wrap; }
   .dr-row.is-selected{ background:var(--card-hi); }
 
+  /* Pasek 초성: przewijalny poziomo, przyklejony pod filtrami. Litery bez
+     wystąpień są przygaszone i nieklikalne - inaczej user trafia w pustkę. */
+  .cho-bar{
+    display:flex; gap:4px; overflow-x:auto; padding:8px 0 10px;
+    scrollbar-width:none; -webkit-overflow-scrolling:touch;
+  }
+  .cho-bar::-webkit-scrollbar{ display:none; }
+  .cho-btn{
+    flex:none; min-width:30px; min-height:30px; padding:4px 6px;
+    border-radius:var(--radius-pill); border:1px solid var(--border);
+    background:var(--card); color:var(--ink);
+    font-family:var(--font-ko); font-size:14px; cursor:pointer;
+  }
+  .cho-btn[disabled]{ opacity:.3; cursor:default; }
+  .cho-btn:not([disabled]):hover{ background:var(--card-hi); }
+  [data-theme="kobalt"] .cho-btn{ border-radius:var(--radius); }
+
   .dict-list{ margin-top:10px; overscroll-behavior:contain; }
   .dict-list .section-sticky{ text-transform:none; }
 
@@ -5630,7 +5647,10 @@
         <div class="dict-filters" id="dictLevelChips" role="tablist"></div>
       </div>
       <p class="hint-note" id="dictWordFilterCount" style="margin-top:8px;"></p>
-      <div id="dictWordListRows" class="dict-list"></div>
+      <!-- Pasek przeskoku do pierwszej spółgłoski (초성). Przy kilku tysiącach słów
+             zjeżdżanie do „ㅈ" to kilkanaście sekund przewijania. Zgłoszone 2026-09-05. -->
+        <div class="cho-bar" id="dictChoBar"></div>
+        <div id="dictWordListRows" class="dict-list"></div>
     </div>
 
     <div id="dictWordCardView" style="display:none;">
@@ -7225,6 +7245,33 @@ async function searchDictScoped(fraza, level, category, limit){
      1 - fraza gdziekolwiek
    Przy remisie krótsze pole wygrywa: „auto" jest trafniejszą odpowiedzią na
    „auto" niż „auto osobowe z napędem na cztery koła". */
+/* Wyszukiwanie w SŁOWNIKU LOKALNYM (DEFAULT_WORDS + własne słowa usera).
+   dictionary_words to UZUPEŁNIENIE, nie nadzbiór: podstawy siedzą lokalnie,
+   rzadsze słowa w bazie. Wyszukiwarka pytała tylko bazy, więc „samochód"
+   zwracał lawetę i radiowóz, a 자동차 - które jest w DEFAULT_WORDS na poziomie 1
+   - nie pojawiało się wcale. Zgłoszone przez Damiana 2026-09-05. */
+function searchLocalWords(fraza, level, category){
+  const q = String(fraza || '').trim().toLowerCase();
+  if(q.length < 1) return [];
+  const pola = dictSearchFields();
+  return allWords.filter(w => {
+    if(level && w.level !== level) return false;
+    if(category){
+      const kat = w.category || 'Własne';
+      if(Array.isArray(category) ? !category.includes(kat) : kat !== category) return false;
+    }
+    return pola.some(f => String(w[f] || '').toLowerCase().includes(q));
+  });
+}
+
+/* Scala wyniki lokalne z bazowymi, odsiewa duplikaty po `ko` i sortuje razem.
+   Lokalne mają pierwszeństwo przy równej punktacji - są wykuratorowane. */
+function scalWyniki(lokalne, zBazy, fraza){
+  const maja = new Set(lokalne.map(w => w.ko));
+  const reszta = (zBazy || []).filter(w => !maja.has(w.ko));
+  return sortujPoTrafnosci([...lokalne, ...reszta], fraza);
+}
+
 function sortujPoTrafnosci(lista, fraza){
   const q = String(fraza || '').trim().toLowerCase();
   if(!q) return lista;
@@ -15915,7 +15962,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.172';
+const APP_VERSION = '2026-09-05.175';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -21139,6 +21186,9 @@ async function loadDictBrowse(){
     // po koreańskim, przez co wpisanie „samochód" dawało zero wyników mimo
     // 39 446 słów w bazie. Zgłoszone przez Damiana 2026-09-05.
     const hits = (await searchDictScoped(q, dictBrowseLevel, dictBrowseDept || null, 200)) || [];
+    // Słownik lokalny NAJPIERW - tam siedzą podstawy (자동차, 버스, 기차).
+    const lokalne = searchLocalWords(q, dictBrowseLevel, dictBrowseDept || null);
+    lokalne.forEach(w => { if(!list.some(x => x.ko === w.ko)) list.unshift(w); });
     const seen = new Set(list.map(w => w.id));
     hits.forEach(w => { if(!seen.has(w.id)){ seen.add(w.id); list.push(w); } });
     const needle = q.toLowerCase();
@@ -21424,8 +21474,38 @@ function choseongOf(text){
   return '#';                                    // cyfry, łacinka, znaki
 }
 
+/* Pasek przeskoku do pierwszej spółgłoski. Buduje się z tego, co FAKTYCZNIE
+   jest na liście - litery bez wystąpień są wyszarzone i nieklikalne, bo
+   kliknięcie w pustkę jest gorsze niż brak przycisku.
+
+   Przewijamy do nagłówka sekcji, nie do pierwszego wiersza - inaczej nagłówek
+   „ㅈ" zostaje nad krawędzią i nie widać, gdzie się jest. */
+function renderChoBar(words){
+  const bar = document.getElementById('dictChoBar');
+  if(!bar) return;
+  const obecne = new Set(words.map(w => choseongOf(w.ko)));
+  const litery = [...CHOSEONG, '#'];
+  bar.innerHTML = litery.map(l =>
+    `<button type="button" class="cho-btn" data-cho="${l}"${obecne.has(l) ? '' : ' disabled'}>${l}</button>`
+  ).join('');
+  bar.querySelectorAll('.cho-btn:not([disabled])').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cel = btn.dataset.cho;
+      const rows = document.getElementById('dictWordListRows');
+      const naglowki = [...rows.querySelectorAll('.section-sticky')];
+      const h = naglowki.find(x => x.textContent.trim() === cel);
+      if(h){ h.scrollIntoView({ behavior:'smooth', block:'start' }); return; }
+      // Brak nagłówka (np. lista przefiltrowana) - skaczemy do pierwszego wiersza.
+      const wiersz = [...rows.querySelectorAll('.dr-row')]
+        .find(r => choseongOf((r.querySelector('.dr-row-ko') || {}).textContent || '') === cel);
+      if(wiersz) wiersz.scrollIntoView({ behavior:'smooth', block:'center' });
+    });
+  });
+}
+
 function renderDictWordListRows(words){
   const wrap = document.getElementById('dictWordListRows');
+  try{ renderChoBar(words); }catch(e){ /* pasek nie może psuć listy */ }
   const countLabel = uiLang === 'en' ? `${words.length} of ${dictWordQueue.length} words` : `${words.length} z ${dictWordQueue.length} słów`;
   document.getElementById('dictWordFilterCount').textContent = countLabel;
 
@@ -21480,12 +21560,15 @@ document.getElementById('dictWordFilterInput').addEventListener('input', (e)=>{
     // Kolejność wyników: najpierw to, co user już widzi (bez przeskoku),
     // potem reszta z bazy z odsianiem duplikatów po `ko`.
     const zBazy = await searchDictScoped(raw, selectedDictLevel, selectedDictDept, 200);
-    if(!zBazy || e.target.value.trim() !== raw) return;   // user pisze dalej
-    const maja = new Set(lokalne.map(w => w.ko));
-    const doda = zBazy.filter(w => !maja.has(w.ko));
-    if(!doda.length) return;
-    dictWordQueue = [...dictWordQueue, ...doda];          // żeby „Następne" działało
-    renderDictWordListRows([...lokalne, ...doda]);
+    if(e.target.value.trim() !== raw) return;             // user pisze dalej
+    // Słownik lokalny + baza, scalone i posortowane razem. Bez części lokalnej
+    // podstawowe słowa (자동차, 버스) nie pojawiały się w wynikach wcale.
+    const zLokalnych = searchLocalWords(raw, selectedDictLevel, selectedDictDept);
+    const pelne = scalWyniki([...lokalne, ...zLokalnych.filter(w => !lokalne.some(x => x.ko === w.ko))], zBazy, raw);
+    if(pelne.length === lokalne.length) return;
+    const nowe = pelne.filter(w => !dictWordQueue.some(x => x.ko === w.ko));
+    if(nowe.length) dictWordQueue = [...dictWordQueue, ...nowe];   // żeby „Następne" działało
+    renderDictWordListRows(pelne);
   }, 350);
 });
 
