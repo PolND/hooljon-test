@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.186
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.187
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2880,6 +2880,36 @@
     background:var(--surface-2);
     text-align:left;
   }
+  /* Pole do ćwiczenia pisania. Wzorzec znaku jest przygaszony pod spodem -
+     user obrysowuje go, a nie rysuje w pustce. Kanwa jest kwadratowa i ma ten
+     sam układ współrzędnych (0-100) co ścieżki wzorcowe. */
+  .pis-blok{ margin-top:18px; }
+  .pis-pole{
+    position:relative; width:100%; max-width:240px; aspect-ratio:1; margin:8px auto 0;
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    touch-action:none; cursor:crosshair; overflow:hidden;
+  }
+  .pis-wzor{
+    position:absolute; inset:0; display:grid; place-items:center;
+    font-family:var(--font-ko); font-size:150px; line-height:1;
+    color:var(--ink); opacity:.12; user-select:none; pointer-events:none;
+  }
+  .pis-inked{ position:absolute; inset:0; width:100%; height:100%; }
+  .pis-inked polyline{
+    fill:none; stroke:var(--hwang); stroke-width:3;
+    stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke;
+  }
+  .pis-ocena{ text-align:center; margin-top:10px; min-height:20px; }
+  .pis-wynik{
+    font:700 15px var(--font-ui); color:var(--ink-dim);
+  }
+  .pis-wynik.ok{ color:var(--good); }
+  .pis-uwaga{
+    font-size:12.5px; color:var(--ink-dim); margin-top:4px;
+    font-family:var(--font-ui); line-height:1.45;
+  }
+  .pis-czysc{ display:block; margin:10px auto 0; }
+
   .hg-strokes-label{
     font-size:12px;
     font-weight:700;
@@ -16147,7 +16177,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.186';
+const APP_VERSION = '2026-09-05.187';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -21991,6 +22021,147 @@ function buildStrokeOrderSvg(strokePaths){
   return `<svg viewBox="-4 -4 108 108" class="hg-stroke-svg-overlay">${guidePaths}${paths}${dots}</svg>`;
 }
 
+/* ═══ ĆWICZENIE PISANIA ═══════════════════════════════════════════════════════
+   Pole, na którym user sam odwzorowuje znak po obejrzeniu animacji.
+
+   Ocena BEZ rozpoznawania pisma. Mamy ścieżki wzorcowe (strokePaths, zmierzone
+   z glifu Noto Serif KR), więc porównujemy trzy rzeczy, które faktycznie decydują
+   o poprawności zapisu hangul:
+
+     1. KOLEJNOŚĆ  - czy kreski narysowano w tej samej sekwencji co wzorzec
+     2. KIERUNEK   - czy każda idzie od właściwego końca (ㄱ pisze się w prawo,
+                     nie w lewo; to najczęstszy błąd uczących się)
+     3. POŁOŻENIE  - czy początek i koniec trafiają w okolice wzorcowych
+
+   To wystarczy dydaktycznie i nie wymaga sieci, modelu ani kosztu. Nie ocenia
+   estetyki - user może pisać krzywo, byle w dobrej kolejności i kierunku.
+   Zaproponowane przez Damiana 2026-09-05. */
+const PIS_TOLERANCJA = 22;      // px w układzie 0-100; poza tym punkt uznajemy za chybiony
+let pisRysowane = [];           // kreski narysowane przez usera: [[{x,y},...], ...]
+let pisAktywna = null;          // kreska w trakcie rysowania
+
+function pisWzorzec(item){
+  // strokePaths to KROKI, każdy z 1+ ścieżek. Do oceny spłaszczamy do listy
+  // pojedynczych kresek - user rysuje kreski, nie kroki.
+  return (item.strokePaths || []).flat();
+}
+
+/* Punkty startu i końca ścieżki SVG typu "M30.7,40.4 L65.9,40.3".
+   Obsługujemy tylko M/L, bo wszystkie nasze ścieżki są łamanymi. */
+function pisKonce(d){
+  const licz = String(d).match(/-?\d+(?:\.\d+)?/g);
+  if(!licz || licz.length < 4) return null;
+  return {
+    x1: +licz[0], y1: +licz[1],
+    x2: +licz[licz.length-2], y2: +licz[licz.length-1],
+  };
+}
+
+function pisOdleglosc(ax, ay, bx, by){
+  return Math.hypot(ax - bx, ay - by);
+}
+
+/* Ocena: dla każdej kreski wzorcowej sprawdzamy tę, którą user narysował jako
+   n-tą. Brak kreski = brak punktów za nią. */
+function pisOcen(item){
+  const wzor = pisWzorzec(item);
+  const wynik = wzor.map((d, i) => {
+    const w = pisKonce(d);
+    const u = pisRysowane[i];
+    if(!w || !u || u.length < 2) return { ok:false, powod:'brak' };
+    const p = u[0], k = u[u.length-1];
+    const dobry  = pisOdleglosc(p.x, p.y, w.x1, w.y1) + pisOdleglosc(k.x, k.y, w.x2, w.y2);
+    const odwrot = pisOdleglosc(p.x, p.y, w.x2, w.y2) + pisOdleglosc(k.x, k.y, w.x1, w.y1);
+    if(odwrot < dobry && odwrot < PIS_TOLERANCJA * 2) return { ok:false, powod:'kierunek' };
+    if(dobry > PIS_TOLERANCJA * 2) return { ok:false, powod:'polozenie' };
+    return { ok:true };
+  });
+  const trafione = wynik.filter(x => x.ok).length;
+  return {
+    wynik,
+    trafione,
+    razem: wzor.length,
+    nadmiar: Math.max(0, pisRysowane.length - wzor.length),
+  };
+}
+
+/* Kanwa do rysowania. Współrzędne przeliczamy na układ 0-100, ten sam,
+   w którym są ścieżki wzorcowe - dzięki temu ocena nie zależy od rozmiaru
+   pola na ekranie. */
+function pisPunkt(e, el){
+  const r = el.getBoundingClientRect();
+  return {
+    x: ((e.clientX - r.left) / r.width) * 100,
+    y: ((e.clientY - r.top) / r.height) * 100,
+  };
+}
+
+function pisRysuj(el){
+  const svg = el.querySelector('.pis-inked');
+  if(!svg) return;
+  svg.innerHTML = pisRysowane.concat(pisAktywna ? [pisAktywna] : [])
+    .filter(k => k && k.length > 1)
+    .map(k => `<polyline points="${k.map(p => p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ')}"/>`)
+    .join('');
+}
+
+function pisWyczysc(el){
+  pisRysowane = []; pisAktywna = null;
+  pisRysuj(el);
+  const ocena = el.parentElement.querySelector('.pis-ocena');
+  if(ocena) ocena.innerHTML = '';
+}
+
+function pisPokazOcene(el, item){
+  const o = pisOcen(item);
+  const box = el.parentElement.querySelector('.pis-ocena');
+  if(!box) return;
+  const en = uiLang === 'en';
+  if(!pisRysowane.length){ box.innerHTML = ''; return; }
+
+  /* Komunikat mówi, CO poprawić, nie tylko ile procent. Kolejność i kierunek
+     to jedyne rzeczy, których uczy kolejność kresek - estetyki nie oceniamy. */
+  const zle = o.wynik.map((w,i) => ({...w, nr:i+1})).filter(w => !w.ok);
+  const kierunek = zle.filter(w => w.powod === 'kierunek');
+  const brak = zle.filter(w => w.powod === 'brak');
+  let uwaga = '';
+  if(kierunek.length) uwaga = en
+    ? `Stroke ${kierunek.map(w=>w.nr).join(', ')} drawn backwards.`
+    : `Kreska ${kierunek.map(w=>w.nr).join(', ')} narysowana od złej strony.`;
+  else if(brak.length) uwaga = en ? 'Some strokes are missing.' : 'Brakuje kresek.';
+  else if(zle.length) uwaga = en ? 'Check where strokes start and end.' : 'Sprawdź, gdzie kreski się zaczynają i kończą.';
+  else if(o.nadmiar) uwaga = en ? 'One stroke too many.' : 'O jedną kreskę za dużo.';
+
+  const komplet = o.trafione === o.razem && !o.nadmiar;
+  box.innerHTML = `<div class="pis-wynik${komplet ? ' ok' : ''}">`
+    + (komplet ? (en ? '✓ Correct order and direction' : '✓ Dobra kolejność i kierunek')
+               : `${o.trafione} / ${o.razem}`)
+    + '</div>' + (uwaga ? `<div class="pis-uwaga">${uwaga}</div>` : '');
+}
+
+function pisPodepnij(el, item){
+  if(!el || el.dataset.gotowe === '1') return;
+  el.dataset.gotowe = '1';
+  el.addEventListener('pointerdown', (e) => {
+    el.setPointerCapture(e.pointerId);
+    pisAktywna = [pisPunkt(e, el)];
+  });
+  el.addEventListener('pointermove', (e) => {
+    if(!pisAktywna) return;
+    pisAktywna.push(pisPunkt(e, el));
+    pisRysuj(el);
+  });
+  const koniec = () => {
+    if(!pisAktywna) return;
+    if(pisAktywna.length > 1) pisRysowane.push(pisAktywna);
+    pisAktywna = null;
+    pisRysuj(el);
+    pisPokazOcene(el, item);
+  };
+  el.addEventListener('pointerup', koniec);
+  el.addEventListener('pointercancel', koniec);
+}
+
 function replayHangulStrokeAnimation(item){
   const stage = document.querySelector('#hangulCard .hg-stage');
   if(!stage || !item.strokePaths) return;
@@ -22035,6 +22206,27 @@ function renderHangulLetterStage(list, labelPl, labelEn){
       ` : ''}
     </div>
   `;
+  /* Pole do ćwiczenia - dopisywane po animacji, tylko gdy znak ma ścieżki
+     wzorcowe. Bez nich nie da się ocenić odwzorowania. */
+  if(hasStrokes){
+    const en = uiLang === 'en';
+    document.getElementById('hangulCard').insertAdjacentHTML('beforeend', `
+      <div class="pis-blok">
+        <div class="hg-strokes-label">✏️ ${en ? 'Try writing it' : 'Napisz sam'}</div>
+        <div class="pis-pole" id="pisPole">
+          <div class="pis-wzor">${item.char}</div>
+          <svg class="pis-inked" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="pis-ocena"></div>
+        <button type="button" class="tool-btn pis-czysc">${en ? 'Clear' : 'Wyczyść'}</button>
+      </div>`);
+    const pole = document.getElementById('pisPole');
+    pisRysowane = []; pisAktywna = null;
+    pisPodepnij(pole, item);
+    const czysc = document.querySelector('.pis-czysc');
+    if(czysc) czysc.addEventListener('click', (e)=>{ e.stopPropagation(); pisWyczysc(pole); });
+  }
+
   const replayBtn = document.getElementById('hangulReplayStrokes');
   if(replayBtn){
     replayBtn.addEventListener('click', (e) => {
