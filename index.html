@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.162
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.166
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -7163,6 +7163,35 @@ async function fetchDictionaryWords(level, category, limit){
 
 // Lekka wersja "tylko licznik" - używa Supabase count:'exact', head:true, żeby dostać
 // samą liczbę bez ściągania pełnych wierszy. Do wyświetlania na ekranie wyboru poziomu.
+/* Wyszukiwanie po stronie BAZY, nie w pobranej próbce.
+   Przeglądanie ściąga 500 wierszy i filtrowało je lokalnie - przy dziale
+   „Cechy i miary" (4125 pozycji) użytkownik przeszukiwał 12% zawartości
+   i nie miał jak się o tym dowiedzieć.
+
+   ilike z % po obu stronach: szuka fragmentu w koreańskim, polskim i angielskim.
+   or() łączy warunki alternatywą. Limit 200 na wynik - dość, żeby znaleźć,
+   za mało, żeby zapchać widok. Zgłoszone przez Damiana 2026-09-05. */
+/* UWAGA: obok istnieje searchDictionaryWords(fragment, limit) - starsza,
+   szuka WYŁĄCZNIE po polu ko, bez filtrów, limit 30. Używają jej trzy inne
+   miejsca. Ta funkcja jest szersza (ko+pl+en, filtr działu i poziomu), więc
+   dostała własną nazwę zamiast nadpisywać tamtą. */
+async function searchDictScoped(fraza, level, category, limit){
+  const q = String(fraza || '').trim();
+  if(q.length < 2) return null;              // za krótkie - nie ma sensu pytać
+  let query = sb.from('dictionary_words')
+    .select('id,ko,pl,en,emoji,category,level,pos,industryModule,ex,exPl,exEn');
+  if(level) query = query.eq('level', level);
+  if(Array.isArray(category)) query = query.in('category', category);
+  else if(category) query = query.eq('category', category);
+  // Znak procenta i podkreślenie są w ilike wieloznacznikami - trzeba je uciec,
+  // inaczej wpisanie "%" wyciągnie całą bazę.
+  const bezp = q.replace(/[%_]/g, m => '\\' + m);
+  query = query.or(`ko.ilike.%${bezp}%,pl.ilike.%${bezp}%,en.ilike.%${bezp}%`);
+  const { data, error } = await query.limit(limit || 200);
+  if(error){ console.error('searchDictScoped:', error); return null; }
+  return data || [];
+}
+
 async function countDictionaryWords(level, category){
   let query = sb.from('dictionary_words').select('id', { count: 'exact', head: true });
   if(level) query = query.eq('level', level);
@@ -15828,7 +15857,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.162';
+const APP_VERSION = '2026-09-05.166';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -16061,7 +16090,12 @@ function setScreen(screen){
     if(leechCardHome) leechCardHome.style.display = leechCount > 0 ? 'flex' : 'none';
     if(leechBadgeHome) leechBadgeHome.textContent = leechCount;
   }
-  if(screen === 'vocabDept') renderVocabDeptCards();
+  if(screen === 'vocabDept'){
+    renderVocabDeptCards();
+    // Liczba z bazy dolicza się w tle - ekran pokazuje się natychmiast
+    // z liczbą lokalną, potem podmienia na pełną.
+    refreshDeptTotals().catch(()=>{});
+  }
   if(screen === 'vocabLevel') renderVocabLevelCards();
   if(screen === 'vocab'){
     // "Działy" wewnątrz quizu ma sens tylko w trybie "Wszystkie działy" —
@@ -16252,6 +16286,9 @@ const VOCAB_DEPT_GROUPS = [
 
 function buildDeptCardHtml(cat){
   const count = allWords.filter(w => (w.category || 'Własne') === cat).length;
+    // Licznik z bazy dolicza się po renderze (data-dept-count), żeby ekran
+    // pojawił się natychmiast. Bez tego dział „Cechy i miary" pokazywał 96,
+    // a ma w bazie 4125 pozycji. 2026-09-05.
   return `
     <div class="home-card" role="button" tabindex="0" data-dept="${escapeHtml(cat)}">
       <span class="icon">${DEPT_BADGE_ICONS[cat] || '분'}</span>
@@ -16277,16 +16314,46 @@ function wireDeptCards(container){
   });
 }
 
+/* Łączna liczba słów DOSTĘPNYCH do nauki: lokalne plus dictionary_words.
+   Ekran działów pokazywał wcześniej samo allWords.length (~6180), podczas gdy
+   baza ma 39 446 pozycji i jest podłączona do nauki, ćwiczeń i przeglądania.
+   Użytkownik widział więc ułamek tego, co faktycznie dostaje.
+
+   Liczba jest buforowana - to jedno zapytanie licznikowe (head:true), ale nie
+   ma powodu powtarzać go przy każdym renderze. Zgłoszone 2026-09-05. */
+let totalWordsCache = null;
+
+async function totalAvailableWords(){
+  if(totalWordsCache !== null) return totalWordsCache;
+  try{
+    const zBazy = await countDictionaryWords(null, getAllCategories());
+    totalWordsCache = allWords.length + zBazy;
+  }catch(e){
+    totalWordsCache = allWords.length;      // brak sieci - pokazujemy lokalne
+  }
+  return totalWordsCache;
+}
+
+/* Podmienia liczby w nagłówku po dociągnięciu z bazy. Wołane po renderze,
+   żeby ekran pojawił się natychmiast z liczbą lokalną. */
+async function refreshDeptTotals(){
+  const n = await totalAvailableWords();
+  if(n === allWords.length) return;         // nic nie doszło
+  document.querySelectorAll('[data-total-words]').forEach(el => {
+    el.textContent = String(n);
+  });
+}
+
 function renderVocabDeptCards(){
   const wrap = document.getElementById('vocabDeptCards');
   const cats = getAllCategories();
 
   const allCard = `
     <div class="home-card" role="button" tabindex="0" data-dept="__all__">
-      <span class="icon">🗂️</span>
+      <span class="icon">전</span>
       <span class="hc-main">
         <div class="title">${uiLang === 'en' ? 'All sections' : 'Wszystkie działy'}</div>
-        <div class="desc">${uiLang === 'en' ? `All topics · ${allWords.length} words` : `Wszystkie tematy · ${allWords.length} słówek`}</div>
+        <div class="desc">${uiLang === 'en' ? `All topics · <span data-total-words>${allWords.length}</span> words` : `Wszystkie tematy · <span data-total-words>${allWords.length}</span> słówek`}</div>
       </span>
       <button class="wl-preview-btn" data-preview="__all__" title="${uiLang === 'en' ? 'Preview words' : 'Podejrzyj słówka'}">👁</button>
     </div>`;
@@ -16391,7 +16458,7 @@ function buildVocabLevelCardsHTML(perLevelCounts, totalCount){
 
   const allCard = `
     <div class="home-card" role="button" tabindex="0" data-level="all">
-      <span class="icon">🗂️</span>
+      <span class="icon">전</span>
       <span class="hc-main">
         <div class="title">${uiLang === 'en' ? 'All (no level filter)' : 'Wszystkie (bez podziału na poziom)'}</div>
         <div class="desc">${uiLang === 'en' ? `${totalCount} words` : `${totalCount} słówek`}</div>
@@ -21310,12 +21377,32 @@ function renderDictWordListRows(words){
   });
 }
 
+/* Filtrowanie: najpierw lokalnie (natychmiast), potem z bazy (pełny zbiór).
+   Odczekanie 350ms, żeby nie wysyłać zapytania przy każdym znaku. */
+let dictSearchTimer = null;
 document.getElementById('dictWordFilterInput').addEventListener('input', (e)=>{
-  const q = e.target.value.trim().toLowerCase();
-  const filtered = !q ? dictWordQueue : dictWordQueue.filter(w =>
-    w.ko.toLowerCase().includes(q) || (w.pl || '').toLowerCase().includes(q) || (w.en || '').toLowerCase().includes(q)
+  const raw = e.target.value.trim();
+  const q = raw.toLowerCase();
+  const lokalne = !q ? dictWordQueue : dictWordQueue.filter(w =>
+    w.ko.toLowerCase().includes(q) ||
+    (w.pl || '').toLowerCase().includes(q) ||
+    (w.en || '').toLowerCase().includes(q)
   );
-  renderDictWordListRows(filtered);
+  renderDictWordListRows(lokalne);
+
+  clearTimeout(dictSearchTimer);
+  if(raw.length < 2) return;
+  dictSearchTimer = setTimeout(async ()=>{
+    // Kolejność wyników: najpierw to, co user już widzi (bez przeskoku),
+    // potem reszta z bazy z odsianiem duplikatów po `ko`.
+    const zBazy = await searchDictScoped(raw, selectedDictLevel, selectedDictDept, 200);
+    if(!zBazy || e.target.value.trim() !== raw) return;   // user pisze dalej
+    const maja = new Set(lokalne.map(w => w.ko));
+    const doda = zBazy.filter(w => !maja.has(w.ko));
+    if(!doda.length) return;
+    dictWordQueue = [...dictWordQueue, ...doda];          // żeby „Następne" działało
+    renderDictWordListRows([...lokalne, ...doda]);
+  }, 350);
 });
 
 function showDictWordListView(){
