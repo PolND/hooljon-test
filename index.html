@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.170
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.172
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -7211,7 +7211,43 @@ async function searchDictScoped(fraza, level, category, limit){
   query = query.or(dictSearchFields().map(f => `${f}.ilike.%${bezp}%`).join(','));
   const { data, error } = await query.limit(limit || 200);
   if(error){ console.error('searchDictScoped:', error); return null; }
-  return data || [];
+  return sortujPoTrafnosci(data || [], q);
+}
+
+/* Sortowanie po trafności. Bez niego „samochód" zwracał lawetę i radiowóz przed
+   자동차, bo ilike traktuje „samochód pomocy drogowej" tak samo jak samo
+   „samochód". Zgłoszone przez Damiana 2026-09-05.
+
+   Punktacja, od najlepszego:
+     4 - pole równa się szukanej frazie
+     3 - pole zaczyna się od frazy
+     2 - fraza stoi na granicy słowa w środku pola
+     1 - fraza gdziekolwiek
+   Przy remisie krótsze pole wygrywa: „auto" jest trafniejszą odpowiedzią na
+   „auto" niż „auto osobowe z napędem na cztery koła". */
+function sortujPoTrafnosci(lista, fraza){
+  const q = String(fraza || '').trim().toLowerCase();
+  if(!q) return lista;
+  const pola = dictSearchFields();
+  const punkty = (w) => {
+    let best = 0, dl = Infinity;
+    for(const f of pola){
+      const v = String(w[f] || '').toLowerCase();
+      if(!v) continue;
+      let p = 0;
+      if(v === q) p = 4;
+      else if(v.startsWith(q)) p = 3;
+      else if(new RegExp('(^|[\\s,;/(\\-])' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(v)) p = 2;
+      else if(v.includes(q)) p = 1;
+      if(p > best || (p === best && v.length < dl)){ best = p; dl = v.length; }
+    }
+    return { best, dl };
+  };
+  return [...lista].sort((a, b) => {
+    const pa = punkty(a), pb = punkty(b);
+    if(pb.best !== pa.best) return pb.best - pa.best;
+    return pa.dl - pb.dl;
+  });
 }
 
 async function countDictionaryWords(level, category){
@@ -15879,7 +15915,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.170';
+const APP_VERSION = '2026-09-05.172';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -21110,6 +21146,9 @@ async function loadDictBrowse(){
       (w.ko || '').toLowerCase().includes(needle) ||
       (w.pl || '').toLowerCase().includes(needle) ||
       (w.en || '').toLowerCase().includes(needle));
+    // Sortowanie po trafności na CAŁEJ liście - wyniki z bazy są doklejane po
+    // wcześniej pobranych, więc bez tego kolejność z searchDictScoped ginie.
+    list = sortujPoTrafnosci(list, q);
     if(dictBrowseLevel) list = list.filter(w => w.level === dictBrowseLevel);
     if(dictBrowseDept)  list = list.filter(w => w.category === dictBrowseDept);
   }
