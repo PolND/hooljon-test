@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.146
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.150
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -1509,6 +1509,12 @@
   .sb-tappable{cursor:pointer; transition:transform .12s ease, box-shadow .2s ease;}
   .sb-tappable:hover{box-shadow:0 10px 24px -12px rgba(0,0,0,0.25);}
   .sb-tappable:active{transform:scale(0.98);}
+  /* Glif zamiast 🎉 przy ukończeniu sesji - ten sam krój i kolor co ikony
+     w menu, zamiast emoji renderowanego krojem systemowym. */
+  .done-glyph{
+    font-family:var(--font-ko); font-size:44px; color:var(--hwang);
+    margin-bottom:10px; line-height:1;
+  }
   .study-tap-hint{
     font-size:13.5px;
     color:var(--ink-dim);
@@ -3013,10 +3019,20 @@
     display:flex; align-items:center; gap:14px; min-height:56px; padding:12px 0;
     border-bottom:1px solid var(--border);
   }
+  /* Kształt pola glifu niesie odrębność motywu - kółko w Jadeicie, kwadrat
+     w Kobalcie, tak samo jak na kaflach ekranu głównego (v6 §5). */
+  [data-theme="jade"] #vocabDeptCards .dg-icon{ border-radius:50%; }
+  [data-theme="kobalt"] #vocabDeptCards .dg-icon{ border-radius:6px; background:var(--card-hi); color:var(--ink); }
+
   #vocabDeptCards .dg-icon{
     flex:none; width:44px; height:44px; border-radius:var(--radius);
     background:var(--surface-2); display:flex; align-items:center;
-    justify-content:center; font-size:21px;
+    justify-content:center; font-size:21px
+    /* Glif zamiast emoji, tym samym wzorcem co menu (v6 §3): krój koreański,
+       kolor z tokenu. Emoji były jedynym elementem tego ekranu poza kontrolą
+       motywu - dwadzieścia dwa style rysunku, inne na każdej platformie. */
+    font-family:var(--font-ko); color:var(--hwang); font-size:20px;
+    display:grid; place-items:center;
   }
   #vocabDeptCards .dg-title{ flex:1; min-width:0; font:600 15px var(--font-ui); color:var(--ink); }
   #vocabDeptCards .dg-count{
@@ -5367,42 +5383,42 @@
     <button class="back-btn" data-back="home" data-i18n="backHome">Menu główne</button>
     <div class="home-screen">
       <button class="home-card" data-vocab-flow="study">
-        <span class="icon">📖</span>
+        <span class="icon">학</span>
         <span>
           <div class="title" data-i18n="studyModeTitle">Nauka</div>
           <div class="desc" data-i18n="studyModeDesc">Fiszki, we własnym tempie.</div>
         </span>
       </button>
       <button class="home-card" data-vocab-flow="exercise">
-        <span class="icon">🏋️</span>
+        <span class="icon">연</span>
         <span>
           <div class="title" data-i18n="exerciseModeTitle">Ćwiczenia</div>
           <div class="desc" data-i18n="exerciseModeDesc">Quiz z natychmiastową oceną.</div>
         </span>
       </button>
       <button class="home-card" id="vocabReviewCard" data-vocab-flow="review">
-        <span class="icon">🔁</span>
+        <span class="icon">복</span>
         <span>
           <div class="title"><span data-i18n="reviewModeTitle">Powtórki</span> <span class="level-badge ready" id="vocabDueBadge">0</span></div>
           <div class="desc" data-i18n="reviewModeDesc">Inteligentne powtórki.</div>
         </span>
       </button>
       <button class="home-card" id="vocabLeechCard" data-vocab-flow="leeches" style="display:none;">
-        <span class="icon">⚠️</span>
+        <span class="icon">난</span>
         <span>
           <div class="title"><span data-i18n="leechModeTitle">Trudne słowa</span> <span class="level-badge ready" id="vocabLeechBadge">0</span></div>
           <div class="desc" data-i18n="leechModeDesc">Słowa, które regularnie Ci umykają.</div>
         </span>
       </button>
             <button class="home-card variant-row" id="vocabMyWordsCard" data-vocab-flow="myWords" style="display:none;">
-        <span class="icon">✏️</span>
+        <span class="icon">내</span>
         <span>
           <div class="title"><span data-i18n="myWordsModeTitle">Moje słówka</span> <span class="level-badge ready" id="vocabMyWordsBadge">0</span></div>
           <div class="desc" data-i18n="myWordsModeDesc">Tylko słowa, które sam dodałeś — bez wybierania działu i poziomu.</div>
         </span>
       </button>
       <button class="home-card" data-target="dictBrowse">
-        <span class="icon">🔍</span>
+        <span class="icon">사</span>
         <span>
           <div class="title" data-i18n="dictBrowseTitle">Przeglądaj pełny słownik</div>
           <div class="desc" data-i18n="dictBrowseDesc">27 działów, ponad 51 000 słów z oficjalnego słownika.</div>
@@ -5619,7 +5635,7 @@
     <div class="study-srs-info" id="vocabStudySrsInfo"></div>
 
     <div id="vocabStudyDone" style="display:none; text-align:center; margin-top:24px;">
-      <div style="font-size:40px; margin-bottom:10px;">🎉</div>
+      <div class="done-glyph">완</div>
       <p data-i18n="studyDoneMsg">Przejrzałeś/aś wszystkie słówka z tego działu!</p>
       <p class="hint-note" id="vocabStudyExtraNote" style="display:none;"></p>
       <button class="primary" id="vocabStudyRestartBtn" data-i18n="restartStudyBtn">Od nowa</button>
@@ -5700,7 +5716,7 @@
     </div>
 
     <div class="limit-lock" id="limitLock" style="display:none;">
-      <div class="icon">🌙</div>
+      <div class="icon">밤</div>
       <h4 data-i18n="limitTitle">Limit na dziś wykorzystany</h4>
       <p data-i18n="limitBody">Ćwiczyłeś/aś już 30 pytań — tyle daje darmowa wersja każdego dnia. Wróć jutro albo przejdź na Premium, żeby uczyć się bez ograniczeń.</p>
       <div class="countdown" id="limitCountdown"></div>
@@ -5798,7 +5814,7 @@
     </div>
 
     <div class="limit-lock" id="conjLimitLock" style="display:none;">
-      <div class="icon">🌙</div>
+      <div class="icon">밤</div>
       <h4 data-i18n="limitTitle2">Limit na dziś wykorzystany</h4>
       <p data-i18n="limitBody2">Ćwiczyłeś/aś już 30 pytań — tyle daje darmowa wersja każdego dnia. Wróć jutro albo przejdź na Premium, żeby uczyć się bez ograniczeń.</p>
       <div class="countdown" id="conjLimitCountdown"></div>
@@ -6046,7 +6062,7 @@
     </div>
 
     <div class="limit-lock" id="grammarLimitLock" style="display:none;">
-      <div class="icon">🌙</div>
+      <div class="icon">밤</div>
       <h4 data-i18n="limitTitle3">Limit na dziś wykorzystany</h4>
       <p data-i18n="limitBody3">Ćwiczyłeś/aś już 30 pytań — tyle daje darmowa wersja każdego dnia. Wróć jutro albo przejdź na Premium, żeby uczyć się bez ograniczeń.</p>
       <div class="countdown" id="grammarLimitCountdown"></div>
@@ -15555,7 +15571,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.146';
+const APP_VERSION = '2026-09-04.150';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15952,13 +15968,13 @@ function renderAcademyGrid(){
 }
 
 const VOCAB_DEPT_GROUPS = [
-  { title:{pl:'Podstawy', en:'Basics'}, icon:'👋', cats:['Podstawy','Powitania i zwroty','Liczby rdzenne','Liczby sinokoreańskie','Miesiące','Kolory'] },
-  { title:{pl:'Ludzie i relacje', en:'People and relationships'}, icon:'👨‍👩‍👧', cats:['Rodzina i relacje','Uczucia i charakter','Wygląd i ubiór','Ciało, zdrowie i czynności fizyczne'] },
-  { title:{pl:'Życie codzienne', en:'Daily life'}, icon:'🏠', cats:['Dom i mieszkanie','Jedzenie i kuchnia','Zakupy i pieniądze','Hobby i czas wolny'] },
-  { title:{pl:'Świat i natura', en:'World and nature'}, icon:'🌿', cats:['Zwierzęta','Rośliny','Przyroda i geografia','Pogoda i pory roku'] },
-  { title:{pl:'Społeczeństwo i praca', en:'Society and work'}, icon:'💼', cats:['Praca i kariera','Szkoła i nauka','Polityka i prawo','Komunikacja i media','Wydarzenia i aktywność społeczna','Transport i podróże'] },
-  { title:{pl:'Kultura i idee', en:'Culture and ideas'}, icon:'🎭', cats:['Kultura i sztuka','Religia i duchowość','Nauka i technologia','Sport'] },
-  { title:{pl:'Język i pojęcia', en:'Language and concepts'}, icon:'🧩', cats:['Cechy i miary','Czas i częstotliwość','Logika i gramatyka pojęciowa','Dźwięki i wyrazy obrazowe','Słownictwo ogólne','Czasowniki','Przymiotniki'] },
+  { title:{pl:'Podstawy', en:'Basics'}, icon: '기', cats:['Podstawy','Powitania i zwroty','Liczby rdzenne','Liczby sinokoreańskie','Miesiące','Kolory'] },
+  { title:{pl:'Ludzie i relacje', en:'People and relationships'}, icon: '인', cats:['Rodzina i relacje','Uczucia i charakter','Wygląd i ubiór','Ciało, zdrowie i czynności fizyczne'] },
+  { title:{pl:'Życie codzienne', en:'Daily life'}, icon: '생', cats:['Dom i mieszkanie','Jedzenie i kuchnia','Zakupy i pieniądze','Hobby i czas wolny'] },
+  { title:{pl:'Świat i natura', en:'World and nature'}, icon: '자', cats:['Zwierzęta','Rośliny','Przyroda i geografia','Pogoda i pory roku'] },
+  { title:{pl:'Społeczeństwo i praca', en:'Society and work'}, icon: '사', cats:['Praca i kariera','Szkoła i nauka','Polityka i prawo','Komunikacja i media','Wydarzenia i aktywność społeczna','Transport i podróże'] },
+  { title:{pl:'Kultura i idee', en:'Culture and ideas'}, icon: '문', cats:['Kultura i sztuka','Religia i duchowość','Nauka i technologia','Sport'] },
+  { title:{pl:'Język i pojęcia', en:'Language and concepts'}, icon: '말', cats:['Cechy i miary','Czas i częstotliwość','Logika i gramatyka pojęciowa','Dźwięki i wyrazy obrazowe','Słownictwo ogólne','Czasowniki','Przymiotniki'] },
 ];
 
 function buildDeptCardHtml(cat){
@@ -19214,12 +19230,12 @@ document.addEventListener('click', (e)=>{
 });
 
 const DEPT_BADGE_ICONS = {
-  'Powitania i zwroty': '👋', 'Rodzina i ludzie': '👪', 'Jedzenie i picie': '🍜',
-  'Dom i codzienność': '🏠', 'Podstawy': '🔤', 'Zwierzęta': '🐾', 'Liczby': '🔢',
-  'Liczby rdzenne': '🔢', 'Liczby sinokoreańskie': '💴',
-  'Kolory': '🎨', 'Pogoda i natura': '🌦️', 'Przymiotniki': '🎭', 'Czasowniki': '🏃',
-  'Słownictwo ogólne': '📚', 'Własne': '✏️', 'Ze zdjęcia': '📷', 'Z pliku': '📄',
-  'Emocje': '😊', 'Praca i zawody': '💼', 'Miesiące': '📅', 'Pory roku': '🍂', 'Transport': '🚌',
+  'Powitania i zwroty': '인', 'Rodzina i ludzie': '가', 'Jedzenie i picie': '식',
+  'Dom i codzienność': '집', 'Podstawy': '기', 'Zwierzęta': '동', 'Liczby': '수',
+  'Liczby rdzenne': '수', 'Liczby sinokoreańskie': '한',
+  'Kolory': '색', 'Pogoda i natura': '날', 'Przymiotniki': '형', 'Czasowniki': '동',
+  'Słownictwo ogólne': '어', 'Własne': '내', 'Ze zdjęcia': '사', 'Z pliku': '파',
+  'Emocje': '감', 'Praca i zawody': '직', 'Miesiące': '월', 'Pory roku': '계', 'Transport': '교',
 };
 
 /* Tydzień: siedem kwadratów wstecz od dziś. Nie mamy historii per dzień, więc
