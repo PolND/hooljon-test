@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.216
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.219
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2733,6 +2733,36 @@
   .prog-day[data-today="true"]{ background:0; border:1px dashed var(--border); }
   /* Trzy miary jako wiersze (v4 §5). Bez wykresów - liczba po prawej,
      etykieta po lewej, wyrównanie tabelaryczne żeby cyfry stały w kolumnie. */
+  /* Zwój z pieczęciami. Stemple w kolorze tuszu urzędowego, ustawione ciasno,
+     żeby tworzyły wzór - nie równy rząd ikon. */
+  #progPieczecie:empty{ display:none; }
+  .pcz-naglowek{
+    font:700 11px var(--font-ui); letter-spacing:.12em; text-transform:uppercase;
+    color:var(--ink-dim); margin:22px 0 10px;
+  }
+  .pcz-zwoj{
+    display:flex; flex-wrap:wrap; gap:7px; padding:16px;
+    background:var(--surface-2); border:1px solid var(--border);
+    border-radius:var(--radius);
+  }
+  .pcz-stempel{
+    width:36px; height:36px; display:grid; place-items:center;
+    font-family:var(--font-ko); font-size:17px; font-weight:700;
+    border-radius:5px; border:1.5px solid currentColor;
+    transform:rotate(-2deg);
+  }
+  .pcz-stempel:nth-child(3n){ transform:rotate(1.5deg); }
+  .pcz-stempel:nth-child(4n){ transform:rotate(-1deg); }
+  .pcz-mok{  color:#8a6a4a; }
+  .pcz-ok{   color:#4a8a72; }
+  .pcz-geum{ color:var(--hwang); }
+  .pcz-maly{ width:22px; height:22px; font-size:12px; transform:none; }
+  .pcz-legenda{
+    display:flex; gap:16px; margin-top:10px; justify-content:center;
+    font:600 12.5px var(--font-ui); color:var(--ink-dim);
+  }
+  .pcz-leg{ display:flex; align-items:center; gap:5px; }
+
   .prog-stat{
     display:flex; align-items:center; gap:14px; min-height:56px;
     padding:14px 0; border-bottom:1px solid var(--border);
@@ -6296,6 +6326,7 @@
       <div class="prog-week" id="progWeek"></div>
       <div class="prog-togo" id="progToGo"></div>
       <div class="prog-next" id="progNext"></div>
+      <div id="progPieczecie"></div>
       <div id="progStats"></div>
     </div>
 
@@ -31166,7 +31197,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.216';
+const APP_VERSION = '2026-09-05.219';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -35075,10 +35106,16 @@ function renderGrammarRef(term){
   });
 }
 
+/* Podglądnięcie wyjaśnienia przerywa serię - nagroda jest za pamięć,
+   nie za sprawne korzystanie z kompendium. */
 function openGrammarRef(prefill){
   const inp = document.getElementById('grammarRefSearch');
   if(inp) inp.value = prefill || '';
   renderGrammarRef(prefill || '');
+  /* Zajrzenie do kompendium przerywa serię Niewzruszonego Umysłu - nagroda jest
+     za pamięć, nie za sprawne korzystanie z podpowiedzi. Flaga trzyma się do
+     końca sesji, żeby nie dało się podejrzeć raz i dokończyć na czysto. */
+  budongsimPodgladano = true;
   document.getElementById('grammarRefPanel').classList.add('open');
 }
 
@@ -35403,6 +35440,48 @@ async function registerDeptCompletion(){
   }
 
   if(selectedCategories.length !== 1) return; // odznaki dajemy tylko za pojedynczy, konkretny dział
+/* ═══ PIECZĘCIE BIEGŁOŚCI (도장) ══════════════════════════════════════════════
+   Odznaka za samo przeklikanie działu nagradza obecność, nie umiejętność.
+   Trzy stopnie, każdy mierzy co innego, wszystkie z danych, które już mamy:
+
+     목도장 DREWNIANA - wszystkie słowa działu przerobione
+     옥도장 NEFRYTOWA - dział opanowany z celnością powyżej 90%
+     금도장 ZŁOTA     - dział pamiętany po miesiącu: każde słowo ma interwał
+                        SRS ≥ 30 dni, czyli przetrwało prawdziwe zapominanie
+
+   ŚWIADOMA ZMIANA wobec propozycji: złota pieczęć miała zależeć od czasu reakcji,
+   ale przy latencyFactor stoi komentarz, że pomiar wahania jest zbierany i CELOWO
+   nieużywany w SRS - nie wiemy, ile wahania znaczy słabszą pamięć, a ile zwykłą
+   ostrożność. Trwała nagroda oparta na niekalibrowanej mierze premiowałaby
+   zgadujących szybko. Interwał 30 dni mierzy to samo (automatyzm), ale rzetelnie.
+   Zaproponowane przez Damiana 2026-09-05. */
+const PIECZECIE = [
+  { id:'mok',  znak:'木', nazwa:{pl:'Pieczęć drewniana', en:'Wooden seal'},
+    opis:{pl:'Wszystkie słowa działu przerobione', en:'Every word in the section studied'} },
+  { id:'ok',   znak:'玉', nazwa:{pl:'Pieczęć nefrytowa', en:'Jade seal'},
+    opis:{pl:'Celność powyżej 90%', en:'Over 90% accuracy'} },
+  { id:'geum', znak:'金', nazwa:{pl:'Pieczęć złota', en:'Golden seal'},
+    opis:{pl:'Pamiętane po miesiącu', en:'Still remembered after a month'} },
+];
+
+/* Stopień pieczęci dla działu. Liczony z srsData, więc nie wymaga nowego
+   śledzenia ani zapisu - stan jest funkcją tego, co już wiemy. */
+function stopienPieczeci(cat){
+  const slowa = allWords.filter(w => (w.category || 'Własne') === cat);
+  if(!slowa.length) return null;
+  const dane = slowa.map(w => srsData[w.ko]).filter(Boolean);
+  if(dane.length < slowa.length) return null;              // nie wszystkie przerobione
+
+  const lapsy = dane.reduce((a, d) => a + (d.lapses || 0), 0);
+  const powt  = dane.reduce((a, d) => a + (d.reps || 0), 0);
+  const celnosc = powt ? 1 - (lapsy / (powt + lapsy)) : 0;
+  const trwale = dane.every(d => (d.interval || 0) >= 30);
+
+  if(trwale && celnosc > 0.9) return 'geum';
+  if(celnosc > 0.9) return 'ok';
+  return 'mok';
+}
+
   const cat = selectedCategories[0];
   if(earnedBadges.departments[cat]) return;
   earnedBadges.departments[cat] = true;
@@ -35562,6 +35641,33 @@ function renderProgProg(){
 /* Trzy miary. Wybrane tak, żeby każda mówiła coś, czego nie widać wyżej:
    najdłuższa seria (rekord, nie bieżąca), zapas w kolejce powtórek i ile lekcji
    za nami. Wszystkie liczone z danych, które i tak mamy. */
+/* Zwój z pieczęciami. Nie lista odznak w menu - stemple na pergaminie, które
+   układają się w unikalny wzór. Puste miejsca są widoczne celowo: pokazują,
+   ile jeszcze zostało, bez wypisywania tego słowami. */
+function renderPieczecie(){
+  const el = document.getElementById('progPieczecie');
+  if(!el) return;
+  const dzialy = [...new Set(allWords.map(w => w.category || 'Własne'))];
+  const zdobyte = dzialy.map(c => ({ cat:c, st: stopienPieczeci(c) })).filter(x => x.st);
+  if(!zdobyte.length){ el.innerHTML = ''; return; }
+
+  const en = uiLang === 'en';
+  const licznik = {};
+  zdobyte.forEach(z => { licznik[z.st] = (licznik[z.st] || 0) + 1; });
+
+  el.innerHTML = `
+    <div class="pcz-naglowek">${en ? 'Seals of mastery' : 'Pieczęcie biegłości'}</div>
+    <div class="pcz-zwoj">
+      ${zdobyte.map(z => {
+        const p = PIECZECIE.find(x => x.id === z.st);
+        return `<span class="pcz-stempel pcz-${z.st}" title="${escapeHtml(trCat(z.cat))} — ${escapeHtml(en ? p.opis.en : p.opis.pl)}">${p.znak}</span>`;
+      }).join('')}
+    </div>
+    <div class="pcz-legenda">${PIECZECIE.map(p =>
+      `<span class="pcz-leg"><span class="pcz-stempel pcz-${p.id} pcz-maly">${p.znak}</span> ${licznik[p.id] || 0}</span>`
+    ).join('')}</div>`;
+}
+
 function renderProgStats(){
   const el = document.getElementById('progStats');
   if(!el) return;
@@ -35596,7 +35702,7 @@ function renderProgNext(){
 
 function renderAchievementsScreen(){
   document.getElementById('achvStreakNum').textContent = dayStreak;
-  try{ renderProgWeek(); renderProgProg(); renderProgNext(); renderProgStats(); }catch(e){ /* widok nie może psuć ekranu */ }
+  try{ renderProgWeek(); renderProgProg(); renderProgNext(); renderProgStats(); renderPieczecie(); }catch(e){ /* widok nie może psuć ekranu */ }
   // Droga Mędrca: ranga i płomień z aktualnej serii. Warstwa wizualna - nie zmienia
   // niczego w tym, co user dostaje, ale pokazuje, że seria do czegoś prowadzi.
   try{
@@ -39700,7 +39806,7 @@ function openGrammarPreviewPanel(chapter){
   content.querySelectorAll('.grammar-preview-row-clickable').forEach(row=>{
     const go = ()=>{
       grammarChapter = chapter;
-      grammarSinglePatternIdx = parseInt(row.dataset.itemIdx, 10);
+      grammarSinglePatternIdx = parseInt(row.dataset.itemIdx, 10); budongsimReset();
       document.getElementById('grammarPreviewPanel').classList.remove('open');
       setScreen('grammarQuiz');
     };
@@ -39726,6 +39832,65 @@ document.getElementById('grammarPreviewPanel').addEventListener('click', (e)=>{
    Sprawdzanie jest POBŁAŻLIWE wobec spacji i wielkości liter, ale nie wobec
    końcówek - tu właśnie chodzi o formę. 2026-09-05. */
 let grammarTypedMode = false;
+
+/* ═══ NIEWZRUSZONY UMYSŁ (부동심) ══════════════════════════════════════════
+   Nagroda za bezbłędne przejście całej sesji „Poćwicz" jednego wzorca -
+   dwanaście rund, zero pomyłek, bez zaglądania do kompendium.
+
+   Zastępuje propozycję „Nocnego Strażnika" (nauka między 22:00 a 02:00).
+   Tamta nagradzałaby niewyspanie, a apka jest używana przez uczniów - mechanika
+   premiująca siedzenie po nocy działa przeciwko nim. Ta sama nagroda dźwiękowa,
+   warunek oparty na skupieniu, nie na porze. Ustalone z Damianem 2026-09-05. */
+const BUDONGSIM_RUND = 12;
+let budongsimSeria = 0;        // bezbłędne rundy w bieżącej sesji jednego wzorca
+let budongsimPodgladano = false;
+
+function budongsimReset(){
+  budongsimSeria = 0;
+  budongsimPodgladano = false;
+}
+
+/* Wołane po każdej odpowiedzi w trybie jednego wzorca. */
+function budongsimOdpowiedz(ok){
+  if(grammarSinglePatternIdx === null) return;   // tylko sesja jednego wzorca
+  if(!ok || budongsimPodgladano){ budongsimSeria = 0; return; }
+  budongsimSeria++;
+  if(budongsimSeria < BUDONGSIM_RUND) return;
+  budongsimSeria = 0;
+  if(earnedBadges.budongsim) return;             // raz wystarczy
+  earnedBadges.budongsim = true;
+  saveBadges().catch(()=>{});
+  dzwonBosingak();
+  showCelebration({
+    icon: '心',
+    title: uiLang === 'en' ? 'Unshaken Mind' : 'Niewzruszony Umysł',
+    subtitle: uiLang === 'en'
+      ? 'Twelve rounds, no mistakes, no peeking.'
+      : 'Dwanaście rund, zero pomyłek, bez podglądania.',
+  });
+}
+
+/* Dzwon Bosingak - pojedyncze uderzenie z długim wybrzmieniem. Syntezowany,
+   nie nagrany: plik audio to kilkadziesiąt kilobajtów w pliku, który ma już
+   3,8 MB. Dwa tony i wykładniczy zanik brzmią wystarczająco jak dzwon. */
+function dzwonBosingak(){
+  try{
+    if(typeof soundOn !== 'undefined' && !soundOn) return;
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const teraz = ctx.currentTime;
+    [146.8, 220.0, 293.7].forEach((f, i) => {
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.type = 'sine'; osc.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, teraz);
+      g.gain.exponentialRampToValueAtTime(0.22 / (i + 1), teraz + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, teraz + 3.2);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(teraz); osc.stop(teraz + 3.3);
+    });
+    if(navigator.vibrate) navigator.vibrate([12, 60, 8]);
+    setTimeout(()=>{ try{ ctx.close(); }catch(e){} }, 3600);
+  }catch(e){ /* brak WebAudio nie może psuć nagrody */ }
+}
 
 function grammarPokazTryb(){
   const grid = document.getElementById('grammarChoiceGrid');
@@ -39754,6 +39919,7 @@ function grammarSprawdzWpisane(){
   if(ok){ totalCorrect += 1; score += 1; bumpStreak(); playCorrectSound(); }
   else { streak = 0; playWrongSound(); }
   srsRate(grammarKey(grammarCurrent), ok ? 2 : 0);
+  budongsimOdpowiedz(ok);
   if(policzOdpowiedz()) registerDailyActivity();
   document.getElementById('grammarNextRow').style.display = '';
 }
@@ -39886,6 +40052,7 @@ function grammarHandleAnswer(btn){
   if(isCorrect){ totalCorrect += 1; score += 1; bumpStreak(); playCorrectSound(); }
   else{ streak = 0; playWrongSound(); }
   srsRate(grammarKey(grammarCurrent), isCorrect ? 2 : 0);
+  budongsimOdpowiedz(isCorrect);
   // opanowanie liczymy tylko w trybie ćwiczenia konkretnego poziomu — Powtórki mieszają
   // wzorce z różnych poziomów naraz, więc nie dają wiarygodnego sygnału per-poziom
   if(grammarQuizSource === 'chapter' && grammarLevelKey){
