@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.203
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.206
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -5571,6 +5571,16 @@
           <div class="desc" data-i18n="odpDesc">Bez patrzenia na ekran — w samochodzie, na spacerze, przy gotowaniu.</div>
         </span>
       </button>
+      <!-- Wersja Pro: Gemini prowadzi odpytywanie i reaguje na odpowiedzi.
+           Kafel POD darmowym, bo darmowy jest ścieżką domyślną - płatny ma być
+           wyborem, nie pierwszą rzeczą, w którą user trafia. -->
+      <button class="home-card" id="haksaOdpytujeCard">
+        <span class="icon">학</span>
+        <span class="hc-main">
+          <div class="title" data-i18n="haksaDrillTitle">Haksa odpytuje <span class="level-badge soon">PRO</span></div>
+          <div class="desc" data-i18n="haksaDrillDesc">Rozmowa z lektorem AI zamiast robota — reaguje na to, co powiesz. Liczy się w limit minut.</div>
+        </span>
+      </button>
     </div>
   </div>
 
@@ -7875,7 +7885,11 @@ async function connectGeminiRelay(isRetry){
       `&targetExample=${encodeURIComponent(aiChatTargetPattern.full)}` +
       `&targetTranslation=${encodeURIComponent(aiChatTargetPattern.pl)}`;
   }
-  const wsUrl = SUPABASE_URL.replace(/^https:/, 'wss:') + `/functions/v1/gemini-relay?token=${session.access_token}&level=${geminiSelectedLevel}${targetParams}`;
+    /* Tryb odpytywania: przekaźnik dostaje listę słów i buduje personę pytającego
+     zamiast rozmówcy. Odrzuca kodem 4010, gdy mode=drill przyjdzie bez słów -
+     lepiej jawny błąd niż cicha zamiana na zwykłą rozmowę, o którą nikt nie prosił. */
+  const drillParams = geminiDrillWords ? `&mode=drill&words=${encodeURIComponent(geminiDrillWords)}` : '';
+  const wsUrl = SUPABASE_URL.replace(/^https:/, 'wss:') + `/functions/v1/gemini-relay?token=${session.access_token}&level=${geminiSelectedLevel}${targetParams}${drillParams}`;
   console.log('[Gemini Live] Łączenie z:', wsUrl.replace(session.access_token, '<token>'));
   geminiSocket = new WebSocket(wsUrl);
   // Domyślny binaryType przeglądarki to 'blob', a JSON.parse(blob) niejawnie wywołuje
@@ -8013,6 +8027,16 @@ function resetGeminiButtonsToReady(){
     // audio - cichy zastój po stronie modelu. Wcześniej nic tego nie wykrywało
     // i rozmowa wisiała w nieskończoność z przyciskami w stanie pośrednim.
     // Historię ZOSTAWIAMY: trzy wymiany to realny wysiłek, a zastój nie jest winą usera.
+    /* 4010: przekaźnik odrzucił tryb odpytywania - brak listy słów albo zła.
+       Czyścimy stan, żeby kolejne kliknięcie „Rozmowa" nie próbowało wysłać
+       tej samej wadliwej listy. */
+    if(event.code === 4010){
+      geminiDrillWords = null;
+      setGeminiVoiceStatus(uiLang === 'en'
+        ? 'Could not start the drill — word list rejected.'
+        : 'Nie udało się rozpocząć odpytywania — lista słów odrzucona.');
+      return;
+    }
     if(event.code === 4008){
       setGeminiVoiceStatus(uiLang === 'en'
         ? 'No answer came back. Tap the microphone and say it again.'
@@ -8046,6 +8070,9 @@ function resetGeminiButtonsToReady(){
 }
 
 function disconnectGeminiRelay(){
+  /* Tryb odpytywania jest JEDNORAZOWY - bez tego kolejne kliknięcie „Rozmowa
+     z Haksą" wystartowałoby odpytywanie z tej samej listy, czego nikt nie prosił. */
+  geminiDrillWords = null;
   if(geminiSocket){ geminiSocket.close(); geminiSocket = null; }
 }
 
@@ -16321,7 +16348,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.203';
+const APP_VERSION = '2026-09-05.206';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -17150,6 +17177,8 @@ const I18N = {
   odpDesc: { pl: 'Bez patrzenia na ekran — w samochodzie, na spacerze, przy gotowaniu.', en: 'Hands-free — in the car, on a walk, while cooking.' },
   odpStop: { pl: 'Zakończ', en: 'Stop' },
   odpOcena: { pl: 'Oceniaj moje odpowiedzi', en: 'Check my answers' },
+  haksaDrillTitle: { pl: 'Haksa odpytuje', en: 'Haksa quizzes you' },
+  haksaDrillDesc: { pl: 'Rozmowa z lektorem AI zamiast robota — reaguje na to, co powiesz. Liczy się w limit minut.', en: 'A real AI tutor instead of a robot — responds to what you say. Counts toward your minutes.' },
   particleHint: { pl: 'Dotknij partykuły, żeby ją opuścić — tak jak w mowie. Nie wszystkie da się usunąć.', en: 'Tap a particle to drop it, the way speakers do. Not all of them can go.' },
   addModeType: { pl: 'Wpisz ręcznie', en: 'Type manually' },
   addModePick: { pl: 'Wybierz z bazy', en: 'Pick from dictionary' },
@@ -18375,13 +18404,24 @@ function odpSluchaj(jezyk, ms){
     const koniecCzasu = Date.now() + ms;      // deklaracja PRZED handlerami, nie po
     rec.onresult = (e) => { wynikCzastkowy = { alt: [...e.results[0]].map(r => r.transcript) }; koniec(wynikCzastkowy); };
     rec.onerror = (e) => {
-      if(e.error === 'not-allowed'){ koniec({ blad:'odmowa' }); return; }
-      if(e.error === 'no-speech' || e.error === 'aborted') return;   // wznowimy w onend
-      koniec({ blad:'blad' });
+      if(e.error === 'not-allowed' || e.error === 'service-not-allowed'){ koniec({ blad:'odmowa' }); return; }
+      /* no-speech i aborted są NORMALNE przy wznawianiu - silnik zamyka nasłuch
+         po chwili ciszy, a my go otwieramy ponownie. Nie traktujemy ich jak awarii. */
+      if(e.error === 'no-speech' || e.error === 'aborted') return;
+      koniec({ blad:'blad', kod: e.error });     // kod przekazujemy do komunikatu
     };
     rec.onend = () => {
       if(gotowe) return;
-      if(Date.now() < koniecCzasu){ try{ rec.start(); }catch(e){ koniec({blad:'blad'}); } }
+      if(Date.now() < koniecCzasu - 300){
+        /* Odstęp przed wznowieniem. start() wywołany natychmiast po end() rzuca
+           InvalidStateError albo natychmiastowy błąd - silnik potrzebuje chwili
+           na zwolnienie mikrofonu. To najprawdopodobniejsza przyczyna „Błędu
+           rozpoznawania" zgłoszonego 2026-09-05. */
+        setTimeout(() => {
+          if(gotowe) return;
+          try{ rec.start(); }catch(e){ koniec({ blad:'blad', kod:'restart' }); }
+        }, 250);
+      }
       else koniec({ blad:'cisza' });
     };
     try{ rec.start(); }catch(e){ return res({blad:'blad'}); }
@@ -18462,6 +18502,13 @@ async function odpytywanieRunda(){
   /* Pauza na odpowiedź. Z oceną - nasłuchujemy; bez - po prostu czekamy. */
   let werdykt = null, uslyszane = '';
   if(odpytywanieOcenia){
+    /* Odstęp po syntezie. Zdarzenie onend dla SpeechSynthesisUtterance potrafi
+       odpalić się ułamek sekundy PRZED faktycznym ucichnięciem głośnika -
+       uruchomienie mikrofonu w tym momencie łapie własny głos apki albo rzuca
+       błąd zajętego urządzenia. */
+    try{ window.speechSynthesis.cancel(); }catch(e){}
+    await czekaj(350);
+    if(!odpytywanieAktywne) return;
     odpytywanieStatus(uiLang === 'en' ? '🎤 Listening…' : '🎤 Słucham…');
     const wynik = await odpSluchaj(jezykO, odpytywaniePauza);
     if(wynik && wynik.alt){
@@ -18479,11 +18526,15 @@ async function odpytywanieRunda(){
         brak:   en ? 'Speech recognition unavailable in this browser.' : 'Ta przeglądarka nie rozpoznaje mowy.',
         odmowa: en ? 'Microphone access denied — check permissions.'   : 'Brak dostępu do mikrofonu — sprawdź uprawnienia.',
         cisza:  en ? 'Heard nothing.'                                   : 'Nic nie usłyszałem.',
-        blad:   en ? 'Recognition error.'                               : 'Błąd rozpoznawania.',
+        blad:   (en ? 'Recognition error' : 'Błąd rozpoznawania')
+                + (wynik.kod ? ` (${wynik.kod})` : '')
+                + (wynik.kod === 'network' ? (en ? ' — needs internet' : ' — wymaga internetu') : ''),
       }[wynik.blad];
       odpytywanieStatus(kom);
       // Brak wsparcia albo odmowa - wyłączamy ocenę, żeby nie powtarzać komunikatu
       // przy każdym słowie. User może włączyć ponownie po naprawieniu uprawnień.
+      /* Wyłączamy ocenę TYLKO przy trwałych przeszkodach. Błąd sieci czy
+         jednorazowa awaria nie powinny gasić funkcji na całą sesję. */
       if(wynik.blad === 'brak' || wynik.blad === 'odmowa'){
         odpytywanieOcenia = false;
         const t = document.getElementById('odpOcenaToggle');
@@ -18543,6 +18594,41 @@ async function odpytywanieRunda(){
   await czekaj(900);
   odpytywanieRunda();
 }
+
+/* ═══ WERSJA PRO: HAKSA ODPYTUJE (Gemini Live) ═══════════════════════════════
+   Przekaźnik przyjmuje mode=drill&words=<base64(JSON)> i buduje personę
+   odpytującego. Minuty liczą się w limit 120/miesiąc, tak jak przy rozmowie.
+
+   KODOWANIE: btoa() na stringu z koreańskim daje śmieci - to nie jest kwestia
+   estetyki, tylko poprawności: „먹다" wraca jako „9?". Musi iść przez
+   TextEncoder na bajty, dokładnie symetrycznie do TextDecoder po stronie
+   przekaźnika. Sprawdzone eksperymentalnie 2026-09-05. */
+function zakodujSlowa(lista){
+  const json = JSON.stringify(lista.map(w => ({ ko: w.ko, pl: uiLang === 'en' ? w.en : w.pl })));
+  const bajty = new TextEncoder().encode(json);
+  let bin = '';
+  bajty.forEach(b => { bin += String.fromCharCode(b); });
+  return btoa(bin);
+}
+
+async function haksaOdpytujeStart(){
+  if(!isPremiumPro){
+    alert(uiLang === 'en' ? 'This mode requires Premium Pro.' : 'Ten tryb wymaga Premium Pro.');
+    return;
+  }
+  const pula = zbudujKolejkeOdpytywania().slice(0, 20);   // przekaźnik i tak przycina do 20
+  if(pula.length < 3){
+    alert(uiLang === 'en' ? 'Too few words in this selection.' : 'Za mało słów w tym wyborze.');
+    return;
+  }
+  /* Parametry trafiają do connectGeminiRelay przez zmienne modułu - ten sam
+     wzorzec, co targetPattern przy ćwiczeniu wzorca gramatycznego. */
+  geminiDrillWords = zakodujSlowa(pula);
+  setScreen('aiChat');
+  connectGeminiRelay();
+}
+
+let geminiDrillWords = null;   // ustawione tylko na czas sesji odpytywania
 
 async function odpytywanieStart(){
   odpytywanieKolejka = zbudujKolejkeOdpytywania();
@@ -27171,6 +27257,7 @@ document.getElementById('openParticleBtn').addEventListener('click', (e)=>{
   openParticlePanel();
 });
 
+document.getElementById('haksaOdpytujeCard').addEventListener('click', haksaOdpytujeStart);
 document.getElementById('odpytywanieCard').addEventListener('click', ()=>{
   /* Kierunek i pauzę bierzemy z tego, co user ustawił w ćwiczeniach - nie
      dokładamy kolejnego ekranu konfiguracji przed rozpoczęciem. */
