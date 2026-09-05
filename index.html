@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.254
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.256
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -52486,7 +52486,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.254';
+const APP_VERSION = '2026-09-05.256';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -54462,6 +54462,68 @@ let odpytywaniePauza = 6000;
 let odpytywanieTimer = null;
 let odpytywanieWakeLock = null;
 
+/* ═══ LEKTOR PREMIUM (Google Cloud TTS) ═══════════════════════════════════════
+   Warstwa PRZED syntezą przeglądarki. Premium dostaje głos ko-KR-Neural2,
+   reszta wbudowany - to jedyna różnica między planami w odsłuchu.
+
+   BUFOR: przekaźnik trzyma wygenerowane audio pod hashem tekstu, więc setny
+   odsłuch tego samego zdania jest darmowy i nie rusza puli znaków. Dlatego
+   flaga `shared` ma znaczenie: przy treści WBUDOWANEJ (zdania gramatyczne,
+   słowa ze słownika) ustawiamy true i korzystamy ze wspólnego bufora; przy
+   treści użytkownika zostawiamy false, żeby hash cudzej notatki nie był
+   odgadywalny. Domyślnie false - błąd w tę stronę kosztuje pieniądze,
+   w drugą prywatność. Ustalone z Claude Code 2026-09-05.
+
+   ZEJŚCIE JEST CICHE. Brak sieci, wyczerpana pula, konto darmowe - user dalej
+   słyszy słowo, tylko gorszym głosem. Komunikat o puli należy do panelu konta,
+   nie do fiszki. */
+let ttsNiedostepny = false;      // po pierwszym twardym błędzie nie próbujemy dalej
+const ttsPamiec = new Map();     // adres audio w obrębie sesji, żeby nie pytać dwa razy
+
+async function ttsPremium(tekst, opcje){
+  /* Warunek to isPremium (basic LUB pro), nie isPremiumPro. Rozstrzygnięte
+     2026-09-05: TTS różni się od pozostałych funkcji AI tym, że koszt NIE ROŚNIE
+     z użyciem - dzięki buforowi setny odsłuch tego samego zdania jest darmowy.
+     Minuty rozmowy z Haksą rosną liniowo i dlatego zostają przy Pro.
+
+     Drugi powód: wymowa to podstawa nauki języka, nie ozdoba. Zła prozodia
+     koreańska uczy nawyków, które potem trudno odkręcić. */
+  if(ttsNiedostepny || !isPremium) return null;
+  const t = String(tekst || '').trim();
+  if(!t || t.length > 500) return null;
+  const wspolne = !!(opcje && opcje.shared);
+  const klucz = (wspolne ? 's:' : 'p:') + t;
+  if(ttsPamiec.has(klucz)) return ttsPamiec.get(klucz);
+  try{
+    const { data, error } = await sb.functions.invoke('tts', {
+      body: { text: t, shared: wspolne },
+    });
+    if(error || !data || !data.url){
+      // 'quota' i 'not_premium' to normalne stany, nie awarie - schodzimy cicho.
+      if(data && data.error === 'not_premium') ttsNiedostepny = true;
+      return null;
+    }
+    ttsPamiec.set(klucz, data.url);
+    return data.url;
+  }catch(e){
+    ttsNiedostepny = true;       // brak funkcji albo sieci - nie próbujemy w kółko
+    return null;
+  }
+}
+
+/* Odtworzenie adresu zwróconego przez punkt. Zwraca true przy powodzeniu,
+   żeby wołający wiedział, czy schodzić do syntezy przeglądarki. */
+function ttsOdtworz(url){
+  return new Promise((res) => {
+    try{
+      const a = new Audio(url);
+      a.onended = () => res(true);
+      a.onerror = () => res(false);
+      a.play().catch(() => res(false));
+    }catch(e){ res(false); }
+  });
+}
+
 /* ═══ WYBÓR GŁOSU ═══════════════════════════════════════════════════════════
    Przeglądarki mają zwykle kilka głosów koreańskich i domyślny bywa najgorszy.
    Wybieramy najlepszy dostępny wg trzech kryteriów, w tej kolejności:
@@ -54494,7 +54556,13 @@ function najlepszyGlos(jezyk){
   }catch(e){ return null; }
 }
 
-function mow(tekst, jezyk){
+async function mow(tekst, jezyk, opcje){
+  /* Najpierw lektor Premium, potem przeglądarka. Zejście jest ciche - patrz
+     komentarz przy ttsPremium. */
+  if(jezyk === 'ko-KR'){
+    const url = await ttsPremium(tekst, opcje);
+    if(url && await ttsOdtworz(url)) return;
+  }
   return new Promise((res) => {
     if(!tekst || !('speechSynthesis' in window)) return res();
     try{
@@ -54735,7 +54803,7 @@ async function odpytywanieRunda(){
   /* Wstęp zawsze po polsku - to głos prowadzącego, nie materiał do nauki. */
   const wstep = odpWstep(kier);
   if(wstep) await mow(wstep, uiLang === 'en' ? 'en-US' : 'pl-PL');
-  await mow(pytanie, jezykP);
+  await mow(pytanie, jezykP, { shared: true });
   if(!odpytywanieAktywne) return;
 
   /* Pauza na odpowiedź. Z oceną - nasłuchujemy; bez - po prostu czekamy. */
@@ -54819,11 +54887,11 @@ async function odpytywanieRunda(){
     const lin = document.querySelector('#odpytywanieKarta .odp-linia');
     if(lin) lin.classList.remove('dobrze', 'zle');
   }, 600);
-  await mow(odpowiedz, jezykO);
+  await mow(odpowiedz, jezykO, { shared: true });   // słowa ze słownika - wspólny bufor
   if(!odpytywanieAktywne) return;
 
   // Koreański powtarzamy - to język uczony, warto usłyszeć dwa razy.
-  if(jezykO === 'ko-KR'){ await czekaj(500); await mow(odpowiedz, 'ko-KR'); }
+  if(jezykO === 'ko-KR'){ await czekaj(500); await mow(odpowiedz, 'ko-KR', { shared: true }); }
 
   /* WYNIK MA KONSEKWENCJE - inaczej zła odpowiedź znika bez śladu, a to przeczy
      temu, jak działa reszta apki. Dwie rzeczy naraz:
@@ -54974,8 +55042,13 @@ function odpNasluch(wlaczony){
   if(lin) lin.classList.toggle('slucha', wlaczony);
 }
 
-function speakKorean(text){
+async function speakKorean(text, opcje){
   if(!text) return;
+  /* Lektor Premium także tutaj - to ta sama treść wbudowana (fiszki, przykłady,
+     czytanki), więc domyślnie wspólny bufor. Wywołania z własnymi słowami usera
+     przekazują { shared:false }. */
+  { const url = await ttsPremium(text, { shared: !(opcje && opcje.shared === false) });
+    if(url && await ttsOdtworz(url)) return; }
   if(!('speechSynthesis' in window)) return; // cicho - przeglądarka nie wspiera, nie ma czym ostrzec w locie
   try{
     window.speechSynthesis.cancel(); // przerywa ewentualne poprzednie odtwarzanie, żeby się nie nakładały
