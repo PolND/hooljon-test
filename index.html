@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.160
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.162
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -4350,6 +4350,13 @@
     display:flex; flex-direction:column;
     padding:0 2px;
   }
+  /* Informacja o dociągniętych słowach - bez niej user nie wie, że pula urosła
+     i że sesja nie będzie się powtarzać. */
+  .qv-pool-info{
+    font-size:11.5px; color:var(--ink-dim); text-align:center;
+    font-family:var(--font-ui); margin-top:-8px; margin-bottom:6px;
+  }
+  .qv-pool-info:empty{ display:none; }
   .qv-progress{
     font-size:13px; color:var(--ink-dim); text-align:center;
     font-family:var(--font-ui); margin-bottom:14px;
@@ -5719,6 +5726,7 @@
            niezależnie od układu. Decyzja Damiana 2026-09-03. -->
       <div class="quiz-vertical" id="vocabQuizWrap">
         <div class="qv-progress" id="quizProgress"></div>
+        <div class="qv-pool-info" id="vocabPoolInfo"></div>
         <div class="qv-prompt" id="centerEyebrow">Wybierz tłumaczenie</div>
         <!-- Karta ze słowem. Po przejściu na układ pionowy słowo zostało bez ramki -
              wisiało w pustce, choć w trybie wpisywania miało kartę. Ta sama
@@ -15520,7 +15528,211 @@ const DEFAULT_WORDS = [
   {"ko":"이거 교환할 수 있어요?","pl":"czy mogę to wymienić?","en":"can I exchange this? (교환 = exchange)","level":1,"ex":"사이즈가 안 맞아요. 이거 교환할 수 있어요?","exPl":"Rozmiar nie pasuje. Mogę to wymienić?","exEn":"The size doesn't fit. Can I exchange this?","category":"Zakupy i usługi","source":"hooljon","note":"교환 = wymiana towaru"},
   {"ko":"환불해 주세요.","pl":"proszę o zwrot pieniędzy","en":"I'd like a refund (환불 = refund; have your receipt ready)","level":1,"ex":"이거 환불해 주세요. 영수증 여기 있어요.","exPl":"Proszę o zwrot za to. Tu jest paragon.","exEn":"I'd like a refund for this. Here's the receipt.","category":"Zakupy i usługi","source":"hooljon","note":"환불 = zwrot; przygotuj paragon — 영수증"},
   {"ko":"그냥 좀 볼게요.","pl":"tylko się rozglądam","en":"I'm just looking (the standard reply to a clerk's 뭐 찾으세요?)","level":1,"ex":"뭐 찾으세요? — 아니요, 그냥 좀 볼게요.","exPl":"Czego pan szuka? — Nic, tylko się rozglądam.","exEn":"What are you looking for? — Nothing, just looking.","category":"Zakupy i usługi","source":"hooljon","note":"standardowa odpowiedź na pytanie sprzedawcy 뭐 찾으세요? — czego pan/pani szuka?"},
-  {"ko":"포인트 카드 있으세요?","pl":"czy ma pan/pani kartę lojalnościową? (standardowe pytanie kasjera przy każdych zakupach)","en":"do you have a points card? (a standard cashier question)","level":1,"ex":"포인트 카드 있으세요? — 아니요, 없어요.","exPl":"Ma pan kartę lojalnościową? — Nie, nie mam.","exEn":"Do you have a points card? — No, I don't.","category":"Zakupy i usługi","source":"hooljon"}
+  {"ko":"포인트 카드 있으세요?","pl":"czy ma pan/pani kartę lojalnościową? (standardowe pytanie kasjera przy każdych zakupach)","en":"do you have a points card? (a standard cashier question)","level":1,"ex":"포인트 카드 있으세요? — 아니요, 없어요.","exPl":"Ma pan kartę lojalnościową? — Nie, nie mam.","exEn":"Do you have a points card? — No, I don't.","category":"Zakupy i usługi","source":"hooljon"},
+{"ko": "지금 회의 중이라서 이따가 전화드릴게요.", "pl": "Jestem teraz na spotkaniu, oddzwonię za chwilę.", "en": "I'm in a meeting right now, I'll call you back in a bit.", "category": "Telefon i kontakt", "level": 2, "source": "hooljon", "note": "전화드리다 – grzeczniejsza wersja 전화하다 wobec starszego/klienta"},
+{"ko": "혹시 김민수 씨 계세요?", "pl": "Czy jest może pan Kim Minsu?", "en": "Is Mr. Kim Minsu there, by any chance?", "category": "Telefon i kontakt", "level": 2, "source": "hooljon", "note": "혹시 zmiękcza pytanie; 계세요 – honoryfikatywne „jest”"},
+{"ko": "지금 자리에 안 계세요.", "pl": "Nie ma go/jej teraz na miejscu.", "en": "He/she is not at the desk right now.", "category": "Telefon i kontakt", "level": 2, "source": "hooljon"},
+{"ko": "메시지 남겨 드릴까요?", "pl": "Czy mam przekazać wiadomość?", "en": "Would you like to leave a message?", "category": "Telefon i kontakt", "level": 2, "source": "hooljon"},
+{"ko": "제가 전화했다고 전해 주세요.", "pl": "Proszę przekazać, że dzwoniłem/dzwoniłam.", "en": "Please tell them I called.", "category": "Telefon i kontakt", "level": 2, "source": "hooljon"},
+{"ko": "죄송한데 다시 한번 말씀해 주시겠어요?", "pl": "Przepraszam, czy może pan/pani powtórzyć?", "en": "Sorry, could you say that again?", "category": "Telefon i kontakt", "level": 2, "source": "hooljon", "note": "-아/어 주시겠어요? – uprzejmiejsze niż -아/어 주세요"},
+{"ko": "전화가 자꾸 끊겨요.", "pl": "Ciągle mi się zrywa połączenie.", "en": "The call keeps dropping.", "category": "Telefon i kontakt", "level": 2, "source": "hooljon"},
+{"ko": "배터리가 얼마 없어서 짧게 할게요.", "pl": "Mam mało baterii, więc będę mówić krótko.", "en": "My battery is low, so I'll keep it short.", "category": "Telefon i kontakt", "level": 2, "source": "hooljon"},
+{"ko": "연락처 저장했어요.", "pl": "Zapisałem/zapisałam twój numer.", "en": "I saved your contact.", "category": "Telefon i kontakt", "level": 2, "source": "hooljon", "note": "저장하다 = zapisać w telefonie; 연락처 = kontakt"},
+{"ko": "영상 통화 괜찮아요?", "pl": "Może być rozmowa wideo?", "en": "Is a video call okay?", "category": "Telefon i kontakt", "level": 2, "source": "hooljon", "note": "영상 통화 – po koreańsku mówi się też 페이스톡 (na KakaoTalk)"},
+{"ko": "카톡 확인했어요?", "pl": "Widziałeś/widziałaś moją wiadomość na KakaoTalk?", "en": "Did you see my KakaoTalk message?", "category": "Telefon i kontakt", "level": 2, "source": "hooljon", "note": "W KakaoTalk widać, czy odbiorca przeczytał – liczba przy wiadomości znika po odczytaniu"},
+{"ko": "읽었는데 답장을 못 했어요.", "pl": "Przeczytałem/przeczytałam, ale nie zdążyłem/zdążyłam odpisać.", "en": "I read it but couldn't reply.", "category": "Telefon i kontakt", "level": 2, "source": "hooljon", "note": "Tzw. 읽씹 (przeczytać i nie odpisać) uchodzi w Korei za nietakt – warto się usprawiedliwić"},
+{"ko": "전화 받기 힘들면 문자 주세요.", "pl": "Jeśli trudno ci odebrać, napisz SMS-a.", "en": "If it's hard to pick up, text me.", "category": "Telefon i kontakt", "level": 2, "source": "hooljon"},
+{"ko": "모르는 번호라서 안 받았어요.", "pl": "Nie odebrałem/odebrałam, bo to był nieznany numer.", "en": "I didn't pick up because it was an unknown number.", "category": "Telefon i kontakt", "level": 2, "source": "hooljon"},
+{"ko": "스팸 전화가 너무 많이 와요.", "pl": "Dostaję za dużo połączeń spamowych.", "en": "I get too many spam calls.", "category": "Telefon i kontakt", "level": 2, "source": "hooljon", "note": "W Korei spamowe telefony są plagą – Koreańczycy często nie odbierają nieznanych numerów"},
+{"ko": "와이파이 비밀번호가 뭐예요?", "pl": "Jakie jest hasło do wi-fi?", "en": "What's the wi-fi password?", "category": "Telefon i kontakt", "level": 2, "source": "hooljon", "note": "W kawiarniach hasło zwykle jest na paragonie albo na ladzie"},
+{"ko": "데이터가 다 떨어졌어요.", "pl": "Skończył mi się pakiet danych.", "en": "I ran out of mobile data.", "category": "Telefon i kontakt", "level": 2, "source": "hooljon"},
+{"ko": "유심 어디서 살 수 있어요?", "pl": "Gdzie mogę kupić kartę SIM?", "en": "Where can I buy a SIM card?", "category": "Telefon i kontakt", "level": 2, "source": "hooljon", "note": "유심 = karta SIM; kupisz na lotnisku albo w sklepie całodobowym"},
+{"ko": "제 번호가 바뀌었어요.", "pl": "Zmienił mi się numer.", "en": "My number has changed.", "category": "Telefon i kontakt", "level": 2, "source": "hooljon"},
+{"ko": "나중에 편할 때 연락 주세요.", "pl": "Odezwij się później, kiedy będzie ci wygodnie.", "en": "Get in touch later whenever it's convenient.", "category": "Telefon i kontakt", "level": 2, "source": "hooljon", "note": "연락 주세요 – neutralne „proszę o kontakt”, telefon albo wiadomość"},
+{"ko": "고객센터죠? 상담원 연결 부탁드립니다.", "pl": "Czy to biuro obsługi klienta? Proszę o połączenie z konsultantem.", "en": "Is this customer service? Please connect me to an agent.", "category": "Telefon i kontakt", "level": 3, "source": "hooljon", "note": "부탁드립니다 – formalna prośba; 상담원 = konsultant"},
+{"ko": "본인 확인을 위해 생년월일 말씀해 주시겠습니까?", "pl": "W celu weryfikacji tożsamości proszę podać datę urodzenia.", "en": "For identity verification, could you tell me your date of birth?", "category": "Telefon i kontakt", "level": 3, "source": "hooljon", "note": "Standardowe pytanie infolinii; 본인 확인 = weryfikacja tożsamości"},
+{"ko": "통화 내용은 서비스 품질 향상을 위해 녹음됩니다.", "pl": "Rozmowa jest nagrywana w celu podniesienia jakości obsługi.", "en": "This call is recorded to improve service quality.", "category": "Telefon i kontakt", "level": 3, "source": "hooljon", "note": "Komunikat automatyczny na początku każdej infolinii"},
+{"ko": "담당자가 부재중이라 연결이 어렵습니다.", "pl": "Osoba odpowiedzialna jest nieobecna, nie mogę połączyć.", "en": "The person in charge is away, so I can't connect you.", "category": "Telefon i kontakt", "level": 3, "source": "hooljon", "note": "부재중 = nieobecny; też na wyświetlaczu: 부재중 전화 = nieodebrane połączenie"},
+{"ko": "회신 부탁드립니다.", "pl": "Proszę o odpowiedź zwrotną.", "en": "Please get back to me.", "category": "Telefon i kontakt", "level": 3, "source": "hooljon", "note": "회신 – formalne słowo na odpowiedź, typowe w e-mailach i wiadomościach służbowych"},
+{"ko": "이 번호로 연락 주시면 감사하겠습니다.", "pl": "Będę wdzięczny/wdzięczna za kontakt pod tym numerem.", "en": "I'd appreciate it if you could contact me at this number.", "category": "Telefon i kontakt", "level": 3, "source": "hooljon", "note": "-(으)면 감사하겠습니다 – standardowe zakończenie formalnej prośby"},
+{"ko": "휴대폰을 분실해서 번호를 정지하고 싶습니다.", "pl": "Zgubiłem/zgubiłam telefon i chcę zablokować numer.", "en": "I lost my phone and would like to suspend my number.", "category": "Telefon i kontakt", "level": 3, "source": "hooljon", "note": "분실 = zagubienie; 정지 = zawieszenie usługi"},
+{"ko": "요금제를 변경하고 싶은데요.", "pl": "Chciałbym/chciałabym zmienić plan taryfowy.", "en": "I'd like to change my phone plan.", "category": "Telefon i kontakt", "level": 3, "source": "hooljon", "note": "요금제 = taryfa; 무제한 요금제 = taryfa bez limitu"},
+{"ko": "해외 로밍을 신청하려고 하는데요.", "pl": "Chciałbym/chciałabym włączyć roaming zagraniczny.", "en": "I'd like to activate international roaming.", "category": "Telefon i kontakt", "level": 3, "source": "hooljon"},
+{"ko": "이번 달 요금이 왜 이렇게 많이 나왔어요?", "pl": "Dlaczego rachunek za ten miesiąc jest tak wysoki?", "en": "Why is this month's bill so high?", "category": "Telefon i kontakt", "level": 3, "source": "hooljon", "note": "요금이 나오다 = rachunek wychodzi na jakąś kwotę"},
+{"ko": "통화 품질에 문제가 있어서 문의드립니다.", "pl": "Zwracam się z pytaniem, ponieważ mam problem z jakością połączeń.", "en": "I'm contacting you because I have an issue with call quality.", "category": "Telefon i kontakt", "level": 3, "source": "hooljon", "note": "문의드리다 – formalne „zwracać się z zapytaniem”"},
+{"ko": "외국인 등록증으로 개통할 수 있습니까?", "pl": "Czy mogę aktywować numer na kartę pobytu?", "en": "Can I activate a line with my alien registration card?", "category": "Telefon i kontakt", "level": 3, "source": "hooljon", "note": "개통 = aktywacja usługi; bez 외국인 등록증 zwykle dostępny tylko prepaid"},
+{"ko": "약정 기간이 얼마나 남았는지 확인 부탁드립니다.", "pl": "Proszę sprawdzić, ile zostało mi umowy.", "en": "Please check how much time is left on my contract.", "category": "Telefon i kontakt", "level": 3, "source": "hooljon", "note": "약정 = umowa lojalnościowa (zwykle 24 miesiące)"},
+{"ko": "전화 주셔서 감사합니다. 좋은 하루 되세요.", "pl": "Dziękuję za telefon, miłego dnia.", "en": "Thank you for calling, have a good day.", "category": "Telefon i kontakt", "level": 3, "source": "hooljon", "note": "Standardowe pożegnanie konsultanta"},
+{"ko": "주문한 게 아직 안 나왔어요.", "pl": "Moje zamówienie jeszcze nie przyszło.", "en": "My order hasn't come yet.", "category": "W restauracji", "level": 2, "source": "hooljon", "note": "나오다 = dosł. „wychodzić” – o daniach z kuchni"},
+{"ko": "이거 제가 시킨 게 아닌데요.", "pl": "To nie jest to, co zamawiałem/zamawiałam.", "en": "This isn't what I ordered.", "category": "W restauracji", "level": 2, "source": "hooljon", "note": "시키다 = zamawiać (potocznie, częstsze niż 주문하다); -는데요 zmiękcza reklamację"},
+{"ko": "안 맵게 해 달라고 했는데 매워요.", "pl": "Prosiłem/prosiłam o nieostre, a jest ostre.", "en": "I asked for it not spicy, but it's spicy.", "category": "W restauracji", "level": 2, "source": "hooljon"},
+{"ko": "고수는 빼 주세요.", "pl": "Proszę bez kolendry.", "en": "No cilantro, please.", "category": "W restauracji", "level": 2, "source": "hooljon", "note": "빼다 = wyjąć/pominąć składnik; 고수 = kolendra"},
+{"ko": "저는 돼지고기를 안 먹어요.", "pl": "Nie jem wieprzowiny.", "en": "I don't eat pork.", "category": "W restauracji", "level": 2, "source": "hooljon", "note": "Wieprzowina jest w wielu koreańskich daniach nawet niewymieniona w nazwie – warto pytać"},
+{"ko": "이 안에 땅콩 들어가요?", "pl": "Czy w tym są orzeszki ziemne?", "en": "Does this have peanuts in it?", "category": "W restauracji", "level": 2, "source": "hooljon", "note": "들어가다 = „wchodzić” – o składnikach w potrawie"},
+{"ko": "채식 메뉴 있어요?", "pl": "Czy jest menu wegetariańskie?", "en": "Do you have a vegetarian menu?", "category": "W restauracji", "level": 2, "source": "hooljon", "note": "W Korei wegetarianizm jest rzadki – nawet zupa „warzywna” często ma bulion mięsny"},
+{"ko": "이거 몇 인분이에요?", "pl": "Na ile osób jest ta porcja?", "en": "How many servings is this?", "category": "W restauracji", "level": 2, "source": "hooljon", "note": "인분 = porcja na osobę; grill i gulasze zamawia się zwykle od 2인분"},
+{"ko": "양이 많아요?", "pl": "Czy porcja jest duża?", "en": "Is the portion big?", "category": "W restauracji", "level": 2, "source": "hooljon"},
+{"ko": "반찬 좀 더 주세요.", "pl": "Poproszę więcej przystawek.", "en": "More side dishes, please.", "category": "W restauracji", "level": 2, "source": "hooljon", "note": "Banchan są darmowe i dokładane bez ograniczeń"},
+{"ko": "김치 더 주실 수 있어요?", "pl": "Czy mogę prosić o więcej kimchi?", "en": "Could I get more kimchi?", "category": "W restauracji", "level": 2, "source": "hooljon"},
+{"ko": "덜 익은 것 같아요.", "pl": "Wydaje mi się, że to niedogotowane.", "en": "I think this is undercooked.", "category": "W restauracji", "level": 2, "source": "hooljon", "note": "익다 = być ugotowanym/dojrzałym; 덜 = nie do końca"},
+{"ko": "자리 좀 옮겨도 돼요?", "pl": "Czy możemy się przesiąść?", "en": "Can we move to another table?", "category": "W restauracji", "level": 2, "source": "hooljon"},
+{"ko": "창가 자리로 주세요.", "pl": "Poproszę stolik przy oknie.", "en": "A table by the window, please.", "category": "W restauracji", "level": 2, "source": "hooljon"},
+{"ko": "얼마나 기다려야 해요?", "pl": "Ile trzeba czekać?", "en": "How long do we have to wait?", "category": "W restauracji", "level": 2, "source": "hooljon", "note": "Przy popularnych lokalach wpisuje się numer telefonu na tablet i dostaje SMS, gdy zwolni się stolik"},
+{"ko": "남은 거 싸 주세요.", "pl": "Proszę zapakować resztę.", "en": "Please pack the leftovers.", "category": "W restauracji", "level": 2, "source": "hooljon", "note": "싸다 = zapakować, zawinąć; w Korei zabieranie resztek jest ok, choć rzadsze niż w Polsce"},
+{"ko": "현금 영수증 해 주세요.", "pl": "Proszę o paragon gotówkowy.", "en": "Please issue a cash receipt.", "category": "W restauracji", "level": 2, "source": "hooljon", "note": "현금 영수증 – paragon rejestrowany do odliczeń podatkowych; kasjer poprosi o numer telefonu"},
+{"ko": "계산이 잘못된 것 같아요.", "pl": "Chyba jest błąd w rachunku.", "en": "I think the bill is wrong.", "category": "W restauracji", "level": 2, "source": "hooljon"},
+{"ko": "배달 돼요?", "pl": "Robicie dostawy?", "en": "Do you deliver?", "category": "W restauracji", "level": 2, "source": "hooljon", "note": "Dostawy zamawia się w Korei najczęściej przez aplikacje 배달의민족 lub 쿠팡이츠"},
+{"ko": "여기 콘센트 있어요?", "pl": "Czy jest tu gniazdko?", "en": "Is there a power outlet here?", "category": "W restauracji", "level": 2, "source": "hooljon", "note": "콘센트 = gniazdko (z ang. „consent”)"},
+{"ko": "내일 저녁 7시에 4명 예약하고 싶은데요.", "pl": "Chciałbym/chciałabym zarezerwować stolik dla 4 osób na jutro na 19:00.", "en": "I'd like to book a table for 4 tomorrow at 7 pm.", "category": "W restauracji", "level": 3, "source": "hooljon"},
+{"ko": "예약자 이름으로 왔습니다.", "pl": "Mam rezerwację na nazwisko.", "en": "I have a reservation under my name.", "category": "W restauracji", "level": 3, "source": "hooljon", "note": "예약자 = osoba rezerwująca; obsługa zapyta 예약자 성함이 어떻게 되세요?"},
+{"ko": "예약을 취소하고 싶은데요.", "pl": "Chciałbym/chciałabym odwołać rezerwację.", "en": "I'd like to cancel my reservation.", "category": "W restauracji", "level": 3, "source": "hooljon", "note": "-고 싶은데요 miękczy prośbę – bezpośrednie 취소해 주세요 brzmi ostro"},
+{"ko": "음식에서 머리카락이 나왔습니다.", "pl": "W jedzeniu był włos.", "en": "There was a hair in the food.", "category": "W restauracji", "level": 3, "source": "hooljon", "note": "Formalne 나왔습니다 – reklamacja spokojnym tonem działa w Korei lepiej niż podniesiony głos"},
+{"ko": "이 부분은 계산에서 빼 주시겠습니까?", "pl": "Czy mógłby pan/pani odliczyć to od rachunku?", "en": "Could you take this off the bill?", "category": "W restauracji", "level": 3, "source": "hooljon"},
+{"ko": "식사 후에 속이 안 좋아서 연락드립니다.", "pl": "Dzwonię, ponieważ po posiłku źle się poczułem/poczułam.", "en": "I'm calling because I felt unwell after the meal.", "category": "W restauracji", "level": 3, "source": "hooljon", "note": "속이 안 좋다 = mieć problemy żołądkowe; sposób zgłoszenia zatrucia"},
+{"ko": "단체 예약도 가능합니까?", "pl": "Czy można zrobić rezerwację grupową?", "en": "Do you take group reservations?", "category": "W restauracji", "level": 3, "source": "hooljon", "note": "단체 = grupa; przy firmowych kolacjach 회식 rezerwuje się zwykle 룸 – osobną salkę"},
+{"ko": "코르키지 비용이 있습니까?", "pl": "Czy jest opłata za wniesienie własnego alkoholu?", "en": "Is there a corkage fee?", "category": "W restauracji", "level": 3, "source": "hooljon", "note": "코르키지 = corkage; w Korei niektóre restauracje pozwalają przynieść własne wino"},
+{"ko": "알레르기가 있어서 재료를 확인하고 싶습니다.", "pl": "Mam alergię, więc chciałbym/chciałabym sprawdzić składniki.", "en": "I have an allergy, so I'd like to check the ingredients.", "category": "W restauracji", "level": 3, "source": "hooljon"},
+{"ko": "영수증에 사업자 번호가 필요합니다.", "pl": "Potrzebuję numeru firmy na paragonie.", "en": "I need the business registration number on the receipt.", "category": "W restauracji", "level": 3, "source": "hooljon", "note": "사업자 번호 – odpowiednik NIP; potrzebny do rozliczania faktur służbowych"},
+{"ko": "서비스가 너무 늦어서 실망했습니다.", "pl": "Jestem rozczarowany/rozczarowana, obsługa była bardzo powolna.", "en": "I was disappointed, the service was very slow.", "category": "W restauracji", "level": 3, "source": "hooljon", "note": "실망하다 = rozczarować się – mocne, ale grzeczne w formie -습니다"},
+{"ko": "사장님 좀 뵐 수 있을까요?", "pl": "Czy mógłbym/mogłabym porozmawiać z właścicielem?", "en": "Could I speak to the owner?", "category": "W restauracji", "level": 3, "source": "hooljon", "note": "사장님 = szef/właściciel; też grzeczny zwrot do obsługi w małych lokalach"},
+{"ko": "음식 사진을 SNS에 올려도 됩니까?", "pl": "Czy mogę wrzucić zdjęcia jedzenia do mediów społecznościowych?", "en": "Is it okay to post food photos on social media?", "category": "W restauracji", "level": 3, "source": "hooljon", "note": "SNS = media społecznościowe (Instagram itp.); w Korei zdjęcia jedzenia są normą, ale w lokalach premium warto spytać"},
+{"ko": "잘 먹었습니다. 정말 맛있었어요.", "pl": "Dziękuję za posiłek, było naprawdę pyszne.", "en": "Thank you for the meal, it was really delicious.", "category": "W restauracji", "level": 3, "source": "hooljon", "note": "잘 먹었습니다 mówi się przy wyjściu do obsługi – i do osoby, która zapłaciła"},
+{"ko": "이틀 전부터 목이 아파요.", "pl": "Od dwóch dni boli mnie gardło.", "en": "My throat has hurt for two days.", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon", "note": "Lekarz zapyta 언제부터 아프셨어요? – od kiedy boli"},
+{"ko": "어지럽고 토할 것 같아요.", "pl": "Kręci mi się w głowie i mam nudności.", "en": "I feel dizzy and nauseous.", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon"},
+{"ko": "설사를 해요.", "pl": "Mam biegunkę.", "en": "I have diarrhea.", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon"},
+{"ko": "여기를 누르면 아파요.", "pl": "Boli, kiedy tu naciskam.", "en": "It hurts when I press here.", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon"},
+{"ko": "발목을 삐었어요.", "pl": "Skręciłem/skręciłam kostkę.", "en": "I sprained my ankle.", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon", "note": "삐다 = skręcić (staw)"},
+{"ko": "피부에 두드러기가 났어요.", "pl": "Mam wysypkę na skórze.", "en": "I have hives on my skin.", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon", "note": "두드러기 = pokrzywka; 나다 = pojawić się"},
+{"ko": "알레르기가 있어요.", "pl": "Mam alergię.", "en": "I have an allergy.", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon", "note": "Wystarczy dodać, na co: 땅콩 알레르기, 약 알레르기"},
+{"ko": "잠을 잘 못 자요.", "pl": "Nie mogę dobrze spać.", "en": "I can't sleep well.", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon"},
+{"ko": "주사 맞아야 해요?", "pl": "Czy muszę dostać zastrzyk?", "en": "Do I need an injection?", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon", "note": "주사를 맞다 = dostać zastrzyk; w Korei lekarze podają zastrzyki bardzo często, nawet przy przeziębieniu"},
+{"ko": "약을 먹었는데 안 나아요.", "pl": "Wziąłem/wzięłam lek, ale nie pomaga.", "en": "I took the medicine, but I'm not getting better.", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon", "note": "낫다 = wyzdrowieć; 안 나아요 = nie przechodzi"},
+{"ko": "이 약에 부작용이 있어요?", "pl": "Czy ten lek ma skutki uboczne?", "en": "Does this medicine have side effects?", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon"},
+{"ko": "졸린 성분이 들어 있어요?", "pl": "Czy ten lek powoduje senność?", "en": "Does this make you drowsy?", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon", "note": "졸리다 = być sennym – leki na przeziębienie w Korei często usypiają"},
+{"ko": "빈속에 먹어도 돼요?", "pl": "Czy można to brać na pusty żołądek?", "en": "Can I take it on an empty stomach?", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon", "note": "빈속 = pusty żołądek"},
+{"ko": "술이랑 같이 먹어도 돼요?", "pl": "Czy można to łączyć z alkoholem?", "en": "Can I take it with alcohol?", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon"},
+{"ko": "밴드 있어요?", "pl": "Czy jest plaster?", "en": "Do you have band-aids?", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon", "note": "밴드 = plaster z opatrunkiem; w Korei często mówi się 대일밴드 – od nazwy marki"},
+{"ko": "소독약 주세요.", "pl": "Poproszę środek do dezynfekcji.", "en": "Antiseptic, please.", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon"},
+{"ko": "생리통 약 있어요?", "pl": "Czy jest lek na bóle menstruacyjne?", "en": "Do you have something for period cramps?", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon"},
+{"ko": "진료 시간이 어떻게 돼요?", "pl": "Jakie są godziny przyjęć?", "en": "What are your office hours?", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon", "note": "진료 = konsultacja lekarska"},
+{"ko": "오늘 진료 받을 수 있어요?", "pl": "Czy mogę dziś dostać się do lekarza?", "en": "Can I see a doctor today?", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon", "note": "W koreańskich przychodniach zwykle przyjmują bez zapisów – wystarczy przyjść"},
+{"ko": "진단서 받을 수 있어요?", "pl": "Czy mogę dostać zaświadczenie lekarskie?", "en": "Can I get a medical certificate?", "category": "U lekarza i w aptece", "level": 2, "source": "hooljon", "note": "진단서 = zaświadczenie z diagnozą – często wymagane w pracy lub na uczelni; płatne"},
+{"ko": "고혈압 때문에 약을 복용하고 있습니다.", "pl": "Przyjmuję leki na nadciśnienie.", "en": "I'm taking medication for high blood pressure.", "category": "U lekarza i w aptece", "level": 3, "source": "hooljon", "note": "복용하다 – formalne „przyjmować leki”, zamiast potocznego 약을 먹다"},
+{"ko": "혈액 검사 결과는 언제 나옵니까?", "pl": "Kiedy będą wyniki badania krwi?", "en": "When will the blood test results be ready?", "category": "U lekarza i w aptece", "level": 3, "source": "hooljon"},
+{"ko": "전문의 진료를 받으려면 어떻게 해야 합니까?", "pl": "Co mam zrobić, żeby dostać się do specjalisty?", "en": "What do I need to do to see a specialist?", "category": "U lekarza i w aptece", "level": 3, "source": "hooljon", "note": "W Korei nie trzeba skierowania – do specjalisty można iść od razu"},
+{"ko": "증상이 계속되면 다시 오세요.", "pl": "Jeśli objawy się utrzymają, proszę przyjść ponownie.", "en": "If the symptoms continue, please come back.", "category": "U lekarza i w aptece", "level": 3, "source": "hooljon", "note": "Typowe zdanie lekarza na koniec wizyty"},
+{"ko": "보험 적용이 됩니까?", "pl": "Czy to jest refundowane z ubezpieczenia?", "en": "Is this covered by insurance?", "category": "U lekarza i w aptece", "level": 3, "source": "hooljon", "note": "적용되다 = mieć zastosowanie; 비급여 = nierefundowane"},
+{"ko": "진료비 영수증을 발급받고 싶습니다.", "pl": "Chciałbym/chciałabym otrzymać rachunek za wizytę.", "en": "I'd like to get an itemized receipt for the visit.", "category": "U lekarza i w aptece", "level": 3, "source": "hooljon", "note": "발급받다 = otrzymać wystawiony dokument; potrzebny do ubezpieczenia podróżnego"},
+{"ko": "처방전을 영어로 받을 수 있습니까?", "pl": "Czy mogę dostać receptę po angielsku?", "en": "Can I get the prescription in English?", "category": "U lekarza i w aptece", "level": 3, "source": "hooljon"},
+{"ko": "수술이 필요하다고 하셨는데 다른 방법은 없습니까?", "pl": "Powiedział pan, że potrzebna jest operacja – czy nie ma innej opcji?", "en": "You said surgery is needed; is there no other option?", "category": "U lekarza i w aptece", "level": 3, "source": "hooljon"},
+{"ko": "응급실은 어디입니까?", "pl": "Gdzie jest izba przyjęć?", "en": "Where is the emergency room?", "category": "U lekarza i w aptece", "level": 3, "source": "hooljon", "note": "응급실 = SOR; numer alarmowy w Korei to 119"},
+{"ko": "119 좀 불러 주세요.", "pl": "Proszę wezwać pogotowie.", "en": "Please call an ambulance.", "category": "U lekarza i w aptece", "level": 3, "source": "hooljon", "note": "119 czyta się 일일구; jeden numer do pogotowia i straży pożarnej"},
+{"ko": "의식을 잃었습니다.", "pl": "Stracił/straciła przytomność.", "en": "He/she lost consciousness.", "category": "U lekarza i w aptece", "level": 3, "source": "hooljon"},
+{"ko": "입원해야 합니까?", "pl": "Czy muszę zostać w szpitalu?", "en": "Do I need to be hospitalized?", "category": "U lekarza i w aptece", "level": 3, "source": "hooljon", "note": "입원 = przyjęcie do szpitala; 퇴원 = wypis"},
+{"ko": "통역이 필요합니다.", "pl": "Potrzebuję tłumacza.", "en": "I need an interpreter.", "category": "U lekarza i w aptece", "level": 3, "source": "hooljon", "note": "Duże szpitale w Seulu mają 국제진료센터 – centrum dla pacjentów zagranicznych"},
+{"ko": "약 복용 후 알레르기 반응이 나타났습니다.", "pl": "Po zażyciu leku wystąpiła reakcja alergiczna.", "en": "I had an allergic reaction after taking the medicine.", "category": "U lekarza i w aptece", "level": 3, "source": "hooljon", "note": "나타나다 = pojawić się – rejestr medyczny"},
+{"ko": "일반 우편으로 보내면 얼마예요?", "pl": "Ile kosztuje wysyłka zwykłą pocztą?", "en": "How much is it by regular mail?", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon", "note": "일반 우편 – najtańsza opcja, bez śledzenia"},
+{"ko": "제일 빠른 방법이 뭐예요?", "pl": "Jaki jest najszybszy sposób?", "en": "What's the fastest option?", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon"},
+{"ko": "제일 싼 방법으로 보내 주세요.", "pl": "Proszę wysłać najtańszym sposobem.", "en": "Please send it the cheapest way.", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon"},
+{"ko": "무게가 얼마나 나가요?", "pl": "Ile to waży?", "en": "How much does it weigh?", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon", "note": "무게가 나가다 = ważyć"},
+{"ko": "상자 좀 살 수 있어요?", "pl": "Czy mogę kupić pudełko?", "en": "Can I buy a box?", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon", "note": "Na poczcie sprzedają pudełka w rozmiarach 1–6 호"},
+{"ko": "포장 좀 도와주실 수 있어요?", "pl": "Czy może mi pan/pani pomóc zapakować?", "en": "Could you help me pack it?", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon"},
+{"ko": "송장 번호 좀 알려 주세요.", "pl": "Proszę podać numer przesyłki.", "en": "Please give me the tracking number.", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon", "note": "송장 번호 = numer listu przewozowego; 운송장 번호 też"},
+{"ko": "배송 조회는 어디서 해요?", "pl": "Gdzie mogę śledzić przesyłkę?", "en": "Where can I track the delivery?", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon", "note": "배송 조회 = śledzenie przesyłki; w aplikacji przewoźnika lub przez 카톡"},
+{"ko": "배송이 늦어지고 있어요.", "pl": "Dostawa się opóźnia.", "en": "The delivery is delayed.", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon"},
+{"ko": "택배가 아직 안 왔어요.", "pl": "Przesyłka jeszcze nie przyszła.", "en": "The package hasn't arrived yet.", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon"},
+{"ko": "문 앞에 놓아 주세요.", "pl": "Proszę zostawić pod drzwiami.", "en": "Please leave it at the door.", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon", "note": "W Korei kurierzy standardowo zostawiają paczki pod drzwiami – kradzieże są rzadkie"},
+{"ko": "경비실에 맡겨 주세요.", "pl": "Proszę zostawić u ochrony.", "en": "Please leave it with the security office.", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon", "note": "경비실 – stróżówka w bloku; typowe miejsce odbioru paczek"},
+{"ko": "부재중이라서 못 받았어요.", "pl": "Nie było mnie, więc nie odebrałem/odebrałam.", "en": "I wasn't home, so I couldn't receive it.", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon"},
+{"ko": "편의점에서 택배 받을 수 있어요?", "pl": "Czy mogę odebrać paczkę w sklepie całodobowym?", "en": "Can I pick up the package at a convenience store?", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon", "note": "편의점 택배 – przesyłkę można nadać i odebrać w GS25 czy CU"},
+{"ko": "상자가 찌그러졌어요.", "pl": "Pudełko jest zgniecione.", "en": "The box is dented.", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon", "note": "찌그러지다 = zgnieść się"},
+{"ko": "내용물이 깨졌어요.", "pl": "Zawartość jest rozbita.", "en": "The contents are broken.", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon"},
+{"ko": "주소를 잘못 썼어요. 바꿀 수 있어요?", "pl": "Wpisałem/wpisałam zły adres. Można to zmienić?", "en": "I wrote the wrong address. Can I change it?", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon"},
+{"ko": "반품하고 싶어요.", "pl": "Chcę zwrócić towar.", "en": "I'd like to return this item.", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon", "note": "반품 = zwrot towaru do sklepu; w sklepach online zwykle przez aplikację, kurier sam przyjeżdża"},
+{"ko": "착불로 보내 주세요.", "pl": "Proszę wysłać za pobraniem kosztów przez odbiorcę.", "en": "Please send it collect.", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon", "note": "착불 = odbiorca płaci za przesyłkę; 선불 = nadawca płaci"},
+{"ko": "관세가 붙어요?", "pl": "Czy będzie cło?", "en": "Will there be customs duty?", "category": "Na poczcie i w kurierze", "level": 2, "source": "hooljon", "note": "관세 = cło; 붙다 = zostać doliczonym"},
+{"ko": "세관 신고서를 작성해 주십시오.", "pl": "Proszę wypełnić deklarację celną.", "en": "Please fill out the customs declaration.", "category": "Na poczcie i w kurierze", "level": 3, "source": "hooljon", "note": "작성하다 = wypełnić dokument; -십시오 – najbardziej formalny tryb rozkazujący"},
+{"ko": "이 물품은 국제 우편으로 발송이 불가합니다.", "pl": "Tego przedmiotu nie można wysłać pocztą międzynarodową.", "en": "This item cannot be sent by international mail.", "category": "Na poczcie i w kurierze", "level": 3, "source": "hooljon", "note": "발송 = wysyłka (formalnie); 불가 = niedozwolone – np. baterie litowe, perfumy"},
+{"ko": "배송 완료로 나오는데 받지 못했습니다.", "pl": "W systemie jest „doręczono”, ale nie otrzymałem/otrzymałam przesyłki.", "en": "It shows as delivered, but I never received it.", "category": "Na poczcie i w kurierze", "level": 3, "source": "hooljon"},
+{"ko": "분실 신고를 하고 싶습니다.", "pl": "Chcę zgłosić zaginięcie przesyłki.", "en": "I'd like to report a lost package.", "category": "Na poczcie i w kurierze", "level": 3, "source": "hooljon", "note": "분실 신고 = zgłoszenie zaginięcia"},
+{"ko": "파손에 대한 보상을 청구하고 싶습니다.", "pl": "Chcę wystąpić o odszkodowanie za uszkodzenie.", "en": "I'd like to claim compensation for the damage.", "category": "Na poczcie i w kurierze", "level": 3, "source": "hooljon", "note": "파손 = uszkodzenie; 보상 청구 = roszczenie odszkodowawcze; zrób zdjęcia przed rozpakowaniem"},
+{"ko": "보험 가입하시겠습니까?", "pl": "Czy chce pan/pani ubezpieczyć przesyłkę?", "en": "Would you like to insure the package?", "category": "Na poczcie i w kurierze", "level": 3, "source": "hooljon", "note": "Pytanie urzędnika przy nadawaniu wartościowej przesyłki"},
+{"ko": "배송 예정일이 언제입니까?", "pl": "Jaki jest planowany termin doręczenia?", "en": "What is the expected delivery date?", "category": "Na poczcie i w kurierze", "level": 3, "source": "hooljon", "note": "예정일 = planowany dzień"},
+{"ko": "수취인 연락처를 기재해 주십시오.", "pl": "Proszę wpisać numer telefonu odbiorcy.", "en": "Please enter the recipient's phone number.", "category": "Na poczcie i w kurierze", "level": 3, "source": "hooljon", "note": "수취인 = odbiorca; 발신인 = nadawca; 기재하다 = wpisać w formularz"},
+{"ko": "통관이 지연되고 있습니다.", "pl": "Odprawa celna jest opóźniona.", "en": "Customs clearance is being delayed.", "category": "Na poczcie i w kurierze", "level": 3, "source": "hooljon", "note": "통관 = odprawa celna; 지연 = opóźnienie"},
+{"ko": "반송 처리되었습니다.", "pl": "Przesyłka została odesłana do nadawcy.", "en": "The package has been returned to sender.", "category": "Na poczcie i w kurierze", "level": 3, "source": "hooljon", "note": "반송 = zwrot do nadawcy"},
+{"ko": "배송 기사님과 직접 통화할 수 있습니까?", "pl": "Czy mogę porozmawiać bezpośrednio z kurierem?", "en": "Can I speak directly to the delivery driver?", "category": "Na poczcie i w kurierze", "level": 3, "source": "hooljon", "note": "기사님 – grzeczny zwrot do kierowcy/kurierza"},
+{"ko": "등기 우편은 본인 서명이 필요합니다.", "pl": "Przesyłka polecona wymaga podpisu adresata.", "en": "Registered mail requires the recipient's signature.", "category": "Na poczcie i w kurierze", "level": 3, "source": "hooljon"},
+{"ko": "우편물 보관 기간이 지났습니다.", "pl": "Minął termin przechowywania przesyłki.", "en": "The storage period for the mail has expired.", "category": "Na poczcie i w kurierze", "level": 3, "source": "hooljon", "note": "보관 기간 – zwykle 7–15 dni, potem zwrot do nadawcy"},
+{"ko": "주소 이전 신고를 하려고 합니다.", "pl": "Chciałbym/chciałabym zgłosić zmianę adresu.", "en": "I'd like to file a change of address.", "category": "Na poczcie i w kurierze", "level": 3, "source": "hooljon", "note": "-(으)려고 합니다 – formalne wyrażenie zamiaru"},
+{"ko": "창가 쪽 좌석으로 주세요.", "pl": "Poproszę miejsce przy oknie.", "en": "A window seat, please.", "category": "Bilety i podróż", "level": 2, "source": "hooljon", "note": "좌석 = miejsce siedzące w pociągu/samolocie; 창가 = przy oknie, 통로 = przy przejściu"},
+{"ko": "일행이랑 같이 앉을 수 있어요?", "pl": "Czy mogę siedzieć razem z osobami, z którymi podróżuję?", "en": "Can I sit together with my companions?", "category": "Bilety i podróż", "level": 2, "source": "hooljon", "note": "일행 = towarzysze podróży"},
+{"ko": "이 표로 갈아탈 수 있어요?", "pl": "Czy z tym biletem mogę się przesiąść?", "en": "Can I transfer with this ticket?", "category": "Bilety i podróż", "level": 2, "source": "hooljon", "note": "W metrze i autobusach w Seulu przesiadka kartą transportową w ciągu 30 minut jest darmowa"},
+{"ko": "표를 잘못 샀어요. 바꿀 수 있어요?", "pl": "Kupiłem/kupiłam zły bilet. Można go wymienić?", "en": "I bought the wrong ticket. Can I change it?", "category": "Bilety i podróż", "level": 2, "source": "hooljon"},
+{"ko": "환불 수수료가 있어요?", "pl": "Czy jest opłata za zwrot?", "en": "Is there a refund fee?", "category": "Bilety i podróż", "level": 2, "source": "hooljon", "note": "수수료 = prowizja/opłata manipulacyjna"},
+{"ko": "기차를 놓쳤어요.", "pl": "Spóźniłem/spóźniłam się na pociąg.", "en": "I missed the train.", "category": "Bilety i podróż", "level": 2, "source": "hooljon", "note": "놓치다 = przegapić, nie zdążyć"},
+{"ko": "다음 걸로 바꿔 주세요.", "pl": "Proszę zmienić na następny.", "en": "Please change it to the next one.", "category": "Bilety i podróż", "level": 2, "source": "hooljon"},
+{"ko": "입석도 있어요?", "pl": "Czy są miejsca stojące?", "en": "Are there standing tickets?", "category": "Bilety i podróż", "level": 2, "source": "hooljon", "note": "입석 = bilet bez miejsca siedzącego – tańszy, popularny w KTX przy wyprzedanych pociągach"},
+{"ko": "자리가 없는데 서서 가도 돼요?", "pl": "Nie ma miejsc – czy mogę jechać na stojąco?", "en": "There are no seats – can I stand?", "category": "Bilety i podróż", "level": 2, "source": "hooljon"},
+{"ko": "이 자리 제 자리인데요.", "pl": "To jest moje miejsce.", "en": "This is my seat.", "category": "Bilety i podróż", "level": 2, "source": "hooljon", "note": "-인데요 – grzeczne zasygnalizowanie problemu bez oskarżania"},
+{"ko": "짐을 어디에 두면 돼요?", "pl": "Gdzie mogę położyć bagaż?", "en": "Where can I put my luggage?", "category": "Bilety i podróż", "level": 2, "source": "hooljon"},
+{"ko": "여기서 몇 정거장이에요?", "pl": "Ile to stąd przystanków?", "en": "How many stops from here?", "category": "Bilety i podróż", "level": 2, "source": "hooljon", "note": "정거장 = przystanek/stacja jako jednostka"},
+{"ko": "이 버스 시청 앞에 서요?", "pl": "Czy ten autobus zatrzymuje się przed ratuszem?", "en": "Does this bus stop in front of City Hall?", "category": "Bilety i podróż", "level": 2, "source": "hooljon", "note": "서다 = zatrzymywać się"},
+{"ko": "내릴 때 카드 찍어야 해요?", "pl": "Czy przy wysiadaniu trzeba przyłożyć kartę?", "en": "Do I need to tap the card when getting off?", "category": "Bilety i podróż", "level": 2, "source": "hooljon", "note": "Tak – bez 하차 태그 przy wysiadaniu z autobusu naliczy się dopłata"},
+{"ko": "카드 잔액이 부족해요.", "pl": "Mam za mało środków na karcie.", "en": "The card balance is insufficient.", "category": "Bilety i podróż", "level": 2, "source": "hooljon", "note": "잔액 = saldo; 잔액이 부족합니다 usłyszysz z bramki w metrze"},
+{"ko": "길을 잃었어요.", "pl": "Zgubiłem/zgubiłam się.", "en": "I'm lost.", "category": "Bilety i podróż", "level": 2, "source": "hooljon"},
+{"ko": "택시 좀 불러 주세요.", "pl": "Proszę wezwać taksówkę.", "en": "Please call a taxi.", "category": "Bilety i podróż", "level": 2, "source": "hooljon", "note": "W Korei taksówkę wzywa się aplikacją 카카오택시"},
+{"ko": "여기 좀 세워 주세요.", "pl": "Proszę się tu zatrzymać.", "en": "Please stop here.", "category": "Bilety i podróż", "level": 2, "source": "hooljon", "note": "Do kierowcy taksówki; 세우다 = zatrzymać pojazd"},
+{"ko": "트렁크 좀 열어 주세요.", "pl": "Proszę otworzyć bagażnik.", "en": "Please open the trunk.", "category": "Bilety i podróż", "level": 2, "source": "hooljon"},
+{"ko": "공항버스는 어디서 타요?", "pl": "Skąd odjeżdża autobus na lotnisko?", "en": "Where do I catch the airport bus?", "category": "Bilety i podróż", "level": 2, "source": "hooljon", "note": "공항버스 / 리무진 – kursuje z wielu punktów Seulu"},
+{"ko": "항공편이 지연되었습니다.", "pl": "Lot jest opóźniony.", "en": "The flight has been delayed.", "category": "Bilety i podróż", "level": 3, "source": "hooljon", "note": "항공편 = lot (jako połączenie); 지연 = opóźnienie"},
+{"ko": "연결편을 놓쳤는데 어떻게 해야 합니까?", "pl": "Spóźniłem/spóźniłam się na lot przesiadkowy – co mam zrobić?", "en": "I missed my connecting flight – what should I do?", "category": "Bilety i podróż", "level": 3, "source": "hooljon", "note": "연결편 = lot łączony"},
+{"ko": "수하물이 도착하지 않았습니다.", "pl": "Mój bagaż nie dotarł.", "en": "My luggage hasn't arrived.", "category": "Bilety i podróż", "level": 3, "source": "hooljon", "note": "수하물 = bagaż rejestrowany; zgłasza się w 수하물 분실 신고소"},
+{"ko": "위탁 수하물 무게 제한이 어떻게 됩니까?", "pl": "Jaki jest limit wagi bagażu rejestrowanego?", "en": "What is the checked baggage weight limit?", "category": "Bilety i podróż", "level": 3, "source": "hooljon", "note": "위탁 수하물 = bagaż nadawany; 기내 수하물 = bagaż podręczny"},
+{"ko": "탑승 수속은 몇 시부터 가능합니까?", "pl": "Od której można się odprawić?", "en": "From what time is check-in available?", "category": "Bilety i podróż", "level": 3, "source": "hooljon", "note": "탑승 수속 = odprawa; 탑승구 = bramka"},
+{"ko": "좌석 승급이 가능합니까?", "pl": "Czy można podwyższyć klasę miejsca?", "en": "Is a seat upgrade possible?", "category": "Bilety i podróż", "level": 3, "source": "hooljon", "note": "승급 = awans/podwyższenie klasy"},
+{"ko": "입국 목적이 무엇입니까?", "pl": "Jaki jest cel wjazdu?", "en": "What is the purpose of your visit?", "category": "Bilety i podróż", "level": 3, "source": "hooljon", "note": "Pytanie na kontroli granicznej; odpowiedź: 관광입니다 (turystyka), 유학입니다 (studia)"},
+{"ko": "체류 기간은 얼마나 됩니까?", "pl": "Jak długo planuje pan/pani zostać?", "en": "How long will you be staying?", "category": "Bilety i podróż", "level": 3, "source": "hooljon", "note": "체류 = pobyt"},
+{"ko": "신고할 물품이 있습니까?", "pl": "Czy ma pan/pani coś do oclenia?", "en": "Do you have anything to declare?", "category": "Bilety i podróż", "level": 3, "source": "hooljon", "note": "Pytanie celnika; 없습니다 = nie mam"},
+{"ko": "승차권을 분실했는데 재발급이 됩니까?", "pl": "Zgubiłem/zgubiłam bilet – czy można go wystawić ponownie?", "en": "I lost my ticket – can it be reissued?", "category": "Bilety i podróż", "level": 3, "source": "hooljon", "note": "승차권 = bilet na pociąg/autobus (formalnie); 재발급 = ponowne wystawienie"},
+{"ko": "열차 운행이 중단되었습니다.", "pl": "Ruch pociągów został wstrzymany.", "en": "Train service has been suspended.", "category": "Bilety i podróż", "level": 3, "source": "hooljon", "note": "운행 = kursowanie; 중단 = wstrzymanie – typowy komunikat na dworcu"},
+{"ko": "대체 교통편을 안내해 주시겠습니까?", "pl": "Czy mógłby pan/pani wskazać zastępczy środek transportu?", "en": "Could you tell me about alternative transportation?", "category": "Bilety i podróż", "level": 3, "source": "hooljon", "note": "교통편 = połączenie/środek transportu"},
+{"ko": "렌터카를 예약하려고 하는데 국제 면허증이 필요합니까?", "pl": "Chcę wynająć samochód – czy potrzebne jest międzynarodowe prawo jazdy?", "en": "I'd like to rent a car – do I need an international driver's license?", "category": "Bilety i podróż", "level": 3, "source": "hooljon", "note": "Tak – polskie prawo jazdy bez 국제 면허증 nie wystarczy"},
+{"ko": "지연으로 인한 보상을 신청하고 싶습니다.", "pl": "Chcę złożyć wniosek o rekompensatę za opóźnienie.", "en": "I'd like to apply for compensation for the delay.", "category": "Bilety i podróż", "level": 3, "source": "hooljon", "note": "-(으)로 인한 = spowodowany przez; KTX zwraca część ceny przy opóźnieniu powyżej 20 minut"},
+{"ko": "다른 색깔 있어요?", "pl": "Czy jest w innym kolorze?", "en": "Do you have it in another color?", "category": "Zakupy i usługi", "level": 2, "source": "hooljon"},
+{"ko": "이거 재고 있어요?", "pl": "Czy to jest na stanie?", "en": "Do you have this in stock?", "category": "Zakupy i usługi", "level": 2, "source": "hooljon", "note": "재고 = zapas magazynowy"},
+{"ko": "한 치수 큰 거 있어요?", "pl": "Czy jest o rozmiar większe?", "en": "Do you have one size bigger?", "category": "Zakupy i usługi", "level": 2, "source": "hooljon", "note": "치수 = rozmiar; też 한 사이즈 큰 거"},
+{"ko": "좀 커요. 작은 걸로 바꿔 주세요.", "pl": "Trochę za duże. Proszę zamienić na mniejsze.", "en": "It's a bit big. Please swap it for a smaller one.", "category": "Zakupy i usługi", "level": 2, "source": "hooljon"},
+{"ko": "영수증을 못 받았어요.", "pl": "Nie dostałem/dostałam paragonu.", "en": "I didn't get a receipt.", "category": "Zakupy i usługi", "level": 2, "source": "hooljon"},
+{"ko": "영수증을 잃어버렸는데 교환할 수 있어요?", "pl": "Zgubiłem/zgubiłam paragon – czy mogę wymienić?", "en": "I lost the receipt – can I still exchange it?", "category": "Zakupy i usługi", "level": 2, "source": "hooljon"},
+{"ko": "사용 안 했어요. 새 거예요.", "pl": "Nie używałem/używałam, jest nowe.", "en": "I haven't used it, it's brand new.", "category": "Zakupy i usługi", "level": 2, "source": "hooljon"},
+{"ko": "이거 불량품이에요.", "pl": "To jest wadliwy produkt.", "en": "This is a defective product.", "category": "Zakupy i usługi", "level": 2, "source": "hooljon", "note": "불량품 = towar wadliwy"},
+{"ko": "작동이 안 돼요.", "pl": "Nie działa.", "en": "It doesn't work.", "category": "Zakupy i usługi", "level": 2, "source": "hooljon", "note": "작동 = działanie urządzenia"},
+{"ko": "보증 기간이 얼마나 돼요?", "pl": "Jak długi jest okres gwarancji?", "en": "How long is the warranty?", "category": "Zakupy i usługi", "level": 2, "source": "hooljon", "note": "보증서 = karta gwarancyjna"},
+{"ko": "수리 얼마나 걸려요?", "pl": "Ile potrwa naprawa?", "en": "How long will the repair take?", "category": "Zakupy i usługi", "level": 2, "source": "hooljon"},
+{"ko": "수리비가 얼마예요?", "pl": "Ile kosztuje naprawa?", "en": "How much is the repair?", "category": "Zakupy i usługi", "level": 2, "source": "hooljon"},
+{"ko": "배송비는 얼마예요?", "pl": "Ile wynosi koszt dostawy?", "en": "How much is shipping?", "category": "Zakupy i usługi", "level": 2, "source": "hooljon", "note": "무료 배송 = darmowa dostawa"},
+{"ko": "이거 선물 포장 돼요?", "pl": "Czy można to zapakować na prezent?", "en": "Can you gift-wrap this?", "category": "Zakupy i usługi", "level": 2, "source": "hooljon"},
+{"ko": "할인 쿠폰 쓸 수 있어요?", "pl": "Czy mogę użyć kuponu rabatowego?", "en": "Can I use a discount coupon?", "category": "Zakupy i usługi", "level": 2, "source": "hooljon"},
+{"ko": "멤버십 적립해 주세요.", "pl": "Proszę naliczyć punkty na kartę.", "en": "Please add the points to my membership.", "category": "Zakupy i usługi", "level": 2, "source": "hooljon", "note": "적립 = gromadzenie punktów; kasjer zapyta o numer telefonu"},
+{"ko": "두 개 사면 할인 돼요?", "pl": "Czy przy zakupie dwóch jest zniżka?", "en": "Is there a discount if I buy two?", "category": "Zakupy i usługi", "level": 2, "source": "hooljon", "note": "Typowe promocje: 1+1 (drugi gratis), 2+1"},
+{"ko": "계산이 두 번 됐어요.", "pl": "Płatność została pobrana dwa razy.", "en": "I was charged twice.", "category": "Zakupy i usługi", "level": 2, "source": "hooljon"},
+{"ko": "거스름돈이 모자라요.", "pl": "Reszta się nie zgadza.", "en": "The change is short.", "category": "Zakupy i usługi", "level": 2, "source": "hooljon", "note": "거스름돈 = reszta; potocznie 잔돈"},
+{"ko": "택스 리펀드 돼요?", "pl": "Czy jest zwrot podatku dla turystów?", "en": "Can I get a tax refund?", "category": "Zakupy i usługi", "level": 2, "source": "hooljon", "note": "Sklepy z naklejką Tax Free – zwrot VAT od zakupów powyżej 30 000 wonów"},
+{"ko": "정식으로 항의를 제기하고 싶습니다.", "pl": "Chcę złożyć oficjalną reklamację.", "en": "I'd like to file a formal complaint.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "항의를 제기하다 = wnieść skargę – rejestr formalny"},
+{"ko": "서면으로 답변을 받고 싶습니다.", "pl": "Chcę otrzymać odpowiedź na piśmie.", "en": "I'd like a written response.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "서면 = na piśmie"},
+{"ko": "소비자 보호원에 신고하겠습니다.", "pl": "Zgłoszę to do organizacji ochrony konsumentów.", "en": "I will report this to the consumer protection agency.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "한국소비자원 – koreański odpowiednik rzecznika konsumentów; infolinia 1372"},
+{"ko": "환불 규정을 확인하고 싶습니다.", "pl": "Chciałbym/chciałabym zapoznać się z zasadami zwrotu.", "en": "I'd like to check the refund policy.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "규정 = regulamin"},
+{"ko": "구매일로부터 7일 이내에 환불이 가능합니다.", "pl": "Zwrot możliwy jest w ciągu 7 dni od daty zakupu.", "en": "Refunds are possible within 7 days of purchase.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "Typowy zapis z regulaminu; 이내 = w ciągu"},
+{"ko": "영수증 없이는 환불이 불가능합니다.", "pl": "Bez paragonu zwrot nie jest możliwy.", "en": "Refunds are not possible without a receipt.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon"},
+{"ko": "계약을 해지하고 싶습니다.", "pl": "Chcę rozwiązać umowę.", "en": "I'd like to terminate the contract.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "해지 = rozwiązanie umowy (siłownia, internet, telefon)"},
+{"ko": "위약금이 얼마입니까?", "pl": "Ile wynosi kara umowna?", "en": "How much is the cancellation penalty?", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "위약금 = kara za zerwanie umowy przed terminem"},
+{"ko": "자동 결제를 해지해 주십시오.", "pl": "Proszę wyłączyć płatność automatyczną.", "en": "Please cancel the automatic payment.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "자동 결제 = subskrypcja pobierana z karty"},
+{"ko": "카드 결제 취소 처리가 며칠 걸립니까?", "pl": "Ile dni trwa anulowanie płatności kartą?", "en": "How many days does a card payment cancellation take?", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "Zwrot na kartę w Korei trwa zwykle 3–7 dni roboczych"},
+{"ko": "제품에 하자가 있어서 교환을 요청합니다.", "pl": "Produkt ma wadę, proszę o wymianę.", "en": "The product is defective, so I'm requesting an exchange.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "하자 = wada (prawnie); 요청하다 – formalne „wnosić o”"},
+{"ko": "무상 수리가 가능한지 확인 부탁드립니다.", "pl": "Proszę sprawdzić, czy możliwa jest bezpłatna naprawa.", "en": "Please check if a free repair is possible.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "무상 = nieodpłatny; 유상 = płatny"},
+{"ko": "세금 계산서 발행해 주십시오.", "pl": "Proszę wystawić fakturę VAT.", "en": "Please issue a tax invoice.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon", "note": "세금 계산서 = faktura dla firm; wymaga 사업자 번호"},
+{"ko": "담당자와 직접 이야기하고 싶습니다.", "pl": "Chcę porozmawiać bezpośrednio z osobą odpowiedzialną.", "en": "I'd like to speak directly with the person in charge.", "category": "Zakupy i usługi", "level": 3, "source": "hooljon"}
 ];
 
 const STORAGE_KEYS = { custom:"custom-words", missed:"missed-words", stats:"session-stats", showImg:"show-image", premium:"premium-status", daily:"daily-quota", categories:"selected-categories", theme:"theme-preference", loggedIn:"logged-in-status", account:"account-info", readings:"custom-readings", uiLang:"translation-language", sound:"sound-enabled", srs:"srs-data", dayStreak:"day-streak", badges:"earned-badges", mastery:"mastery-stats", dailyValue:"daily-value-stats", storyProgress:"story-progress" };
@@ -15616,7 +15828,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.160';
+const APP_VERSION = '2026-09-05.162';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15855,7 +16067,17 @@ function setScreen(screen){
     // "Działy" wewnątrz quizu ma sens tylko w trybie "Wszystkie działy" —
     // przy jednym wybranym dziale filtrowanie działów jest zbędne
     document.getElementById('btnCategories').style.display = isAllDeptsMode() ? '' : 'none';
+    // Pierwsza runda od razu z tego, co lokalne - ekran nie czeka na sieć.
+    // Dociągnięcie z bazy leci w tle i wchodzi do puli od następnej rundy.
     newRound();
+    ensureExtendedPool().then(() => {
+      const n = extendedPool.length;
+      if(!n) return;
+      const inf = document.getElementById('vocabPoolInfo');
+      if(inf) inf.textContent = uiLang === 'en'
+        ? `+${n} more words from the dictionary`
+        : `+${n} słów ze słownika w tej sesji`;
+    }).catch(()=>{});
   }
   if(screen === 'vocabStudy') renderVocabStudyList();
   if(screen === 'conjCategory') renderConjPosCards();
@@ -19978,6 +20200,43 @@ function renderMissedPanel(){
   }).join('');
 }
 
+/* ═══ ROZSZERZONA PULA ĆWICZEŃ ═══════════════════════════════════════════════
+   Ćwiczenia czerpały WYŁĄCZNIE z DEFAULT_WORDS + własnych słów usera, czyli
+   ~6100 pozycji. Baza dictionary_words ma ich trzydzieści tysięcy, ale była
+   podłączona tylko do przeglądania i do trybu nauki - w ćwiczeniach nigdy się
+   nie pojawiały.
+
+   Skutek: przy dziale z dwudziestoma słowami sesja zaczynała się powtarzać po
+   kilku minutach, mimo że w bazie leżało kilkaset pasujących pozycji.
+
+   Ten sam wzorzec co renderVocabStudyList: lokalne słowa mają pierwszeństwo
+   (są wykuratorowane, mają obrazki i przykłady), reszta dochodzi z bazy
+   z odsianiem duplikatów po `ko`. Zgłoszone przez Damiana 2026-09-05. */
+let extendedPool = [];          // słowa dociągnięte dla bieżącego działu i poziomu
+let extendedPoolKey = null;     // dla jakiego wyboru je pobrano
+
+function poolKey(){
+  return JSON.stringify([selectedCategories, selectedLevel]);
+}
+
+/* Dociąga słowa z bazy, jeśli dla tego wyboru jeszcze ich nie mamy.
+   Wołane PRZED newRound, nie w pickPool - pickPool musi zostać synchroniczne,
+   bo woła je kilka miejsc w trakcie rundy. */
+async function ensureExtendedPool(){
+  const key = poolKey();
+  if(key === extendedPoolKey) return;          // ten sam wybór, nic nie robimy
+  extendedPoolKey = key;
+  extendedPool = [];
+  if(vocabStudySource === 'myWords' || mode === 'review') return;   // te mają własne źródła
+  try{
+    // 400 to kompromis: dość, żeby sesja się nie powtarzała przez wiele dni,
+    // a jednocześnie jedno żądanie zamiast stronicowania.
+    const z = await fetchDictionaryWords(selectedLevel, selectedCategories, 400);
+    const lokalne = new Set(allWords.map(w => w.ko));
+    extendedPool = z.filter(w => !lokalne.has(w.ko));
+  }catch(e){ /* brak sieci = ćwiczymy na tym, co lokalnie */ }
+}
+
 function pickPool(){
   // Tryb "Moje słówka": własny zestaw usera, CELOWO bez filtrowania po dziale
   // i poziomie - user dodał te słowa świadomie.
@@ -19991,7 +20250,9 @@ function pickPool(){
     const keys = Object.keys(missedWords);
     base = keys.map(k => missedWords[k]);
   } else {
-    base = allWords;
+    // Lokalne + dociągnięte z bazy. Kolejność ma znaczenie: wykuratorowane
+    // słowa z DEFAULT_WORDS pojawią się częściej przy losowaniu z początku puli.
+    base = extendedPool.length ? [...allWords, ...extendedPool] : allWords;
   }
   if(selectedCategories && selectedCategories.length){
     base = base.filter(w => selectedCategories.includes(w.category || 'Własne') && matchesLevel(w));
