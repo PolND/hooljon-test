@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.144
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.146
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -565,10 +565,17 @@
   }
 
   /* ── Poziom 2: kafle „Nauki" ───────────────────────────────────────────── */
-  .home-section-learn .home-card{
+  /* UWAGA: układ KOLUMNOWY tylko w motywach z siatką. W czterech pozostałych
+     kontener ma display:contents, więc kafle są wierszami (variant-row) i
+     flex-direction:column rozbijał im układ - ikona lądowała nad tekstem
+     zamiast obok. Zgłoszone przez testera 2026-09-04. */
+  [data-theme="jade"] .home-section-learn .home-card,
+  [data-theme="kobalt"] .home-section-learn .home-card{
     padding:12px 14px; display:flex; flex-direction:column; gap:8px;
   }
   .home-section-learn .home-card .icon{ flex:none; }
+  /* Skala typograficzna jest WSPÓLNA dla wszystkich motywów - to nie układ,
+     tylko rozmiar (v6 §6: tytuł 15px, opis 12px, nagłówek sekcji 11px). */
   .home-section-learn .home-card .title{ font-size:15px; font-weight:700; line-height:1.2; }
   /* Opis NIE jest ucinany - pełny tekst mieści się w trzech linijkach przy
      kolumnie ~174px. Nie dodawać line-clamp (v6 §6.2). */
@@ -15548,7 +15555,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.144';
+const APP_VERSION = '2026-09-04.146';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -16418,7 +16425,7 @@ const I18N = {
   achvBadgesTitle: { pl: 'Odznaki działów', en: 'Section badges' },
   achvBadgesHint: { pl: 'Ukończ wszystkie słówka danego działu w trybie Nauka, żeby odblokować odznakę.', en: 'Finish all words in a section in Study mode to unlock its badge.' },
   achvStatsTitle: { pl: 'Statystyki', en: 'Statistics' },
-  reviewModeTitle: { pl: 'Powtórki (Hunryeon-jang)', en: 'Review (Hunryeon-jang)' },
+  reviewModeTitle: { pl: 'Powtórki (훈련장)', en: 'Review (훈련장)' },
   reviewModeDesc: { pl: 'Inteligentne powtórki.', en: 'Smart spaced repetition.' },
   hardBtn2: { pl: 'Trudne', en: 'Hard' },
   easyBtn2: { pl: 'Łatwe', en: 'Easy' },
@@ -16502,7 +16509,7 @@ const I18N = {
   loginPasswordLabel: { pl: 'Hasło', en: 'Password' },
   loginPasswordRepeatLabel: { pl: 'Powtórz hasło', en: 'Repeat password' },
   loginNote: { pl: 'Twoje dane, postęp i status Premium synchronizują się na serwerze — dostępne z każdego urządzenia po zalogowaniu.', en: 'Your data, progress and Premium status sync to the server — available on any device once you log in.' },
-  homeVocabTitle: { pl: 'Słówka (Sillok)', en: 'Vocabulary (Sillok)' },
+  homeVocabTitle: { pl: 'Słówka (실록)', en: 'Vocabulary (실록)' },
   homeVocabDesc: { pl: 'Słówka, działy tematyczne, powtórki.', en: 'Words, topics, and review.' },
   homeConjTitle: { pl: 'Koniugacja', en: 'Conjugation' },
   homeConjDesc: { pl: 'Odmiana przez czasy.', en: 'Verb and adjective tenses.' },
