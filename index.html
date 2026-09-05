@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.156
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.157
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -15616,7 +15616,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.156';
+const APP_VERSION = '2026-09-04.157';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15627,6 +15627,12 @@ const APP_VERSION = '2026-09-04.156';
 
 const SCREEN_IDS = {
   login:'loginScreen', loading:'loadingScreen', home:'homeScreen', vocabMode:'vocabModeScreen', vocabDept:'vocabDeptScreen',
+  // PRZYWRÓCONE 2026-09-04: usunąłem ten wpis jako "martwy", bo szukałem
+  // dosłownego setScreen('vocab'). A wywołanie jest warunkowe:
+  //   setScreen(vocabFlowMode === 'study' ? 'vocabStudy' : 'vocab')
+  // przez co ćwiczenia po wyborze poziomu nie otwierały niczego.
+  // Wniosek: szukanie odwołań po dosłownym ciągu nie wystarcza.
+  vocab: 'vocabScreen',
   vocabStudy:'vocabStudyScreen', vocabLevel:'vocabLevelScreen',
   conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen', conjRef:'conjRefScreen',
   aiChat:'aiChatScreen', reading:'readingScreen',
