@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.209
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.210
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -16353,7 +16353,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.209';
+const APP_VERSION = '2026-09-05.210';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -18396,7 +18396,53 @@ function odpPodobne(a, b){
 
 /* Nasłuch jednej odpowiedzi. Zwraca rozpoznany tekst albo null (brak wsparcia,
    cisza, błąd). Nigdy nie rzuca - pętla odpytywania nie może się przez to zatrzymać. */
-function odpSluchaj(jezyk, ms){
+/* ═══ ROZPOZNAWANIE MOWY — TRZY DROGI ═══════════════════════════════════════
+   Web Speech API okazało się niepewnym fundamentem: w Chrome idzie przez serwery
+   Google (blokowane przez Brave), w Edge przez Microsoft i wymaga włączonego
+   „Rozpoznawania mowy online" w Windows. U testera zwracało `network` mimo
+   działającego internetu.
+
+   To NIE jest do naprawienia po stronie strony internetowej. Ale aplikacja
+   z Google Play nie musi używać Web Speech - Android ma własne
+   android.speech.SpeechRecognizer, które działa też offline po pobraniu paczki
+   językowej i nie zależy od polityki przeglądarki.
+
+   Kolejność prób:
+     1. MOST NATYWNY (window.HooljonNative) - w wersji z Google Play
+     2. Web Speech API - w przeglądarce, gdy działa
+     3. brak - user korzysta z przycisku „Nie umiałem"
+
+   Most jest sprawdzany dynamicznie, więc ten sam plik działa jako strona i jako
+   zawartość aplikacji - bez osobnej wersji. Zgłoszone przez Damiana 2026-09-05. */
+function mostNatywny(){
+  return (typeof window !== 'undefined' && window.HooljonNative
+          && typeof window.HooljonNative.rozpoznaj === 'function')
+    ? window.HooljonNative : null;
+}
+
+/* Kontrakt dla warstwy natywnej (do zaimplementowania w opakowaniu Androida):
+
+     window.HooljonNative.rozpoznaj(jezyk, ms) -> Promise<{alt:[string]} | {blad:string}>
+
+   gdzie `jezyk` to 'ko-KR' albo 'pl-PL', `ms` to maksymalny czas nasłuchu.
+   Zwraca listę alternatyw (najlepsza pierwsza) albo powód niepowodzenia.
+   Po stronie Androida: SpeechRecognizer z EXTRA_LANGUAGE_MODEL_FREE_FORM
+   i EXTRA_MAX_RESULTS=3, PREFER_OFFLINE gdy paczka językowa jest pobrana. */
+async function odpSluchajNatywnie(jezyk, ms){
+  const most = mostNatywny();
+  if(!most) return null;
+  try{
+    const wynik = await most.rozpoznaj(jezyk, ms);
+    return wynik && (wynik.alt || wynik.blad) ? wynik : { blad:'blad', kod:'most' };
+  }catch(e){
+    return { blad:'blad', kod:'most' };
+  }
+}
+
+async function odpSluchaj(jezyk, ms){
+  // Most natywny ma pierwszeństwo - działa tam, gdzie Web Speech zawodzi.
+  const natywnie = await odpSluchajNatywnie(jezyk, ms);
+  if(natywnie) return natywnie;
   return new Promise((res) => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     /* Zwracamy POWÓD niepowodzenia, nie ciche null. Wcześniej brak wsparcia,
