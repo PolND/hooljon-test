@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.175
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.176
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -7250,7 +7250,12 @@ async function searchDictScoped(fraza, level, category, limit){
    rzadsze słowa w bazie. Wyszukiwarka pytała tylko bazy, więc „samochód"
    zwracał lawetę i radiowóz, a 자동차 - które jest w DEFAULT_WORDS na poziomie 1
    - nie pojawiało się wcale. Zgłoszone przez Damiana 2026-09-05. */
-function searchLocalWords(fraza, level, category){
+/* UWAGA: obok istnieje searchLocalWords(term, limit) - starsza, przeszukuje
+   tylko DEFAULT_WORDS (bez własnych słów usera), z limitem i bez filtrów.
+   Ta jest szersza: allWords, filtr działu i poziomu, pola z LANG_OPTIONS.
+   Własna nazwa, żeby nie przesłaniać tamtej - to już druga taka kolizja
+   dzisiaj (poprzednia: searchDictionaryWords). */
+function searchLocalScoped(fraza, level, category){
   const q = String(fraza || '').trim().toLowerCase();
   if(q.length < 1) return [];
   const pola = dictSearchFields();
@@ -15962,7 +15967,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.175';
+const APP_VERSION = '2026-09-05.176';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -21187,7 +21192,7 @@ async function loadDictBrowse(){
     // 39 446 słów w bazie. Zgłoszone przez Damiana 2026-09-05.
     const hits = (await searchDictScoped(q, dictBrowseLevel, dictBrowseDept || null, 200)) || [];
     // Słownik lokalny NAJPIERW - tam siedzą podstawy (자동차, 버스, 기차).
-    const lokalne = searchLocalWords(q, dictBrowseLevel, dictBrowseDept || null);
+    const lokalne = searchLocalScoped(q, dictBrowseLevel, dictBrowseDept || null);
     lokalne.forEach(w => { if(!list.some(x => x.ko === w.ko)) list.unshift(w); });
     const seen = new Set(list.map(w => w.id));
     hits.forEach(w => { if(!seen.has(w.id)){ seen.add(w.id); list.push(w); } });
@@ -21563,7 +21568,7 @@ document.getElementById('dictWordFilterInput').addEventListener('input', (e)=>{
     if(e.target.value.trim() !== raw) return;             // user pisze dalej
     // Słownik lokalny + baza, scalone i posortowane razem. Bez części lokalnej
     // podstawowe słowa (자동차, 버스) nie pojawiały się w wynikach wcale.
-    const zLokalnych = searchLocalWords(raw, selectedDictLevel, selectedDictDept);
+    const zLokalnych = searchLocalScoped(raw, selectedDictLevel, selectedDictDept);
     const pelne = scalWyniki([...lokalne, ...zLokalnych.filter(w => !lokalne.some(x => x.ko === w.ko))], zBazy, raw);
     if(pelne.length === lokalne.length) return;
     const nowe = pelne.filter(w => !dictWordQueue.some(x => x.ko === w.ko));
