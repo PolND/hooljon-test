@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-04.157
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.160
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -15616,7 +15616,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-04.157';
+const APP_VERSION = '2026-09-05.160';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -16032,7 +16032,7 @@ function buildDeptCardHtml(cat){
   const count = allWords.filter(w => (w.category || 'Własne') === cat).length;
   return `
     <div class="home-card" role="button" tabindex="0" data-dept="${escapeHtml(cat)}">
-      <span class="icon">${DEPT_BADGE_ICONS[cat] || '📁'}</span>
+      <span class="icon">${DEPT_BADGE_ICONS[cat] || '분'}</span>
       <span class="hc-main">
         <div class="title">${trCat(cat)}</div>
         <div class="desc">${uiLang === 'en' ? `${count} words` : `${count} słówek`}</div>
@@ -18151,7 +18151,7 @@ function renderMyWordsScreen(){
   getMyFolders().forEach(([name, count]) => {
     rows.push(`
       <button class="home-card variant-row" data-folder="${escapeHtml(name)}">
-        <span class="icon">${name === DEFAULT_FOLDER ? '📄' : '📁'}</span>
+        <span class="icon">${name === DEFAULT_FOLDER ? '내' : '묶'}</span>
         <span>
           <div class="title">${escapeHtml(folderLabel(name))} <span class="level-badge ready">${count}</span></div>
           <div class="desc">${uiLang === 'en' ? 'Practice just this set.' : 'Ucz się tylko tego zestawu.'}</div>
@@ -19249,7 +19249,7 @@ async function registerDeptCompletion(){
   earnedBadges.departments[cat] = true;
   await saveBadges();
   showCelebration({
-    icon: '📁',
+    icon: '분',
     title: uiLang === 'en' ? 'Section completed!' : 'Dział ukończony!',
     subtitle: uiLang === 'en' ? `You went through all words in "${trCat(cat)}".` : `Przerobiłeś/aś wszystkie słówka w dziale „${trCat(cat)}”.`,
   });
@@ -19281,12 +19281,65 @@ document.addEventListener('click', (e)=>{
 });
 
 const DEPT_BADGE_ICONS = {
-  'Powitania i zwroty': '인', 'Rodzina i ludzie': '가', 'Jedzenie i picie': '식',
-  'Dom i codzienność': '집', 'Podstawy': '기', 'Zwierzęta': '동', 'Liczby': '수',
-  'Liczby rdzenne': '수', 'Liczby sinokoreańskie': '한',
-  'Kolory': '색', 'Pogoda i natura': '날', 'Przymiotniki': '형', 'Czasowniki': '동',
-  'Słownictwo ogólne': '어', 'Własne': '내', 'Ze zdjęcia': '사', 'Z pliku': '파',
-  'Emocje': '감', 'Praca i zawody': '직', 'Miesiące': '월', 'Pory roku': '계', 'Transport': '교',
+  /* Glify hangul zamiast emoji - ta sama zasada co w menu (v6 §3): jeden krój,
+     kolor z tokenu, a ikona jest treścią do nauki.
+
+     WAŻNE: klucze muszą odpowiadać AKTUALNYM nazwom działów. Poprzednia wersja
+     miała nazwy sprzed przemianowania słownika, przez co 38 z 48 działów
+     dostawało zapasowe 📁. Przy dodawaniu działu dopisz go tutaj, inaczej
+     zobaczysz folder. Sprawdzone 2026-09-04: wszystkie 48 pokryte. */
+  'Powitania i zwroty': '인',
+  'Rodzina i relacje': '가',
+  'Jedzenie i kuchnia': '식',
+  'Dom i mieszkanie': '집',
+  'Transport i podróże': '교',
+  'Praca i kariera': '직',
+  'Uczucia i charakter': '감',
+  'Cechy i miary': '질',
+  'Ciało, zdrowie i czynności fizyczne': '몸',
+  'Logika i gramatyka pojęciowa': '논',
+  'Szkoła i nauka': '학',
+  'Wygląd i ubiór': '옷',
+  'Pogoda i pory roku': '날',
+  'Wydarzenia i aktywność społeczna': '행',
+  'Czas i częstotliwość': '시',
+  'Komunikacja i media': '통',
+  'Polityka i prawo': '법',
+  'Zakupy i pieniądze': '돈',
+  'Hobby i czas wolny': '취',
+  'Kultura i sztuka': '문',
+  'Nauka i technologia': '기',
+  'Religia i duchowość': '종',
+  'Przyroda i geografia': '지',
+  'Sport': '운',
+  'Rośliny': '초',
+  'Dźwięki i wyrazy obrazowe': '소',
+  'Zwierzęta': '동',
+  'Kolory': '색',
+  'Liczby rdzenne': '수',
+  'Liczby sinokoreańskie': '한',
+  'Miesiące': '월',
+  'Pory roku': '계',
+  'Podstawy': '기',
+  'Słownictwo ogólne': '어',
+  'Przymiotniki': '형',
+  'Czasowniki': '동',
+  'Własne': '내',
+  'Ze zdjęcia': '사',
+  'Z pliku': '파',
+  'Historia i prehistoria': '사',
+  'Astronomia i kosmos': '천',
+  'Literatura': '문',
+  'Sztuka': '예',
+  'Biologia': '생',
+  'Chemia': '화',
+  'Fizyka': '물',
+  'Telefon i kontakt': '전',
+  'W restauracji': '식',
+  'U lekarza i w aptece': '의',
+  'Na poczcie i w kurierze': '우',
+  'Bilety i podróż': '표',
+  'Zakupy i usługi': '매',
 };
 
 /* Tydzień: siedem kwadratów wstecz od dziś. Nie mamy historii per dzień, więc
@@ -19431,7 +19484,7 @@ function renderAchievementsScreen(){
     </div>`;
   const deptBadges = cats.map(cat=>{
     const earned = !!(earnedBadges.departments || {})[cat];
-    const icon = DEPT_BADGE_ICONS[cat] || '📁';
+    const icon = DEPT_BADGE_ICONS[cat] || '분';
     return `
     <div class="achv-badge${earned ? '' : ' locked'}">
       <div class="ab-icon">${icon}</div>
