@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.219
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.220
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2736,6 +2736,35 @@
   /* Zwój z pieczęciami. Stemple w kolorze tuszu urzędowego, ustawione ciasno,
      żeby tworzyły wzór - nie równy rząd ikon. */
   #progPieczecie:empty{ display:none; }
+  /* Ranking. Wiersz użytkownika wyróżniony, żeby dało się go znaleźć wzrokiem
+     bez czytania numerów. */
+  .rk-naglowek{
+    font:700 11px var(--font-ui); letter-spacing:.12em; text-transform:uppercase;
+    color:var(--ink-dim); margin:16px 0 8px;
+  }
+  .rk-lista{ display:flex; flex-direction:column; }
+  .rk-wiersz{
+    display:flex; align-items:center; gap:10px; padding:11px 10px;
+    border-bottom:1px solid var(--border); font-family:var(--font-ui); font-size:14px;
+  }
+  .rk-wiersz:last-child{ border-bottom:0; }
+  .rk-ja{
+    background:color-mix(in srgb, var(--hwang) 10%, transparent);
+    border-radius:var(--radius); font-weight:700;
+  }
+  @supports not (background: color-mix(in srgb, red 10%, transparent)){
+    .rk-ja{ background:var(--surface-2); }
+  }
+  .rk-nr{ flex:none; width:34px; color:var(--ink-dim); font-size:12.5px; }
+  .rk-nick{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rk-ranga{
+    margin-left:6px; font-family:var(--font-ko); font-size:11px;
+    color:var(--hwang); border:1px solid currentColor; border-radius:4px; padding:1px 4px;
+  }
+  .rk-miara{ flex:none; color:var(--ink-dim); font-size:13px; }
+  .rk-piecz{ flex:none; font-family:var(--font-ko); font-size:12px; color:var(--hwang); }
+  .rk-stopka{ text-align:center; margin-top:14px; }
+
   .pcz-naglowek{
     font:700 11px var(--font-ui); letter-spacing:.12em; text-transform:uppercase;
     color:var(--ink-dim); margin:22px 0 10px;
@@ -6326,6 +6355,7 @@
       <div class="prog-week" id="progWeek"></div>
       <div class="prog-togo" id="progToGo"></div>
       <div class="prog-next" id="progNext"></div>
+      <button class="tool-btn" id="rankingOpenBtn" style="width:100%; margin-top:20px;" data-i18n="rankingOpen">🏅 Ranking</button>
       <div id="progPieczecie"></div>
       <div id="progStats"></div>
     </div>
@@ -6919,6 +6949,21 @@
                                           <!-- ODPYTYWANIE GŁOSEM. Panel celowo minimalny: duża czcionka, brak elementów
          do dotykania poza zakończeniem. Przy prowadzeniu telefon ma leżeć
          w uchwycie, a nie zapraszać do interakcji. -->
+    <!-- RANKING. Dwie zakładki z jednej tabeli: sezonowy (kto aktywny teraz)
+         i wieczny (kto zaszedł najdalej). Sąsiedztwo nad czołówką - patrz
+         komentarz przy rankingRysuj. -->
+    <div class="panel" id="rankingPanel">
+      <div class="modal-card">
+        <button class="modal-close" data-close-panel="rankingPanel">✕</button>
+        <h3 data-i18n="rankingTitle">Ranking</h3>
+        <div class="dict-filters" id="rankingZakladki">
+          <button type="button" class="chip active" data-board="season" data-i18n="rankSeason">Sezon</button>
+          <button type="button" class="chip" data-board="eternal" data-i18n="rankEternal">Wszech czasów</button>
+        </div>
+        <div id="rankingTresc"></div>
+      </div>
+    </div>
+
     <div class="panel" id="odpytywaniePanel">
       <div class="modal-card odp-card">
         <div id="odpytywanieKarta"></div>
@@ -31197,7 +31242,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.219';
+const APP_VERSION = '2026-09-05.220';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -32041,6 +32086,10 @@ const I18N = {
   grammarTypedLabel: { pl: 'Wpisuj odpowiedź zamiast wybierać', en: 'Type the answer instead of choosing' },
   grammarTypedCheck: { pl: 'Sprawdź', en: 'Check' },
   grammarTypedPh: { pl: 'Wpisz brakującą formę', en: 'Type the missing form' },
+  rankingTitle: { pl: 'Ranking', en: 'Ranking' },
+  rankingOpen: { pl: '🏅 Ranking', en: '🏅 Ranking' },
+  rankSeason: { pl: 'Sezon', en: 'Season' },
+  rankEternal: { pl: 'Wszech czasów', en: 'All time' },
   haksaDrillTitle: { pl: 'Haksa odpytuje', en: 'Haksa quizzes you' },
   haksaDrillDesc: { pl: 'Rozmowa z lektorem AI zamiast robota — reaguje na to, co powiesz. Liczy się w limit minut.', en: 'A real AI tutor instead of a robot — responds to what you say. Counts toward your minutes.' },
   particleHint: { pl: 'Dotknij partykuły, żeby ją opuścić — tak jak w mowie. Nie wszystkie da się usunąć.', en: 'Tap a particle to drop it, the way speakers do. Not all of them can go.' },
@@ -35644,6 +35693,122 @@ function renderProgProg(){
 /* Zwój z pieczęciami. Nie lista odznak w menu - stemple na pergaminie, które
    układają się w unikalny wzór. Puste miejsca są widoczne celowo: pokazują,
    ile jeszcze zostało, bez wypisywania tego słowami. */
+/* ═══ RANKING ═══════════════════════════════════════════════════════════════
+   Dwa rankingi z jednej tabeli:
+     SEZONOWY  - seria dni w bieżącym miesiącu, reset pierwszego
+     WIECZNY   - słów z interwałem SRS >= 30 dni, bez resetu
+
+   Wieczny mierzy retencję, nie obecność: serię da się utrzymać jedną fiszką
+   dziennie, a trzydziestu dni w SRS nie da się ugrać.
+
+   SĄSIEDZTWO PRZED CZOŁÓWKĄ. Ktoś na miejscu 340, widząc samą dziesiątkę
+   najlepszych, dostaje informację, że jest nikim. Trzy osoby nad i trzy pod
+   pokazują kogoś w zasięgu. Ustalone z Damianem 2026-09-05. */
+let rankingTablica = 'season';
+let rankingDane = null;
+
+async function rankingSync(){
+  /* Pieczęcie i poziom liczymy po stronie klienta, bo zależą od listy słów,
+     której serwer nie ma. Backend je przycina - patrz uwaga Claude Code:
+     to tylko rozstrzygnięcie remisu, nie da się nimi podrobić pozycji. */
+  const dzialy = [...new Set(allWords.map(w => w.category || 'Własne'))];
+  let zloto = 0, nefryt = 0;
+  dzialy.forEach(c => { const st = stopienPieczeci(c); if(st === 'geum') zloto++; else if(st === 'ok') nefryt++; });
+  const poziom = (typeof unlockedLevel !== 'undefined' ? unlockedLevel : 1);
+  try{ await sb.rpc('leaderboard_sync', { p_seals_gold: zloto, p_seals_jade: nefryt, p_top_level: poziom }); }
+  catch(e){}
+}
+
+async function rankingWczytaj(){
+  const box = document.getElementById('rankingTresc');
+  if(box) box.innerHTML = `<p class="hint-note">${uiLang === 'en' ? 'Loading…' : 'Ładowanie…'}</p>`;
+  try{
+    const { data, error } = await sb.rpc('leaderboard_view', { board: rankingTablica });
+    if(error) throw error;
+    rankingDane = data;
+    rankingRysuj();
+  }catch(e){
+    if(box) box.innerHTML = `<p class="hint-note">${uiLang === 'en' ? 'Could not load the ranking.' : 'Nie udało się wczytać rankingu.'}</p>`;
+  }
+}
+
+function rankingWiersz(r, jaSam){
+  const en = uiLang === 'en';
+  const miara = rankingTablica === 'season'
+    ? `${r.season_streak} ${en ? 'd' : 'dni'}`
+    : `${r.retained} ${en ? 'words' : 'słów'}`;
+  const ranga = r.top_level && r.top_level > 1
+    ? `<span class="rk-ranga">${['','초','중','상','고'][r.top_level] || ''}</span>` : '';
+  return `<div class="rk-wiersz${jaSam ? ' rk-ja' : ''}">
+      <span class="rk-nr">${r.rank}</span>
+      <span class="rk-nick">${escapeHtml(r.nick)}${ranga}</span>
+      <span class="rk-miara">${miara}</span>
+      ${r.seals_gold ? `<span class="rk-piecz">金${r.seals_gold}</span>` : ''}
+    </div>`;
+}
+
+function rankingRysuj(){
+  const box = document.getElementById('rankingTresc');
+  if(!box || !rankingDane) return;
+  const d = rankingDane, en = uiLang === 'en';
+
+  if(!d.me){
+    box.innerHTML = `
+      <p class="hint-note">${en
+        ? 'Pick a nickname to join. It stays yours permanently.'
+        : 'Wybierz pseudonim, żeby dołączyć. Zostaje Twój na stałe.'}</p>
+      <div class="login-field">
+        <input type="text" id="rankingNick" maxlength="18" placeholder="${en ? 'Nickname' : 'Pseudonim'}">
+      </div>
+      <button class="primary" id="rankingJoinBtn">${en ? 'Join' : 'Dołącz'}</button>`;
+    document.getElementById('rankingJoinBtn').addEventListener('click', rankingDolacz);
+    return;
+  }
+
+  const sasiedzi = (d.neighbors || []).map(r => rankingWiersz(r, r.rank === d.me.rank)).join('');
+  const czolo = (d.top || []).map(r => rankingWiersz(r, r.rank === d.me.rank)).join('');
+  box.innerHTML = `
+    <div class="rk-naglowek">${en ? 'Around you' : 'W Twoim sąsiedztwie'}</div>
+    <div class="rk-lista">${sasiedzi}</div>
+    <div class="rk-naglowek">${en ? 'Top five' : 'Pierwsza piątka'}</div>
+    <div class="rk-lista">${czolo}</div>
+    <p class="hint-note rk-stopka">${en
+      ? `${d.total} players${d.season ? ' · season ' + d.season : ''}`
+      : `${d.total} graczy${d.season ? ' · sezon ' + d.season : ''}`}</p>
+    <button class="tool-btn" id="rankingLeaveBtn">${en ? 'Leave the ranking' : 'Opuść ranking'}</button>`;
+  document.getElementById('rankingLeaveBtn').addEventListener('click', rankingOpusc);
+}
+
+async function rankingDolacz(){
+  const nick = String(document.getElementById('rankingNick').value || '').trim();
+  if(nick.length < 2 || nick.length > 18){
+    alert(uiLang === 'en' ? 'Nickname: 2 to 18 characters.' : 'Pseudonim: od 2 do 18 znaków.');
+    return;
+  }
+  try{
+    const { data, error } = await sb.rpc('leaderboard_join', { nick });
+    if(error) throw error;
+    if(data && data.error){
+      alert(uiLang === 'en' ? 'That nickname is taken.' : 'Ten pseudonim jest zajęty.');
+      return;
+    }
+    await rankingSync();
+    await rankingWczytaj();
+  }catch(e){
+    alert(uiLang === 'en' ? 'Could not join.' : 'Nie udało się dołączyć.');
+  }
+}
+
+async function rankingOpusc(){
+  /* Wyjście UKRYWA wpis, nie kasuje - pseudonim zostaje zarezerwowany, rekord
+     wszech czasów też. Tak zaimplementował to backend i słusznie: powrót nie
+     powinien zaczynać od zera. */
+  if(!confirm(uiLang === 'en'
+      ? 'Leave the ranking? Your nickname stays reserved.'
+      : 'Opuścić ranking? Pseudonim zostaje zarezerwowany.')) return;
+  try{ await sb.rpc('leaderboard_leave'); await rankingWczytaj(); }catch(e){}
+}
+
 function renderPieczecie(){
   const el = document.getElementById('progPieczecie');
   if(!el) return;
@@ -42410,6 +42575,19 @@ document.getElementById('odpOcenaToggle').addEventListener('change', (e)=>{
    mówi dalej w tle i nie da się jej wyłączyć bez wracania do zakładki. */
 document.addEventListener('visibilitychange', ()=>{
   if(document.hidden && odpytywanieAktywne) odpytywanieStop(false);
+});
+
+document.getElementById('rankingOpenBtn').addEventListener('click', async ()=>{
+  document.getElementById('rankingPanel').classList.add('open');
+  await rankingSync();          // wysyłamy świeży stan, potem czytamy
+  rankingWczytaj();
+});
+document.querySelectorAll('#rankingZakladki .chip').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    rankingTablica = b.dataset.board;
+    document.querySelectorAll('#rankingZakladki .chip').forEach(x=>x.classList.toggle('active', x===b));
+    rankingWczytaj();
+  });
 });
 
 document.getElementById('grammarTypedToggle').addEventListener('change', (e)=>{
