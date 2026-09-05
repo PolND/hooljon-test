@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.225
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.232
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2765,6 +2765,31 @@
   .rk-piecz{ flex:none; font-family:var(--font-ko); font-size:12px; color:var(--hwang); }
   .rk-stopka{ text-align:center; margin-top:14px; }
 
+  /* Szkoły Uczonych. Wybór wygląda jak trzy karty, nie jak lista opcji -
+     to decyzja o tożsamości, nie ustawienie. */
+  #progSzkola:empty{ display:none; }
+  .szk-naglowek{
+    font:700 11px var(--font-ui); letter-spacing:.12em; text-transform:uppercase;
+    color:var(--ink-dim); margin:22px 0 10px;
+  }
+  .szk-opcja, .szk-moja{
+    display:flex; align-items:flex-start; gap:14px; width:100%; text-align:left;
+    padding:15px 16px; margin-bottom:10px;
+    background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius-lg); cursor:pointer; color:var(--ink);
+  }
+  .szk-moja{ cursor:default; border-color:var(--hwang); }
+  .szk-opcja:hover{ border-color:var(--hwang); }
+  .szk-znak{
+    flex:none; width:44px; height:44px; display:grid; place-items:center;
+    font-family:var(--font-ko); font-size:22px; color:var(--hwang);
+    background:var(--surface-2); border-radius:var(--radius);
+  }
+  .szk-tresc{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px;
+    font-family:var(--font-ui); }
+  .szk-ko{ font-family:var(--font-ko); font-size:12px; color:var(--ink-dim); }
+  .szk-opis{ font-size:12.5px; color:var(--ink-dim); line-height:1.45; }
+
   .pcz-naglowek{
     font:700 11px var(--font-ui); letter-spacing:.12em; text-transform:uppercase;
     color:var(--ink-dim); margin:22px 0 10px;
@@ -4450,6 +4475,8 @@
   }
   #grammarTypedWrap .typed-input:focus{ outline:none; border-color:var(--hwang); }
 
+  #grammarQuizScreen{ position:relative; }
+
   .grammar-choice-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -4495,8 +4522,15 @@
   /* Cel zdania po polsku - user musi wiedzieć, CO ma powiedzieć, żeby wybrać formę.
      Wygląda jak polecenie, nie jak odpowiedź: mniejsze, przygaszone, nad opcjami. */
   .grammar-target{
-    margin-top:10px; font-size:14px; line-height:1.45; color:var(--ink-dim);
-    font-family:var(--font-ui);
+    /* WYEKSPONOWANE, nie przygaszone. To tłumaczenie ROZSTRZYGA odpowiedź przy
+       wzorcach, gdzie samo zdanie koreańskie nie wystarcza - 이거/그거/저거,
+       옆/앞/뒤, formy grzecznościowe. Przy 14px w --ink-dim user skupiony na
+       koreańskim po prostu go nie zauważał i widział zgadywankę 1 z 4.
+       Zgłoszone przez Damiana 2026-09-05. */
+    margin-top:12px; font-size:15.5px; line-height:1.45;
+    color:var(--ink); font-family:var(--font-ui);
+    padding:10px 14px; background:var(--surface-2);
+    border-left:3px solid var(--hwang); border-radius:0 var(--radius) var(--radius) 0;
   }
   /* ══ QUIZ PIONOWY (makieta 1b) ═════════════════════════════════════════════
      Zastąpił kompas 2026-09-03. Kompas był świadomie zachowany przy v1 i v2 jako
@@ -6121,6 +6155,16 @@
       <div class="ai-chat-controls chat-bar" id="geminiChatBar">
         <button class="tool-btn chat-side" id="geminiTranslateBtn" title="Nie rozumiem — przetłumacz" aria-label="Nie rozumiem — przetłumacz" style="display:none;">🔤</button>
         <button class="primary" id="geminiConnectBtn" style="flex:1;"><span data-i18n="geminiConnectBtn">Połącz</span></button>
+      <!-- Barge-in. Domyślnie wyłączony, bo usuwanie echa zawodzi na głośniku
+           telefonu - model transkrybuje wtedy własną odpowiedź. Na słuchawkach
+           problemu nie ma, a rozmowa staje się dwukierunkowa. -->
+      <label class="vk-toggle-row" style="justify-content:center; margin-top:12px; font-size:13px;">
+        <span class="switch" style="margin:0;">
+          <input type="checkbox" id="geminiBargeToggle">
+          <span class="track"><span class="knob"></span></span>
+        </span>
+        <span data-i18n="bargeLabel">Pozwól przerywać (słuchawki)</span>
+      </label>
         <button class="primary chat-mic" id="geminiMicBtn" style="display:none;" disabled aria-label="Mów">🎤</button>
         <button class="tool-btn chat-side" id="geminiDisconnectBtn" title="Rozłącz" aria-label="Rozłącz" style="display:none;">🔌</button>
       </div>
@@ -6301,6 +6345,11 @@
       <div id="grammarRegisterBadge" style="margin-top:8px;"></div>
     </div>
 
+    <!-- ZGŁOSZENIE BŁĘDU w ćwiczeniu. Bez tego tester musi opisywać z pamięci,
+         gdzie coś było nie tak - a przy 1980 ćwiczeniach to znaczy, że większość
+         usterek nigdy nie zostanie zgłoszona. Zgłoszone przez Damiana 2026-09-05. -->
+    <button type="button" class="report-flag-btn" id="grammarReportBtn"
+            title="Zgłoś błąd w tym ćwiczeniu" aria-label="Zgłoś błąd">🚩</button>
     <div class="grammar-choice-grid" id="grammarChoiceGrid"></div>
 
     <!-- TRYB WPISYWANIA. Te same zdania, inne zadanie poznawcze: rozpoznanie
@@ -6357,6 +6406,7 @@
       <div class="prog-next" id="progNext"></div>
       <button class="tool-btn" id="rankingOpenBtn" style="width:100%; margin-top:20px;" data-i18n="rankingOpen">🏅 Ranking</button>
       <div id="progPieczecie"></div>
+      <div id="progSzkola"></div>
       <div id="progStats"></div>
     </div>
 
@@ -8105,6 +8155,25 @@ async function connectGeminiRelay(isRetry){
       // turnComplete to WŁASNA, niezależna wiadomość (bez audio w tej samej ramce) -
       // sprawdzamy ją osobno, nie jako "else" od sprawdzenia parts, zgodnie z potwierdzoną
       // kolejnością: N wiadomości z audio -> generationComplete -> turnComplete.
+      /* PRZERWANIE. Gemini Live wysyła serverContent.interrupted, gdy wykryje mowę
+         użytkownika w trakcie własnej wypowiedzi. Do 2026-09-05 tego nie
+         obsługiwaliśmy - kolejka grała dalej, więc nawet gdy model się zatrzymał,
+         user słyszał resztę starej odpowiedzi. Teraz czyścimy kolejkę. */
+      if(msg.serverContent.interrupted === true){
+        /* Odtwarzanie jest harmonogramowane przez AudioContext (geminiPlaybackQueueTime),
+           nie trzymane w tablicy - żeby je uciąć, zamykamy kontekst i tworzymy nowy
+           przy następnym fragmencie. Samo wyzerowanie znacznika nie zatrzyma
+           już zaplanowanych źródeł. */
+        try{
+          if(geminiPlaybackContext){ geminiPlaybackContext.close(); geminiPlaybackContext = null; }
+          geminiPlaybackQueueTime = 0;
+        }catch(e){}
+        clearTimeout(geminiUnmuteTimer);
+        setGeminiMicMuted(false);
+        setGeminiVoiceStatus(uiLang === 'en' ? '🎤 Listening — just talk' : '🎤 Słucham — po prostu mów');
+        return;
+      }
+
       if(msg.serverContent.turnComplete === true){
         setGeminiVoiceStatus(uiLang === 'en' ? 'Your turn — tap to speak' : 'Twoja kolej — dotknij, żeby mówić');
         document.getElementById('geminiMicBtn').disabled = false;
@@ -8295,6 +8364,7 @@ function stopGeminiConversation(){
    nie trzeba prosić o dostęp ponownie i nie ma przerwy przy wznowieniu.
    Odblokowanie następuje, gdy kolejka odtwarzania się opróżni. */
 let geminiMicMutedForPlayback = false;
+let geminiPozwolPrzerywac = false;   // barge-in: domyślnie WYŁĄCZONY (echo na głośniku)
 let geminiUnmuteTimer = null;
 
 function setGeminiMicMuted(muted){
@@ -8305,6 +8375,14 @@ function setGeminiMicMuted(muted){
       ? (uiLang === 'en' ? '🔊 Haksa is speaking…' : '🔊 Haksa mówi…')
       : (uiLang === 'en' ? '🎤 Listening — just talk' : '🎤 Słucham — po prostu mów'));
   }
+  /* Wyciszanie MOŻNA wyłączyć. Powstało, bo usuwanie echa zawodzi na głośniku
+     telefonu - model transkrybował wtedy własną odpowiedź jako wypowiedź ucznia.
+     Ale kosztuje naturalność: bez mikrofonu nie da się wejść w słowo ani
+     wtrącić „aha", więc rozmowa staje się naprzemiennym monologiem.
+
+     Na słuchawkach echo nie występuje i wyciszanie jest zbędne. Stąd wybór,
+     domyślnie zachowawczy. Zgłoszone 2026-09-05. */
+  if(geminiPozwolPrzerywac && muted) return;   // nie wyciszamy - barge-in włączony
   if(!geminiMicStream) return;
   geminiMicStream.getAudioTracks().forEach(t => { t.enabled = !muted; });
   geminiMicMutedForPlayback = muted;
@@ -9515,6 +9593,7 @@ function splitSentencesKo(text){
 }
 
 function deconstructSinoWord(ko){
+  try{ szkolaHunminRozklad(); }catch(e){}   // modyfikator Szkoły Lingwistyki
   if(!ko || typeof ko !== 'string') return null;
   const word = ko.trim();
   const hanja = SINO_HANJA[word];
@@ -11561,7 +11640,7 @@ const GRAMMAR_LEVELS = {
      "full": "책상 옆에 의자가 있어요.",
      "pl": "Obok biurka jest krzesło.",
      "en": "There is a chair next to the desk.",
-     "explain": "Słowa określające położenie względem obiektu — obok/przed/za.",
+     "explain": "Słowa określające położenie względem obiektu — obok/przed/za. Po nich stawiamy 에 przy ISTNIENIU (책상 옆에 의자가 있어요 — krzesło JEST obok) albo 에서 przy CZYNNOŚCI (문 앞에서 기다려요 — czeka się przed drzwiami). To ta sama zasada co 집에 있다 kontra 집에서 먹다.",
      "explainEn": "Words describing position relative to an object - next to/in front of/behind.",
      "conjHtml": "<div class=\"conj-rule\">Trzy słowa określające położenie, zawsze z partykułą 에:</div><div class=\"conj-step\"><span class=\"conj-stem\">책상</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">책상 옆에 (obok)</span></div><div class=\"conj-step\"><span class=\"conj-stem\">책상</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">책상 앞에 (przed)</span></div><div class=\"conj-step\"><span class=\"conj-stem\">책상</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">책상 뒤에 (za)</span></div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Three position words, always followed by the particle 에:</div><div class=\"conj-step\"><span class=\"conj-stem\">책상</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">책상 옆에 (next to)</span></div><div class=\"conj-step\"><span class=\"conj-stem\">책상</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">책상 앞에 (in front of)</span></div><div class=\"conj-step\"><span class=\"conj-stem\">책상</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">책상 뒤에 (behind)</span></div>",
@@ -11645,7 +11724,7 @@ const GRAMMAR_LEVELS = {
        "en": "The child hid behind their mom."
       },
       {
-       "sentence": "먼저 오셨으니까 제 ___에 서세요.",
+       "sentence": "제 ___에 서세요.",
        "answer": "앞",
        "choices": [
         "앞",
@@ -11653,9 +11732,9 @@ const GRAMMAR_LEVELS = {
         "앞으로",
         "앞이"
        ],
-       "full": "먼저 오셨으니까 제 앞에 서세요.",
-       "pl": "Był pan pierwszy, proszę stanąć przede mną.",
-       "en": "You came first, so please stand in front of me."
+       "full": "제 앞에 서세요.",
+       "pl": "Proszę stanąć przede mną.",
+       "en": "Please stand in front of me."
       },
       {
        "sentence": "학교 ___에 큰 나무가 있어요.",
@@ -11724,7 +11803,7 @@ const GRAMMAR_LEVELS = {
      "full": "고양이가 테이블 아래에 있어요.",
      "pl": "Kot jest pod stołem.",
      "en": "The cat is under the table.",
-     "explain": "Słowa określające położenie w pionie — nad/pod.",
+     "explain": "Słowa określające położenie w pionie — nad/pod. Po nich 에 przy istnieniu (책상 위에 있어요), 에서 przy czynności (산 위에서 봐요) — tak jak przy 옆/앞/뒤.",
      "explainEn": "Words describing vertical position - above/below.",
      "conjHtml": "<div class=\"conj-rule\">Dwa słowa określające położenie w pionie, zawsze z partykułą 에:</div><div class=\"conj-step\"><span class=\"conj-stem\">테이블</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">테이블 위에 (nad/na)</span></div><div class=\"conj-step\"><span class=\"conj-stem\">테이블</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">테이블 아래에 (pod)</span></div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Two vertical position words, always followed by the particle 에:</div><div class=\"conj-step\"><span class=\"conj-stem\">테이블</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">테이블 위에 (above/on)</span></div><div class=\"conj-step\"><span class=\"conj-stem\">테이블</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">테이블 아래에 (below)</span></div>",
@@ -31242,7 +31321,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.225';
+const APP_VERSION = '2026-09-05.232';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -32090,6 +32169,7 @@ const I18N = {
   rankingOpen: { pl: '🏅 Ranking', en: '🏅 Ranking' },
   rankSeason: { pl: 'Sezon', en: 'Season' },
   rankEternal: { pl: 'Wszech czasów', en: 'All time' },
+  bargeLabel: { pl: 'Pozwól przerywać (słuchawki)', en: 'Allow interrupting (headphones)' },
   haksaDrillTitle: { pl: 'Haksa odpytuje', en: 'Haksa quizzes you' },
   haksaDrillDesc: { pl: 'Rozmowa z lektorem AI zamiast robota — reaguje na to, co powiesz. Liczy się w limit minut.', en: 'A real AI tutor instead of a robot — responds to what you say. Counts toward your minutes.' },
   particleHint: { pl: 'Dotknij partykuły, żeby ją opuścić — tak jak w mowie. Nie wszystkie da się usunąć.', en: 'Tap a particle to drop it, the way speakers do. Not all of them can go.' },
@@ -35177,6 +35257,9 @@ function openGrammarRef(prefill){
    zdanie w dwóch rejestrach. */
 let particleIndex = 0;
 
+/* Licznik bezbłędnego przejścia - Szkoła Etykiety daje tarczę za komplet. */
+let particleBezbledu = 0;
+
 function renderParticleBoard(){
   const board = document.getElementById('particleBoard');
   if(!board) return;
@@ -35203,6 +35286,14 @@ function renderParticleBoard(){
   if(!part) return;
   part.addEventListener('click', () => {
     if(it.droppable){
+      /* Szkoła Etykiety: komplet opuszczalnych bez pomyłki daje tarczę.
+         Kliknięcie w nieopuszczalną zeruje licznik - to właśnie ta pomyłka,
+         której ćwiczenie uczy unikać. */
+      try{
+        particleBezbledu++;
+        const cel = PARTICLE_DROP.filter(x => x.droppable).length;
+        if(particleBezbledu >= cel) szkolaYuhakTarcza();
+      }catch(e){}
       part.classList.add('dropped');
       // Po zniknięciu partykuły pokazujemy wersję potoczną w całości -
       // user widzi, że to nadal to samo zdanie, tylko zsunięte.
@@ -35212,6 +35303,7 @@ function renderParticleBoard(){
       }, 240);
       note.innerHTML = `<b>${escapeHtml(it.dropped)}</b> — ${escapeHtml(it.note)}`;
     } else {
+      try{ particleBezbledu = 0; }catch(e){}   // pomyłka zeruje licznik Yuhak
       part.classList.remove('locked');
       void part.offsetWidth;          // wymuszenie ponownego uruchomienia animacji
       part.classList.add('locked');
@@ -35835,6 +35927,126 @@ async function rankingOpusc(){
   try{ await sb.rpc('leaderboard_leave'); await rankingWczytaj(); }catch(e){}
 }
 
+/* ═══ SZKOŁY UCZONYCH (학파) ══════════════════════════════════════════════════
+   Wybór dostępny po osiągnięciu rangi 선비 (30 dni). Nie zmienia treści ani nie
+   dodaje zadań - modyfikuje to, co użytkownik i tak robi.
+
+   ŚWIADOMA ZMIANA wobec propozycji: miały być wyzwania tygodniowe, ale to nowa
+   treść co siedem dni w nieskończoność, czyli dokładnie to, czego cała rozmowa
+   o osiągnięciach miała uniknąć. Zamiast tego pasywne modyfikatory na istniejących
+   modułach - kilka warunków logicznych, zero kosztu operacyjnego.
+
+   Wybór jest JEDNORAZOWY i trwały. Gdyby dało się przeskakiwać, przestałby być
+   tożsamością, a stał się optymalizacją. Ustalone z Damianem 2026-09-05. */
+const SZKOLY = [
+  { id:'hunmin', znak:'訓', nazwa:{pl:'Szkoła Lingwistyki', en:'School of Linguistics'},
+    ko:'훈민',
+    opis:{pl:'Skupienie na budowie słów. Rozkład sinokoreański przyspiesza Drogę Mędrca.',
+          en:'Focus on word structure. Sino-Korean breakdowns speed up the Sage Path.'} },
+  { id:'yuhak',  znak:'儒', nazwa:{pl:'Szkoła Etykiety', en:'School of Etiquette'},
+    ko:'유학',
+    opis:{pl:'Skupienie na rejestrach mowy. Bezbłędne ćwiczenie partykuł daje tarczę raz w miesiącu.',
+          en:'Focus on speech registers. A flawless particle drill grants a shield once a month.'} },
+  { id:'munjang',znak:'文', nazwa:{pl:'Szkoła Retoryki', en:'School of Rhetoric'},
+    ko:'문장',
+    opis:{pl:'Skupienie na szyku zdania. Układanie zdań liczy się podwójnie do serii.',
+          en:'Focus on sentence order. Sentence building counts double toward your streak.'} },
+];
+
+function mojaSzkola(){
+  return (earnedBadges && earnedBadges.szkola) || null;
+}
+
+function szkolaDostepna(){
+  return dayStreak >= 30 || !!mojaSzkola();
+}
+
+async function wybierzSzkole(id){
+  if(mojaSzkola()) return;                      // wybór jednorazowy
+  if(!SZKOLY.some(x => x.id === id)) return;
+  earnedBadges.szkola = id;
+  await saveBadges();
+  const sz = SZKOLY.find(x => x.id === id);
+  showCelebration({
+    icon: sz.znak,
+    title: uiLang === 'en' ? sz.nazwa.en : sz.nazwa.pl,
+    subtitle: uiLang === 'en' ? sz.opis.en : sz.opis.pl,
+  });
+  renderSzkola();
+}
+
+/* ── MODYFIKATORY ───────────────────────────────────────────────────────────
+   Każdy wpina się w istniejące zdarzenie, nie tworzy nowego przepływu. */
+
+/* Hunmin: rozłożenie słowa na znaki liczy się jako odpowiedź do progu dnia.
+   Wołane z deconstructSinoWord. */
+function szkolaHunminRozklad(){
+  if(mojaSzkola() !== 'hunmin') return;
+  if(policzOdpowiedz()) registerDailyActivity();
+}
+
+/* Yuhak: bezbłędne przejście ćwiczenia partykuł daje tarczę - raz w miesiącu,
+   żeby nie dało się dorobić zapasu w jeden wieczór. */
+async function szkolaYuhakTarcza(){
+  if(mojaSzkola() !== 'yuhak') return;
+  const miesiac = new Date().toISOString().slice(0, 7);
+  if(earnedBadges.yuhakTarcza === miesiac) return;
+  earnedBadges.yuhakTarcza = miesiac;
+  try{
+    await sb.rpc('start_sage_vacation');        // ta sama ścieżka co zwykła tarcza
+    await saveBadges();
+    showCelebration({
+      icon: '盾',
+      title: uiLang === 'en' ? 'Shield of the Yuhak' : 'Tarcza Yuhak',
+      subtitle: uiLang === 'en' ? 'One skipped day protected this month.' : 'Jeden pominięty dzień chroniony w tym miesiącu.',
+    });
+  }catch(e){ earnedBadges.yuhakTarcza = null; }
+}
+
+/* Munjang: ukończone układanie zdania liczy się podwójnie do progu dnia. */
+function szkolaMunjangSzyk(){
+  if(mojaSzkola() !== 'munjang') return;
+  if(policzOdpowiedz()) registerDailyActivity();
+}
+
+function renderSzkola(){
+  const el = document.getElementById('progSzkola');
+  if(!el) return;
+  const en = uiLang === 'en';
+  if(!szkolaDostepna()){ el.innerHTML = ''; return; }
+  const moja = mojaSzkola();
+  if(moja){
+    const sz = SZKOLY.find(x => x.id === moja);
+    el.innerHTML = `
+      <div class="szk-naglowek">${en ? 'Your school' : 'Twoja szkoła'}</div>
+      <div class="szk-moja">
+        <span class="szk-znak">${sz.znak}</span>
+        <span class="szk-tresc">
+          <b>${escapeHtml(en ? sz.nazwa.en : sz.nazwa.pl)}</b>
+          <span class="szk-ko">${sz.ko}</span>
+          <span class="szk-opis">${escapeHtml(en ? sz.opis.en : sz.opis.pl)}</span>
+        </span>
+      </div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="szk-naglowek">${en ? 'Choose your school' : 'Wybierz szkołę'}</div>
+    <p class="hint-note">${en
+      ? 'A one-time, permanent choice. It shapes how you learn, not what.'
+      : 'Wybór jednorazowy i trwały. Zmienia sposób nauki, nie treść.'}</p>
+    ${SZKOLY.map(sz => `
+      <button type="button" class="szk-opcja" data-szkola="${sz.id}">
+        <span class="szk-znak">${sz.znak}</span>
+        <span class="szk-tresc">
+          <b>${escapeHtml(en ? sz.nazwa.en : sz.nazwa.pl)}</b>
+          <span class="szk-ko">${sz.ko}</span>
+          <span class="szk-opis">${escapeHtml(en ? sz.opis.en : sz.opis.pl)}</span>
+        </span>
+      </button>`).join('')}`;
+  el.querySelectorAll('[data-szkola]').forEach(b =>
+    b.addEventListener('click', () => wybierzSzkole(b.dataset.szkola)));
+}
+
 function renderPieczecie(){
   const el = document.getElementById('progPieczecie');
   if(!el) return;
@@ -35893,7 +36105,7 @@ function renderProgNext(){
 
 function renderAchievementsScreen(){
   document.getElementById('achvStreakNum').textContent = dayStreak;
-  try{ renderProgWeek(); renderProgProg(); renderProgNext(); renderProgStats(); renderPieczecie(); }catch(e){ /* widok nie może psuć ekranu */ }
+  try{ renderProgWeek(); renderProgProg(); renderProgNext(); renderProgStats(); renderPieczecie(); renderSzkola(); }catch(e){ /* widok nie może psuć ekranu */ }
   // Droga Mędrca: ranga i płomień z aktualnej serii. Warstwa wizualna - nie zmienia
   // niczego w tym, co user dostaje, ale pokazuje, że seria do czegoś prowadzi.
   try{
@@ -38291,6 +38503,7 @@ function handlePtAnswer(btn){
     feedback.innerHTML = '<span>정답이에요! Dobrze!</span>';
     feedback.className = 'feedback good';
     playCorrectSound();
+    try{ szkolaMunjangSzyk(); }catch(e){}      // modyfikator Szkoły Retoryki
   } else {
     feedback.innerHTML = `<span>${uiLang === 'en' ? 'Correct answer' : 'Poprawna odpowiedź'}: ${escapeHtml(q.answer)}</span>`;
     feedback.className = 'feedback bad';
@@ -40081,6 +40294,24 @@ function dzwonBosingak(){
     if(navigator.vibrate) navigator.vibrate([12, 60, 8]);
     setTimeout(()=>{ try{ ctx.close(); }catch(e){} }, 3600);
   }catch(e){ /* brak WebAudio nie może psuć nagrody */ }
+}
+
+/* Zgłoszenie błędu w ćwiczeniu gramatycznym. Używa tej samej tabeli word_reports
+   co zgłoszenia słów - kolumna `context` odróżnia jedno od drugiego, a `word_ko`
+   trzyma pełne zdanie, żeby dało się je odnaleźć bez zgadywania.
+
+   Zapisujemy WZORZEC I ZDANIE, nie tylko wzorzec: przy dwunastu zdaniach na
+   wzorzec sama nazwa nie wystarczy, żeby znaleźć to konkretne. */
+function zglosBladGramatyki(){
+  if(!grammarCurrent){ return; }
+  const zdanie = grammarCurrent.full || grammarCurrent.sentence || '';
+  const opis = grammarCurrent.pattern + ' | ' + zdanie
+             + (grammarCurrent.answer ? ' | odp: ' + grammarCurrent.answer : '')
+             + (grammarCurrent.choices ? ' | opcje: ' + grammarCurrent.choices.join(' / ') : '');
+  openReportPanel(
+    { ko: zdanie, pl: grammarCurrent.pl || '', category: grammarCurrent.pattern },
+    'grammar:' + opis.slice(0, 400)
+  );
 }
 
 function grammarPokazTryb(){
@@ -42601,6 +42832,13 @@ document.getElementById('odpOcenaToggle').addEventListener('change', (e)=>{
    mówi dalej w tle i nie da się jej wyłączyć bez wracania do zakładki. */
 document.addEventListener('visibilitychange', ()=>{
   if(document.hidden && odpytywanieAktywne) odpytywanieStop(false);
+});
+
+document.getElementById('grammarReportBtn').addEventListener('click', zglosBladGramatyki);
+
+document.getElementById('geminiBargeToggle').addEventListener('change', (e)=>{
+  geminiPozwolPrzerywac = e.target.checked;
+  if(geminiPozwolPrzerywac) setGeminiMicMuted(false);   // odblokuj od razu
 });
 
 document.getElementById('rankingOpenBtn').addEventListener('click', async ()=>{
