@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.167
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.170
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -7171,6 +7171,26 @@ async function fetchDictionaryWords(level, category, limit){
    ilike z % po obu stronach: szuka fragmentu w koreańskim, polskim i angielskim.
    or() łączy warunki alternatywą. Limit 200 na wynik - dość, żeby znaleźć,
    za mało, żeby zapchać widok. Zgłoszone przez Damiana 2026-09-05. */
+/* Pola, po których szuka słownik. Wyliczane z LANG_OPTIONS, nie wpisane na
+   sztywno - gdy dojdzie wietnamski albo japoński, wyszukiwarka obejmie go sama,
+   bez zmiany w tym pliku.
+
+   Warunek: kolumna w dictionary_words musi nazywać się tak jak `code` w
+   LANG_OPTIONS (pl, en, vi, ja...). Bierzemy tylko języki oznaczone ready,
+   bo zapytanie o nieistniejącą kolumnę kończy się błędem całego zapytania,
+   nie pominięciem jednego warunku.
+
+   `ko` jest zawsze - to język uczony, nie interfejsu. */
+let dictSearchFieldsCache = null;
+function dictSearchFields(){
+  if(dictSearchFieldsCache) return dictSearchFieldsCache;
+  const jezyki = (typeof LANG_OPTIONS !== 'undefined' ? LANG_OPTIONS : [])
+    .filter(l => l.ready && l.code && /^[a-z_]{2,6}$/.test(l.code))
+    .map(l => l.code);
+  dictSearchFieldsCache = ['ko', ...new Set(jezyki)];
+  return dictSearchFieldsCache;
+}
+
 /* UWAGA: obok istnieje searchDictionaryWords(fragment, limit) - starsza,
    szuka WYŁĄCZNIE po polu ko, bez filtrów, limit 30. Używają jej trzy inne
    miejsca. Ta funkcja jest szersza (ko+pl+en, filtr działu i poziomu), więc
@@ -7185,8 +7205,10 @@ async function searchDictScoped(fraza, level, category, limit){
   else if(category) query = query.eq('category', category);
   // Znak procenta i podkreślenie są w ilike wieloznacznikami - trzeba je uciec,
   // inaczej wpisanie "%" wyciągnie całą bazę.
+  // Znak procenta i podkreślenie są w ilike wieloznacznikami - trzeba je uciec,
+  // inaczej wpisanie "%" wyciągnie całą bazę.
   const bezp = q.replace(/[%_]/g, m => '\\' + m);
-  query = query.or(`ko.ilike.%${bezp}%,pl.ilike.%${bezp}%,en.ilike.%${bezp}%`);
+  query = query.or(dictSearchFields().map(f => `${f}.ilike.%${bezp}%`).join(','));
   const { data, error } = await query.limit(limit || 200);
   if(error){ console.error('searchDictScoped:', error); return null; }
   return data || [];
@@ -15857,7 +15879,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.167';
+const APP_VERSION = '2026-09-05.170';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -18375,7 +18397,10 @@ async function runPickerSearch(term){
   const local = searchLocalWords(term, 25);
   renderPickerResults(local, true);
   try{
-    const remote = await searchDictionaryWords(term, 40);
+    // Szukanie po ko, pl i en - user dodający słówka wpisuje zwykle po polsku.
+    // (openWordSheet zostaje przy wyszukiwaniu po samym ko, bo tam fraza jest
+    // koreańska z definicji - to słowo klikniete w czytance.)
+    const remote = (await searchDictScoped(term, null, null, 40)) || [];
     if(pickerLastQuery !== term) return; // user zmienił zapytanie - porzuć stary wynik
     const seen = new Set(local.map(w => w.ko));
     const merged = [...local];
@@ -21074,7 +21099,10 @@ async function loadDictBrowse(){
   }
   let list = await fetchDictionaryWords(dictBrowseLevel, dictBrowseDept, limit);
   if(q){
-    const hits = await searchDictionaryWords(q, 200);
+    // searchDictScoped szuka po ko, pl I en - stara searchDictionaryWords tylko
+    // po koreańskim, przez co wpisanie „samochód" dawało zero wyników mimo
+    // 39 446 słów w bazie. Zgłoszone przez Damiana 2026-09-05.
+    const hits = (await searchDictScoped(q, dictBrowseLevel, dictBrowseDept || null, 200)) || [];
     const seen = new Set(list.map(w => w.id));
     hits.forEach(w => { if(!seen.has(w.id)){ seen.add(w.id); list.push(w); } });
     const needle = q.toLowerCase();
