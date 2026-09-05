@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.200
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.203
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -16321,7 +16321,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.200';
+const APP_VERSION = '2026-09-05.203';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -18270,7 +18270,9 @@ let odpytywanieAktywne = false;
 let odpytywanieKolejka = [];
 let odpytywanieIdx = 0;
 let odpytywanieKierunek = 'ko-pl';   // 'ko-pl' | 'pl-ko' | 'mix'
-let odpytywaniePauza = 4000;          // ms na odpowiedź
+/* 6 sekund: tyle trwa przypomnienie sobie słowa i wypowiedzenie go na głos.
+   Cztery okazały się za krótkie w teście. */
+let odpytywaniePauza = 6000;
 let odpytywanieTimer = null;
 let odpytywanieWakeLock = null;
 
@@ -18362,12 +18364,78 @@ function odpSluchaj(jezyk, ms){
     rec.lang = jezyk;
     rec.interimResults = false;
     rec.maxAlternatives = 3;
-    rec.onresult = (e) => koniec({ alt: [...e.results[0]].map(r => r.transcript) });
-    rec.onerror = (e) => koniec({ blad: e.error === 'not-allowed' ? 'odmowa' : 'blad' });
-    rec.onend = () => koniec({ blad:'cisza' });
+    /* KLUCZOWE: onend NIE kończy czekania. Silnik zamyka nasłuch po ułamku sekundy
+       ciszy - gdyby to rozstrzygało, pauza na odpowiedź zapadałaby się natychmiast
+       i apka podawała tłumaczenie, zanim user zdąży otworzyć usta. To był powód,
+       dla którego tryb „działał za szybko" i „ocena nic nie robiła" naraz.
+
+       Zamiast tego: przy przedwczesnym końcu URUCHAMIAMY NASŁUCH PONOWNIE, aż
+       do upływu pełnej pauzy. Rozstrzyga wynik albo timeout. 2026-09-05. */
+    let wynikCzastkowy = null;
+    const koniecCzasu = Date.now() + ms;      // deklaracja PRZED handlerami, nie po
+    rec.onresult = (e) => { wynikCzastkowy = { alt: [...e.results[0]].map(r => r.transcript) }; koniec(wynikCzastkowy); };
+    rec.onerror = (e) => {
+      if(e.error === 'not-allowed'){ koniec({ blad:'odmowa' }); return; }
+      if(e.error === 'no-speech' || e.error === 'aborted') return;   // wznowimy w onend
+      koniec({ blad:'blad' });
+    };
+    rec.onend = () => {
+      if(gotowe) return;
+      if(Date.now() < koniecCzasu){ try{ rec.start(); }catch(e){ koniec({blad:'blad'}); } }
+      else koniec({ blad:'cisza' });
+    };
     try{ rec.start(); }catch(e){ return res({blad:'blad'}); }
-    setTimeout(() => koniec({blad:'cisza'}), ms);
+    setTimeout(() => koniec(wynikCzastkowy || {blad:'cisza'}), ms);
   });
+}
+
+/* ═══ TON WERSJI DARMOWEJ ══════════════════════════════════════════════════
+   Robot czyta hasło i tłumaczenie - to działa, ale brzmi jak lista zakupów.
+   Nie zrobimy z tego rozmowy bez AI, ale możemy sprawić, żeby brzmiało jak
+   ktoś, kto odpytuje, a nie jak automat.
+
+   Trzy zabiegi, wszystkie darmowe:
+     1. Wstęp przed słowem („a jak powiesz…") zamiast suchego hasła
+     2. Reakcja po trafieniu, mocniejsza przy serii
+     3. Zachęta po pudle, nigdy wyrzut
+
+   Warianty losowane, żeby po piętnastu słowach nie brzmiało jak pętla.
+   Wersja premium (Gemini) dostanie prawdziwą rozmowę - to jest jej namiastka
+   dla darmowych. Decyzja Damiana 2026-09-05. */
+const ODP_WSTEPY_KO = [
+  'A jak powiesz', 'Spróbuj', 'To jak będzie', 'A to', 'Powiedz mi',
+];
+const ODP_WSTEPY_PL = [
+  'Co znaczy', 'A to co znaczy', 'Wiesz, co to', 'Powiedz mi, co znaczy',
+];
+const ODP_BRAWO = [
+  'Dobrze.', 'Jest.', 'Świetnie.', 'O to chodzi.', 'Zgadza się.',
+];
+const ODP_BRAWO_SERIA = [
+  'Nieźle ci idzie.', 'Trzy z rzędu.', 'Idziesz jak burza.', 'Dobra passa.',
+];
+const ODP_PUDLO = [
+  'Prawie.', 'Nie tym razem.', 'Jeszcze raz to usłyszysz.', 'Spokojnie, wróci.',
+];
+let odpSeria = 0;
+
+const losuj = (t) => t[Math.floor(Math.random() * t.length)];
+
+/* Wstęp mówiony PRZED słowem. Tylko czasem - gdyby przy każdym, po dziesięciu
+   słowach zaczęłoby irytować bardziej niż sucha lista. */
+function odpWstep(kierunek){
+  if(Math.random() > 0.55) return '';
+  return losuj(kierunek === 'pl-ko' ? ODP_WSTEPY_KO : ODP_WSTEPY_PL);
+}
+
+function odpReakcja(werdykt){
+  if(werdykt === null) return '';
+  if(werdykt){
+    odpSeria++;
+    return (odpSeria >= 3 && Math.random() < 0.5) ? losuj(ODP_BRAWO_SERIA) : losuj(ODP_BRAWO);
+  }
+  odpSeria = 0;
+  return losuj(ODP_PUDLO);
 }
 
 async function odpytywanieRunda(){
@@ -18385,6 +18453,9 @@ async function odpytywanieRunda(){
 
   odpytywaniePokazKarte(pytanie, '', odpytywanieIdx + 1);
   odpytywanieStatus('');
+  /* Wstęp zawsze po polsku - to głos prowadzącego, nie materiał do nauki. */
+  const wstep = odpWstep(kier);
+  if(wstep) await mow(wstep, uiLang === 'en' ? 'en-US' : 'pl-PL');
   await mow(pytanie, jezykP);
   if(!odpytywanieAktywne) return;
 
@@ -18423,6 +18494,11 @@ async function odpytywanieRunda(){
     await czekaj(odpytywaniePauza);
   }
   if(!odpytywanieAktywne) return;
+
+  /* Reakcja PRZED podaniem wzorca - jak znajomy, który najpierw powie „prawie",
+     a dopiero potem poda właściwą odpowiedź. */
+  const reakcja = odpReakcja(werdykt);
+  if(reakcja) await mow(reakcja, uiLang === 'en' ? 'en-US' : 'pl-PL');
 
   odpytywaniePokazKarte(pytanie, odpowiedz, odpytywanieIdx + 1, werdykt);
   /* Pokazujemy, CO apka usłyszała. To jedyny sposób, żeby user ocenił, czy próg
@@ -18475,6 +18551,7 @@ async function odpytywanieStart(){
     return;
   }
   odpytywanieIdx = 0;
+  odpSeria = 0;
   odpytywanieAktywne = true;
   /* Ekran nie może gasnąć w trakcie - inaczej przeglądarka wstrzymuje syntezę.
      Wake Lock bywa niedostępny (Safari, brak HTTPS); wtedy tryb nadal działa,
@@ -27107,6 +27184,12 @@ document.getElementById('odpytywanieStopBtn').addEventListener('click', ()=> odp
 document.getElementById('odpOcenaToggle').addEventListener('change', (e)=>{
   odpytywanieOcenia = e.target.checked;
   odpytywanieTrafien = 0; odpytywanieProb = 0;
+  /* Potwierdzenie na ekranie - inaczej nie da się odróżnić „ocena nie działa"
+     od „nie włączyłem oceny". Zmiana wchodzi od NASTĘPNEGO słowa, bo bieżąca
+     pauza już trwa. */
+  odpytywanieStatus(odpytywanieOcenia
+    ? (uiLang === 'en' ? 'Checking on — from the next word' : 'Ocena włączona — od następnego słowa')
+    : (uiLang === 'en' ? 'Checking off' : 'Ocena wyłączona'));
 });
 
 /* Zatrzymanie, gdy user wyjdzie z apki albo zablokuje telefon - inaczej synteza
