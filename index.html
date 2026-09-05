@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.193
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.199
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2680,6 +2680,26 @@
      Bez wykresów: słupki na 360px to dziesięć nieczytelnych kresek. Siedem
      kwadratów pokazuje ciągłość, a prognoza SRS jest jedynym elementem tego
      ekranu, który prowadzi do akcji. */
+  /* Odpytywanie głosem - wszystko duże, nic do klikania poza zakończeniem. */
+  .odp-card{
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    min-height:70vh; text-align:center; gap:8px;
+  }
+  .odp-licznik{ font-size:13px; color:var(--ink-dim); font-family:var(--font-ui); }
+  .odp-pytanie{
+    font-family:var(--font-ko); font-size:38px; font-weight:600; line-height:1.25;
+    color:var(--ink); margin:14px 0; word-break:keep-all;
+  }
+  .odp-odpowiedz{
+    font-size:24px; color:var(--hwang); min-height:34px; line-height:1.3;
+    font-family:var(--font-ko); font-weight:600;
+  }
+  .odp-odpowiedz:empty::after{ content:'···'; color:var(--ink-dim); font-size:20px; }
+  .odp-ok{ color:var(--good); font-weight:800; }
+  .odp-zle{ color:var(--bad); font-weight:800; }
+  .odp-toggle{ margin-top:18px; font-size:13.5px; }
+  .odp-stop{ margin-top:26px; min-width:180px; min-height:52px; font-size:16px; }
+
   .prog-week{ display:flex; gap:7px; margin-top:16px; }
   .prog-day{ flex:1; height:32px; border-radius:8px; background:var(--surface-2); }
   .prog-day[data-done="true"]{ background:var(--hwang); }
@@ -5538,6 +5558,15 @@
           <div class="desc" data-i18n="dictBrowseDesc">27 działów, ponad 51 000 słów z oficjalnego słownika.</div>
         </span>
       </button>
+      <!-- Odpytywanie głosem - wejście stąd, bo to wariant nauki słówek.
+           Kafel jest po przeglądaniu, żeby nie konkurował z podstawową ścieżką. -->
+      <button class="home-card" id="odpytywanieCard">
+        <span class="icon">듣</span>
+        <span class="hc-main">
+          <div class="title" data-i18n="odpTitle">Odpytywanie głosem</div>
+          <div class="desc" data-i18n="odpDesc">Bez patrzenia na ekran — w samochodzie, na spacerze, przy gotowaniu.</div>
+        </span>
+      </button>
     </div>
   </div>
 
@@ -6798,7 +6827,21 @@
          widoczny; przy przełączeniu znika razem z nim, mimo że classList
          ma "open". Kosztowało to dziś godzinę diagnozy przy kompendium.
          Osiem paneli przeniesionych stąd 2026-09-04. -->
-                                          <div class="panel" id="premiumPanel">
+                                          <!-- ODPYTYWANIE GŁOSEM. Panel celowo minimalny: duża czcionka, brak elementów
+         do dotykania poza zakończeniem. Przy prowadzeniu telefon ma leżeć
+         w uchwycie, a nie zapraszać do interakcji. -->
+    <div class="panel" id="odpytywaniePanel">
+      <div class="modal-card odp-card">
+        <div id="odpytywanieKarta"></div>
+        <label class="vk-toggle-row odp-toggle">
+          <span class="switch"><input type="checkbox" id="odpOcenaToggle"><span class="track"><span class="knob"></span></span></span>
+          <span data-i18n="odpOcena">Oceniaj moje odpowiedzi</span>
+        </label>
+        <button class="primary odp-stop" id="odpytywanieStopBtn">■ <span data-i18n="odpStop">Zakończ</span></button>
+      </div>
+    </div>
+
+    <div class="panel" id="premiumPanel">
     <div class="modal-card">
       <button class="modal-close" data-close="premiumPanel" aria-label="Zamknij">✕</button>
       <div class="premium-eyebrow" data-i18n="premiumEyebrow">Premium</div>
@@ -6948,30 +6991,14 @@ const LAUNCH_READINESS = {
     {
       id: 'content', label: 'Objętość treści', weight: 40,
       items: [
-        { label: 'Godziny materiału prowadzonego (Story+Akademia)', value: 41, note: '~37h (SZACUNEK, nie pomiar). Cel skorygowany 2026-08-30 ze 100h na ~90h pełnego pokrycia A1-B2 - patrz model dwuwarstwowy w pozycji niżej. Skok z ~22h po przebudowie: Tryb Opowieści urósł z 54 do 136 lekcji.',
-          criteria: [
-            'Ścieżka prowadzona pokrywa pełne A1-B2 (~90h)',
-            'Czas per lekcja zmierzony realnie na testerach, nie szacowany',
-            'Godziny rozłożone sensownie między moduły, nie skupione w jednym miejscu',
-          ] },
-        { label: 'Pokrycie treścią horyzontu systemu nagród', value: 55, note: 'AKTUALIZACJA 2026-09-03: Droga Medrca kompletna - 10 rang na 365 dni, drabina w Postepie, Tarcze Hwarang i Urlop Medrca (zweryfikowane end-to-end na bazie). Zostaje: skrzynie (zablokowane brakiem nagrod bezkosztowych) i tresc na dalsze miesiace.',
-          criteria: [
-            'Ścieżka prowadzona pokrywa pełne A1-B2 (~90h) - obecnie ~37h',
-            'Przejście z prowadzonej ścieżki na Sandbox/Czytankę/SRS zaprojektowane tak, by nie wyglądało na "koniec treści"',
-            'Wyższe rangi (dzień 200+) odblokowują coś jakościowo nowego, nie tylko odznaki - inaczej drugi rok jest pusty mimo nagród',
-          ] },
+        {"label":"Godziny materiału prowadzonego","value":58,"note":"AKTUALIZACJA 2026-09-05: 216 wzorcow / 1516 cwiczen (bylo 190/1334), hanja 122 znaki (bylo 22), Akademia 12/12 domen po 25 slow, sytuacje praktyczne na 3 poziomach. Nadal SZACUNEK, nie pomiar."},
+        {"label":"Pokrycie treścią horyzontu","value":70,"note":"AKTUALIZACJA 2026-09-05: powtorki gramatyki losuja 1 z 7 zdan zamiast zawsze bazowego - 1330 zdan w SRS zamiast 190."},
       ],
     },
     {
       id: 'parity', label: 'Parytet funkcjonalny', weight: 20,
       items: [
-        { label: 'Strukturalna nauka hangul', value: 80, note: 'Oba potwierdzone braki naprawione 2026-08-30/31: kolejność kresek (opis + animacja SVG dla 35 znaków) oraz przykłady pozycyjne (13 spółgłosek z parą początek/koniec). Animacja przeszła 5+ rund; zadziałało dopiero ZMIERZENIE geometrii z rastra realnych glifów Noto Serif KR - zweryfikowane wizualnie przez Damiana.',
-          criteria: [
-            'Kolejność liter/dwugłosek pedagogicznie uzasadniona',
-            'Kolejność rysowania kresek pokazana dla każdej litery (SPEŁNIONE - 35/35, opis + animacja)',
-            'Przykład w KAŻDEJ pozycji, gdzie wymowa się różni (SPEŁNIONE - 13 spółgłosek; ㅎ celowo bez, bo jako batchim jest rzadkie i złożone)',
-            'Przetestowane na realnym, zupełnie nowym użytkowniku "od zera"',
-          ] },
+        {"label":"Strukturalna nauka hangul","value":90,"note":"AKTUALIZACJA 2026-09-05: dodane pole do cwiczenia pisania z ocena kolejnosci i kierunku kresek (24 znaki maja sciezki wzorcowe)."},
         { label: 'Gramatyka krok-po-kroku przed ćwiczeniem', value: 85, note: 'AKTUALIZACJA 2026-09-03: 190 wzorcow (bylo 175), kazdy z wyjasnieniem i wizualna tabela odmiany. Doszlo: kompendium z wyszukiwarka dostepne z wnetrza cwiczenia, 2100 wyjasnien KONKRETNEGO bledu (dlaczego twoja odpowiedz jest zla, nie tylko jaka jest poprawna), 6 porownan form bliskoznacznych, cel zdania po polsku pokazywany PRZED odpowiedzia. Zostaje: weryfikacja przez native speakera.',
           criteria: [
             'Klasyfikacja trudności 175 wzorców gotowa (SPEŁNIONE - Fable, 2026-08-30, 196 pkt)',
@@ -6985,12 +7012,7 @@ const LAUNCH_READINESS = {
             'Słownictwo powtarza się w kontekście, nie tylko raz',
             'Zrozumiałość potwierdzona na realnych testerach',
           ] },
-        { label: 'SRS dla słownictwa', value: 65, note: 'algorytm działa technicznie, długoterminowa skuteczność niezweryfikowana',
-          criteria: [
-            'Interwały rosną/maleją poprawnie zgodnie z odpowiedziami (zweryfikowane w kodzie)',
-            'Przetestowane na realnym użyciu przez tygodnie, nie dni',
-            'Brak zgłoszeń typu "słówko wraca za szybko/za wolno"',
-          ] },
+        {"label":"SRS dla słownictwa","value":75,"note":"AKTUALIZACJA 2026-09-05: cwiczenia dociagaja do 400 slow z dictionary_words - pula sesji urosla z ~6100 do potencjalnie 45626. Prog dnia nauki podniesiony z 1 do 10 odpowiedzi."},
         { label: 'Rozmowa z Haksa (AI głosowe)', value: 45, note: 'Gemini Live zintegrowane i działa technicznie, jakość korekt niezweryfikowana',
           criteria: [
             'Trafność korekt AI zweryfikowana przez native speakera na próbce prawdziwych rozmów',
@@ -7014,24 +7036,14 @@ const LAUNCH_READINESS = {
     {
       id: 'edge', label: 'Przewagi różnicujące', weight: 15,
       items: [
-        { label: 'Akademia (12 domen)', value: 58, note: '7/12 zbudowane; nawet zbudowane domeny bez weryfikacji merytorycznej',
-          criteria: [
-            '12/12 domen zbudowane',
-            'Treść zweryfikowana merytorycznie (native speaker/ekspert dziedzinowy)',
-            'Słowa używane w kontekście zdań, nie tylko jako izolowana lista',
-          ] },
+        {"label":"Akademia","value":100,"note":"SPELNIONE 2026-09-05: 12/12 domen odblokowanych, po 25 slow z przykladowym zdaniem w rejestrze popularnonaukowym."},
         { label: 'Wizualna gramatyka wszystkich wzorców', value: 100, note: 'SPELNIONE 2026-09-03: wszystkie 190 wzorcow ma conjHtml i conjHtmlEn, plus kompendium z wyszukiwaniem po czterech polach.',
           criteria: [
             '175/175 wzorców z conjHtml i conjHtmlEn (SPEŁNIONE)',
             'Poprawność lingwistyczna zweryfikowana przez native speakera',
             'Zero błędów zgłoszonych przez testerów/userów',
           ] },
-        { label: 'Poziom zaawansowany — zakres ponad B2 (Duolingo kończy na B2)', value: 30, note: 'KOREKTA 2026-09-02 po audycie pokrycia TOPIK (Fable, na podstawie standardu NIKL 2017): nasz poziom \'advanced\' NIE jest C1-C2. Z 26 wzorców większość to materiał TOPIK 3-4 (아무리 -아도, 만약 -다면, N(이)나, ㄹ 리가 없다, 게다가, 에 따르면) - realnie zaawansowanych jest ~8. Etykieta obiecywała coś, czego nie ma; zmieniona na B1-B2+. Duolingo faktycznie kończy na B2, więc przewaga zostaje, ale mniejsza niż deklarowaliśmy. Dobra strona: te 26 wzorców to nie nadmiar, tylko materiał pod złą etykietą - pełne pokrycie A1-B2 jest bliżej, niż sądziliśmy. To realny wyróżnik, trudny do szybkiego skopiowania - ale obsługuje wąską grupę, więc nie warto w niego inwestować dziesiątek godzin ręcznego pisania. Uwaga: źródła sprzeczne co do tego, czy koreański Duolingo faktycznie osiągnął już B2 (ich blog: tak, kwiecień 2026; blog konkurenta: nadal A2, czerwiec 2026 - ale to źródło stronnicze).',
-          criteria: [
-            'Treść ponad B2 istnieje w apce (CZĘŚCIOWO - ~8 wzorców faktycznie 5-6급, reszta to 3-4급)',
-            'Wyeksponowane w komunikacji/marketingu jako przewaga, nie tylko obecne w kodzie',
-            'Poprawność zweryfikowana przez native speakera (na tym poziomie błędy są najbardziej kosztowne wizerunkowo)',
-          ] },
+        {"label":"Poziom zaawansowany","value":75,"note":"AKTUALIZACJA 2026-09-05: +26 wzorcow 5-6급 z audytu TOPIK, 12 wzorcow 3급 przeniesionych nizej. Poziom nazwany uczciwie \"Wyzszy sredni / TOPIK 4 / B2\"; glif 고 zostawiony na przyszly poziom C1. Brak modulu tekstowego - format zdania z luka nie udzwignie pelnego C1-C2."},
         { label: 'Czytanka dnia (żaden porównywany konkurent tego nie ma)', value: 55, note: 'pipeline zbudowany i zweryfikowany end-to-end na poziomie backendu (baza, logi); NIEZWERYFIKOWANE jeszcze jako realna funkcja w apce - nikt tego jeszcze nie przetestował jako user',
           criteria: [
             'Pipeline generowania (fabricated + real) zweryfikowany end-to-end na poziomie backendu (SPEŁNIONE)',
@@ -16304,7 +16316,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.193';
+const APP_VERSION = '2026-09-05.199';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -17129,6 +17141,10 @@ const I18N = {
   navLearn: { pl: 'Nauka', en: 'Learn' },
   grammarRefTitle: { pl: 'Kompendium gramatyki', en: 'Grammar reference' },
   particleTitle: { pl: 'Partykuły w mowie potocznej', en: 'Particles in casual speech' },
+  odpTitle: { pl: 'Odpytywanie głosem', en: 'Voice drill' },
+  odpDesc: { pl: 'Bez patrzenia na ekran — w samochodzie, na spacerze, przy gotowaniu.', en: 'Hands-free — in the car, on a walk, while cooking.' },
+  odpStop: { pl: 'Zakończ', en: 'Stop' },
+  odpOcena: { pl: 'Oceniaj moje odpowiedzi', en: 'Check my answers' },
   particleHint: { pl: 'Dotknij partykuły, żeby ją opuścić — tak jak w mowie. Nie wszystkie da się usunąć.', en: 'Tap a particle to drop it, the way speakers do. Not all of them can go.' },
   addModeType: { pl: 'Wpisz ręcznie', en: 'Type manually' },
   addModePick: { pl: 'Wybierz z bazy', en: 'Pick from dictionary' },
@@ -18229,6 +18245,246 @@ function playTone(freq, duration, startOffset, gainPeak, type){
 // Odtwarzanie koreańskiej wymowy przez wbudowaną syntezę mowy przeglądarki.
 // Wywoływana w kilkunastu miejscach w całej apce (Sandbox, Trybie Opowieści, Czytaniu,
 // Haksie, alfabecie hangul) - jedna, wspólna funkcja, żeby zachowanie było spójne wszędzie.
+/* ═══ TRYB ODPYTYWANIA GŁOSEM (samochód, spacer, kuchnia) ══════════════════
+   AI odpytuje z fiszek: mówi słowo w jednym języku, czeka, podaje odpowiedź
+   w drugim. Użytkownik odpowiada na głos i sam się ocenia.
+
+   ŚWIADOMA DECYZJA: NIE sprawdzamy odpowiedzi rozpoznawaniem mowy. Dwukrotnie
+   potwierdziliśmy, że silnik myli się przy koreańskim z akcentem nierodzimym
+   („이름이 뭐예요" zapisane jako „25예요"), a w samochodzie dojdzie hałas drogi.
+   Fałszywe „źle" przy poprawnej odpowiedzi jest gorsze niż brak oceny - zniechęca
+   i uczy nieufności do własnej wymowy.
+
+   Zamiast tego pętla działa jak kurs audio: pytanie, pauza na odpowiedź, wzorzec
+   do porównania, dalej. Ta metoda jest sprawdzona (Pimsleur) i nie wymaga
+   dotykania telefonu, co przy prowadzeniu ma znaczenie większe niż punktacja.
+
+   Rozmowa z Haksą (Gemini Live) zostaje osobno - tam ocena AI ma sens, bo user
+   siedzi i patrzy. Zaproponowane przez Damiana 2026-08-27, zbudowane 2026-09-05. */
+let odpytywanieAktywne = false;
+let odpytywanieKolejka = [];
+let odpytywanieIdx = 0;
+let odpytywanieKierunek = 'ko-pl';   // 'ko-pl' | 'pl-ko' | 'mix'
+let odpytywaniePauza = 4000;          // ms na odpowiedź
+let odpytywanieTimer = null;
+let odpytywanieWakeLock = null;
+
+function mow(tekst, jezyk){
+  return new Promise((res) => {
+    if(!tekst || !('speechSynthesis' in window)) return res();
+    try{
+      const u = new SpeechSynthesisUtterance(tekst);
+      u.lang = jezyk;
+      u.rate = jezyk === 'ko-KR' ? 0.9 : 1.0;
+      u.onend = () => res();
+      u.onerror = () => res();          // błąd nie może zatrzymać pętli
+      window.speechSynthesis.speak(u);
+    }catch(e){ res(); }
+  });
+}
+
+const czekaj = (ms) => new Promise(res => { odpytywanieTimer = setTimeout(res, ms); });
+
+/* Kolejka z tej samej puli co ćwiczenia - respektuje wybrany dział i poziom.
+   Priorytet mają słowa zaległe w SRS: jazda to dobry moment na powtórkę,
+   a nie na poznawanie nowych słów, których nie widziało się na oczy. */
+function zbudujKolejkeOdpytywania(){
+  let pula = [];
+  try{ pula = pickPool() || []; }catch(e){ pula = allWords; }
+  if(!pula.length) pula = allWords;
+  const teraz = Date.now();
+  const zalegle = pula.filter(w => { const d = srsData[w.ko]; return d && d.due <= teraz; });
+  const reszta  = pula.filter(w => !zalegle.includes(w));
+  return [...shuffle(zalegle), ...shuffle(reszta)].slice(0, 200);
+}
+
+/* Jedna runda: pytanie, pauza, odpowiedź. Kierunek „mix" losuje przy każdej
+   karcie - to trudniejsze, bo user nie wie, w którym języku usłyszy. */
+/* ═══ OCENA ODPOWIEDZI (opcjonalna) ═══════════════════════════════════════════
+   Rozpoznawanie mowy w trybie odpytywania to INNE zadanie niż w rozmowie:
+   silnik dostaje pojedyncze słowo, a my znamy odpowiedź, której się spodziewamy.
+   To dużo łatwiejsze niż transkrypcja swobodnej wypowiedzi - dlatego mimo
+   wcześniejszych problemów warto dać temu szansę, ale JAKO OPCJĘ.
+
+   Dopasowanie jest CELOWO POBŁAŻLIWE. Fałszywe „źle" przy dobrej odpowiedzi
+   zniechęca bardziej, niż pomaga fałszywe „dobrze" - przy nauce własnym tempem
+   user i tak słyszy wzorzec zaraz potem i sam się skoryguje. */
+let odpytywanieOcenia = false;        // domyślnie WYŁĄCZONE - user włącza świadomie
+let odpytywanieTrafien = 0, odpytywanieProb = 0;
+
+/* Normalizacja: usuwamy spacje, znaki i wielkość liter. Przy koreańskim
+   dodatkowo końcówkę słownikową -다, bo user powie „먹다" albo „먹어요"
+   zależnie od tego, jak zapamiętał. */
+function odpNorm(t, koreanski){
+  let x = String(t || '').toLowerCase()
+    .replace(/[.,!?;:()"'\u2019\u201d\-\s]/g, '');
+  /* Znaki diakrytyczne LECĄ - rozpoznawanie mowy często zwraca polski bez nich
+     („jesc" zamiast „jeść"), a bez tej normalizacji dostawalibyśmy fałszywe
+     „źle" przy całkowicie poprawnej odpowiedzi. Testowane: bez tego „jesc"
+     vs „jeść" dawało 0.50, czyli poniżej progu. */
+  if(!koreanski){
+    x = x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ł/g, 'l');
+  } else {
+    x = x.replace(/(다|요|습니다|어요|아요)$/,'');
+  }
+  return x;
+}
+
+/* Podobieństwo znakowe - ile znaków wzorca pojawia się w rozpoznaniu, po kolei.
+   Prosta miara, ale wystarczy: przy „먹다" vs „먹어" da 50%, przy „먹다" vs
+   „그렇다" da mało. Próg 0.6 dobrany tak, żeby przepuszczać drobne przekręcenia. */
+function odpPodobne(a, b){
+  if(!a || !b) return 0;
+  if(a === b) return 1;
+  let i = 0, traf = 0;
+  for(const z of a){ const j = b.indexOf(z, i); if(j >= 0){ traf++; i = j + 1; } }
+  return traf / Math.max(a.length, b.length);
+}
+
+/* Nasłuch jednej odpowiedzi. Zwraca rozpoznany tekst albo null (brak wsparcia,
+   cisza, błąd). Nigdy nie rzuca - pętla odpytywania nie może się przez to zatrzymać. */
+function odpSluchaj(jezyk, ms){
+  return new Promise((res) => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SR) return res(null);
+    let rec;
+    try{ rec = new SR(); }catch(e){ return res(null); }
+    let gotowe = false;
+    const koniec = (v) => { if(gotowe) return; gotowe = true; try{ rec.stop(); }catch(e){} res(v); };
+    rec.lang = jezyk;
+    rec.interimResults = false;
+    rec.maxAlternatives = 3;
+    rec.onresult = (e) => {
+      const alt = [...e.results[0]].map(r => r.transcript);
+      koniec(alt);                       // wszystkie alternatywy - sprawdzimy każdą
+    };
+    rec.onerror = () => koniec(null);
+    rec.onend = () => koniec(null);
+    try{ rec.start(); }catch(e){ return res(null); }
+    setTimeout(() => koniec(null), ms);
+  });
+}
+
+async function odpytywanieRunda(){
+  if(!odpytywanieAktywne) return;
+  const w = odpytywanieKolejka[odpytywanieIdx];
+  if(!w){ odpytywanieStop(true); return; }
+
+  const kier = odpytywanieKierunek === 'mix'
+    ? (Math.random() < 0.5 ? 'ko-pl' : 'pl-ko')
+    : odpytywanieKierunek;
+  const pytanie  = kier === 'ko-pl' ? w.ko : (uiLang === 'en' ? w.en : w.pl);
+  const odpowiedz= kier === 'ko-pl' ? (uiLang === 'en' ? w.en : w.pl) : w.ko;
+  const jezykP = kier === 'ko-pl' ? 'ko-KR' : (uiLang === 'en' ? 'en-US' : 'pl-PL');
+  const jezykO = kier === 'ko-pl' ? (uiLang === 'en' ? 'en-US' : 'pl-PL') : 'ko-KR';
+
+  odpytywaniePokazKarte(pytanie, '', odpytywanieIdx + 1);
+  await mow(pytanie, jezykP);
+  if(!odpytywanieAktywne) return;
+
+  /* Pauza na odpowiedź. Z oceną - nasłuchujemy; bez - po prostu czekamy. */
+  let werdykt = null;
+  if(odpytywanieOcenia){
+    const alt = await odpSluchaj(jezykO, odpytywaniePauza);
+    if(alt){
+      const kor = jezykO === 'ko-KR';
+      const wzor = odpNorm(odpowiedz, kor);
+      // Bierzemy NAJLEPSZĄ z alternatyw - silnik często ma dobrą na drugim miejscu.
+      const naj = Math.max(...alt.map(a => odpPodobne(odpNorm(a, kor), wzor)));
+      werdykt = naj >= 0.6;
+      odpytywanieProb++;
+      if(werdykt) odpytywanieTrafien++;
+    }
+  } else {
+    await czekaj(odpytywaniePauza);
+  }
+  if(!odpytywanieAktywne) return;
+
+  odpytywaniePokazKarte(pytanie, odpowiedz, odpytywanieIdx + 1, werdykt);
+  await mow(odpowiedz, jezykO);
+  if(!odpytywanieAktywne) return;
+
+  // Koreański powtarzamy - to język uczony, warto usłyszeć dwa razy.
+  if(jezykO === 'ko-KR'){ await czekaj(500); await mow(odpowiedz, 'ko-KR'); }
+
+  /* WYNIK MA KONSEKWENCJE - inaczej zła odpowiedź znika bez śladu, a to przeczy
+     temu, jak działa reszta apki. Dwie rzeczy naraz:
+
+       1. Zapis do SRS - to samo, co robi quiz na ekranie. Słowo, którego nie
+          znasz, wróci wcześniej w powtórkach.
+       2. Powrót w tej samej sesji - słowo ląduje kilka pozycji dalej w kolejce,
+          więc usłyszysz je jeszcze raz, zanim skończysz jazdę.
+
+     Bez oceny (przełącznik wyłączony) nie zapisujemy NIC. Zgadywanie, czy user
+     odpowiedział dobrze, byłoby gorsze niż brak danych - zafałszowałoby
+     harmonogram powtórek, na którym opiera się cała nauka.
+     Zgłoszone przez Damiana 2026-09-05. */
+  if(odpytywanieOcenia && werdykt !== null){
+    /* Zerujemy znacznik czasu PRZED zapisem. latencyFactor mierzy namysł, a tutaj
+       pauza jest STAŁA - czas nie niesie informacji o sile pamięci. Bez tego
+       pierwsza odpowiedź po wyjściu z quizu użyłaby znacznika sprzed sesji
+       i wydłużyła interwał na podstawie liczby bez znaczenia. */
+    questionShownAt = 0;
+    try{ srsRate(w.ko, werdykt ? 2 : 0, kier); }catch(e){}
+    if(!werdykt){
+      // Wraca za 4-7 pozycji: dość daleko, żeby nie było echem, dość blisko,
+      // żeby zdążyć w jednej sesji.
+      const wroc = odpytywanieIdx + 4 + Math.floor(Math.random() * 4);
+      if(wroc < odpytywanieKolejka.length + 10) odpytywanieKolejka.splice(wroc, 0, w);
+    }
+  }
+
+  odpytywanieIdx += 1;
+  if(policzOdpowiedz()) registerDailyActivity();
+  await czekaj(900);
+  odpytywanieRunda();
+}
+
+async function odpytywanieStart(){
+  odpytywanieKolejka = zbudujKolejkeOdpytywania();
+  if(odpytywanieKolejka.length < 3){
+    alert(uiLang === 'en' ? 'Too few words in this selection.' : 'Za mało słów w tym wyborze.');
+    return;
+  }
+  odpytywanieIdx = 0;
+  odpytywanieAktywne = true;
+  /* Ekran nie może gasnąć w trakcie - inaczej przeglądarka wstrzymuje syntezę.
+     Wake Lock bywa niedostępny (Safari, brak HTTPS); wtedy tryb nadal działa,
+     tylko user musi nie blokować telefonu. */
+  try{
+    if('wakeLock' in navigator) odpytywanieWakeLock = await navigator.wakeLock.request('screen');
+  }catch(e){}
+  document.getElementById('odpytywaniePanel').classList.add('open');
+  odpytywanieRunda();
+}
+
+function odpytywanieStop(koniec){
+  odpytywanieAktywne = false;
+  clearTimeout(odpytywanieTimer);
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  try{ if(odpytywanieWakeLock){ odpytywanieWakeLock.release(); odpytywanieWakeLock = null; } }catch(e){}
+  if(!koniec) document.getElementById('odpytywaniePanel').classList.remove('open');
+  else odpytywaniePokazKarte(uiLang === 'en' ? 'Done' : 'Koniec', '', odpytywanieIdx);
+}
+
+/* Karta jest DUŻA i bez interakcji - przy prowadzeniu ma być czytelna rzutem oka
+   albo w ogóle niepotrzebna. Jedyny element dotykowy to przycisk zakończenia. */
+function odpytywaniePokazKarte(pytanie, odpowiedz, nr, werdykt){
+  const el = document.getElementById('odpytywanieKarta');
+  if(!el) return;
+  /* Werdykt jest WSKAZÓWKĄ, nie wyrokiem: user i tak słyszy wzorzec zaraz potem.
+     Przy braku rozpoznania (cisza, brak wsparcia) nie pokazujemy nic - lepiej
+     milczeć niż sugerować błąd, którego nie było. */
+  const znak = werdykt === true ? '<span class="odp-ok">✓</span>'
+             : werdykt === false ? '<span class="odp-zle">≠</span>' : '';
+  const licz = odpytywanieOcenia && odpytywanieProb
+    ? ` · ${odpytywanieTrafien}/${odpytywanieProb}` : '';
+  el.innerHTML = `
+    <div class="odp-licznik">${nr} / ${odpytywanieKolejka.length}${licz}</div>
+    <div class="odp-pytanie">${escapeHtml(pytanie)}</div>
+    <div class="odp-odpowiedz">${odpowiedz ? escapeHtml(odpowiedz) : ''} ${znak}</div>`;
+}
+
 function speakKorean(text){
   if(!text) return;
   if(!('speechSynthesis' in window)) return; // cicho - przeglądarka nie wspiera, nie ma czym ostrzec w locie
@@ -26800,6 +27056,27 @@ document.getElementById('openParticleBtn').addEventListener('click', (e)=>{
   e.stopPropagation();
   // Kompendium zostaje otwarte pod spodem - user wraca do niego po zamknięciu.
   openParticlePanel();
+});
+
+document.getElementById('odpytywanieCard').addEventListener('click', ()=>{
+  /* Kierunek i pauzę bierzemy z tego, co user ustawił w ćwiczeniach - nie
+     dokładamy kolejnego ekranu konfiguracji przed rozpoczęciem. */
+  odpytywanieKierunek = (typeof direction !== 'undefined' && direction === 'pl-ko') ? 'pl-ko' : 'ko-pl';
+  odpytywanieStart();
+});
+document.getElementById('odpytywanieStopBtn').addEventListener('click', ()=> odpytywanieStop(false));
+
+/* Ocena domyślnie wyłączona: wymaga mikrofonu, a przy prowadzeniu i hałasie
+   drogi bywa zawodna. User włącza ją świadomie i sam ocenia, czy pomaga. */
+document.getElementById('odpOcenaToggle').addEventListener('change', (e)=>{
+  odpytywanieOcenia = e.target.checked;
+  odpytywanieTrafien = 0; odpytywanieProb = 0;
+});
+
+/* Zatrzymanie, gdy user wyjdzie z apki albo zablokuje telefon - inaczej synteza
+   mówi dalej w tle i nie da się jej wyłączyć bez wracania do zakładki. */
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden && odpytywanieAktywne) odpytywanieStop(false);
 });
 
 document.getElementById('particlePrevBtn').addEventListener('click', ()=>{
