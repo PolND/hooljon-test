@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.210
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.213
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2586,12 +2586,26 @@
     flex-wrap:wrap;
     gap:8px;
   }
+  /* 36px, nie 34: dwa piksele poniżej progu trafialności kciukiem. Chipy są
+     używane w 19 miejscach - wyboru czasu, poziomu, działu - więc ta poprawka
+     dotyczy całej apki, nie jednego ekranu. Audyt wizualny 2026-09-05. */
+
+  /* Obszar dotyku powiększony przezroczystym ::after - ikony zostają małe,
+     bo są pomocnicze i duże rozpychałyby układ, ale trafić w nie trzeba.
+     Ta sama technika co przy .theme-toggle-btn. Audyt wizualny 2026-09-05. */
+  .center-speak-btn, .report-flag-btn, .tense-info-btn, .vacation-row .vac-btn{
+    position:relative;
+  }
+  .center-speak-btn::after, .report-flag-btn::after,
+  .tense-info-btn::after, .vacation-row .vac-btn::after{
+    content:''; position:absolute; inset:-6px; border-radius:inherit;
+  }
   .category-chip{
     background:0;
     border:1px solid var(--border);
     color:var(--ink-dim);
     font-size:12.5px;
-    min-height:34px;
+    min-height:36px;
     padding:7px 14px;
     border-radius:var(--radius-pill);
     cursor:pointer;
@@ -2991,18 +3005,21 @@
     15%{ opacity:1; }
     100%{ opacity:1; }
   }
+  /* 36px: przy wypełnieniu 6px wychodziło ~30px, poniżej progu trafialności.
+     To przycisk klikany wielokrotnie przy nauce znaku - wart wygodnego celu.
+     Audyt po motywach 2026-09-05: znalezisko identyczne we wszystkich czterech,
+     czyli problem bazowy, nie motywu. */
   .hg-replay-btn{
     display:block;
     margin:8px auto 0;
-    padding:6px 16px;
+    padding:9px 18px;
     border-radius:var(--radius-pill);
     border:1px solid var(--border);
     background:var(--card);
     color:var(--ink-dim);
     font-size:13px;
     font-family:var(--font-ui);
-    cursor:pointer;
-  }
+    cursor:pointer; min-height:36px;}
   .hg-example-pair{
     display:flex;
     gap:14px;
@@ -5016,7 +5033,7 @@
   .dict-filters{ display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; }
   .dict-filters::-webkit-scrollbar{ display:none; }
   .dict-filters .chip{
-    flex:none; min-height:34px; padding:7px 14px; border-radius:var(--radius-pill);
+    flex:none; min-height:36px; padding:7px 14px; border-radius:var(--radius-pill);
     border:1px solid var(--border); background:0; color:var(--ink-dim);
     font:400 12.5px var(--font-ui); cursor:pointer; white-space:nowrap;
   }
@@ -5055,7 +5072,7 @@
   }
   .cho-bar::-webkit-scrollbar{ display:none; }
   .cho-btn{
-    flex:none; min-width:30px; min-height:30px; padding:4px 6px;
+    flex:none; min-width:30px; min-height:36px; padding:4px 6px;
     border-radius:var(--radius-pill); border:1px solid var(--border);
     background:var(--card); color:var(--ink);
     font-family:var(--font-ko); font-size:14px; cursor:pointer;
@@ -16353,7 +16370,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.210';
+const APP_VERSION = '2026-09-05.213';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
