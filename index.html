@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.199
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.200
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2698,6 +2698,10 @@
   .odp-ok{ color:var(--good); font-weight:800; }
   .odp-zle{ color:var(--bad); font-weight:800; }
   .odp-toggle{ margin-top:18px; font-size:13.5px; }
+  .odp-status{
+    font-size:13px; color:var(--ink-dim); font-family:var(--font-ui);
+    min-height:20px; margin-top:10px; text-align:center;
+  }
   .odp-stop{ margin-top:26px; min-width:180px; min-height:52px; font-size:16px; }
 
   .prog-week{ display:flex; gap:7px; margin-top:16px; }
@@ -6833,6 +6837,7 @@
     <div class="panel" id="odpytywaniePanel">
       <div class="modal-card odp-card">
         <div id="odpytywanieKarta"></div>
+        <div class="odp-status" id="odpytywanieStatus"></div>
         <label class="vk-toggle-row odp-toggle">
           <span class="switch"><input type="checkbox" id="odpOcenaToggle"><span class="track"><span class="knob"></span></span></span>
           <span data-i18n="odpOcena">Oceniaj moje odpowiedzi</span>
@@ -16316,7 +16321,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.199';
+const APP_VERSION = '2026-09-05.200';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -18346,22 +18351,22 @@ function odpPodobne(a, b){
 function odpSluchaj(jezyk, ms){
   return new Promise((res) => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(!SR) return res(null);
+    /* Zwracamy POWÓD niepowodzenia, nie ciche null. Wcześniej brak wsparcia,
+       odmowa mikrofonu i cisza wyglądały identycznie - user widział, że „nie
+       reaguje", bez informacji dlaczego. */
+    if(!SR) return res({blad:'brak'});
     let rec;
-    try{ rec = new SR(); }catch(e){ return res(null); }
+    try{ rec = new SR(); }catch(e){ return res({blad:'brak'}); }
     let gotowe = false;
     const koniec = (v) => { if(gotowe) return; gotowe = true; try{ rec.stop(); }catch(e){} res(v); };
     rec.lang = jezyk;
     rec.interimResults = false;
     rec.maxAlternatives = 3;
-    rec.onresult = (e) => {
-      const alt = [...e.results[0]].map(r => r.transcript);
-      koniec(alt);                       // wszystkie alternatywy - sprawdzimy każdą
-    };
-    rec.onerror = () => koniec(null);
-    rec.onend = () => koniec(null);
-    try{ rec.start(); }catch(e){ return res(null); }
-    setTimeout(() => koniec(null), ms);
+    rec.onresult = (e) => koniec({ alt: [...e.results[0]].map(r => r.transcript) });
+    rec.onerror = (e) => koniec({ blad: e.error === 'not-allowed' ? 'odmowa' : 'blad' });
+    rec.onend = () => koniec({ blad:'cisza' });
+    try{ rec.start(); }catch(e){ return res({blad:'blad'}); }
+    setTimeout(() => koniec({blad:'cisza'}), ms);
   });
 }
 
@@ -18379,21 +18384,40 @@ async function odpytywanieRunda(){
   const jezykO = kier === 'ko-pl' ? (uiLang === 'en' ? 'en-US' : 'pl-PL') : 'ko-KR';
 
   odpytywaniePokazKarte(pytanie, '', odpytywanieIdx + 1);
+  odpytywanieStatus('');
   await mow(pytanie, jezykP);
   if(!odpytywanieAktywne) return;
 
   /* Pauza na odpowiedź. Z oceną - nasłuchujemy; bez - po prostu czekamy. */
-  let werdykt = null;
+  let werdykt = null, uslyszane = '';
   if(odpytywanieOcenia){
-    const alt = await odpSluchaj(jezykO, odpytywaniePauza);
-    if(alt){
+    odpytywanieStatus(uiLang === 'en' ? '🎤 Listening…' : '🎤 Słucham…');
+    const wynik = await odpSluchaj(jezykO, odpytywaniePauza);
+    if(wynik && wynik.alt){
       const kor = jezykO === 'ko-KR';
       const wzor = odpNorm(odpowiedz, kor);
       // Bierzemy NAJLEPSZĄ z alternatyw - silnik często ma dobrą na drugim miejscu.
-      const naj = Math.max(...alt.map(a => odpPodobne(odpNorm(a, kor), wzor)));
+      const naj = Math.max(...wynik.alt.map(a => odpPodobne(odpNorm(a, kor), wzor)));
       werdykt = naj >= 0.6;
+      uslyszane = wynik.alt[0] || '';
       odpytywanieProb++;
       if(werdykt) odpytywanieTrafien++;
+    } else if(wynik && wynik.blad){
+      const en = uiLang === 'en';
+      const kom = {
+        brak:   en ? 'Speech recognition unavailable in this browser.' : 'Ta przeglądarka nie rozpoznaje mowy.',
+        odmowa: en ? 'Microphone access denied — check permissions.'   : 'Brak dostępu do mikrofonu — sprawdź uprawnienia.',
+        cisza:  en ? 'Heard nothing.'                                   : 'Nic nie usłyszałem.',
+        blad:   en ? 'Recognition error.'                               : 'Błąd rozpoznawania.',
+      }[wynik.blad];
+      odpytywanieStatus(kom);
+      // Brak wsparcia albo odmowa - wyłączamy ocenę, żeby nie powtarzać komunikatu
+      // przy każdym słowie. User może włączyć ponownie po naprawieniu uprawnień.
+      if(wynik.blad === 'brak' || wynik.blad === 'odmowa'){
+        odpytywanieOcenia = false;
+        const t = document.getElementById('odpOcenaToggle');
+        if(t) t.checked = false;
+      }
     }
   } else {
     await czekaj(odpytywaniePauza);
@@ -18401,6 +18425,10 @@ async function odpytywanieRunda(){
   if(!odpytywanieAktywne) return;
 
   odpytywaniePokazKarte(pytanie, odpowiedz, odpytywanieIdx + 1, werdykt);
+  /* Pokazujemy, CO apka usłyszała. To jedyny sposób, żeby user ocenił, czy próg
+     dopasowania jest dobry - bez tego „≠" przy poprawnej odpowiedzi wygląda
+     jak awaria, a nie jak zbyt surowe porównanie. */
+  if(uslyszane) odpytywanieStatus((uiLang === 'en' ? 'Heard: ' : 'Usłyszałem: ') + uslyszane);
   await mow(odpowiedz, jezykO);
   if(!odpytywanieAktywne) return;
 
@@ -18469,6 +18497,14 @@ function odpytywanieStop(koniec){
 
 /* Karta jest DUŻA i bez interakcji - przy prowadzeniu ma być czytelna rzutem oka
    albo w ogóle niepotrzebna. Jedyny element dotykowy to przycisk zakończenia. */
+/* Pasek stanu pod kartą: „Słucham", co usłyszano, albo powód niepowodzenia.
+   Bez tego tryb wyglądał, jakby nie reagował - a w rzeczywistości mógł nie mieć
+   uprawnień do mikrofonu. Zgłoszone przez Damiana 2026-09-05. */
+function odpytywanieStatus(tekst){
+  const el = document.getElementById('odpytywanieStatus');
+  if(el) el.textContent = tekst || '';
+}
+
 function odpytywaniePokazKarte(pytanie, odpowiedz, nr, werdykt){
   const el = document.getElementById('odpytywanieKarta');
   if(!el) return;
