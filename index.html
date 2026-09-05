@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.221
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.224
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -31242,7 +31242,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.221';
+const APP_VERSION = '2026-09-05.224';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -35729,10 +35729,18 @@ async function rankingWczytaj(){
   try{
     const { data, error } = await sb.rpc('leaderboard_view', { p_board: rankingTablica });
     if(error) throw error;
-    rankingDane = data;
+    /* Odpowiedź może przyjść jako obiekt albo jako tablica z jednym obiektem -
+       zależnie od tego, czy funkcja zwraca json czy setof. Normalizujemy, zamiast
+       zakładać jeden kształt. */
+    rankingDane = Array.isArray(data) ? (data[0] || null) : data;
     rankingRysuj();
   }catch(e){
-    if(box) box.innerHTML = `<p class="hint-note">${uiLang === 'en' ? 'Could not load the ranking.' : 'Nie udało się wczytać rankingu.'}</p>`;
+    console.warn('[ranking] leaderboard_view:', e);
+    /* Błąd NIE może zabrać formularza dołączania - inaczej user, który jeszcze
+       nie dołączył, nie ma jak tego zrobić i widzi tylko komunikat o awarii.
+       Zgłoszone przez Damiana 2026-09-05. */
+    rankingDane = null;
+    rankingRysuj();
   }
 }
 
@@ -35753,8 +35761,8 @@ function rankingWiersz(r, jaSam){
 
 function rankingRysuj(){
   const box = document.getElementById('rankingTresc');
-  if(!box || !rankingDane) return;
-  const d = rankingDane, en = uiLang === 'en';
+  if(!box) return;
+  const d = rankingDane || {}, en = uiLang === 'en';
 
   if(!d.me){
     box.innerHTML = `
@@ -35765,7 +35773,10 @@ function rankingRysuj(){
         <input type="text" id="rankingNick" maxlength="18" placeholder="${en ? 'Nickname' : 'Pseudonim'}">
       </div>
       <button class="primary" id="rankingJoinBtn">${en ? 'Join' : 'Dołącz'}</button>`;
-    document.getElementById('rankingJoinBtn').addEventListener('click', rankingDolacz);
+    const inp = document.getElementById('rankingNick');
+  document.getElementById('rankingJoinBtn').addEventListener('click', rankingDolacz);
+  inp.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); rankingDolacz(); } });
+  setTimeout(()=>{ try{ inp.focus(); }catch(e){} }, 60);
     return;
   }
 
@@ -35789,18 +35800,29 @@ async function rankingDolacz(){
     alert(uiLang === 'en' ? 'Nickname: 2 to 18 characters.' : 'Pseudonim: od 2 do 18 znaków.');
     return;
   }
+  /* OSOBNE bloki dla dołączenia i dla tego, co po nim. Wcześniej wszystkie trzy
+     wywołania siedziały w jednym try, więc awaria synchronizacji albo odczytu
+     pokazywała „nie udało się dołączyć" - mimo że dołączenie przeszło.
+     Zgłoszone przez Damiana 2026-09-05. */
   try{
     const { data, error } = await sb.rpc('leaderboard_join', { p_nick: nick });
     if(error) throw error;
-    if(data && data.error){
+    // Funkcja zwraca { ok, nick } - odmowa to ok:false, nie błąd HTTP.
+    if(data && data.ok === false){
       alert(uiLang === 'en' ? 'That nickname is taken.' : 'Ten pseudonim jest zajęty.');
       return;
     }
-    await rankingSync();
-    await rankingWczytaj();
   }catch(e){
-    alert(uiLang === 'en' ? 'Could not join.' : 'Nie udało się dołączyć.');
+    console.error('[ranking] leaderboard_join:', e);
+    const tresc = (e && (e.message || e.hint || e.details)) || '';
+    alert((uiLang === 'en' ? 'Could not join.' : 'Nie udało się dołączyć.')
+          + (tresc ? '\n\n' + tresc : ''));
+    return;
   }
+  // Dołączenie się udało - reszta to odświeżenie widoku, jej awaria nie jest
+  // porażką dołączenia i nie może wyglądać jak jedna.
+  try{ await rankingSync(); }catch(e){ console.warn('[ranking] sync:', e); }
+  rankingWczytaj();
 }
 
 async function rankingOpusc(){
