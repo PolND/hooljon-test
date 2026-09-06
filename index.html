@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.308
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.310
   Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -9048,6 +9048,11 @@ async function connectGeminiRelay(isRetry){
          obsługiwaliśmy - kolejka grała dalej, więc nawet gdy model się zatrzymał,
          user słyszał resztę starej odpowiedzi. Teraz czyścimy kolejkę. */
       if(msg.serverContent.interrupted === true){
+        /* Log diagnostyczny: jeśli przerywanie nadal nie działa, ta linia
+           rozstrzyga GDZIE - brak wpisu znaczy, że Gemini nie wykrywa mowy
+           (sprawa VAD po stronie przekaźnika), wpis znaczy, że wykrywa,
+           ale odtwarzanie się nie ucina. 2026-09-06. */
+        console.log('[gemini] PRZERWANIE od modelu');
         /* Odtwarzanie jest harmonogramowane przez AudioContext (geminiPlaybackQueueTime),
            nie trzymane w tablicy - żeby je uciąć, zamykamy kontekst i tworzymy nowy
            przy następnym fragmencie. Samo wyzerowanie znacznika nie zatrzyma
@@ -9194,48 +9199,24 @@ async function startGeminiMic(){
   const source = geminiMicContext.createMediaStreamSource(geminiMicStream);
   geminiProcessorNode = geminiMicContext.createScriptProcessor(4096, 1, 1);
 
-  /* ═══ BRAMKA CISZY ══════════════════════════════════════════════════════════
-     Do 2026-09-05 wysyłaliśmy KAŻDĄ ramkę, także czystą ciszę. To miało dwa
-     skutki: przekaźnik naliczał czas połączenia zamiast czasu mowy (bo przerwy
-     między ramkami nigdy nie rosły), a łącze niosło dane bez treści.
+  /* BRAMKA CISZY USUNIĘTA 2026-09-06. Powód: dwie awarie z jednej przyczyny.
 
-     Przekaźnik liczy teraz aktywność po znacznikach ramek - ale to działa
-     TYLKO wtedy, gdy klient faktycznie przestaje nadawać w ciszy. Stąd ta
-     bramka; bez niej zmiana po tamtej stronie nic nie daje.
+     1. Ogon 600 ms urywał strumień, zanim Gemini zebrało 1500 ms ciszy
+        wymagane przez VAD - transkrypcja przychodziła po 20 sekundach.
+        Naprawione wydłużeniem ogona, ale to było leczenie objawu.
+     2. Przy przerywaniu głos użytkownika musiał przekroczyć próg 0,008 RMS,
+        a usuwanie echa TŁUMI mowę bliską w trakcie mowy dalekiej (double-talk).
+        Wtrącenie nie przechodziło przez bramkę i model go nie słyszał.
 
-     PRÓG 0.008 RMS jest niski celowo. Wyżej ucinałby początek cichej wypowiedzi,
-     a to gorsze niż naliczenie kilku sekund ciszy - uczący się mówi ciszej niż
-     rodzimy użytkownik, zwłaszcza gdy nie jest pewny.
+     Bramka miała oszczędzać minuty przez nienadawanie ciszy. Oszczędność była
+     realna, ale kosztem działania rozmowy - a to funkcja premium, za którą
+     ludzie płacą. Naliczanie po aktywności ramek w przekaźniku zostaje;
+     bez bramki po prostu liczy prawie cały czas połączenia, jak przedtem.
 
-     OGON 600 ms po ostatnim dźwięku: bez niego pauza w środku zdania ucinałaby
-     nadawanie i Gemini widziałoby dwie osobne wypowiedzi zamiast jednej. */
-  let ostatniDzwiek = 0;
-  const PROG_RMS = 0.008;
-  /* OGON MUSI BYĆ DŁUŻSZY NIŻ PRÓG CISZY W VAD. Przekaźnik ustawia
-     silenceDurationMs na 1500 / 1200 / 900 ms zależnie od poziomu - Gemini
-     musi USŁYSZEĆ tyle ciszy, żeby uznać turę za skończoną.
-
-     Przy ogonie 600 ms strumień urywał się, ZANIM próg został osiągnięty:
-     model nie dostawał ciszy, więc nie kończył tury i czekał na inny limit
-     czasu. Objaw: transkrypcja pojawiała się po 20 sekundach.
-     Zgłoszone przez Damiana 2026-09-06.
-
-     1800 ms z zapasem nad najwyższym progiem (1500 przy poziomie 1). Kosztuje
-     ~1,8 s naliczonego czasu na turę - to cena za działające wykrywanie końca
-     wypowiedzi i warto ją zapłacić. */
-  const OGON_MS = 1800;
-
+     Zgłoszone przez Damiana po dwóch nieudanych sesjach. */
   geminiProcessorNode.onaudioprocess = (e) => {
     if(!geminiSocket || geminiSocket.readyState !== WebSocket.OPEN) return;
     const inputData = e.inputBuffer.getChannelData(0);
-    /* Energia ramki (RMS). Liczona co 4 próbkę - przy 4096 próbkach pełna pętla
-       na wątku głównym kosztuje więcej, niż daje dokładność. */
-    let suma = 0;
-    for(let i = 0; i < inputData.length; i += 4){ suma += inputData[i] * inputData[i]; }
-    const rms = Math.sqrt(suma / (inputData.length / 4));
-    const teraz = Date.now();
-    if(rms >= PROG_RMS) ostatniDzwiek = teraz;
-    else if(teraz - ostatniDzwiek > OGON_MS) return;   // cisza - nie nadajemy
     const pcmBuffer = floatTo16BitPCM(inputData);
     const base64Data = arrayBufferToBase64(pcmBuffer);
     geminiSocket.send(JSON.stringify({
@@ -61689,7 +61670,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.308';
+const APP_VERSION = '2026-09-06.310';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
