@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.286
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.288
   Zbudowane na: 578e1ea023ff1a3227dd25b7fe4ed003 (.266)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -3630,6 +3630,24 @@
     background:var(--card); color:var(--ink); box-shadow:var(--shadow-card);
   }
 
+  /* Scenariusz zwinięty - patrz komentarz przy #geminiPreCall. Strzałka
+     z tokenu, nie emoji; styl podsumowania jak przy innych rozwijanych
+     sekcjach w apce. */
+  .pre-call{ margin-bottom:14px; }
+  .pre-call > summary{
+    cursor:pointer; list-style:none; padding:11px 14px;
+    background:var(--surface-2); border:1px solid var(--border);
+    border-radius:var(--radius); font:600 13.5px var(--font-ui);
+    color:var(--ink-dim); min-height:36px; display:flex; align-items:center;
+  }
+  .pre-call > summary::-webkit-details-marker{ display:none; }
+  .pre-call > summary::after{ content:'›'; margin-left:auto; font-size:18px; transition:transform 180ms ease; }
+  .pre-call[open] > summary::after{ transform:rotate(90deg); }
+  .pre-call[open] > summary{ border-radius:var(--radius) var(--radius) 0 0; border-bottom:0; }
+  @media (prefers-reduced-motion: reduce){
+    .pre-call > summary::after{ transition:none; }
+  }
+
   .lv-scenario{
     padding:16px 18px; border-radius:var(--radius-lg);
     background:var(--card); border:1px solid var(--border); margin-bottom:16px;
@@ -6744,7 +6762,11 @@
           <span style="display:block; font-size:14.5px; font-weight:600;" data-i18n="geminiVoiceLabel">Rozmowa głosowa na żywo</span>
           <span class="chat-hint" id="geminiHeadHint"></span>
         </span>
-        <span class="ai-usage-badge" id="geminiUsageBadge" style="display:none;"></span>
+        <!-- geminiUsageBadge USUNIĘTA 2026-09-06: ten sam limit był pokazywany
+             DWA RAZY na jednym ekranie - raz jako plakietka przy nagłówku,
+             raz jako pasek z etykietą „Limit w tym miesiącu". Zostaje pasek,
+             bo niesie więcej: pogrubioną liczbę i postęp wizualny.
+             Zgłoszone przez Damiana. -->
         <span class="ai-usage-badge" id="geminiSessionTimer" style="display:none;"></span>
       </div>
       <div id="geminiTargetBanner" class="ai-chat-target-banner" style="display:none;"></div>
@@ -6756,7 +6778,12 @@
         <div class="lv-limit-bar"><i id="geminiLimitBar" style="width:0%"></i></div>
       </div>
       <div id="geminiLevelSelector" class="category-chips lv-levels" style="margin-bottom:10px;"></div>
-      <div id="geminiPreCall">
+      <!-- ZWINIĘTE domyślnie. Scenariusz i podpowiedzi wyskakiwały od razu po
+           wejściu w Haksę, zanim user w ogóle zdecydował, czy chce rozmawiać -
+           i sugerowały, że rozmowa MUSI być o kawiarni. To materiał pomocniczy,
+           nie wstęp. Zgłoszone przez Damiana 2026-09-06. -->
+      <details id="geminiPreCall" class="pre-call">
+        <summary data-i18n="lvPodpowiedzi">Scenariusz i przydatne zwroty</summary>
         <div class="lv-scenario">
           <div class="lv-scen-lab" data-i18n="lvScenarioLabel">Scenariusz</div>
           <div class="lv-scen-ko" id="lvScenKo">카페에서</div>
@@ -6764,7 +6791,7 @@
         </div>
         <div class="lv-hints-lab" data-i18n="lvHintsLabel">Przyda się</div>
         <div id="lvHints"></div>
-      </div>
+      </details>
       <div class="ai-chat-status" id="geminiVoiceStatus" data-i18n="geminiVoiceDefault">Dotknij „Połącz”, żeby rozpocząć rozmowę głosową.</div>
       <div class="ai-chat-transcript chat-log" id="geminiVoiceTranscript"></div>
       <!-- Trzy kropki "pisze". Jedyna nieustanna animacja w apce, więc
@@ -9102,18 +9129,11 @@ async function loadGeminiUsageStatus(){
     // (np. inne nazwy pól), used/limit będą undefined - lepiej po cichu schować wskaźnik
     // niż pokazać złamane "undefined/undefined min". Ustalone po zgłoszeniu 2026-08-30.
     if(used === undefined || used === null || limit === undefined || limit === null){
-      const badge0 = document.getElementById('geminiUsageBadge');
-      if(badge0) badge0.style.display = 'none';
+      
       if(headerBadge) headerBadge.style.display = 'none';
       return;
     }
-    const badge = document.getElementById('geminiUsageBadge');
-    if(badge){
-      badge.textContent = uiLang === 'en'
-        ? `${used}/${limit} min this month`
-        : `${used}/${limit} min w tym mies.`;
-      badge.style.display = 'inline-block';
-    }
+    
     // Makieta 7d: te same liczby co plakietka, tylko jako pasek - nie liczymy
     // niczego od nowa i nie dotykamy logiki limitu.
     const lw = document.getElementById('geminiLimitWrap');
@@ -52596,7 +52616,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.286';
+const APP_VERSION = '2026-09-06.288';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -53445,6 +53465,7 @@ const I18N = {
   rankSeason: { pl: 'Sezon', en: 'Season' },
   rankEternal: { pl: 'Wszech czasów', en: 'All time' },
   bargeLabel: { pl: 'Pozwól przerywać (słuchawki)', en: 'Allow interrupting (headphones)' },
+  lvPodpowiedzi: { pl: 'Scenariusz i przydatne zwroty', en: 'Scenario and useful phrases' },
   haksaDrillTitle: { pl: 'Haksa odpytuje', en: 'Haksa quizzes you' },
   haksaDrillDesc: { pl: 'Rozmowa z lektorem AI zamiast robota — reaguje na to, co powiesz. Liczy się w limit minut.', en: 'A real AI tutor instead of a robot — responds to what you say. Counts toward your minutes.' },
   particleHint: { pl: 'Dotknij partykuły, żeby ją opuścić — tak jak w mowie. Nie wszystkie da się usunąć.', en: 'Tap a particle to drop it, the way speakers do. Not all of them can go.' },
