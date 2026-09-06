@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.345
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.349
   Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -5162,15 +5162,12 @@
   }
 
   .reading-actions{
-    /* W TOKU TREŚCI, nie przyklejony do krawędzi. Pasek pływający kończył się
-       dokładnie na dolnej granicy okna (zmierzone: 927+63 przy oknie 990),
-       wtapiał się w tło i user go po prostu nie widział - dwa razy z rzędu,
-       mimo że elementy miały display:flex.
-
-       Teraz siedzi pod panelem słowa, tam gdzie wzrok już jest po kliknięciu
-       w wyraz. Nic nie przykrywa i nie trzeba go szukać.
-       Zgłoszone przez Damiana 2026-09-06. */
-    position:static; transform:none; width:auto; margin-top:16px;
+    /* PROSTY BLOK W TOKU TREŚCI. Zero pozycjonowania, zero transformacji,
+       zero stałej szerokości - wszystko, co wcześniej wypychało go poza
+       ekran. Bierze szerokość rodzica i tyle. */
+    position:static; transform:none;
+    width:100%; max-width:100%; box-sizing:border-box;
+    margin:16px 0 0;
     display:flex; flex-direction:column; gap:8px;
     padding:14px;
     background:var(--card);
@@ -5178,20 +5175,15 @@
     border-radius:var(--radius-lg);
   }
   @media (min-width:900px){
-    .reading-actions{
-      left:50%; right:auto; transform:translateX(-50%);
-      width:min(640px, calc(100% - 32px));
-      bottom:16px; border:1px solid var(--border); border-radius:var(--radius-lg);
-      box-shadow:0 10px 30px -18px rgba(0,0,0,.35);
-    }
+    /* wariant szeroki USUNIĘTY - to on ustawiał left:50% i translateX(-50%),
+       przez co pasek w toku treści wypychało poza ekran. */
   }
   .reading-actions .ra-secondary{
     display:flex; gap:8px; overflow-x:auto; overscroll-behavior-x:contain;
-    scrollbar-width:none;
-  }
+    scrollbar-width:none; flex-wrap:wrap; overflow-x:visible; min-width:0;}
   .reading-actions .ra-secondary::-webkit-scrollbar{ display:none; }
   .reading-actions .ra-secondary .tool-btn{ flex:none; min-height:40px; }
-  .reading-actions .primary{ width:100%; min-height:48px; }
+  .reading-actions .primary{ width:100%; min-height:48px; box-sizing:border-box;}
   /* Miejsce pod pasek, żeby nie zasłaniał końca tekstu ani raportu. */
   #readingActiveWrap{ /* rezerwa 124px zdjęta - pasek akcji nie pływa już nad treścią */ padding-bottom:24px; }
 
@@ -57521,7 +57513,25 @@ function formy(baza, irr, pos) {
    /* -겠- to zamiar i przypuszczenie, w pismach urzędowych i uprzejmościach
       wszędzie: 감사하겠습니다, 하겠습니다, 좋겠어요. Doczepia się wprost
       do rdzenia, bez 으. Zgłoszone przez Damiana 2026-09-06. */
-   '겠습니다', '겠어요', '겠다', '겠네요', '겠지만'].forEach(k => out.add(rdzen + k));
+   '겠습니다', '겠어요', '겠다', '겠네요', '겠지만',
+   /* Dołożone po pomiarze na czytankach: -도록 (있도록), -며 (하며),
+      -게요, -고요, -자마자, -다가. Zgłoszone przez Damiana 2026-09-06. */
+   '도록', '며', '고요', '자마자', '다가', '든지', '길래'
+  ].forEach(k => out.add(rdzen + k));
+
+  /* -(으)ㄹ게요 i -(으)ㄹ래요 doklejają ㄹ do OTWARTEJ sylaby: 하 → 할게요.
+     Zwykłe '게요' dawało 하게요, czyli formę, której nie ma.
+     Zgłoszone przez Damiana 2026-09-06. */
+  {
+    const rz = rdzenPrzedSpolgloska(rdzen, irr, 'ㄹ');
+    const rr = rozloz(rz.slice(-1));
+    if(rr && rr.jong === 0){
+      const zL = rz.slice(0, -1) + zloz(rr.cho, rr.jung, JONG.indexOf('ㄹ'));
+      ['게요','래요','걸요','까요'].forEach(k => out.add(zL + k));
+    } else {
+      ['을게요','을래요','을걸요','을까요'].forEach(k => out.add(rz + k));
+    }
+  }
 
   /* KOŃCÓWKI NA -(으), z 으 po batchimie. Bez nich nie trafiają 웃으면서,
      주시면, 마십시오 - a formy honoryfikatywne z -시- są w tekstach
@@ -57696,7 +57706,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.345';
+const APP_VERSION = '2026-09-06.349';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -67952,9 +67962,22 @@ function readerLookupForms(word){
      Zmierzone na 36 czytankach: 24 wystąpienia samych 에는/까지/부터. */
   const zlozone = ['에서는','에서도','으로는','으로도','에게는','에게도','한테는',
                    '에는','에도','에만','까지','부터','처럼','보다','마다','조차',
-                   '라도','이라도','이라는','라는','이나','밖에','대로'];
+                   '라도','이라도','이라는','라는','이나','밖에','대로',
+                   /* dołożone po pomiarze: 나 (때나), 에게, 께, 한테, 이며 */
+                   '에게','한테','께서','께','이며','이란','나'];
   for(const z of zlozone){
     if(word.length > z.length && word.endsWith(z)) forms.push(word.slice(0, -z.length));
+  }
+
+  /* DRUGA RUNDA. Oryginalna pętla robiła `break` po pierwszej partykule, więc
+     사람들이 dawało tylko 사람들 - a bazą jest 사람. Liczba mnoga 들 to nie
+     partykuła tylko przyrostek, dlatego zdejmujemy ją osobno, na tym, co już
+     zostało po pierwszym cięciu. */
+  for(const f of [...forms]){
+    if(f.length > 1 && f.endsWith('들')) forms.push(f.slice(0, -1));
+    for(const p2 of KO_PARTICLES){
+      if(f.length > p2.length + 1 && f.endsWith(p2)) forms.push(f.slice(0, -p2.length));
+    }
   }
 
   /* ORZECZNIK 이다 PRZY RZECZOWNIKU. 학생이에요 to 학생 + 이에요, a bazą jest
