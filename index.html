@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.299
-  Zbudowane na: 578e1ea023ff1a3227dd25b7fe4ed003 (.266)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.300
+  Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
   pliki z tym samym .NN są różne. Przy każdym buildzie wpisz sumę pliku wejściowego.
@@ -3528,6 +3528,72 @@
     filter:drop-shadow(0 0 5px var(--hwang)) drop-shadow(0 0 2px var(--hwang));
     animation:hg-draw-stroke 0.7s ease forwards;
   }
+  /* ══ HANJA · KOLEJNOŚĆ KRESEK ════════════════════════════════════════════
+     Osobna warstwa od hangulu, bo skala problemu jest inna. Zmierzone na 122
+     znakach z tej bazy (1007 kresek): liczba kresek mediana 8, maks. 23 (體);
+     długość kreski min 5,9, mediana 32,6, maks. 132,3 jednostki. Stąd trzy
+     różnice wobec hangulu:
+
+     1. NORMALIZACJA DŁUGOŚCI (pathLength="1"). Hangul rysuje przy stałym
+        stroke-dasharray:260, więc kreska o długości 32 jednostek jest widocznie
+        rysowana przez 32/260 = 12% czasu animacji, a kreska 5,9 - przez 2,3%,
+        czyli ok. 16 ms; reszta slotu to bezruch. Przy hangulu (mało kresek
+        podobnej długości) tego nie widać. Przy 23 kreskach od 6 do 132 jednostek
+        animacja szarpie: krótkie strzelają, długie płyną. pathLength="1" sprawia,
+        że każda kreska rysuje się przez CAŁY swój czas.
+
+     2. CZAS ZALEŻNY OD DŁUGOŚCI. Skoro tempo nie bierze się już samo z długości,
+        trzeba je przywrócić świadomie - długi ciąg ma trwać dłużej niż kropka.
+
+     3. GRUBOŚĆ I TEMPO OD LICZBY KRESEK. 6px przy 23 kreskach zlewa znak w plamę,
+        a 0,8 s na kreskę daje 18 s animacji. Skalowane przez --hj-w i odstęp.
+
+     4. KRESKA STYGNIE DO --ink. Przy hangulu (2-5 kresek) utrzymanie wszystkiego
+        w --hwang z poświatą wygląda dobrze. Przy 23 kreskach koniec animacji był
+        pomarańczową plamą, w której nie dało się rozróżnić kresek. Teraz kreska
+        rysuje się jaskrawym pędzlem i po dociągnięciu stygnie do koloru tuszu,
+        więc w każdej chwili widać JEDNĄ kreskę „w pisaniu" nad tym, co już
+        napisane, a na końcu zostaje czysty znak. */
+  .hj-stroke-guide{
+    fill:none; stroke:var(--ink-dim);
+    stroke-width:var(--hj-w, 5); stroke-linecap:round; stroke-linejoin:round;
+    opacity:.26;
+  }
+  .hj-stroke-path{
+    fill:none; stroke:var(--hwang);
+    stroke-width:var(--hj-w, 5); stroke-linecap:round; stroke-linejoin:round;
+    stroke-dasharray:1; stroke-dashoffset:1;
+    filter:drop-shadow(0 0 4px var(--hwang));
+    animation:
+      hj-draw var(--hj-d, .4s) linear var(--hj-t, 0s) forwards,
+      hj-settle .42s ease calc(var(--hj-t, 0s) + var(--hj-d, .4s) + .16s) forwards;
+  }
+  /* Kropka startu i numer są CHWILOWE - gasną razem z przejściem do następnej
+     kreski. Wersja, w której zostawały, przy 體 dawała 23 numery jeden na
+     drugim i znak znikał pod własnym opisem. */
+  .hj-stroke-dot{
+    fill:var(--hwang); opacity:0;
+    filter:drop-shadow(0 0 3px var(--hwang));
+    animation:hj-mark calc(var(--hj-d, .4s) + .26s) ease var(--hj-t, 0s) both;
+  }
+  /* paint-order + obrys w kolorze karty: numer pada na już narysowane kreski
+     (przy 23 kreskach nie ma gdzie uciec), a bez obrysu ginął w tuszu. */
+  .hj-stroke-num{
+    fill:var(--hwang); font-family:var(--font-ui); font-size:7px;
+    font-weight:700; opacity:0;
+    paint-order:stroke; stroke:var(--card); stroke-width:1.8px; stroke-linejoin:round;
+    animation:hj-mark calc(var(--hj-d, .4s) + .26s) ease var(--hj-t, 0s) both;
+  }
+  @keyframes hj-draw{ to{ stroke-dashoffset:0; } }
+  @keyframes hj-settle{ to{ stroke:var(--ink); filter:drop-shadow(0 0 0 transparent); } }
+  @keyframes hj-mark{ 0%{opacity:0} 14%{opacity:1} 68%{opacity:1} 100%{opacity:0} }
+  @media (prefers-reduced-motion:reduce){
+    .hj-stroke-path{
+      animation:none; stroke-dashoffset:0; stroke:var(--ink); filter:none;
+    }
+    .hj-stroke-dot, .hj-stroke-num{ animation:none; opacity:0; }
+  }
+
   .hg-stroke-dot{
     fill:var(--hwang);
     opacity:0;
@@ -3861,6 +3927,13 @@
     line-height:1;
     color:var(--ink);
   }
+  /* Ta sama zasada co przy hangulu (.hg-big-char.has-strokes): na czas animacji
+     glif czcionki jest ukryty, bo wzór i kreski pochodzą z tych samych
+     współrzędnych SVG, a glif z fontu - nie. Klasa była dopinana z JS, ale
+     reguła istniała TYLKO w wariancie .hangul-card, więc na hanja glif zostawał
+     i dublował się z animacją (na 體 rozjazd sięgał kilkunastu pikseli).
+     Znalezione na zrzutach 2026-09-06. */
+  .hanja-card .hc-char.has-strokes{ opacity:0; }
   .hanja-card .hc-reading{
     font-size:16px;
     color:var(--hwang);
@@ -61185,7 +61258,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.299';
+const APP_VERSION = '2026-09-06.300';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -67279,7 +67352,7 @@ function renderHanjaScreen(){
     duzy.parentNode.insertBefore(scena, duzy);
     scena.appendChild(duzy);
     duzy.classList.add('has-strokes');
-    scena.insertAdjacentHTML('beforeend', buildStrokeOrderSvg(h.strokePaths));
+    scena.insertAdjacentHTML('beforeend', buildHanjaStrokeSvg(h.strokePaths));
     karta.insertAdjacentHTML('beforeend', `
       <button type="button" class="hg-replay-btn" id="hanjaReplayBtn">🔁 ${en ? 'Play again' : 'Odtwórz ponownie'}</button>
       <div class="pis-blok">
@@ -67302,7 +67375,7 @@ function renderHanjaScreen(){
     if(replay) replay.addEventListener('click', ()=>{
       const stare = scena.querySelector('.hg-stroke-svg-overlay');
       if(stare) stare.remove();
-      scena.insertAdjacentHTML('beforeend', buildStrokeOrderSvg(h.strokePaths));
+      scena.insertAdjacentHTML('beforeend', buildHanjaStrokeSvg(h.strokePaths));
     });
   }
 }
@@ -68407,6 +68480,50 @@ function buildStrokeOrderSvg(strokePaths){
     t += extraStepGap;
   });
   return `<svg viewBox="-4 -4 108 108" class="hg-stroke-svg-overlay">${guidePaths}${paths}${dots}</svg>`;
+}
+
+/* Animacja kolejności kresek dla HANJA. Osobno od hangulu - pomiary i powody
+   w komentarzu przy .hj-stroke-* w arkuszu stylów. */
+function hjPathLength(d){
+  const pts = (d.match(/[-\d.]+,[-\d.]+/g) || []).map(p => p.split(',').map(Number));
+  let L = 0;
+  for(let i = 1; i < pts.length; i++) L += Math.hypot(pts[i][0]-pts[i-1][0], pts[i][1]-pts[i-1][1]);
+  return L;
+}
+
+function buildHanjaStrokeSvg(strokePaths){
+  if(!Array.isArray(strokePaths) || !strokePaths.length) return '';
+  const flat = [];
+  strokePaths.forEach(step => (Array.isArray(step) ? step : [step]).forEach(d => flat.push(d)));
+  const n = flat.length;
+  const w = Math.max(3.2, Math.min(6, 6 - (n - 4) * 0.16));
+  const gap = Math.max(0.14, Math.min(0.55, 4.6 / n));
+
+  let guide = '', paths = '', marks = '', t = 0;
+  flat.forEach((d, i) => {
+    const len = hjPathLength(d);
+    // Pierwiastek spłaszcza różnice: kropka nie trwa mgnienia, długi ciąg nie sekundy.
+    const dur = Math.max(0.20, Math.min(0.62, 0.18 + Math.sqrt(len) / 22));
+    const delay = t;
+    /* Czas i opóźnienie idą jako zmienne, nie jako animation-duration/-delay:
+       kreska ma DWIE animacje (rysowanie i stygnięcie), a druga startuje
+       dopiero po pierwszej - to da się zapisać tylko przez calc() na wspólnych
+       zmiennych. Kropka i numer korzystają z tych samych. */
+    const vars = `--hj-d:${dur.toFixed(2)}s; --hj-t:${delay.toFixed(2)}s;`;
+    guide += `<path d="${d}" class="hj-stroke-guide"></path>`;
+    paths += `<path d="${d}" class="hj-stroke-path" pathLength="1" style="${vars}"></path>`;
+    const m = d.match(/^M\s*([-\d.]+),([-\d.]+)/);
+    if(m){
+      const x = parseFloat(m[1]), y = parseFloat(m[2]);
+      marks += `<circle cx="${x}" cy="${y}" r="${(w*0.55).toFixed(2)}" class="hj-stroke-dot" style="${vars}"></circle>`;
+      /* Numer trzymany wewnątrz pola: przy kresce startującej przy prawej albo
+         górnej krawędzi etykieta wychodziła poza viewBox i ucinała się. */
+      const nx = Math.min(x + 4.2, 97), ny = Math.max(y - 4.0, 3);
+      marks += `<text x="${nx.toFixed(1)}" y="${ny.toFixed(1)}" class="hj-stroke-num" style="${vars}">${i+1}</text>`;
+    }
+    t += Math.max(gap, dur * 0.75);
+  });
+  return `<svg viewBox="-5 -5 110 110" class="hg-stroke-svg-overlay" style="--hj-w:${w.toFixed(2)}px;">${guide}${paths}${marks}</svg>`;
 }
 
 /* ═══ ĆWICZENIE PISANIA ═══════════════════════════════════════════════════════
