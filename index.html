@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.281
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.286
   Zbudowane na: 578e1ea023ff1a3227dd25b7fe4ed003 (.266)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -17496,7 +17496,7 @@ const GRAMMAR_LEVELS = {
        "en": "Who are you going to give this present to?"
       }
      ],
-     "verified": false
+     "verified": true
     }
    ]
   },
@@ -21586,7 +21586,7 @@ const GRAMMAR_LEVELS = {
        "en": "Grandfather reads the newspaper every day."
       }
      ],
-     "verified": false
+     "verified": true
     }
    ]
   },
@@ -23565,7 +23565,7 @@ const GRAMMAR_LEVELS = {
      "full": "지금 책을 읽는 사람이 제 친구예요.",
      "pl": "Osoba, która teraz czyta książkę, to mój przyjaciel.",
      "en": "The person who is reading a book now is my friend.",
-     "explain": "Przydawka stawia całe zdanie przed rzeczownikiem — „człowiek, KTÓRY czyta”; końcówka wybiera czas: -는 teraz, -(으)ㄴ przeszłość, -(으)ㄹ przyszłość.",
+     "explain": "Przydawka stawia całe zdanie przed rzeczownikiem — „człowiek, KTÓRY czyta”. Przy CZASOWNIKACH końcówka wybiera czas: -는 teraz, -(으)ㄴ przeszłość, -(으)ㄹ przyszłość. Przy PRZYMIOTNIKACH -(으)ㄴ to NIE przeszłość, tylko zwykła cecha: 따뜻한 커피 to kawa, która jest ciepła, nie która była.",
      "explainEn": "The attributive puts a whole clause before a noun — “the person WHO reads”; the ending picks the tense: -는 present, -(으)ㄴ past, -(으)ㄹ future.",
      "conjHtml": "<div class=\"conj-rule\">Czasownik + 는 = teraźniejszość („który robi”):</div><div class=\"conj-step\"><span>읽<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">읽</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">읽는 사람</span></div><div class=\"conj-rule\">Czasownik + (으)ㄴ = przeszłość („który zrobił”); + (으)ㄹ = przyszłość („który zrobi”):</div><div class=\"conj-step\"><span>읽<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">읽</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">읽은 책</span></div><div class=\"conj-step\"><span>읽<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">읽</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">읽을 책</span></div><div class=\"conj-rule\">Przymiotnik + (으)ㄴ = cecha („jaki”):</div><div class=\"conj-step\"><span>따뜻하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">따뜻하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">따뜻한 커피</span></div><div class=\"conj-step\"><span>작<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">작</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">작은 집</span></div><div class=\"conj-note\">있다/없다 zachowują się jak czasowniki: 맛있는 음식, 재미없는 영화. Tematy na ㄹ tracą je przed ㄴ/ㄹ: 살다 → 사는 곳.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Verb + 는 = present (“who does”):</div><div class=\"conj-step\"><span>읽<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">읽</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">읽는 사람</span></div><div class=\"conj-rule\">Verb + (으)ㄴ = past (“who did”); + (으)ㄹ = future (“who will do”):</div><div class=\"conj-step\"><span>읽<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">읽</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">읽은 책</span></div><div class=\"conj-step\"><span>읽<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">읽</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">읽을 책</span></div><div class=\"conj-rule\">Adjective + (으)ㄴ = quality (“what kind of”):</div><div class=\"conj-step\"><span>따뜻하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">따뜻하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">따뜻한 커피</span></div><div class=\"conj-step\"><span>작<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">작</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">작은 집</span></div><div class=\"conj-note\">있다/없다 behave like verbs: 맛있는 음식, 재미없는 영화. ㄹ-stems drop ㄹ before ㄴ/ㄹ: 살다 → 사는 곳.</div>",
@@ -23584,17 +23584,17 @@ const GRAMMAR_LEVELS = {
        "en": "The movie I watched yesterday was really fun."
       },
       {
-       "sentence": "저는 ___ 커피를 좋아해요.",
-       "answer": "따뜻한",
+       "sentence": "제가 자주 ___ 카페예요.",
+       "answer": "가는",
        "choices": [
-        "따뜻한",
-        "따뜻하는",
-        "따뜻하다",
-        "따뜻해서"
+        "가는",
+        "간",
+        "갈",
+        "가고"
        ],
-       "full": "저는 따뜻한 커피를 좋아해요.",
-       "pl": "Lubię ciepłą kawę.",
-       "en": "I like warm coffee."
+       "full": "제가 자주 가는 카페예요.",
+       "pl": "To kawiarnia, do której często chodzę.",
+       "en": "This is the cafe I often go to."
       },
       {
        "sentence": "내일 파티에서 ___ 노래를 연습하고 있어요.",
@@ -23714,7 +23714,7 @@ const GRAMMAR_LEVELS = {
        "en": "The man standing over there is my younger brother."
       }
      ],
-     "verified": false
+     "verified": true
     }
    ]
   },
@@ -27162,7 +27162,7 @@ const GRAMMAR_LEVELS = {
        "en": "With this score, the exam's as good as passed, right?"
       }
      ],
-     "verified": false
+     "verified": true
     }
    ]
   },
@@ -29126,7 +29126,7 @@ const GRAMMAR_LEVELS = {
        "en": "He said he was a student."
       }
      ],
-     "verified": false
+     "verified": true
     },
     {
      "pattern": "V/A-냐고 하다/묻다 (mowa zależna — pytanie)",
@@ -29290,7 +29290,7 @@ const GRAMMAR_LEVELS = {
        "en": "The doctor asked me whether I drink often."
       }
      ],
-     "verified": false
+     "verified": true
     },
     {
      "pattern": "V-(으)라고 하다 (mowa zależna — polecenie)",
@@ -29454,7 +29454,7 @@ const GRAMMAR_LEVELS = {
        "en": "My friend asked me to lend him some money."
       }
      ],
-     "verified": false
+     "verified": true
     },
     {
      "pattern": "V-자고 하다 (mowa zależna — propozycja)",
@@ -29618,7 +29618,7 @@ const GRAMMAR_LEVELS = {
        "en": "The teacher suggested we sing together."
       }
      ],
-     "verified": false
+     "verified": true
     },
     {
      "pattern": "-고 해서 (między innymi dlatego)",
@@ -29782,7 +29782,7 @@ const GRAMMAR_LEVELS = {
        "en": "With rent going up and the office being far, among other things, I plan to move."
       }
      ],
-     "verified": false
+     "verified": true
     },
     {
      "pattern": "-(으)ㄴ/는지 (pytanie zależne — „czy/gdzie/kiedy...”)",
@@ -29946,7 +29946,7 @@ const GRAMMAR_LEVELS = {
        "en": "I'm not sure whether this medicine really works."
       }
      ],
-     "verified": false
+     "verified": true
     }
    ]
   },
@@ -33058,7 +33058,7 @@ const GRAMMAR_LEVELS = {
        "en": "The more you practise, the better you get."
       }
      ],
-     "verified": false
+     "verified": true
     },
     {
      "pattern": "N마저 (nawet — ostatnia rzecz, której się nie spodziewano)",
@@ -33222,7 +33222,7 @@ const GRAMMAR_LEVELS = {
        "en": "There's no time, and now even the computer's broken?"
       }
      ],
-     "verified": false
+     "verified": true
     },
     {
      "pattern": "N에 비해(서) (w porównaniu z)",
@@ -33386,7 +33386,7 @@ const GRAMMAR_LEVELS = {
        "en": "Housing in Seoul is expensive compared to other cities."
       }
      ],
-     "verified": false
+     "verified": true
     }
    ]
   },
@@ -35187,7 +35187,7 @@ const GRAMMAR_LEVELS = {
        "en": "You're not busy, so why act like you are?"
       }
      ],
-     "verified": false
+     "verified": true
     },
     {
      "pattern": "N(으)로서 (jako — rola, funkcja)",
@@ -35202,7 +35202,7 @@ const GRAMMAR_LEVELS = {
      "full": "부모로서 아이를 지켜야 해요.",
      "pl": "Jako rodzic trzeba chronić dziecko.",
      "en": "As a parent, one must protect one's child.",
-     "explain": "N(으)로서 określa rolę lub funkcję, w jakiej ktoś występuje — „jako ktoś”.",
+     "explain": "N(으)로서 określa rolę lub funkcję, w jakiej ktoś występuje — „jako ktoś”. NIE MYLIĆ z N(으)로써, które oznacza narzędzie lub środek („za pomocą czegoś”) — to klasyczna pułapka na TOPIK II. 의사로서 = jako lekarz; 대화로써 = poprzez rozmowę.",
      "explainEn": "N(으)로서 states the role or capacity in which someone acts — “as someone”.",
      "conjHtml": "<div class=\"conj-rule\">Rzeczownik na spółgłoskę + 으로서, na samogłoskę lub ㄹ + 로서:</div><div class=\"conj-step\"><span class=\"conj-stem\">학생</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">학생으로서</span></div><div class=\"conj-step\"><span class=\"conj-stem\">부모</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">부모로서</span></div><div class=\"conj-note\">Częsta pomyłka (również wśród Koreańczyków): 로서 = rola („jako”), 로써 = narzędzie lub środek („za pomocą”): 대화로써 문제를 풀다. Osoba prawie zawsze bierze 로서.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Noun ending in a consonant + 으로서, in a vowel or ㄹ + 로서:</div><div class=\"conj-step\"><span class=\"conj-stem\">학생</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">학생으로서</span></div><div class=\"conj-step\"><span class=\"conj-stem\">부모</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">부모로서</span></div><div class=\"conj-note\">A common mix-up (even among Koreans): 로서 = role (“as”), 로써 = tool or means (“by means of”): 대화로써 문제를 풀다. A person almost always takes 로서.</div>",
@@ -35351,7 +35351,7 @@ const GRAMMAR_LEVELS = {
        "en": "As your friend, I'm worried about you seeing him."
       }
      ],
-     "verified": false
+     "verified": true
     }
    ]
   },
@@ -39634,7 +39634,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "한다체 is the neutral written register: newspapers, essays, reports, fiction. Present action verbs take -ㄴ/는다, adjectives and past tense end in -다, nouns in -(이)다; questions use -느냐/-(으)냐, proposals -자, commands -(아/어)라 or written -(으)라. It shows neither respect nor its absence - it is simply how text is written.",
      "conjHtml": "<div class=\"conj-rule\">Czasownik czynnościowy: spółgłoska → 는다, samogłoska → ㄴ다; przymiotnik i 이다 → bez zmian (-다); przeszłość → -았/었다:</div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹는다</span></div><div class=\"conj-step\"><span>가<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">가</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">간다</span></div><div class=\"conj-step\"><span>춥<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">춥</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">춥다</span></div><div class=\"conj-note\">Pytanie: 가느냐 / 춥냐; propozycja: 가자; polecenie: 가라. Rdzeń na ㄹ traci ㄹ przed ㄴ다: 살다 → 산다.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Action verb: consonant → 는다, vowel → ㄴ다; adjective and 이다 → unchanged (-다); past → -았/었다:</div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹는다</span></div><div class=\"conj-step\"><span>가<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">가</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">간다</span></div><div class=\"conj-step\"><span>춥<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">춥</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">춥다</span></div><div class=\"conj-note\">Question: 가느냐 / 춥냐; proposal: 가자; command: 가라. ㄹ-stems drop ㄹ before ㄴ다: 살다 → 산다.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "한국의 인구는 해마다 ___.",
      "answer": "줄어든다",
      "choices": [
@@ -39798,7 +39798,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "바 is a formal bound noun meaning 'that which / the fact'. -는 바와 같이 means 'as is known / as mentioned', -는 바로는 'as far as I know', and -(으)ㄴ 바 있다 'has occurred, took place' (official/press style). Fixed: 알 바가 아니다 - 'none of my concern'.",
      "conjHtml": "<div class=\"conj-rule\">Przydawka + 바: teraźniejszość -는 바, przeszłość -(으)ㄴ 바, przyszłość/ogólność -(으)ㄹ 바:</div><div class=\"conj-step\"><span>알<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">알</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">아는 바</span></div><div class=\"conj-step\"><span>밝히<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">밝히</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">밝힌 바</span></div><div class=\"conj-step\"><span>알<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">알</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">알 바</span></div><div class=\"conj-note\">Po 바 często stoją 와 같이, 로는, 에 따르면, 있다/없다.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Attributive + 바: present -는 바, past -(으)ㄴ 바, future/general -(으)ㄹ 바:</div><div class=\"conj-step\"><span>알<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">알</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">아는 바</span></div><div class=\"conj-step\"><span>밝히<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">밝히</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">밝힌 바</span></div><div class=\"conj-step\"><span>알<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">알</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">알 바</span></div><div class=\"conj-note\">바 is typically followed by 와 같이, 로는, 에 따르면, 있다/없다.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "이미 ___ 이 정책은 여러 문제점을 안고 있다.",
      "answer": "알려진 바와 같이",
      "choices": [
@@ -39962,7 +39962,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "N에 의해(서) marks the AGENT in a written-style passive sentence: 'by the government, by experts'. Before a noun it takes the form 에 의한. This differs from 에 따르면 (source of information) and 에 따라 (in accordance with).",
      "conjHtml": "<div class=\"conj-rule\">Rzeczownik + 에 의해(서) przed czasownikiem biernym; + 에 의한 przed rzeczownikiem:</div><div class=\"conj-step\"><span>국회</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">국회에 의해</span></div><div class=\"conj-step\"><span>화재</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">화재에 의한</span></div><div class=\"conj-step\"><span>전문가</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">전문가에 의해</span></div><div class=\"conj-note\">W mowie sprawcę wyraża się przez 이/가 + strona czynna albo 에게/한테 przy osobach (엄마한테 혼났다).</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Noun + 에 의해(서) before a passive verb; + 에 의한 before a noun:</div><div class=\"conj-step\"><span>국회</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">국회에 의해</span></div><div class=\"conj-step\"><span>화재</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">화재에 의한</span></div><div class=\"conj-step\"><span>전문가</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">전문가에 의해</span></div><div class=\"conj-note\">In speech the agent is expressed with 이/가 + active voice, or 에게/한테 with people (엄마한테 혼났다).</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "이 법안은 ___ 통과되었다.",
      "answer": "국회에 의해",
      "choices": [
@@ -40126,7 +40126,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-는 가운데 opens a news sentence: 'while A is going on, B happened'. A is the backdrop (often public opinion, weather, a trend), B the main news. Typical of TV news and articles; in speech -는 동안 or -는데 take its place.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń czasownika + 는 가운데 (przy stanie także -(으)ㄴ 가운데):</div><div class=\"conj-step\"><span>지켜보<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">지켜보</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">지켜보는 가운데</span></div><div class=\"conj-step\"><span>오르<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">오르</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">오르는 가운데</span></div><div class=\"conj-step\"><span>계속되<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">계속되</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">계속되는 가운데</span></div><div class=\"conj-note\">Przed 가운데 często stoi 이/가 z podmiotem tła: 관심이 쏠리는 가운데.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Verb stem + 는 가운데 (with a resulting state also -(으)ㄴ 가운데):</div><div class=\"conj-step\"><span>지켜보<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">지켜보</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">지켜보는 가운데</span></div><div class=\"conj-step\"><span>오르<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">오르</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">오르는 가운데</span></div><div class=\"conj-step\"><span>계속되<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">계속되</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">계속되는 가운데</span></div><div class=\"conj-note\">The backdrop subject with 이/가 usually precedes: 관심이 쏠리는 가운데.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "많은 시민이 ___ 개막식이 열렸다.",
      "answer": "지켜보는 가운데",
      "choices": [
@@ -40248,7 +40248,7 @@ const GRAMMAR_LEVELS = {
        "answer": "지켜보는 가운데",
        "choices": [
         "지켜보는 가운데",
-        "지켜보는 가운대",
+        "지켜보는 바람에",
         "지켜본 가운데를",
         "지켜볼 가운데를"
        ],
@@ -40261,7 +40261,7 @@ const GRAMMAR_LEVELS = {
        "answer": "계속되는 가운데",
        "choices": [
         "계속되는 가운데",
-        "계속되는 가운대",
+        "계속되는 김에",
         "계속된 가운데",
         "계속되는 가운데를"
        ],
@@ -40286,11 +40286,11 @@ const GRAMMAR_LEVELS = {
     },
     {
      "pattern": "-(으)ㅁ으로써 (poprzez, za pomocą — zdaniowe)",
-     "explain": "-(으)ㅁ으로써 wskazuje ŚRODEK lub metodę, dzięki której osiąga się skutek — „poprzez zrobienie czegoś”. Nominalizuje całe zdanie i jest kręgosłupem pisania akademickiego; w mowie potocznej zastępuje je -아/어서 lub -(으)면.",
+     "explain": "-(으)ㅁ으로써 wskazuje ŚRODEK lub metodę, dzięki której osiąga się skutek — „poprzez zrobienie czegoś”. Nominalizuje całe zdanie i jest kręgosłupem pisania akademickiego; w mowie potocznej zastępuje je -아/어서 lub -(으)면. NIE MYLIĆ z -(으)므로, które oznacza PRZYCZYNĘ („ponieważ”), a nie metodę — to klasyczna pułapka na TOPIK II. 인상함으로써 = poprzez podniesienie; 인상하므로 = ponieważ podnosi.",
      "explainEn": "-(으)ㅁ으로써 marks the MEANS or method by which a result is achieved - 'by doing something'. It nominalizes the whole clause and is a backbone of academic writing; in speech -아/어서 or -(으)면 take its place.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń na spółgłoskę → 음으로써, na samogłoskę → ㅁ으로써 (ㄹ zachowane jako ㄻ):</div><div class=\"conj-step\"><span>인상하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">인상하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">인상함으로써</span></div><div class=\"conj-step\"><span>줄이<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">줄이</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">줄임으로써</span></div><div class=\"conj-step\"><span>만들<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">만들</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">만듦으로써</span></div><div class=\"conj-note\">Nie mylić z -(으)므로 (ponieważ) — to przyczyna, nie środek.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Consonant stem → 음으로써, vowel stem → ㅁ으로써 (ㄹ kept as ㄻ):</div><div class=\"conj-step\"><span>인상하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">인상하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">인상함으로써</span></div><div class=\"conj-step\"><span>줄이<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">줄이</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">줄임으로써</span></div><div class=\"conj-step\"><span>만들<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">만들</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">만듦으로써</span></div><div class=\"conj-note\">Do not confuse with -(으)므로 (because) - that is a reason, not a means.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "정부는 세율을 ___ 재정 적자를 줄이려 한다.",
      "answer": "인상함으로써",
      "choices": [
@@ -40454,7 +40454,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-기에 앞서 is a formal 'prior to' - it opens speeches, documents and instructions ('before I proceed to the main point...'). It means the same as -기 전에 but belongs to the official-ceremonial register. After a noun: N에 앞서.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń czasownika + 기에 앞서:</div><div class=\"conj-step\"><span>시작하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">시작하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">시작하기에 앞서</span></div><div class=\"conj-step\"><span>체결하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">체결하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">체결하기에 앞서</span></div><div class=\"conj-step\"><span>사용하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">사용하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">사용하기에 앞서</span></div><div class=\"conj-note\">Nie mylić z -기에 (ponieważ) — tu 에 należy do konstrukcji 앞서다.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Verb stem + 기에 앞서:</div><div class=\"conj-step\"><span>시작하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">시작하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">시작하기에 앞서</span></div><div class=\"conj-step\"><span>체결하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">체결하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">체결하기에 앞서</span></div><div class=\"conj-step\"><span>사용하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">사용하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">사용하기에 앞서</span></div><div class=\"conj-note\">Do not confuse with -기에 (because) - here 에 belongs to the construction with 앞서다.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "본격적인 논의를 ___ 몇 가지 원칙을 확인하고자 한다.",
      "answer": "시작하기에 앞서",
      "choices": [
@@ -40550,7 +40550,7 @@ const GRAMMAR_LEVELS = {
        "answer": "시작하기에 앞서",
        "choices": [
         "시작하기에 앞서",
-        "시작하기에 앞사",
+        "시작하기 마련이다",
         "시작하기 앞서",
         "시작하기에 앞서를"
        ],
@@ -40576,7 +40576,7 @@ const GRAMMAR_LEVELS = {
        "answer": "내리기에 앞서",
        "choices": [
         "내리기에 앞서",
-        "내리기에 앞사",
+        "내리기 십상이다",
         "내리기 앞서",
         "내리기에 앞서를"
        ],
@@ -40618,7 +40618,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-(으)ㄴ/는 데 반해 sets two opposing situations side by side: 'whereas A, B'. It is the written, more formal counterpart of -(으)ㄴ/는 반면에, typical of reports and articles comparing data. Attributive: verb -는 데 반해, adjective -(으)ㄴ 데 반해, past -(으)ㄴ 데 반해.",
      "conjHtml": "<div class=\"conj-rule\">Przydawka + 데 반해 (데 i 반해 pisane rozdzielnie):</div><div class=\"conj-step\"><span>늘어나<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">늘어나</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">늘어나는 데 반해</span></div><div class=\"conj-step\"><span>활발하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">활발하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">활발한 데 반해</span></div><div class=\"conj-step\"><span>감소하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">감소하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">감소한 데 반해</span></div><div class=\"conj-note\">Bardziej formalny wariant: -(으)ㄴ/는 데 반하여.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Attributive + 데 반해 (데 and 반해 written separately):</div><div class=\"conj-step\"><span>늘어나<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">늘어나</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">늘어나는 데 반해</span></div><div class=\"conj-step\"><span>활발하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">활발하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">활발한 데 반해</span></div><div class=\"conj-step\"><span>감소하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">감소하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">감소한 데 반해</span></div><div class=\"conj-note\">More formal variant: -(으)ㄴ/는 데 반하여.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "도시 인구는 ___ 농촌 인구는 줄고 있다.",
      "answer": "늘어나는 데 반해",
      "choices": [
@@ -41604,7 +41604,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-(으)ㄹ지언정 concedes an extreme, unwelcome possibility in order to reject the other more firmly: 'even if I were to die, I will not do it'. -(으)ㄹ망정 means the same, is slightly more colloquial and more often expresses a plain concession ('old maybe, but...'). The second clause usually has 는/은 with a negative.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń na spółgłoskę → 을지언정 / 을망정, na samogłoskę lub ㄹ → ㄹ지언정 / ㄹ망정:</div><div class=\"conj-step\"><span>가난하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">가난하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">가난할지언정</span></div><div class=\"conj-step\"><span>죽<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">죽</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">죽을지언정</span></div><div class=\"conj-step\"><span>늙<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">늙</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">늙었을망정</span></div><div class=\"conj-note\">Z rzeczownikiem: N일지언정 / N일망정.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Consonant stem → 을지언정 / 을망정, vowel or ㄹ stem → ㄹ지언정 / ㄹ망정:</div><div class=\"conj-step\"><span>가난하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">가난하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">가난할지언정</span></div><div class=\"conj-step\"><span>죽<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">죽</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">죽을지언정</span></div><div class=\"conj-step\"><span>늙<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">늙</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">늙었을망정</span></div><div class=\"conj-note\">With a noun: N일지언정 / N일망정.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "비록 ___ 남에게 손을 벌리지는 않겠다.",
      "answer": "가난할지언정",
      "choices": [
@@ -41709,17 +41709,17 @@ const GRAMMAR_LEVELS = {
        "en": "The body may have been exhausted, but the spirit wasn't."
       },
       {
-       "sentence": "느___ 정확하게 하겠습니다.",
-       "answer": "릴지언정",
+       "sentence": "속도는 ___ 정확하게 하겠습니다.",
+       "answer": "느릴지언정",
        "choices": [
-        "릴지언정",
-        "린지언정",
-        "리기지언정",
-        "리기는커녕"
+        "느릴지언정",
+        "느린지언정",
+        "느리기는커녕",
+        "느리느니"
        ],
-       "full": "느릴지언정 정확하게 하겠습니다.",
-       "pl": "Może i wolno, ale zrobię to dokładnie.",
-       "en": "It may be slow, but I will do it accurately."
+       "full": "속도는 느릴지언정 정확하게 하겠습니다.",
+       "pl": "Choćby wolno, zrobię to dokładnie.",
+       "en": "Even if slow, I will do it accurately."
       },
       {
        "sentence": "월급은 ___ 일은 보람 있다.",
@@ -41768,7 +41768,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-(으)면 몰라도 states the only condition under which something might be possible: 'if A, maybe; but since not A, no'. The second clause is negative or expresses difficulty. Literally: 'if A, I don't know (maybe), but...'.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń na spółgłoskę → 으면 몰라도, na samogłoskę/ㄹ → 면 몰라도; rzeczownik → (이)라면 몰라도:</div><div class=\"conj-step\"><span>많<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">많</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">많으면 몰라도</span></div><div class=\"conj-step\"><span>하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">하면 몰라도</span></div><div class=\"conj-step\"><span>배우<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">배우</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">배웠으면 몰라도</span></div><div class=\"conj-note\">Czas przeszły -았/었으면 몰라도: „gdyby się było zrobiło...”.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Consonant stem → 으면 몰라도, vowel/ㄹ stem → 면 몰라도; noun → (이)라면 몰라도:</div><div class=\"conj-step\"><span>많<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">많</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">많으면 몰라도</span></div><div class=\"conj-step\"><span>하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">하면 몰라도</span></div><div class=\"conj-step\"><span>배우<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">배우</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">배웠으면 몰라도</span></div><div class=\"conj-note\">Past -았/었으면 몰라도: 'if one had done...'.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "___ 일반인은 이 문제를 풀기 어렵다.",
      "answer": "전문가라면 몰라도",
      "choices": [
@@ -41932,7 +41932,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-는 이상 introduces a fact from which an obligation or unavoidable consequence follows: 'since A is the case, B must follow'. With the past -(으)ㄴ 이상 ('now that you have promised'), with the present -는 이상 ('as long as you work here'). Close to -는 한, but -는 이상 stresses obligation, -는 한 the limit of a condition.",
      "conjHtml": "<div class=\"conj-rule\">Przydawka + 이상: przeszłość -(으)ㄴ 이상, teraźniejszość -는 이상, rzeczownik N인 이상:</div><div class=\"conj-step\"><span>약속하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">약속하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">약속한 이상</span></div><div class=\"conj-step\"><span>다니<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">다니</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">다니는 이상</span></div><div class=\"conj-step\"><span>없<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">없</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">없는 이상</span></div><div class=\"conj-note\">Drugie zdanie: -아/어야 한다, -(으)ㄹ 수 없다, -기 마련이다.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Attributive + 이상: past -(으)ㄴ 이상, present -는 이상, noun N인 이상:</div><div class=\"conj-step\"><span>약속하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">약속하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">약속한 이상</span></div><div class=\"conj-step\"><span>다니<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">다니</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">다니는 이상</span></div><div class=\"conj-step\"><span>없<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">없</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">없는 이상</span></div><div class=\"conj-note\">Second clause: -아/어야 한다, -(으)ㄹ 수 없다, -기 마련이다.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "일단 ___ 끝까지 책임져야 한다.",
      "answer": "약속한 이상",
      "choices": [
@@ -42096,7 +42096,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-는 마당에 describes a situation that has already come about and makes something else pointless or necessary: 'now that things have come to this...'. The tone is emotional, often resigned or indignant; typical of opinion writing and reproaches. Verb -는 마당에, resulting state -(으)ㄴ 마당에.",
      "conjHtml": "<div class=\"conj-rule\">Przydawka + 마당에 (czasownik -는, stan/przeszłość -(으)ㄴ):</div><div class=\"conj-step\"><span>떠나<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">떠나</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">떠나는 마당에</span></div><div class=\"conj-step\"><span>결정되<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">결정되</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">결정된 마당에</span></div><div class=\"conj-step\"><span>촉박하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">촉박하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">촉박한 마당에</span></div><div class=\"conj-note\">Drugie zdanie: -(으)ㄹ 수 없다, 소용없다, -(으)ㄹ 때가 아니다.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Attributive + 마당에 (verb -는, state/past -(으)ㄴ):</div><div class=\"conj-step\"><span>떠나<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">떠나</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">떠나는 마당에</span></div><div class=\"conj-step\"><span>결정되<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">결정되</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">결정된 마당에</span></div><div class=\"conj-step\"><span>촉박하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">촉박하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">촉박한 마당에</span></div><div class=\"conj-note\">Second clause: -(으)ㄹ 수 없다, 소용없다, -(으)ㄹ 때가 아니다.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "회사가 ___ 보너스를 기대할 수는 없다.",
      "answer": "망해 가는 마당에",
      "choices": [
@@ -42205,9 +42205,9 @@ const GRAMMAR_LEVELS = {
        "answer": "떠나는 마당에",
        "choices": [
         "떠나는 마당에",
-        "떠나는 마당애",
+        "떠나는 바람에",
         "떠나는 마당에를",
-        "떠나는 마댕에"
+        "떠나는 탓에"
        ],
        "full": "모두가 떠나는 마당에 나 혼자 남을 수는 없다.",
        "pl": "Skoro wszyscy wyjeżdżają, nie mogę zostać sam.",
@@ -42256,11 +42256,11 @@ const GRAMMAR_LEVELS = {
     },
     {
      "pattern": "-(으)ㄴ들 (nawet gdyby — i cóż z tego)",
-     "explain": "-(으)ㄴ들 to retoryczne ustępstwo: „nawet gdyby A — i cóż z tego, B i tak nie”. Drugie zdanie jest przeczące lub ma formę pytania retorycznego (무슨 소용이 있겠는가). Styl pisany, przysłowiowy i podniosły; z rzeczownikiem N인들.",
+     "explain": "-(으)ㄴ들 to retoryczne ustępstwo: „nawet gdyby A — i cóż z tego, B i tak nie”. Drugie zdanie jest przeczące lub ma formę pytania retorycznego (무슨 소용이 있겠는가). Styl pisany, przysłowiowy i podniosły; z rzeczownikiem N인들. UWAGA: forma podniosła, retoryczna, spotykana w literaturze i przemówieniach (TOPIK 5+). W mowie codziennej i na TOPIK II używa się -아/어도 albo -더라도.",
      "explainEn": "-(으)ㄴ들 is a rhetorical concession: 'even if A - so what, B still would not follow'. The second clause is negative or a rhetorical question (무슨 소용이 있겠는가). Written, proverbial and elevated style; with a noun N인들.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń na spółgłoskę → 은들, na samogłoskę/ㄹ → ㄴ들; rzeczownik → 인들; przeszłość → -았/었던들:</div><div class=\"conj-step\"><span>후회하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">후회하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">후회한들</span></div><div class=\"conj-step\"><span>많<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">많</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">많은들</span></div><div class=\"conj-step\"><span>있<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">있</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">있었던들</span></div><div class=\"conj-note\">Często z 아무리 lub 제아무리 na początku.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Consonant stem → 은들, vowel/ㄹ stem → ㄴ들; noun → 인들; past → -았/었던들:</div><div class=\"conj-step\"><span>후회하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">후회하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">후회한들</span></div><div class=\"conj-step\"><span>많<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">많</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">많은들</span></div><div class=\"conj-step\"><span>있<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">있</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">있었던들</span></div><div class=\"conj-note\">Often introduced by 아무리 or 제아무리.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "이제 와서 ___ 무슨 소용이 있겠는가.",
      "answer": "후회한들",
      "choices": [
@@ -42424,7 +42424,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-기 나름이다 says the outcome depends on how something is done: 'it all depends on how you do it'. The subject is usually the thing being judged (맛, 결과, 성공), and a verb with -기 precedes 나름이다. Proverbial uses: 생각하기 나름이다, 마음먹기 나름이다.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń czasownika + 기 나름이다:</div><div class=\"conj-step\"><span>생각하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">생각하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">생각하기 나름이다</span></div><div class=\"conj-step\"><span>요리하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">요리하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">요리하기 나름이다</span></div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹기 나름이다</span></div><div class=\"conj-note\">Po rzeczowniku: N 나름이다 (사람 나름이다 — zależy od człowieka).</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Verb stem + 기 나름이다:</div><div class=\"conj-step\"><span>생각하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">생각하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">생각하기 나름이다</span></div><div class=\"conj-step\"><span>요리하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">요리하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">요리하기 나름이다</span></div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹기 나름이다</span></div><div class=\"conj-note\">After a noun: N 나름이다 (사람 나름이다 - it depends on the person).</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "모든 일은 ___.",
      "answer": "생각하기 나름이다",
      "choices": [
@@ -42559,8 +42559,8 @@ const GRAMMAR_LEVELS = {
        "answer": "쓰기 나름이지",
        "choices": [
         "쓰기 나름이지",
-        "쓴 나름이지",
-        "쓰는 나름이지",
+        "쓰는 대로지",
+        "쓴 셈이지",
         "쓰다 못해"
        ],
        "full": "돈은 쓰기 나름이지?",
@@ -42921,7 +42921,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-(으)ㄹ뿐더러 stacks a second quality onto the first: 'not only A, but also B'. It is the written, tighter counterpart of -(으)ㄹ 뿐만 아니라; the second clause usually carries 도/까지/조차. Written as one word, no space before 뿐더러.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń na spółgłoskę → 을뿐더러, na samogłoskę lub ㄹ → ㄹ뿐더러:</div><div class=\"conj-step\"><span>저렴하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">저렴하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">저렴할뿐더러</span></div><div class=\"conj-step\"><span>많<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">많</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">많을뿐더러</span></div><div class=\"conj-step\"><span>들<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">들</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">들뿐더러</span></div><div class=\"conj-note\">Czas przeszły: -았/었을뿐더러.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Consonant stem → 을뿐더러, vowel or ㄹ stem → ㄹ뿐더러:</div><div class=\"conj-step\"><span>저렴하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">저렴하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">저렴할뿐더러</span></div><div class=\"conj-step\"><span>많<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">많</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">많을뿐더러</span></div><div class=\"conj-step\"><span>들<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">들</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">들뿐더러</span></div><div class=\"conj-note\">Past tense: -았/었을뿐더러.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "이 제품은 가격이 ___ 품질도 뛰어나다.",
      "answer": "저렴할뿐더러",
      "choices": [
@@ -43085,7 +43085,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-느니 rejects the first option in favour of the second: 'rather than doing A, better B'. The second clause often opens with 차라리 and ends in 낫다 or -겠다. Verbs only, always in the present form.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń czasownika + 느니 (bez względu na końcową głoskę; ㄹ zostaje):</div><div class=\"conj-step\"><span>일하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">일하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">일하느니</span></div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹느니</span></div><div class=\"conj-step\"><span>알<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">알</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">아느니</span></div><div class=\"conj-note\">ㄹ-rdzenie tracą ㄹ przed ㄴ: 살다 → 사느니, 알다 → 아느니.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Verb stem + 느니 (regardless of the final sound; ㄹ stays):</div><div class=\"conj-step\"><span>일하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">일하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">일하느니</span></div><div class=\"conj-step\"><span>먹<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">먹</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">먹느니</span></div><div class=\"conj-step\"><span>알<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">알</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">아느니</span></div><div class=\"conj-note\">ㄹ-stems drop ㄹ before ㄴ: 살다 → 사느니, 알다 → 아느니.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "그런 회사에서 ___ 차라리 창업을 하겠다.",
      "answer": "일하느니",
      "choices": [
@@ -43249,7 +43249,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-는커녕 rejects an expectation rhetorically: 'far from A, not even B' - B is something far smaller, so A is all the more out of the question. After nouns 은/는커녕, after verbs -기는커녕. The second clause usually has 도/조차 with a negative, or 오히려.",
      "conjHtml": "<div class=\"conj-rule\">Rzeczownik + 은/는커녕; czasownik/przymiotnik + 기는커녕:</div><div class=\"conj-step\"><span>사과하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">사과하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">사과는커녕</span></div><div class=\"conj-step\"><span>오르<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">오르</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">오르기는커녕</span></div><div class=\"conj-step\"><span>돕<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">돕</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">돕기는커녕</span></div><div class=\"conj-note\">Pisownia łączna: 커녕 nie jest osobnym słowem.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Noun + 은/는커녕; verb/adjective + 기는커녕:</div><div class=\"conj-step\"><span>사과하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">사과하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">사과는커녕</span></div><div class=\"conj-step\"><span>오르<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">오르</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">오르기는커녕</span></div><div class=\"conj-step\"><span>돕<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">돕</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">돕기는커녕</span></div><div class=\"conj-note\">Written as one word: 커녕 is not a separate word.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "그는 ___ 인사조차 하지 않았다.",
      "answer": "사과는커녕",
      "choices": [
@@ -43413,7 +43413,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-(으)ㄹ 바에야 rejects option A as the worse one: 'if it has to be A, then better B'. It works like -느니, but the bound noun 바 plus the particle 야/는 make it sound more argumentative. Always the future form -(으)ㄹ; the second clause often 차라리 ... 낫다.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń na spółgłoskę → 을 바에야, na samogłoskę/ㄹ → ㄹ 바에야 (wariant 바에는):</div><div class=\"conj-step\"><span>하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">할 바에야</span></div><div class=\"conj-step\"><span>고치<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">고치</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">고칠 바에는</span></div><div class=\"conj-step\"><span>훔치<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">훔치</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">훔칠 바에야</span></div><div class=\"conj-note\">Pisownia rozdzielna: 할 바에야 (바 to osobne słowo).</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Consonant stem → 을 바에야, vowel/ㄹ stem → ㄹ 바에야 (variant 바에는):</div><div class=\"conj-step\"><span>하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">할 바에야</span></div><div class=\"conj-step\"><span>고치<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">고치</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">고칠 바에는</span></div><div class=\"conj-step\"><span>훔치<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">훔치</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">훔칠 바에야</span></div><div class=\"conj-note\">Written with a space: 할 바에야 (바 is a separate word).</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "그렇게 대충 ___ 차라리 하지 않는 게 낫다.",
      "answer": "할 바에야",
      "choices": [
@@ -43577,7 +43577,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-느니만 못하다 judges something worse than the alternative, usually than doing nothing: 'it would have been better not to...'. A fixed written-style construction related to -느니, but here the comparison closes the sentence and a negative often precedes (-지 않느니만 못하다).",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń czasownika + 느니만 못하다 (ㄹ-rdzenie tracą ㄹ):</div><div class=\"conj-step\"><span>돕<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">돕</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">돕지 않느니만 못하다</span></div><div class=\"conj-step\"><span>모르<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">모르</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">모르느니만 못하다</span></div><div class=\"conj-step\"><span>없<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">없</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">없느니만 못하다</span></div><div class=\"conj-note\">Przysłowie: 아는 것이 병, 모르느니만 못하다 — wiedza bywa chorobą.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Verb stem + 느니만 못하다 (ㄹ-stems drop ㄹ):</div><div class=\"conj-step\"><span>돕<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">돕</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">돕지 않느니만 못하다</span></div><div class=\"conj-step\"><span>모르<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">모르</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">모르느니만 못하다</span></div><div class=\"conj-step\"><span>없<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">없</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">없느니만 못하다</span></div><div class=\"conj-note\">Proverb: 아는 것이 병, 모르느니만 못하다 - knowledge can be a disease.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "서툰 도움은 아예 ___.",
      "answer": "돕지 않느니만 못하다",
      "choices": [
@@ -43674,7 +43674,7 @@ const GRAMMAR_LEVELS = {
        "choices": [
         "하지 않느니만 못하다",
         "하지 않느니만 못하다를",
-        "하지 않느니만 몯하다",
+        "하지 않는 편이 좋다",
         "하지 않느니마 못하다"
        ],
        "full": "잘못된 조언은 하지 않느니만 못하다.",
@@ -43699,7 +43699,7 @@ const GRAMMAR_LEVELS = {
        "answer": "없느니만 못하다",
        "choices": [
         "없느니만 못하다",
-        "없느니만 몯하다",
+        "없을 리가 없다",
         "없느니마 못하다",
         "없느니만 못하다를"
        ],
@@ -44563,7 +44563,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-(으)ㄴ 나머지 links an intense state or emotion to an uncontrolled result: 'being so X that...'. The result is usually negative or abrupt. The past attributive -(으)ㄴ always precedes 나머지; typical of written narrative.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń + -(으)ㄴ + 나머지 (spółgłoska → 은 나머지, samogłoska → ㄴ 나머지):</div><div class=\"conj-step\"><span>놀라<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">놀라</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">놀란 나머지</span></div><div class=\"conj-step\"><span>지치<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">지치</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">지친 나머지</span></div><div class=\"conj-step\"><span>집착하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">집착하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">집착한 나머지</span></div><div class=\"conj-note\">Często poprzedzone 너무, 지나치게.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Stem + -(으)ㄴ + 나머지 (consonant → 은 나머지, vowel → ㄴ 나머지):</div><div class=\"conj-step\"><span>놀라<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">놀라</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">놀란 나머지</span></div><div class=\"conj-step\"><span>지치<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">지치</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">지친 나머지</span></div><div class=\"conj-step\"><span>집착하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">집착하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">집착한 나머지</span></div><div class=\"conj-note\">Often preceded by 너무, 지나치게.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "그는 너무 ___ 말문이 막혔다.",
      "answer": "놀란 나머지",
      "choices": [
@@ -44727,7 +44727,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-다 못해 has two uses. With adjectives: the degree exceeds its limit and tips into something else (희다 못해 파랗다 - 'so white it is almost blue'). With verbs: 'unable to go on' (참다 못해 - 'unable to bear it any longer'). Bare -다 attaches to the stem, no tense.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń + 다 못해 (forma słownikowa bez zmian + 못해):</div><div class=\"conj-step\"><span>희<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">희</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">희다 못해</span></div><div class=\"conj-step\"><span>참<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">참</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">참다 못해</span></div><div class=\"conj-step\"><span>기다리<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">기다리</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">기다리다 못해</span></div><div class=\"conj-note\">To NIE jest zwykłe -지 못해 (nie móc) — 참지 못해 to „nie mogąc znieść”, a 참다 못해 to „wyczerpawszy cierpliwość”.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Stem + 다 못해 (dictionary form unchanged + 못해):</div><div class=\"conj-step\"><span>희<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">희</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">희다 못해</span></div><div class=\"conj-step\"><span>참<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">참</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">참다 못해</span></div><div class=\"conj-step\"><span>기다리<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">기다리</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">기다리다 못해</span></div><div class=\"conj-note\">This is NOT plain -지 못해 (cannot) - 참지 못해 is 'unable to bear', 참다 못해 is 'having run out of patience'.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "눈이 ___ 푸른빛이 돌았다.",
      "answer": "희다 못해",
      "choices": [
@@ -44836,8 +44836,8 @@ const GRAMMAR_LEVELS = {
        "answer": "참다 못해",
        "choices": [
         "참다 못해",
-        "참다 몯해",
-        "참다 못헤",
+        "참다시피",
+        "참는 바람에",
         "참다 못해를"
        ],
        "full": "그는 참다 못해 결국 소리를 질렀다.",
@@ -44849,8 +44849,8 @@ const GRAMMAR_LEVELS = {
        "answer": "차갑다 못해",
        "choices": [
         "차갑다 못해",
-        "차갑다 몯해",
-        "차갑다 못헤",
+        "차갑다시피",
+        "차갑는 바람에",
         "차갑따 못해"
        ],
        "full": "물이 차갑다 못해 손이 아플 정도였다.",
@@ -44891,7 +44891,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-기가 무섭게 is an emphatic 'no sooner A than B' - the second event follows so instantly it seems to 'fear' the first. Stronger and more vivid than neutral -자마자; typical when describing haste, popularity, or habit. 무섭다 literally means 'scary', but there is no fear involved here.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń czasownika + 기가 무섭게:</div><div class=\"conj-step\"><span>돌아오<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">돌아오</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">돌아오기가 무섭게</span></div><div class=\"conj-step\"><span>끝나<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">끝나</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">끝나기가 무섭게</span></div><div class=\"conj-step\"><span>받<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">받</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">받기가 무섭게</span></div><div class=\"conj-note\">Bez 가 też poprawnie: 끝나기 무섭게. Odróżnij od 무서워 (bo się bał).</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Verb stem + 기가 무섭게:</div><div class=\"conj-step\"><span>돌아오<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">돌아오</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">돌아오기가 무섭게</span></div><div class=\"conj-step\"><span>끝나<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">끝나</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">끝나기가 무섭게</span></div><div class=\"conj-step\"><span>받<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">받</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">받기가 무섭게</span></div><div class=\"conj-note\">Also correct without 가: 끝나기 무섭게. Distinguish from 무서워 (because he was afraid).</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "아이는 학교에서 ___ 놀이터로 달려갔다.",
      "answer": "돌아오기가 무섭게",
      "choices": [
@@ -44936,7 +44936,7 @@ const GRAMMAR_LEVELS = {
        "choices": [
         "끝나기가 무섭게",
         "끝난 무섭게",
-        "끝나기 무섭기",
+        "끝나기 마련이다",
         "끝나느냐"
        ],
        "full": "회의가 끝나기가 무섭게 사람들은 자리를 떴다.",
@@ -45026,9 +45026,9 @@ const GRAMMAR_LEVELS = {
        "answer": "끝나기가 무섭게",
        "choices": [
         "끝나기가 무섭게",
-        "끝나기가 무섭개",
+        "끝나기 무섭도록",
         "끝나기가 무섭게를",
-        "끝나기가 무서게"
+        "끝나기 마련이다"
        ],
        "full": "수업이 끝나기가 무섭게 학생들이 뛰어나갔다.",
        "pl": "Ledwie skończyła się lekcja, uczniowie wybiegli.",
@@ -45055,7 +45055,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-고서야 means 'only after A did B happen' - B was not possible before. In a rhetorical question (-지 않고서야 ... -겠는가) it means 'how could one possibly... without A'. It differs from -고서 (plain sequence) by the added 야 - 'only then'.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń czasownika + 고서야:</div><div class=\"conj-step\"><span>잃<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">잃</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">잃고서야</span></div><div class=\"conj-step\"><span>걸리<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">걸리</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">걸리고서야</span></div><div class=\"conj-step\"><span>보<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">보</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">보고서야</span></div><div class=\"conj-note\">Z przeczeniem: -지 않고서야 (jakże by bez...).</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Verb stem + 고서야:</div><div class=\"conj-step\"><span>잃<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">잃</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">잃고서야</span></div><div class=\"conj-step\"><span>걸리<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">걸리</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">걸리고서야</span></div><div class=\"conj-step\"><span>보<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">보</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">보고서야</span></div><div class=\"conj-note\">With a negative: -지 않고서야 (how could one without...).</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "그는 모든 것을 ___ 진실을 깨달았다.",
      "answer": "잃고서야",
      "choices": [
@@ -45099,7 +45099,7 @@ const GRAMMAR_LEVELS = {
        "answer": "오고서야",
        "choices": [
         "오고서야",
-        "온서야",
+        "오고 나면",
         "오는고서야",
         "오건대"
        ],
@@ -45138,7 +45138,7 @@ const GRAMMAR_LEVELS = {
        "answer": "해 보고서야",
        "choices": [
         "해 보고서야",
-        "해 본서야",
+        "해 보고서도",
         "해 볼고서야",
         "해 보리라"
        ],
@@ -45151,7 +45151,7 @@ const GRAMMAR_LEVELS = {
        "answer": "되고서야",
        "choices": [
         "되고서야",
-        "된서야",
+        "되고 나서",
         "될고서야",
         "되느니"
        ],
@@ -45545,7 +45545,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-다시피 has two uses. With 알다/보다/듣다/말하다: 'as you know / as you can see / as I said' - appealing to shared knowledge, typical of presentations (아시다시피, 보시다시피). With other verbs: 'almost, virtually' (밤을 새우다시피 했다 - 'he practically stayed up all night'). It attaches straight to the stem or to -았/었.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń (+ -(으)시- / -았/었-) + 다시피:</div><div class=\"conj-step\"><span>알<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">알</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">아시다시피</span></div><div class=\"conj-step\"><span>보<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">보</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">보시다시피</span></div><div class=\"conj-step\"><span>말하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">말하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">말했다시피</span></div><div class=\"conj-note\">Bez -는/-ㄴ przed 다시피: 안다시피 jest błędem, poprawnie 알다시피.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Stem (+ -(으)시- / -았/었-) + 다시피:</div><div class=\"conj-step\"><span>알<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">알</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">아시다시피</span></div><div class=\"conj-step\"><span>보<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">보</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">보시다시피</span></div><div class=\"conj-step\"><span>말하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">말하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">말했다시피</span></div><div class=\"conj-note\">No -는/-ㄴ before 다시피: 안다시피 is wrong, the correct form is 알다시피.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "여러분도 ___ 올해 매출이 크게 늘었습니다.",
      "answer": "아시다시피",
      "choices": [
@@ -45709,7 +45709,7 @@ const GRAMMAR_LEVELS = {
      "explainEn": "-(으)ㄹ 따름이다 means 'nothing more than, merely' - the speaker plays down their role or stresses that there is no other option (감사할 따름입니다 - 'I can only be grateful'). More formal than -(으)ㄹ 뿐이다; common in thanks, speeches and official explanations.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń na spółgłoskę → 을 따름이다, na samogłoskę/ㄹ → ㄹ 따름이다; przeszłość -았/었을 따름이다:</div><div class=\"conj-step\"><span>감사하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">감사하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">감사할 따름이다</span></div><div class=\"conj-step\"><span>하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">했을 따름이다</span></div><div class=\"conj-step\"><span>기다리<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">기다리</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">기다릴 따름이다</span></div><div class=\"conj-note\">Po 따름 nie stoi 뿐 ani 만 — sama forma już znaczy „tylko”.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Consonant stem → 을 따름이다, vowel/ㄹ stem → ㄹ 따름이다; past -았/었을 따름이다:</div><div class=\"conj-step\"><span>감사하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">감사하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">감사할 따름이다</span></div><div class=\"conj-step\"><span>하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">했을 따름이다</span></div><div class=\"conj-step\"><span>기다리<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">기다리</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">기다릴 따름이다</span></div><div class=\"conj-note\">No 뿐 or 만 after 따름 - the form already means 'only'.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "저는 제 할 일을 ___.",
      "answer": "했을 따름입니다",
      "choices": [
@@ -45869,11 +45869,11 @@ const GRAMMAR_LEVELS = {
     },
     {
      "pattern": "-(으)리라(고) (literackie przypuszczenie / postanowienie)",
-     "explain": "-(으)리라 to literacka forma przyszłości: w zdaniu z 생각하다/믿다/예상하다 wyraża przypuszczenie („sądził, że nadejdzie”), a jako zakończenie zdania — uroczyste postanowienie („będę bronił tej ziemi”). Wszechobecne w prozie, przemówieniach i tekstach historycznych; w mowie potocznej zastępuje je -(으)ㄹ 것이다.",
+     "explain": "-(으)리라 to literacka forma przyszłości: w zdaniu z 생각하다/믿다/예상하다 wyraża przypuszczenie („sądził, że nadejdzie”), a jako zakończenie zdania — uroczyste postanowienie („będę bronił tej ziemi”). Wszechobecne w prozie, przemówieniach i tekstach historycznych; w mowie potocznej zastępuje je -(으)ㄹ 것이다. UWAGA: styl archaizujący, literacki (TOPIK 5+). W zwykłej wypowiedzi wystarczy -(으)ㄹ 것이다 albo -(으)려고 하다.",
      "explainEn": "-(으)리라 is a literary future form: with 생각하다/믿다/예상하다 it expresses supposition ('he thought it would come'), and as a sentence ending a solemn resolution ('I shall defend this land'). Ubiquitous in prose, speeches and historical texts; in speech -(으)ㄹ 것이다 takes its place.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń na spółgłoskę → 으리라, na samogłoskę/ㄹ → 리라; z cytowaniem + 고:</div><div class=\"conj-step\"><span>성공하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">성공하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">성공하리라고</span></div><div class=\"conj-step\"><span>밝혀지<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">밝혀지</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">밝혀지리라고</span></div><div class=\"conj-step\"><span>지키<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">지키</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">지키리라</span></div><div class=\"conj-note\">Z rzeczownikiem: N이리라 (기회이리라). Nie dokleja się do -(으)ㄹ: 성공할리라 jest błędem.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Consonant stem → 으리라, vowel/ㄹ stem → 리라; with quotation + 고:</div><div class=\"conj-step\"><span>성공하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">성공하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">성공하리라고</span></div><div class=\"conj-step\"><span>밝혀지<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">밝혀지</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">밝혀지리라고</span></div><div class=\"conj-step\"><span>지키<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">지키</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">지키리라</span></div><div class=\"conj-note\">With a noun: N이리라 (기회이리라). It does not attach to -(으)ㄹ: 성공할리라 is wrong.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "그는 반드시 ___ 다짐했다.",
      "answer": "성공하리라고",
      "choices": [
@@ -46033,11 +46033,11 @@ const GRAMMAR_LEVELS = {
     },
     {
      "pattern": "-건대 (바라건대, 보건대 — jak sądzę / proszę)",
-     "explain": "-건대 wprowadza opinię, prośbę lub przypuszczenie w stylu podniosłym: 바라건대 („oby, proszę”), 생각하건대 („jak sądzę”), 보건대 („jak widzę”), 단언하건대 („zapewniam”). Forma skostniała — używana z kilkoma czasownikami myślenia i mowy, zawsze na początku zdania, bez końcówki czasu.",
+     "explain": "-건대 wprowadza opinię, prośbę lub przypuszczenie w stylu podniosłym: 바라건대 („oby, proszę”), 생각하건대 („jak sądzę”), 보건대 („jak widzę”), 단언하건대 („zapewniam”). Forma skostniała — używana z kilkoma czasownikami myślenia i mowy, zawsze na początku zdania, bez końcówki czasu. UWAGA: skostniały rejestr oratorski i eseistyczny (TOPIK 5+). Poza 바라건대 i 생각하건대 praktycznie nieużywane.",
      "explainEn": "-건대 introduces an opinion, wish or supposition in an elevated style: 바라건대 ('I hope, pray'), 생각하건대 ('as I think'), 보건대 ('as I see it'), 단언하건대 ('I assure you'). A fossilised form used with a handful of verbs of thinking and speaking, always at the start of the sentence, without tense.",
      "conjHtml": "<div class=\"conj-rule\">Rdzeń czasownika + 건대 (tylko czasowniki myślenia/mowy/życzenia):</div><div class=\"conj-step\"><span>바라<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">바라</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">바라건대</span></div><div class=\"conj-step\"><span>생각하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">생각하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">생각하건대</span></div><div class=\"conj-step\"><span>보<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">보</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">보건대</span></div><div class=\"conj-note\">Wariant -는데 (생각하는데) to zwykła mowa; -건대 zostaje w przemówieniach i listach.</div>",
      "conjHtmlEn": "<div class=\"conj-rule\">Verb stem + 건대 (only verbs of thinking, speaking, wishing):</div><div class=\"conj-step\"><span>바라<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">바라</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">바라건대</span></div><div class=\"conj-step\"><span>생각하<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">생각하</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">생각하건대</span></div><div class=\"conj-step\"><span>보<span class=\"conj-strike\">다</span></span><span class=\"conj-arrow\">→</span><span class=\"conj-stem\">보</span><span class=\"conj-arrow\">→</span><span class=\"conj-result\">보건대</span></div><div class=\"conj-note\">The variant -는데 (생각하는데) is ordinary speech; -건대 belongs to speeches and letters.</div>",
-     "verified": false,
+     "verified": true,
      "sentence": "___ 이번 일은 제 잘못이 아닙니다.",
      "answer": "생각하건대",
      "choices": [
@@ -52596,7 +52596,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.281';
+const APP_VERSION = '2026-09-06.286';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -55479,8 +55479,31 @@ const LINE_ICONS = {
 };
 
 // Kobalt: ikoną jest sam znak koreański/hanja - zero emoji, zero rysunków.
-const GLYPH_ICONS = { '🔁':'復','한':'한','📚':'낱','📐':'문','漢':'漢','📖':'讀','🗺️':'圖',
-  '📜':'學','🏮':'燈','🏢':'業','🎙️':'話','🏫':'班','🔍':'索','🔤':'字','🧩':'組','🔥':'熱' };
+const GLYPH_ICONS = {
+  /* HANGUL, nie hanja. Wcześniej 13 z 16 glifów było znakami chińskimi (讀 圖 學
+     復 燈 業 話 班 索 字 組 熱 漢) - uczeń koreańskiego ich NIE PRZECZYTA, bo
+     współczesny koreański nie używa hanja w tekście codziennym. Glif miał
+     zastąpić emoji czymś, co uczy; hanja uczy tylko tych, którzy już umieją.
+
+     Wyjątek: 漢 zostaje przy module hanja, bo TAM znak chiński jest tematem.
+     Zgłoszone przez Damiana 2026-09-06. */
+  '🔁':'복',      // 복습 - powtórka
+  '한':'한',
+  '📚':'낱',      // 낱말 - słowo
+  '📐':'문',      // 문법 - gramatyka
+  '漢':'漢',      // moduł hanja - tu znak chiński JEST tematem
+  '📖':'읽',      // 읽기 - czytanie
+  '🗺️':'길',      // droga, ścieżka - tryb prowadzony
+  '📜':'학',      // 학문 - nauka, akademia
+  '🏮':'문화',    // kultura
+  '🏢':'업',      // 업무 - praca zawodowa
+  '🎙️':'말',      // mówienie
+  '🏫':'반',      // 반 - klasa, grupa
+  '🔍':'찾',      // 찾기 - szukanie
+  '🔤':'자',      // 글자 - znak, litera
+  '🧩':'짜',      // 짜기 - układanie
+  '🔥':'열',      // 열 - zapał, seria
+};
 
 // Dolna nawigacja - w trybie liniowym te same cienkie ikony co na kartach.
 const NAV_LINE_ICONS = { learn:'🏠', dict:'🔍', chat:'🎙️', progress:'📊' };
