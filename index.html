@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.337
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.340
   Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -374,8 +374,10 @@
   .reading-side .word-def,
   .reading-side .word-meta,
   .reading-side .word-note{ text-align:center; }
-  .reading-side .word-hanja,
-  .reading-side .word-actions{ justify-content:center; }
+  .reading-side .word-hanja{ justify-content:center; }
+  /* margin-top:auto z .word-actions dociskało przyciski do dołu arkusza -
+     w panelu pod tekstem to zbędne, potrzebny jest zwykły odstęp. */
+  .reading-side .word-actions{ justify-content:center; margin-top:16px; }
   .reading-side .word-ex{ text-align:center; }
 
   .ws-top{ display:block; margin-bottom:2px; }
@@ -401,7 +403,7 @@
   .wh-part{ display:flex; align-items:baseline; gap:4px; padding:3px 8px;
     border-radius:var(--radius-pill); background:var(--surface-2); font-size:12px; color:var(--ink-dim); }
   .wh-part b{ font-size:14px; color:var(--hwang); font-weight:600; }
-  .word-actions{ margin-top:auto; display:flex; gap:10px; padding-bottom:2px; }
+  .word-actions{ margin-top:auto; display:flex; gap:10px; padding-bottom:2px; margin-top:14px;}
   .word-add{ flex:1; min-height:48px; border:0; border-radius:var(--btn-radius);
     background:var(--hwang); color:var(--on-accent); font:500 14.5px var(--font-ui); cursor:pointer; }
   /* Makieta 5b: odsłuch to małe okrągłe kółko z trójkątem, nie kwadrat z głośnikiem. */
@@ -57685,7 +57687,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.337';
+const APP_VERSION = '2026-09-06.340';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -67888,6 +67890,16 @@ function hideWordSheet(){
 // Podświetla w klikniętym tokenie tylko tę część, która trafiła w hasło.
 function markReaderHit(el, base){
   if(!el) return;
+  /* CZYSZCZENIE POPRZEDNIEGO. Funkcja tylko dodawała podświetlenie, nigdy go
+     nie zdejmowała - po kilku kliknięciach pół tekstu było podkreślone i nie
+     dało się poznać, które słowo jest bieżące.
+     Zgłoszone przez Damiana 2026-09-06. */
+  document.querySelectorAll('#readingTextBox .reader-w').forEach(inny => {
+    if(inny === el) return;
+    if(inny.dataset.raw && inny.querySelector('.reader-hit')){
+      inny.textContent = inny.dataset.raw;
+    }
+  });
   const raw = el.dataset.raw || el.textContent;
   el.dataset.raw = raw;
   const i = raw.indexOf(base);
