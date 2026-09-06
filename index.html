@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.280
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.281
   Zbudowane na: 578e1ea023ff1a3227dd25b7fe4ed003 (.266)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2578,6 +2578,14 @@
      w górę i wjeżdżało pod flagę. Dół jest wolny w każdym stanie, a zgłoszenie
      to akcja drugorzędna, więc nie musi być pierwsze pod ręką.
      Zgłoszone przez Damiana 2026-09-06. */
+  /* .report-flag-btn WYŁĄCZONA z reguły zbiorczej position:relative, którą
+     dodałem 2026-09-05 do powiększania obszaru dotyku ikon pomocniczych.
+     Ta reguła stała PO tej deklaracji i nadpisywała position:absolute -
+     flaga przestawała być pozycjonowana i lądowała w toku treści, wyśrodkowana
+     razem z kartą (zmierzone: x=1060 przy karcie 875-1295).
+     Flaga ma 30px, czyli i tak poniżej progu, ale absolutne pozycjonowanie
+     samo w sobie tworzy kontekst - ::after działa bez position:relative.
+     Zmierzone przez Damiana 2026-09-06. */
   .report-flag-btn{
     position:absolute;
     top:10px; right:10px;
@@ -2656,10 +2664,10 @@
   /* Obszar dotyku powiększony przezroczystym ::after - ikony zostają małe,
      bo są pomocnicze i duże rozpychałyby układ, ale trafić w nie trzeba.
      Ta sama technika co przy .theme-toggle-btn. Audyt wizualny 2026-09-05. */
-  .center-speak-btn, .report-flag-btn, .tense-info-btn, .vacation-row .vac-btn{
+  .center-speak-btn, .tense-info-btn, .vacation-row .vac-btn{
     position:relative;
   }
-  .center-speak-btn::after, .report-flag-btn::after,
+  .center-speak-btn::after,
   .tense-info-btn::after, .vacation-row .vac-btn::after{
     content:''; position:absolute; inset:-6px; border-radius:inherit;
   }
@@ -52588,7 +52596,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.280';
+const APP_VERSION = '2026-09-06.281';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
