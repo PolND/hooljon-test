@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.311
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.313
   Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -5130,6 +5130,14 @@
      Dwa rzędy: drugorzędne akcje w linii (przewijalne, gdyby się nie mieściły)
      i główny przycisk na pełną szerokość pod nimi. Offset dolny liczony tak samo
      jak dla arkusza słowa: max(nawigacja, baner), bo oba są position:fixed. */
+  /* Komunikat błędu mikrofonu W PASKU AKCJI, przy przycisku. Patrz komentarz
+     przy readingRecognition.onerror. */
+  .reading-mic-error{
+    font:600 12.5px var(--font-ui); color:var(--bad);
+    background:var(--card); border:1px solid var(--bad);
+    border-radius:var(--radius); padding:9px 12px; line-height:1.4;
+  }
+
   .reading-actions{
     position:fixed; left:0; right:0; bottom:0; z-index:38;
     display:flex; flex-direction:column; gap:8px;
@@ -61704,7 +61712,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.311';
+const APP_VERSION = '2026-09-06.313';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -72223,6 +72231,23 @@ async function renderReadingReport(){
   }
 }
 
+/* Most natywny w CZYTANIU, tak jak w odpytywaniu głosem. Web Speech zawiódł
+   dziś trzeci raz u tego samego użytkownika: raz przy ocenie odpytywania, raz
+   przy Haksie, teraz przy czytance. To nie jest awaria, tylko właściwość -
+   Chrome wysyła dźwięk na serwery Google, Edge na Microsoftu, a jedno i drugie
+   bywa zablokowane albo wyłączone w ustawieniach systemu.
+
+   Wersja z Google Play użyje android.speech.SpeechRecognizer przez
+   window.HooljonNative (kontrakt w spec-most-natywny.md) - działa offline
+   po pobraniu paczki językowej i nie zależy od polityki przeglądarki.
+   Dodane 2026-09-06. */
+async function czytajPrzezMost(){
+  const most = (typeof mostNatywny === 'function') ? mostNatywny() : null;
+  if(!most) return null;
+  try{ return await most.rozpoznaj('ko-KR', 15000); }
+  catch(e){ return { blad:'blad', kod:'most' }; }
+}
+
 function initReadingRecognition(){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SR) return null;
@@ -72328,7 +72353,26 @@ document.getElementById('readingMicBtn').addEventListener('click', ()=>{
         'audio-capture': '⚠️ Nie znaleziono mikrofonu. Podłącz mikrofon i spróbuj ponownie.',
         'network': '⚠️ Problem z połączeniem do serwisu rozpoznawania mowy. Sprawdź internet (albo spróbuj wyłączyć VPN, jeśli używasz) i spróbuj ponownie.',
       };
-      document.getElementById('readingStatus').textContent = messages[e.error] || (uiLang === 'en' ? `⚠️ Speech recognition failed (${e.error}).` : `⚠️ Nie udało się rozpoznać mowy (${e.error}).`);
+      const komunikat = messages[e.error] || (uiLang === 'en' ? `⚠️ Speech recognition failed (${e.error}).` : `⚠️ Nie udało się rozpoznać mowy (${e.error}).`);
+        document.getElementById('readingStatus').textContent = komunikat;
+        /* Komunikat TAKŻE przy przycisku. readingStatus jest na górze ekranu,
+           a przycisk mikrofonu na dole (pasek fixed) - user klikał i nie widział
+           odpowiedzi, więc wnioskował, że funkcja nie działa albo jej nie ma.
+           Zgłoszone przez Damiana 2026-09-06 przy czytance 저의 하루. */
+        {
+          const pasek = document.getElementById('readingActions');
+          let inline = document.getElementById('readingMicError');
+          if(pasek && !inline){
+            inline = document.createElement('div');
+            inline.id = 'readingMicError';
+            inline.className = 'reading-mic-error';
+            pasek.insertBefore(inline, pasek.firstChild);
+          }
+          if(inline){
+            inline.textContent = komunikat;
+            inline.style.display = '';
+          }
+        }
     };
     readingRecognition.onend = ()=>{
       readingListening = false;
@@ -72336,6 +72380,7 @@ document.getElementById('readingMicBtn').addEventListener('click', ()=>{
       document.getElementById('readingMicBtn').textContent = readingMicIdleLabel();
     };
   }
+  { const ie = document.getElementById('readingMicError'); if(ie) ie.style.display = 'none'; }
   readingListening = true;
   document.getElementById('readingMicBtn').classList.add('ai-chat-mic-active');
   document.getElementById('readingMicBtn').textContent = readingMicListeningLabel();
