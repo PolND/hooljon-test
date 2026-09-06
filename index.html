@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.313
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.318
   Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -7628,6 +7628,11 @@
         <div class="row" style="margin-top:0;">
           <button class="tool-btn addmode-tab active" id="addModeTypeBtn" style="flex:1;" data-i18n="addModeType">Wpisz ręcznie</button>
           <button class="tool-btn addmode-tab" id="addModePickBtn" style="flex:1;" data-i18n="addModePick">Wybierz z bazy</button>
+          <!-- ZDJĘCIE. Kod OCR istnial w aiFlashcardPanel, ale nie bylo do niego
+               wejscia z dodawania slowek - user nie mial jak trafic. Otwieramy
+               tamten panel, zeby nie dublowac logiki analizy obrazu.
+               Zgloszone przez Damiana 2026-09-06. -->
+          <button class="tool-btn addmode-tab" id="addModePhotoBtn" style="flex:1;" data-i18n="addModePhoto">Ze zdjęcia</button>
         </div>
 
         <div id="addModeTypeBody">
@@ -61712,7 +61717,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.313';
+const APP_VERSION = '2026-09-06.318';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -62562,6 +62567,7 @@ const I18N = {
   rankEternal: { pl: 'Wszech czasów', en: 'All time' },
   bargeLabel: { pl: 'Pozwól przerywać (słuchawki)', en: 'Allow interrupting (headphones)' },
   zrodlaLabel: { pl: 'Dane kolejności kresek', en: 'Stroke order data' },
+  addModePhoto: { pl: 'Ze zdjęcia', en: 'From photo' },
   lvPodpowiedzi: { pl: 'Scenariusz i przydatne zwroty', en: 'Scenario and useful phrases' },
   haksaDrillTitle: { pl: 'Haksa odpytuje', en: 'Haksa quizzes you' },
   haksaDrillDesc: { pl: 'Rozmowa z lektorem AI zamiast robota — reaguje na to, co powiesz. Liczy się w limit minut.', en: 'A real AI tutor instead of a robot — responds to what you say. Counts toward your minutes.' },
@@ -64850,8 +64856,34 @@ let folderEditName = null;
 function pickerTranslationOf(w){ return (uiLang === 'en' ? (w.en || w.pl) : (w.pl || w.en)) || ''; }
 function folderLabel(name){ return name === DEFAULT_FOLDER ? (uiLang === 'en' ? 'Unsorted' : 'Bez zestawu') : name; }
 function getMyWords(){ return allWords.filter(w => (w.category || 'Własne') === 'Własne'); }
+/* ═══ PUSTE ZESTAWY ══════════════════════════════════════════════════════
+   getMyFolders() wyprowadzało zestawy Z LISTY SŁÓW, więc zestaw istniał tylko
+   wtedy, gdy coś w nim było. User tworzył zestaw, nie zdążył dodać słowa
+   i zestaw znikał - wyglądało to jak utrata danych.
+
+   Nazwy trzymamy teraz osobno w localStorage. To dane lokalne, nie serwerowe:
+   pusty zestaw nie ma czego synchronizować, a gdy dostanie pierwsze słowo,
+   zapisze się normalnie razem z nim. Zgłoszone przez Damiana 2026-09-06. */
+const PUSTE_ZESTAWY_KEY = 'hooljon_puste_zestawy';
+
+function pusteZestawy(){
+  try{ return JSON.parse(localStorage.getItem(PUSTE_ZESTAWY_KEY) || '[]'); }
+  catch(e){ return []; }
+}
+function zapamietajZestaw(nazwa){
+  if(!nazwa || nazwa === DEFAULT_FOLDER) return;
+  const l = pusteZestawy();
+  if(!l.includes(nazwa)){ l.push(nazwa); try{ localStorage.setItem(PUSTE_ZESTAWY_KEY, JSON.stringify(l)); }catch(e){} }
+}
+function zapomnijZestaw(nazwa){
+  try{ localStorage.setItem(PUSTE_ZESTAWY_KEY, JSON.stringify(pusteZestawy().filter(n => n !== nazwa))); }catch(e){}
+}
+
 function getMyFolders(){
   const map = new Map();
+  // Puste zestawy WCHODZĄ do listy z licznikiem 0 - inaczej znikałyby do czasu
+  // dodania pierwszego słowa.
+  pusteZestawy().forEach(n => map.set(n, 0));
   getMyWords().forEach(w => { const f = w.folder || DEFAULT_FOLDER; map.set(f, (map.get(f) || 0) + 1); });
   return [...map.entries()].sort((a, b) => (a[0] === DEFAULT_FOLDER ? 1 : b[0] === DEFAULT_FOLDER ? -1 : a[0].localeCompare(b[0])));
 }
@@ -64929,6 +64961,46 @@ function setAddMode(mode){
   document.getElementById('addModeTypeBtn').classList.toggle('active', !isPick);
   document.getElementById('addModePickBtn').classList.toggle('active', isPick);
   if(isPick) setTimeout(() => document.getElementById('wordPickerSearch').focus(), 50);
+}
+
+/* ═══ OKNO NA TEKST ═══════════════════════════════════════════════════════
+   Zastępuje prompt(). Systemowy dialog przeglądarki pokazuje adres strony
+   (w Edge: "github.io mówi:"), wygląda jak komunikat obcej witryny i wypada
+   z motywu apki. User zgłosił to jako "komunikat ze strony github".
+
+   Zwraca Promise z tekstem albo null przy anulowaniu - żeby wołający kod
+   wyglądał tak samo jak przy prompt(). 2026-09-06. */
+function zapytajOTekst(tytul, wartosc, placeholder){
+  return new Promise((res) => {
+    const stary = document.getElementById('tekstPanel');
+    if(stary) stary.remove();
+    const p = document.createElement('div');
+    p.className = 'panel open';
+    p.id = 'tekstPanel';
+    p.innerHTML = `
+      <div class="modal-card" style="max-width:380px;">
+        <h3 style="margin-bottom:12px;">${escapeHtml(tytul)}</h3>
+        <div class="login-field">
+          <input type="text" id="tekstPanelInput" maxlength="60"
+                 placeholder="${escapeHtml(placeholder || '')}" value="${escapeHtml(wartosc || '')}">
+        </div>
+        <div class="row" style="gap:8px; margin-top:14px;">
+          <button class="tool-btn" id="tekstPanelAnuluj">${uiLang === 'en' ? 'Cancel' : 'Anuluj'}</button>
+          <button class="primary" id="tekstPanelOk">${uiLang === 'en' ? 'OK' : 'Zapisz'}</button>
+        </div>
+      </div>`;
+    document.querySelector('.wrap').appendChild(p);
+    const inp = document.getElementById('tekstPanelInput');
+    const koniec = (v) => { p.remove(); res(v); };
+    document.getElementById('tekstPanelOk').addEventListener('click', () => koniec(inp.value.trim() || null));
+    document.getElementById('tekstPanelAnuluj').addEventListener('click', () => koniec(null));
+    p.addEventListener('click', (e) => { if(e.target === p) koniec(null); });
+    inp.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){ e.preventDefault(); koniec(inp.value.trim() || null); }
+      if(e.key === 'Escape') koniec(null);
+    });
+    setTimeout(() => { try{ inp.focus(); inp.select(); }catch(e){} }, 60);
+  });
 }
 
 function updateFolderSelect(){
@@ -74085,9 +74157,11 @@ document.getElementById('wordPickerSearch').addEventListener('input', (e) => {
   pickerSearchTimer = setTimeout(() => runPickerSearch(term), 250);
 });
 
-document.getElementById('folderSelect').addEventListener('change', (e) => {
+document.getElementById('folderSelect').addEventListener('change', async (e) => {
   if(e.target.value !== '__new__') return;
-  const name = (prompt(uiLang === 'en' ? 'Name for the new set:' : 'Nazwa nowego zestawu:', '') || '').trim();
+  const name = await zapytajOTekst(
+    uiLang === 'en' ? 'Name for the new set' : 'Nazwa nowego zestawu', '',
+    uiLang === 'en' ? 'e.g. Kitchen' : 'np. Kuchnia');
   if(!name || name === DEFAULT_FOLDER){ updateFolderSelect(); return; }
   pendingNewFolder = name; updateFolderSelect();
 });
@@ -74133,22 +74207,36 @@ document.getElementById('folderEditAddBtn').addEventListener('click', () => {
   if(sel && folderEditName) sel.value = folderEditName;
 });
 
-document.getElementById('myWordsNewFolderBtn').addEventListener('click', () => {
-  const name = (prompt(uiLang === 'en' ? 'Name for the new set:' : 'Nazwa nowego zestawu:', '') || '').trim();
+document.getElementById('addModePhotoBtn').addEventListener('click', ()=>{
+  /* Zamykamy panel dodawania i otwieramy ten z OCR. Zestaw docelowy zostaje
+     w pendingNewFolder, zeby slowa z analizy trafily tam, gdzie user chcial. */
+  const sel = document.getElementById('folderSelect');
+  if(sel && sel.value && sel.value !== '__new__') pendingNewFolder = sel.value;
+  document.getElementById('addPanel').classList.remove('open');
+  document.getElementById('aiFlashcardPanel').classList.add('open');
+});
+
+document.getElementById('myWordsNewFolderBtn').addEventListener('click', async () => {
+  const name = await zapytajOTekst(
+    uiLang === 'en' ? 'Name for the new set' : 'Nazwa nowego zestawu', '',
+    uiLang === 'en' ? 'e.g. Kitchen' : 'np. Kuchnia');
   if(!name || name === DEFAULT_FOLDER) return;
   pendingNewFolder = name;
+  zapamietajZestaw(name);
   document.getElementById('addPanel').classList.add('open');
   setAddMode('pick'); updateFolderSelect();
 });
 document.getElementById('folderEditRenameBtn').addEventListener('click', async () => {
   if(!folderEditName) return;
-  const name = (prompt(uiLang === 'en' ? 'New name:' : 'Nowa nazwa:', folderEditName) || '').trim();
+  const name = await zapytajOTekst(
+    uiLang === 'en' ? 'New name' : 'Nowa nazwa', folderEditName, '');
   if(!name || name === folderEditName || name === DEFAULT_FOLDER) return;
   customWords.forEach(w => { if((w.folder || DEFAULT_FOLDER) === folderEditName) w.folder = name; });
   folderEditName = name;
   await saveCustom(); rebuildWordPool(); renderFolderEdit();
 });
 document.getElementById('folderEditDeleteBtn').addEventListener('click', async () => {
+  { const n = folderEditName; if(n) zapomnijZestaw(n); }
   if(!folderEditName) return;
   const count = customWords.filter(w => (w.folder || DEFAULT_FOLDER) === folderEditName).length;
   // Usunięcie zestawu NIE kasuje słów - przenosi je do "Bez zestawu". Przypadkowe
@@ -74974,7 +75062,10 @@ sb.auth.onAuthStateChange(async (event, session)=>{
   if(event === 'PASSWORD_RECOVERY'){
     // Użytkownik wrócił z linku do resetu hasła z e-maila — Supabase już dało mu
     // tymczasową sesję, brakuje tylko nowego hasła.
-    const newPass = prompt(uiLang === 'en' ? 'Enter your new password:' : 'Podaj nowe hasło:');
+    /* Hasło NIE przez zapytajOTekst - to pole tekstowe bez maskowania.
+     Zostaje prompt(), bo przeglądarka przynajmniej nie zapisuje go w historii
+     formularza. Docelowo osobne okno z type="password". */
+  const newPass = prompt(uiLang === 'en' ? 'Enter your new password:' : 'Podaj nowe hasło:');
     if(newPass){
       const { error } = await sb.auth.updateUser({ password: newPass });
       alert(error ? error.message : (uiLang === 'en' ? 'Password updated.' : 'Hasło zaktualizowane.'));
