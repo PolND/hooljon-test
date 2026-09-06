@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.336
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.337
   Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -368,6 +368,16 @@
      („건조하다verb · Pogoda i pory roku"), a znaczenie - to, po co user
      kliknął - lądowało niżej, bez wyróżnienia. Teraz kolejność odpowiada
      temu, czego user szuka. Zgłoszone przez Damiana 2026-09-06. */
+  /* Wyśrodkowanie panelu słowa - pod tekstem, na całej szerokości, treść
+     wyrównana do lewej wyglądała na zgubioną. Zgłoszone 2026-09-06. */
+  .reading-side .ws-top,
+  .reading-side .word-def,
+  .reading-side .word-meta,
+  .reading-side .word-note{ text-align:center; }
+  .reading-side .word-hanja,
+  .reading-side .word-actions{ justify-content:center; }
+  .reading-side .word-ex{ text-align:center; }
+
   .ws-top{ display:block; margin-bottom:2px; }
   .word-ko{ font-family:var(--font-ko); font-size:26px; color:var(--ink); }
   /* Notatka objaśniająca przy słowie - rozdzielona z tłumaczenia 2026-09-04.
@@ -57675,7 +57685,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.336';
+const APP_VERSION = '2026-09-06.337';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -68193,6 +68203,15 @@ function openReading(reading){
     if(leg) leg.style.display = czytankaZModulu ? 'none' : '';
     const unsup = document.getElementById('readingUnsupported');
     if(unsup && czytankaZModulu) unsup.style.display = 'none';
+    /* Notatka o mikrofonie to osobny .hint-note poza legendą - bez tego
+       zostawała na ekranie, na którym mikrofonu w ogóle nie ma. */
+    const nota = document.querySelector('#readingScreen [data-i18n="readingNote"]');
+    if(nota) nota.style.display = czytankaZModulu ? 'none' : '';
+    /* QUIZ ODSŁANIA SIĘ PO CZYTANIU NA GŁOS - w trybie cichym nie ma czego
+       ukończyć, więc pokazujemy go od razu. Bez tego moduł branżowy tracił
+       sprawdzenie zrozumienia, czyli to, po co ten tekst tam jest. */
+    const quiz = document.getElementById('readingQuizBtn');
+    if(quiz && czytankaZModulu) quiz.style.display = '';
   }
 
   currentReading = reading;
