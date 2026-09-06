@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.343
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.345
   Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -5162,23 +5162,20 @@
   }
 
   .reading-actions{
-    /* PODNIESIONY NAD KRAWĘDŹ. Przy bottom:0 pasek kończył się dokładnie na
-       dolnej krawędzi okna (zmierzone: 927+63=990 przy oknie 990) i wtapiał
-       się w tło - user go nie zauważał, mimo że elementy miały display:flex.
-       Na telefonie dodatkowo wchodził pod pasek nawigacji systemowej.
+    /* W TOKU TREŚCI, nie przyklejony do krawędzi. Pasek pływający kończył się
+       dokładnie na dolnej granicy okna (zmierzone: 927+63 przy oknie 990),
+       wtapiał się w tło i user go po prostu nie widział - dwa razy z rzędu,
+       mimo że elementy miały display:flex.
 
-       Teraz stoi na własnym cokole: odstęp od dołu, obramowanie z każdej
-       strony i cień, który go odkleja od treści.
+       Teraz siedzi pod panelem słowa, tam gdzie wzrok już jest po kliknięciu
+       w wyraz. Nic nie przykrywa i nie trzeba go szukać.
        Zgłoszone przez Damiana 2026-09-06. */
-    position:fixed; left:50%; transform:translateX(-50%);
-    bottom:calc(14px + env(safe-area-inset-bottom));
-    width:min(640px, calc(100% - 24px)); z-index:38;
+    position:static; transform:none; width:auto; margin-top:16px;
     display:flex; flex-direction:column; gap:8px;
-    padding:12px 14px;
+    padding:14px;
     background:var(--card);
     border:1px solid var(--border);
     border-radius:var(--radius-lg);
-    box-shadow:0 6px 24px rgba(0,0,0,.18);
   }
   @media (min-width:900px){
     .reading-actions{
@@ -5196,7 +5193,7 @@
   .reading-actions .ra-secondary .tool-btn{ flex:none; min-height:40px; }
   .reading-actions .primary{ width:100%; min-height:48px; }
   /* Miejsce pod pasek, żeby nie zasłaniał końca tekstu ani raportu. */
-  #readingActiveWrap{ padding-bottom:124px; }
+  #readingActiveWrap{ /* rezerwa 124px zdjęta - pasek akcji nie pływa już nad treścią */ padding-bottom:24px; }
 
   .reading-report-box{
     margin-top:14px;
@@ -57699,7 +57696,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.343';
+const APP_VERSION = '2026-09-06.345';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -68273,7 +68270,11 @@ function renderReadingText(){
     let cls = 'reading-word';
     if(readingResults[i] === 'correct') cls += ' rw-correct';
     else if(readingResults[i] === 'wrong') cls += ' rw-wrong';
-    else if(i === readingResults.findIndex(r => r === null)) cls += ' rw-current';
+    /* TYLKO PODCZAS CZYTANIA. readingResults startuje jako same null, więc
+       findIndex zwracało 0 i pierwsze słowo było podświetlone zawsze - także
+       w tekstach branżowych, gdzie karaoke w ogóle nie ma.
+       Zgłoszone przez Damiana 2026-09-06. */
+    else if(readingListening && i === readingResults.findIndex(r => r === null)) cls += ' rw-current';
     return `<span class="${cls}" data-idx="${i}">${escapeHtml(w)}</span>`;
   }).join(' ');
 
