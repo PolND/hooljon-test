@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.340
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.343
   Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -5162,11 +5162,23 @@
   }
 
   .reading-actions{
-    position:fixed; left:0; right:0; bottom:0; z-index:38;
+    /* PODNIESIONY NAD KRAWĘDŹ. Przy bottom:0 pasek kończył się dokładnie na
+       dolnej krawędzi okna (zmierzone: 927+63=990 przy oknie 990) i wtapiał
+       się w tło - user go nie zauważał, mimo że elementy miały display:flex.
+       Na telefonie dodatkowo wchodził pod pasek nawigacji systemowej.
+
+       Teraz stoi na własnym cokole: odstęp od dołu, obramowanie z każdej
+       strony i cień, który go odkleja od treści.
+       Zgłoszone przez Damiana 2026-09-06. */
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom:calc(14px + env(safe-area-inset-bottom));
+    width:min(640px, calc(100% - 24px)); z-index:38;
     display:flex; flex-direction:column; gap:8px;
-    padding:10px 16px calc(12px + env(safe-area-inset-bottom));
+    padding:12px 14px;
     background:var(--card);
-    border-top:1px solid var(--border);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    box-shadow:0 6px 24px rgba(0,0,0,.18);
   }
   @media (min-width:900px){
     .reading-actions{
@@ -57687,7 +57699,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.340';
+const APP_VERSION = '2026-09-06.343';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -67894,7 +67906,7 @@ function markReaderHit(el, base){
      nie zdejmowała - po kilku kliknięciach pół tekstu było podkreślone i nie
      dało się poznać, które słowo jest bieżące.
      Zgłoszone przez Damiana 2026-09-06. */
-  document.querySelectorAll('#readingTextBox .reader-w').forEach(inny => {
+  document.querySelectorAll('#readingTextBox .reading-word, #readingTextBox .reader-w').forEach(inny => {
     if(inny === el) return;
     if(inny.dataset.raw && inny.querySelector('.reader-hit')){
       inny.textContent = inny.dataset.raw;
@@ -68284,7 +68296,11 @@ function renderReadingText(){
   box.querySelectorAll('.reading-word:not(.rw-wrong)').forEach(el=>{
     el.addEventListener('click', ()=>{
       const idx = parseInt(el.dataset.idx, 10);
-      openWordSheet(readingWordsRaw[idx]);
+      /* PRZEKAZUJEMY KLIKNIĘTY ELEMENT. Bez drugiego argumentu markReaderHit
+         dostawał undefined i podświetlenie zostawało tam, gdzie padło za
+         pierwszym razem - user klikał kolejne słowa, a obramowanie siedziało
+         na pierwszym. Zgłoszone przez Damiana 2026-09-06. */
+      openWordSheet(readingWordsRaw[idx], el);
     });
   });
 }
