@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.256
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.258
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2559,6 +2559,19 @@
   .dict-word-ex{font-size:14px; color:var(--ink-dim); margin-top:8px; padding-top:8px; border-top:1px dashed var(--border); font-family:var(--font-ko);}
   .dict-word-ex-tr{font-family:var(--font-ui); opacity:0.8;}
 
+  /* Przycisk zgłoszenia REZERWUJE sobie miejsce zamiast nachodzić na treść.
+     Karta ma wypełnienie 8px u góry, a przycisk siedzi na 10px - bez tego
+     wchodził na etykietę i na długie słowa. :has() jest już używane w apce
+     (patrz .pcz-zwoj), więc nie dokładamy nowej zależności.
+     Zgłoszone przez Damiana 2026-09-05. */
+  .center-card:has(> .report-flag-btn){ padding-top:14px; }
+  .center-card:has(> .report-flag-btn) > .eyebrow,
+  .center-card:has(> .report-flag-btn) > .center-word{ padding-right:40px; padding-left:40px; }
+  /* Zapasowo dla przeglądarek bez :has() - odstęp zawsze, kosztem 6px. */
+  @supports not selector(:has(*)){
+    .center-card{ padding-top:14px; }
+  }
+
   .report-flag-btn{
     position:absolute;
     top:10px; right:10px;
@@ -4988,7 +5001,6 @@
   }
   #grammarTypedWrap .typed-input:focus{ outline:none; border-color:var(--hwang); }
 
-  #grammarQuizScreen{ position:relative; }
 
   .grammar-choice-grid{
     display:grid;
@@ -6833,17 +6845,19 @@
     <div class="ai-chat-status" id="grammarChapterLabel"></div>
 
     <div class="center-card" style="max-width:420px; margin:0 auto;">
-      <div class="eyebrow" id="grammarPatternLabel">WZORZEC</div>
+      <!-- ZGŁOSZENIE BŁĘDU. Musi być WEWNĄTRZ .center-card - przycisk ma
+           position:absolute i kotwiczy się do najbliższego pozycjonowanego
+           przodka. Poza kartą lądował w rogu całego ekranu i nachodził na
+           nagłówek. Pozostałe trzy wystąpienia w apce są w kartach; to było
+           jedyne poza. Zgłoszone przez Damiana 2026-09-05. -->
+          <button type="button" class="report-flag-btn" id="grammarReportBtn"
+                  title="Zgłoś błąd w tym ćwiczeniu" aria-label="Zgłoś błąd">🚩</button>
+          <div class="eyebrow" id="grammarPatternLabel">WZORZEC</div>
       <div class="center-word ko" id="grammarSentence">...</div>
       <div class="grammar-target" id="grammarTarget"></div>
       <div id="grammarRegisterBadge" style="margin-top:8px;"></div>
     </div>
 
-    <!-- ZGŁOSZENIE BŁĘDU w ćwiczeniu. Bez tego tester musi opisywać z pamięci,
-         gdzie coś było nie tak - a przy 1980 ćwiczeniach to znaczy, że większość
-         usterek nigdy nie zostanie zgłoszona. Zgłoszone przez Damiana 2026-09-05. -->
-    <button type="button" class="report-flag-btn" id="grammarReportBtn"
-            title="Zgłoś błąd w tym ćwiczeniu" aria-label="Zgłoś błąd">🚩</button>
     <div class="grammar-choice-grid" id="grammarChoiceGrid"></div>
 
     <!-- TRYB WPISYWANIA. Te same zdania, inne zadanie poznawcze: rozpoznanie
@@ -52486,7 +52500,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.256';
+const APP_VERSION = '2026-09-05.258';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
