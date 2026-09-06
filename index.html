@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.332
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.335
   Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -5067,17 +5067,23 @@
   .reading-split{ display:block; }
   .reading-main{ min-width:0; }
   .reading-side{ display:none; }
+  /* UKŁAD JEDNOKOLUMNOWY, panel tłumaczenia POD tekstem.
+     Wcześniej powyżej 1100px była siatka 1.2fr / 1fr z panelem przyklejonym
+     po prawej. Panel rozjeżdżał się względem tekstu (sticky w kolumnie
+     o innej wysokości), a czytanka traciła 45% szerokości na coś, co jest
+     puste, dopóki user w nic nie kliknie.
+
+     Teraz tekst bierze całą szerokość, a tłumaczenie pojawia się pod nim -
+     tam, gdzie i tak wędruje wzrok po kliknięciu w słowo.
+     Zgłoszone przez Damiana 2026-09-06. */
   @media (min-width:1100px){
-    .reading-split{
-      display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
-      gap:20px; align-items:start;
-    }
+    .reading-split{ display:block; }
     .reading-side{
-      display:block; position:sticky; top:12px;
+      display:block; margin-top:16px;
       background:var(--card); border:1px solid var(--border);
-      border-radius:var(--radius-lg); padding:18px; min-height:180px;
+      border-radius:var(--radius-lg); padding:18px; min-height:120px;
     }
-    /* Na szerokim arkusz-pasek u dołu jest zbędny - jego rolę przejmuje panel. */
+    /* Arkusz-pasek u dołu zbędny - jego rolę przejmuje panel pod tekstem. */
     .word-sheet{ display:none !important; }
   }
 
@@ -57485,7 +57491,11 @@ function formy(baza, irr, pos) {
   }
 
   /* łączniki na spółgłoskę - rdzeń bez zmian */
-  ['고', '지만', '거나', '게', '지', '는데', '더라', '자'].forEach(k => out.add(rdzen + k));
+  ['고', '지만', '거나', '게', '지', '는데', '더라', '자',
+   /* -겠- to zamiar i przypuszczenie, w pismach urzędowych i uprzejmościach
+      wszędzie: 감사하겠습니다, 하겠습니다, 좋겠어요. Doczepia się wprost
+      do rdzenia, bez 으. Zgłoszone przez Damiana 2026-09-06. */
+   '겠습니다', '겠어요', '겠다', '겠네요', '겠지만'].forEach(k => out.add(rdzen + k));
 
   /* KOŃCÓWKI NA -(으), z 으 po batchimie. Bez nich nie trafiają 웃으면서,
      주시면, 마십시오 - a formy honoryfikatywne z -시- są w tekstach
@@ -57660,7 +57670,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.332';
+const APP_VERSION = '2026-09-06.335';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -67896,10 +67906,31 @@ function readerLookupForms(word){
     // zabezpieczeniem jest kolejność prób (pełne słowo pierwsze), nie długość.
     if(word.length > p.length && word.endsWith(p)){
       forms.push(word.slice(0, -p.length));
-      break;                 // jedna partykuła wystarczy, nie łuskamy w nieskończoność
+      break;   // jedna partykuła wystarczy, nie łuskamy w nieskończoność
     }
   }
-  return forms;
+
+  /* PARTYKUŁY SKŁADANE. KO_PARTICLES zna pojedyncze (은/는/이/가), ale teksty
+     są pełne złożeń: 학교에는, 오늘까지, 아침부터, 회사에서는. Bez tego
+     rzeczownik nie trafia, mimo że jest w słowniku.
+     Zmierzone na 36 czytankach: 24 wystąpienia samych 에는/까지/부터. */
+  const zlozone = ['에서는','에서도','으로는','으로도','에게는','에게도','한테는',
+                   '에는','에도','에만','까지','부터','처럼','보다','마다','조차',
+                   '라도','이라도','이라는','라는','이나','밖에','대로'];
+  for(const z of zlozone){
+    if(word.length > z.length && word.endsWith(z)) forms.push(word.slice(0, -z.length));
+  }
+
+  /* ORZECZNIK 이다 PRZY RZECZOWNIKU. 학생이에요 to 학생 + 이에요, a bazą jest
+     RZECZOWNIK, nie 이다 - dlatego nie łapie tego indeks form czasownikowych.
+     14 wystąpień w czytankach (중이에요, 거예요, 사람입니다). */
+  const kopula = ['이에요','예요','이었어요','였어요','입니다','이었습니다','였습니다',
+                  '이야','야','이라고','라고','이란','란','이며','이고'];
+  for(const k of kopula){
+    if(word.length > k.length && word.endsWith(k)) forms.push(word.slice(0, -k.length));
+  }
+
+  return [...new Set(forms)];
 }
 
 async function openWordSheet(rawWord, el){
@@ -68110,7 +68141,15 @@ function renderReadingList(){
   });
 }
 
+/* Czy tekst otwarto z modułu branżowego. Tam czytanie na głos jest wyłączone -
+   ta funkcja ma żyć w JEDNYM miejscu, w module czytania. Moduł branżowy uczy
+   słownictwa z dokumentu, nie wymowy. Zgłoszone przez Damiana 2026-09-06. */
+let czytankaZModulu = false;
+
 function openReading(reading){
+  /* Tekst z industryModule = tryb cichy: bez mikrofonu, bez paska postępu
+     i bez legendy kolorów. Zostaje tekst, tłumaczenie, odsłuch i quiz. */
+  czytankaZModulu = !!(reading && reading.industryModule);
   // Sprawdzenie wsparcia od razu przy wejściu. Wcześniej komunikat pojawiał się
   // dopiero po kliknięciu mikrofonu - a na przeglądarkach bez Web Speech (Samsung
   // Internet, Firefox) przycisk był ukrywany, więc nie było czego kliknąć i user
@@ -68136,6 +68175,20 @@ function openReading(reading){
       }
     }
   }catch(e){ /* komunikat to dodatek */ }
+  {
+    /* Elementy trybu głośnego chowamy albo pokazujemy przy KAŻDYM otwarciu -
+       user może wejść w tekst branżowy, wrócić i otworzyć zwykłą czytankę. */
+    const glosne = ['readingMicBtn','readingProgress','readingStatus'];
+    glosne.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.display = czytankaZModulu ? 'none' : '';
+    });
+    const leg = document.querySelector('#readingScreen .reading-legend');
+    if(leg) leg.style.display = czytankaZModulu ? 'none' : '';
+    const unsup = document.getElementById('readingUnsupported');
+    if(unsup && czytankaZModulu) unsup.style.display = 'none';
+  }
+
   currentReading = reading;
   readingWordsRaw = reading.ko.split(/\s+/).filter(Boolean);
   readingWords = readingWordsRaw.map(normalizeReadingWord);
