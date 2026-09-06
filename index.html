@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.276
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.278
   Zbudowane na: 578e1ea023ff1a3227dd25b7fe4ed003 (.266)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -2564,7 +2564,10 @@
      wchodził na etykietę i na długie słowa. :has() jest już używane w apce
      (patrz .pcz-zwoj), więc nie dokładamy nowej zależności.
      Zgłoszone przez Damiana 2026-09-05. */
-  .center-card:has(> .report-flag-btn){ padding-bottom:46px; }
+  /* 46px od GÓRY: flaga stoi na 10px i ma 30px wysokości, więc treść musi
+     zaczynać się poniżej 40px. Działa też, gdy etykieta nad zdaniem jest pusta -
+     to był powód nachodzenia. */
+  .center-card:has(> .report-flag-btn){ padding-top:46px; }
   /* Zapasowo dla przeglądarek bez :has() - odstęp zawsze, kosztem 6px. */
   @supports not selector(:has(*)){
     .center-card{ padding-top:14px; }
@@ -2577,7 +2580,7 @@
      Zgłoszone przez Damiana 2026-09-06. */
   .report-flag-btn{
     position:absolute;
-    bottom:10px; right:10px;
+    top:10px; right:10px;
     z-index:5;
     background:var(--surface-2);
     border:1px solid var(--border);
@@ -6225,7 +6228,7 @@
     <div class="home-hint" data-i18n="homeHint">Wybierz tryb nauki — możesz przełączać się między nimi w każdej chwili.</div>
   </div>
 
-  <div id="grammarHubScreen" style="display:none;">
+  <div id="grammarHubScreen" class="home-screen" style="display:none;">
     <button class="back-btn" data-back="home" data-i18n="backHome">Menu główne</button>
     <button class="home-card" data-target="conjCategory">
       <span class="icon">🔤</span>
@@ -52577,7 +52580,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.276';
+const APP_VERSION = '2026-09-06.278';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -63936,16 +63939,23 @@ document.getElementById('aiChatGoPremiumBtn').addEventListener('click', ()=>{
 
 function renderVirtualKeyboard(gridId){
   const grid = document.getElementById(gridId);
-  const consonants = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
-  const doubles = ['ㄲ','ㄸ','ㅃ','ㅆ','ㅉ'];
-  const vowels = ['ㅏ','ㅑ','ㅓ','ㅕ','ㅗ','ㅛ','ㅜ','ㅠ','ㅡ','ㅣ','ㅐ','ㅒ','ㅔ','ㅖ'];
+  /* UKLAD 두벌식 - taki, jak na prawdziwej klawiaturze koreanskiej, nalozony na
+     QWERTY. Wczesniej klawisze byly pogrupowane po typie, co jest logiczne dla
+     lingwisty i bezuzyteczne dla kogos, kto potem siada do fizycznej klawiatury.
+     Zasada: spolgloski po LEWEJ, samogloski po PRAWEJ. Podwojne i ㅒㅖ wymagaja
+     Shifta, wiec dostaja osobny wiersz. Zgloszone przez Damiana 2026-09-06. */
+  const rzad1 = ['ㅂ','ㅈ','ㄷ','ㄱ','ㅅ','ㅛ','ㅕ','ㅑ','ㅐ','ㅔ'];
+  const rzad2 = ['ㅁ','ㄴ','ㅇ','ㄹ','ㅎ','ㅗ','ㅓ','ㅏ','ㅣ'];
+  const rzad3 = ['ㅋ','ㅌ','ㅊ','ㅍ','ㅠ','ㅜ','ㅡ'];
+  const shift = ['ㅃ','ㅉ','ㄸ','ㄲ','ㅆ','ㅒ','ㅖ'];
 
   const row = (chars, extraClass='') => `<div class="vk-row">${chars.map(c=>`<button type="button" class="vk-key ${extraClass}" data-ch="${c}">${c}</button>`).join('')}</div>`;
 
   grid.innerHTML =
-    row(consonants) +
-    row(doubles, 'vk-double') +
-    row(vowels) +
+    row(rzad1) +
+    row(rzad2) +
+    row(rzad3) +
+    row(shift, 'vk-double') +
     `<div class="vk-row">
       <button type="button" class="vk-key vk-wide" data-vk="back">⌫ Usuń</button>
       <button type="button" class="vk-key vk-wide" data-vk="space">␣ Spacja</button>
