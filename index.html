@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.306
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.308
   Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -6941,6 +6941,13 @@
       </details>
       <div class="ai-chat-status" id="geminiVoiceStatus" data-i18n="geminiVoiceDefault">Dotknij „Połącz”, żeby rozpocząć rozmowę głosową.</div>
       <div class="ai-chat-transcript chat-log" id="geminiVoiceTranscript"></div>
+
+      <!-- OCENA SESJI. Pojawia sie SAMA po rozlaczeniu, nie na przycisk - przy
+           rozmowie glosowej user konczy i odklada telefon, nie ma kiedy klikac. -->
+      <div id="geminiOcena" style="display:none; margin-top:14px; padding:14px 16px;
+           border-radius:var(--radius-lg); background:var(--card-hi); border:1px solid var(--border);">
+        <div id="geminiOcenaBody"></div>
+      </div>
       <!-- Trzy kropki "pisze". Jedyna nieustanna animacja w apce, więc
            prefers-reduced-motion ją wyłącza (v3 §4). -->
       <div class="typing" id="geminiTyping" style="display:none;" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -8921,7 +8928,10 @@ async function connectGeminiRelay(isRetry){
   if(!session){ setGeminiVoiceStatus('Musisz być zalogowany/a.'); return; }
 
   geminiSetupComplete = false;
-  if(!isRetry) resetGeminiTranscript(); // przy auto-ponowieniu zachowujemy ewentualny transkrypt (i tak pusty, bo nic nie zdążyło przyjść)
+  if(!isRetry) resetGeminiTranscript();
+  /* Ocena z poprzedniej sesji znika przy nowej rozmowie - inaczej user widzi
+     podsumowanie czegoś, co już się skończyło, obok świeżego transkryptu. */
+  { const oc = document.getElementById('geminiOcena'); if(oc) oc.style.display = 'none'; } // przy auto-ponowieniu zachowujemy ewentualny transkrypt (i tak pusty, bo nic nie zdążyło przyjść)
   document.getElementById('geminiConnectBtn').disabled = true;
   setGeminiVoiceStatus(uiLang === 'en' ? 'Connecting…' : 'Łączenie…');
 
@@ -9201,7 +9211,19 @@ async function startGeminiMic(){
      nadawanie i Gemini widziałoby dwie osobne wypowiedzi zamiast jednej. */
   let ostatniDzwiek = 0;
   const PROG_RMS = 0.008;
-  const OGON_MS = 600;
+  /* OGON MUSI BYĆ DŁUŻSZY NIŻ PRÓG CISZY W VAD. Przekaźnik ustawia
+     silenceDurationMs na 1500 / 1200 / 900 ms zależnie od poziomu - Gemini
+     musi USŁYSZEĆ tyle ciszy, żeby uznać turę za skończoną.
+
+     Przy ogonie 600 ms strumień urywał się, ZANIM próg został osiągnięty:
+     model nie dostawał ciszy, więc nie kończył tury i czekał na inny limit
+     czasu. Objaw: transkrypcja pojawiała się po 20 sekundach.
+     Zgłoszone przez Damiana 2026-09-06.
+
+     1800 ms z zapasem nad najwyższym progiem (1500 przy poziomie 1). Kosztuje
+     ~1,8 s naliczonego czasu na turę - to cena za działające wykrywanie końca
+     wypowiedzi i warto ją zapłacić. */
+  const OGON_MS = 1800;
 
   geminiProcessorNode.onaudioprocess = (e) => {
     if(!geminiSocket || geminiSocket.readyState !== WebSocket.OPEN) return;
@@ -61667,7 +61689,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.306';
+const APP_VERSION = '2026-09-06.308';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -72995,6 +73017,62 @@ function resetAiChat(){
   document.getElementById('aiChatAnalyzeBtn').style.display = 'none';
   document.getElementById('aiChatSessionReport').style.display = 'none';
   setAiChatStatus('Kliknij „Rozpocznij rozmowę” — bot przywita się pierwszy.');
+}
+
+/* ═══ OCENA ROZMOWY GŁOSOWEJ ═══════════════════════════════════════════════
+   Rozmowa z Haksą kończyła się bez żadnego podsumowania - ocena istniała
+   tylko w starym trybie tekstowym. User odbywał piętnastominutową sesję
+   i nie dostawał nic poza transkryptem.
+
+   Ten sam mechanizm i ta sama instrukcja co przy trybie tekstowym; różni się
+   źródło historii (geminiTranscriptHistory zamiast aiChatHistory) i to, że
+   analiza uruchamia się SAMA po rozłączeniu, nie na przycisk. Przy rozmowie
+   głosowej user nie ma kiedy kliknąć - kończy i odkłada telefon.
+   Zgłoszone przez Damiana 2026-09-06. */
+async function ocenGeminiSesje(){
+  const tury = geminiTranscriptHistory.filter(t => t.speaker === 'user');
+  if(tury.length < 2) return;          // za mało materiału, milczymy
+
+  const box = document.getElementById('geminiOcena');
+  const body = document.getElementById('geminiOcenaBody');
+  if(!box || !body) return;
+  box.style.display = 'block';
+  body.innerHTML = `<p class="hint-note">${uiLang === 'en' ? '🤔 Analyzing the session…' : '🤔 Analizuję sesję…'}</p>`;
+
+  try{
+    const langName = uiLang === 'en' ? 'angielski' : 'polski';
+    const historyText = geminiTranscriptHistory
+      .map(t => `${t.speaker === 'bot' ? 'HAKSA' : 'UCZEŃ'}: ${t.text}`).join('\n');
+    const instruction = `Przeanalizuj CAŁĄ poniższą rozmowę GŁOSOWĄ ucznia (posługującego się na co dzień językiem ${langName}) prowadzoną po koreańsku - to podsumowanie na koniec sesji nauki.\n\n`
+      + 'Historia rozmowy:\n' + historyText + '\n\n'
+      + 'UWAGA: to transkrypcja MOWY, więc drobne przekręcenia mogą pochodzić z rozpoznawania, nie od ucznia. Nie wytykaj błędów, które wyglądają na pomyłki transkrypcji.\n\n'
+      + `Odpowiedz WYŁĄCZNIE czystym tekstem JSON, bez markdown, bez bloków kodu, w dokładnym formacie: `
+      + `{"summary":"ogólne podsumowanie sesji w języku ${langName} - jak poszła rozmowa, 2-3 zdania","recurring_patterns":["lista powtarzających się błędów w języku ${langName} - pusta tablica jeśli nic się nie powtarzało"],"vocabulary_highlights":["konstrukcje, których uczeń użył dobrze, w języku ${langName} - pusta tablica jeśli za mało materiału"],"suggestion":"jedna konkretna sugestia czego poćwiczyć następnym razem, w języku ${langName}"}. `
+      + 'Bądź konkretny, odnoś się do faktycznych fragmentów tej rozmowy. Nie pisz niczego poza tym JSON-em.';
+
+    const response = await callAiProxy({
+      model: "claude-sonnet-4-6", max_tokens: 1200,
+      messages: [{ role: "user", content: instruction }]
+    });
+    if(!response.ok) throw new Error('status ' + response.status);
+    const data = await response.json();
+    const textBlock = (data.content || []).map(b => b.text || '').join('');
+    const report = JSON.parse(textBlock.replace(/```json|```/g, '').trim());
+
+    const en = uiLang === 'en';
+    const lista = (t, arr) => (arr && arr.length)
+      ? `<h4>${t}</h4><ul>${arr.map(v => `<li>${escapeHtml(v)}</li>`).join('')}</ul>` : '';
+    body.innerHTML = `
+      <p>${escapeHtml(report.summary || '')}</p>
+      ${lista(en ? 'Recurring patterns' : 'Powtarzające się', report.recurring_patterns)}
+      ${lista(en ? 'Used well' : 'Dobrze użyte', report.vocabulary_highlights)}
+      <h4>${en ? 'Next time' : 'Następnym razem'}</h4>
+      <p>${escapeHtml(report.suggestion || '')}</p>`;
+  }catch(err){
+    console.warn('[ocena sesji]', err);
+    body.innerHTML = `<p class="hint-note">${uiLang === 'en'
+      ? 'Could not analyze this session.' : 'Nie udało się przeanalizować tej sesji.'}</p>`;
+  }
 }
 
 async function analyzeAiChatSession(){
