@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.258
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-05.261
   Zbudowane na: 0fe15a23c9264f9a82dd080d465f16a2 (.111)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -52500,7 +52500,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-05.258';
+const APP_VERSION = '2026-09-05.261';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -60981,6 +60981,35 @@ function renderGrammarTeachCard(item, card){
   });
 }
 
+/* Zgłaszanie z KAŻDEGO kroku lekcji. Wcześniej przycisk pojawiał się tylko
+   przy kartach słów, potem doszły kroki gramatyczne - ale quizy sprawdzające
+   nadal zostawały bez niego. A usterka w quizie jest tak samo warta zgłoszenia;
+   brak przycisku znaczy tylko tyle, że nikt się o niej nie dowie.
+
+   Kontekst budujemy z tego, co krok ma: wzorzec, zdanie, słowo albo samo
+   polecenie. Zawsze dopisujemy numer lekcji i kroku, bo przy 142 lekcjach
+   sama treść nie wystarczy, żeby to odnaleźć. Zgłoszone przez Damiana 2026-09-05. */
+function storyPodepnijZgloszenie(q){
+  const rb = document.getElementById('storyReportBtn');
+  if(!rb) return;
+  rb.style.display = '';
+  rb.onclick = (e) => {
+    e.stopPropagation();
+    const wzorzec = q.pattern || (q.grammar && q.grammar.pattern) || '';
+    const zdanie  = q.full || q.sentence || q.prompt || '';
+    const slowo   = (q.word && q.word.ko) || '';
+    const gdzie   = `lekcja ${storyCurrentLessonIndex + 1}, krok ${storyQIndex + 1}`;
+    const opis    = [q.kind || q.subtype || '?', wzorzec, zdanie, slowo]
+                    .filter(Boolean).join(' | ');
+    openReportPanel(
+      { ko: slowo || zdanie || wzorzec || gdzie,
+        pl: q.pl || '',
+        category: wzorzec || null },
+      `storyLesson:${gdzie} | ${opis}`.slice(0, 400)
+    );
+  };
+}
+
 function showStoryQuestion(){
   storyLocked = false;
   const q = storyQueue[storyQIndex];
@@ -61025,7 +61054,11 @@ function showStoryQuestion(){
       speakText = null;
       delete card.dataset.vocabPending;
       delete card.dataset.grammarStep; // nawigacja teraz przez przyciski, nie dotknięcie karty
-      document.getElementById('storyReportBtn').style.display = 'none';
+      /* Zgłaszanie DZIAŁA TAKŻE przy krokach gramatycznych. Wcześniej przycisk
+         pojawiał się tylko przy kartach słów, więc błędu we wzorcu - a to
+         najczęstsze miejsce usterek - nie dało się zgłosić z lekcji.
+         Zgłoszone przez Damiana 2026-09-05. */
+      storyPodepnijZgloszenie(q);
       document.getElementById('storyQuestionEyebrow').style.display = 'none';
       document.getElementById('storyNextRow').style.display = 'none'; // nawigacja wewnątrz kroków ma własny przycisk "Rozumiem"
       renderGrammarTeachCard(q.item, card);
@@ -61041,7 +61074,7 @@ function showStoryQuestion(){
 
   // q.kind === 'test' — karta nie reaguje na dotknięcie, żeby nie kolidować z wyborem odpowiedzi
   card.classList.remove('sb-tappable');
-  document.getElementById('storyReportBtn').style.display = 'none';
+      storyPodepnijZgloszenie(q);   // quiz też można zgłosić
   delete card.dataset.speakText;
   delete card.dataset.grammarStep;
   document.getElementById('storyNextQBtn').textContent = uiLang === 'en' ? 'Next' : 'Dalej';
