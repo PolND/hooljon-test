@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.295
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.299
   Zbudowane na: 578e1ea023ff1a3227dd25b7fe4ed003 (.266)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -3848,6 +3848,13 @@
     font-family:var(--font-ui);
   }
   .culture-card .cc-body p:last-child{margin-bottom:0;}
+  /* Scena dla animacji kresek na hanja - odpowiednik .hg-stage z ekranu hangul.
+     Nakładka ma position:absolute i inset:0, wiec potrzebuje pozycjonowanego
+     rodzica o rozmiarze znaku, nie calej karty. Dodane 2026-09-06. */
+  .hanja-card .hc-scena{
+    position:relative; width:110px; height:110px; margin:0 auto;
+    display:grid; place-items:center;
+  }
   .hanja-card .hc-char{
     font-family:var(--font-ko);
     font-size:80px;
@@ -61178,7 +61185,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.295';
+const APP_VERSION = '2026-09-06.299';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -67251,6 +67258,53 @@ function renderHanjaScreen(){
   }
   ukryjHanjaQuizPelny();
   document.getElementById('hanjaPrevBtn').disabled = hanjaIndex === 0;
+
+  /* ═══ KOLEJNOŚĆ KRESEK I POLE DO PISANIA ══════════════════════════════════
+     Dane strokePaths dla 122 znaków doszły 2026-09-06, ale sam ekran hanja
+     ich nie używał - renderowanie kresek siedziało wyłącznie w funkcji hangul.
+     Zakładałem, że włączy się samo; nie włączyło. Zgłoszone przez Damiana.
+
+     Ten sam mechanizm co przy hangul: animacja kresek nad kartą, pod nią pole
+     do odwzorowania z oceną kolejności i kierunku. */
+  if(h.strokePaths && h.strokePaths.length){
+    const en = uiLang === 'en';
+    const karta = document.getElementById('hanjaCard');
+    /* Znak trafia do POZYCJONOWANEGO opakowania - nakładka z animacją ma
+       position:absolute i inset:0, więc bez tego rozciągnęłaby się na całą
+       kartę zamiast leżeć na znaku. Na hangul tę rolę pełni .hg-stage. */
+    const duzy = karta.querySelector('.hc-char');
+    if(!duzy) return;
+    const scena = document.createElement('div');
+    scena.className = 'hc-scena';
+    duzy.parentNode.insertBefore(scena, duzy);
+    scena.appendChild(duzy);
+    duzy.classList.add('has-strokes');
+    scena.insertAdjacentHTML('beforeend', buildStrokeOrderSvg(h.strokePaths));
+    karta.insertAdjacentHTML('beforeend', `
+      <button type="button" class="hg-replay-btn" id="hanjaReplayBtn">🔁 ${en ? 'Play again' : 'Odtwórz ponownie'}</button>
+      <div class="pis-blok">
+        <div class="hg-strokes-label">✏️ ${en ? 'Try writing it' : 'Napisz sam'}</div>
+        <div class="pis-pole" id="pisPole">
+          <div class="pis-wzor">${h.char}</div>
+          <svg class="pis-inked" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="pis-ocena"></div>
+        <button type="button" class="tool-btn pis-czysc">${en ? 'Clear' : 'Wyczyść'}</button>
+      </div>`);
+    const pole = document.getElementById('pisPole');
+    pisRysowane = []; pisAktywna = null; pisStany = [];
+    pisZlyKierunek = false; pisWzorObok = null; pisItem = h;
+    pisPodepnij(pole, h);
+    pisRysuj(pole);
+    const czysc = karta.querySelector('.pis-czysc');
+    if(czysc) czysc.addEventListener('click', (e)=>{ e.stopPropagation(); pisWyczysc(pole); });
+    const replay = document.getElementById('hanjaReplayBtn');
+    if(replay) replay.addEventListener('click', ()=>{
+      const stare = scena.querySelector('.hg-stroke-svg-overlay');
+      if(stare) stare.remove();
+      scena.insertAdjacentHTML('beforeend', buildStrokeOrderSvg(h.strokePaths));
+    });
+  }
 }
 
 /* pickHanjaQuizWord USUNIĘTE razem z renderHanjaQuiz - bez wywołań. */
