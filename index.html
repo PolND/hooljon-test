@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.310
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.311
   Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -9197,35 +9197,69 @@ async function startGeminiMic(){
   }
   geminiMicContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
   const source = geminiMicContext.createMediaStreamSource(geminiMicStream);
-  geminiProcessorNode = geminiMicContext.createScriptProcessor(4096, 1, 1);
+  /* ═══ AUDIOWORKLET ZAMIAST SCRIPTPROCESSOR ════════════════════════════════
+     createScriptProcessor jest przestarzałe i działa NA WĄTKU GŁÓWNYM: przy
+     buforze 4096 próbek i 16 kHz to 256 ms opóźnienia na każdej ramce, plus
+     rywalizacja z renderowaniem interfejsu. Przy pięciu kreskach hangul tego
+     nie widać, przy rozmowie owszem.
 
-  /* BRAMKA CISZY USUNIĘTA 2026-09-06. Powód: dwie awarie z jednej przyczyny.
+     AudioWorklet chodzi na osobnym wątku audio z kwantem 128 próbek, czyli
+     8 ms. Zbieramy po 8 kwantów (1024 próbki, 64 ms) - kompromis między
+     opóźnieniem a liczbą wiadomości WebSocket.
 
-     1. Ogon 600 ms urywał strumień, zanim Gemini zebrało 1500 ms ciszy
-        wymagane przez VAD - transkrypcja przychodziła po 20 sekundach.
-        Naprawione wydłużeniem ogona, ale to było leczenie objawu.
-     2. Przy przerywaniu głos użytkownika musiał przekroczyć próg 0,008 RMS,
-        a usuwanie echa TŁUMI mowę bliską w trakcie mowy dalekiej (double-talk).
-        Wtrącenie nie przechodziło przez bramkę i model go nie słyszał.
-
-     Bramka miała oszczędzać minuty przez nienadawanie ciszy. Oszczędność była
-     realna, ale kosztem działania rozmowy - a to funkcja premium, za którą
-     ludzie płacą. Naliczanie po aktywności ramek w przekaźniku zostaje;
-     bez bramki po prostu liczy prawie cały czas połączenia, jak przedtem.
-
-     Zgłoszone przez Damiana po dwóch nieudanych sesjach. */
-  geminiProcessorNode.onaudioprocess = (e) => {
-    if(!geminiSocket || geminiSocket.readyState !== WebSocket.OPEN) return;
-    const inputData = e.inputBuffer.getChannelData(0);
-    const pcmBuffer = floatTo16BitPCM(inputData);
-    const base64Data = arrayBufferToBase64(pcmBuffer);
-    geminiSocket.send(JSON.stringify({
-      realtimeInput: { audio: { data: base64Data, mimeType: 'audio/pcm;rate=16000' } }
-    }));
-  };
-
-  source.connect(geminiProcessorNode);
-  geminiProcessorNode.connect(geminiMicContext.destination); // wymagane, żeby onaudioprocess się odpalał w niektórych przeglądarkach
+     Moduł ładujemy z Blob URL, bo apka jest jednym plikiem i nie ma skąd
+     wziąć osobnego .js. Zgłoszone przez Damiana 2026-09-06. */
+  const workletKod = `
+    class PcmProcessor extends AudioWorkletProcessor {
+      constructor(){ super(); this.buf = new Float32Array(1024); this.n = 0; }
+      process(inputs){
+        const kanal = inputs[0] && inputs[0][0];
+        if(!kanal) return true;
+        for(let i = 0; i < kanal.length; i++){
+          this.buf[this.n++] = kanal[i];
+          if(this.n === this.buf.length){
+            this.port.postMessage(this.buf.slice());
+            this.n = 0;
+          }
+        }
+        return true;
+      }
+    }
+    registerProcessor('pcm-processor', PcmProcessor);
+  `;
+  const workletUrl = URL.createObjectURL(new Blob([workletKod], { type: 'application/javascript' }));
+  try{
+    await geminiMicContext.audioWorklet.addModule(workletUrl);
+    geminiProcessorNode = new AudioWorkletNode(geminiMicContext, 'pcm-processor');
+    geminiProcessorNode.port.onmessage = (ev) => {
+      if(!geminiSocket || geminiSocket.readyState !== WebSocket.OPEN) return;
+      const pcmBuffer = floatTo16BitPCM(ev.data);
+      const base64Data = arrayBufferToBase64(pcmBuffer);
+      geminiSocket.send(JSON.stringify({
+        realtimeInput: { audio: { data: base64Data, mimeType: 'audio/pcm;rate=16000' } }
+      }));
+    };
+    source.connect(geminiProcessorNode);
+    /* AudioWorklet NIE wymaga podpięcia do destination - inaczej niż
+       ScriptProcessor, który bez tego nie odpalał onaudioprocess. */
+  }catch(err){
+    /* Zejście na stary procesor: AudioWorklet wymaga bezpiecznego kontekstu
+       i nie ma go w starszych przeglądarkach. Lepiej rozmowa z opóźnieniem
+       niż brak rozmowy. */
+    console.warn('[gemini] AudioWorklet niedostępny, wracam do ScriptProcessor:', err);
+    geminiProcessorNode = geminiMicContext.createScriptProcessor(4096, 1, 1);
+    geminiProcessorNode.onaudioprocess = (e) => {
+      if(!geminiSocket || geminiSocket.readyState !== WebSocket.OPEN) return;
+      const pcmBuffer = floatTo16BitPCM(e.inputBuffer.getChannelData(0));
+      geminiSocket.send(JSON.stringify({
+        realtimeInput: { audio: { data: arrayBufferToBase64(pcmBuffer), mimeType: 'audio/pcm;rate=16000' } }
+      }));
+    };
+    source.connect(geminiProcessorNode);
+    geminiProcessorNode.connect(geminiMicContext.destination);
+  }finally{
+    URL.revokeObjectURL(workletUrl);
+  }
   geminiIsListening = true;
   // Przycisk nie służy już do mówienia - kończy rozmowę. Etykieta musi to oddawać,
   // inaczej user klika go w połowie zdania, myśląc że "wysyła".
@@ -61670,7 +61704,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.310';
+const APP_VERSION = '2026-09-06.311';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
