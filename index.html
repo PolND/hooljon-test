@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.278
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.280
   Zbudowane na: 578e1ea023ff1a3227dd25b7fe4ed003 (.266)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -6228,8 +6228,14 @@
     <div class="home-hint" data-i18n="homeHint">Wybierz tryb nauki — możesz przełączać się między nimi w każdej chwili.</div>
   </div>
 
-  <div id="grammarHubScreen" class="home-screen" style="display:none;">
-    <button class="back-btn" data-back="home" data-i18n="backHome">Menu główne</button>
+  <div id="grammarHubScreen" style="display:none;">
+      <button class="back-btn" data-back="home" data-i18n="backHome">Menu główne</button>
+      <!-- OPAKOWANIE, nie klasa na ekranie. setScreen ustawia style.display='block'
+           INLINE, co bije regułę .home-screen{display:flex} - kafle zostawały
+           w układzie blokowym i kurczyły się do treści (227px i 279px zamiast
+           pełnej szerokości). Stąd wrażenie krzywych. Zmierzone w konsoli
+           przez Damiana 2026-09-06. -->
+      <div class="home-screen">
     <button class="home-card" data-target="conjCategory">
       <span class="icon">🔤</span>
       <span class="hc-main">
@@ -6244,7 +6250,9 @@
         <div class="desc" data-i18n="homeGrammarDesc">Partykuły, konstrukcje zdań, powtórki, rejestry, budowniczy zdań, system liczb.</div>
       </span>
     </button>
-  </div>
+  
+      </div>
+    </div>
 
   <div id="vocabModeScreen" style="display:none;">
     <button class="back-btn" data-back="home" data-i18n="backHome">Menu główne</button>
@@ -52580,7 +52588,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.278';
+const APP_VERSION = '2026-09-06.280';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
