@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.391
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.393
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -122,7 +122,18 @@
        nietknięte; odchylenia (0,2-1,2%) idą na cztery proste krawędzie i trzy
        pozostałe narożniki. Liczby są stałe - znak musi być ten sam za każdym
        renderem, więc żadnego losowania. */
-    --pieczec-clip: polygon(0.8% 0.4%, 26% 0%, 54% 1.1%, 78% 0.2%, 99.4% 1%, 100% 26%, 99% 50%, 100% 71.8%, 71.8% 100%, 52% 99%, 27% 100%, 1.2% 99.6%, 0.2% 74%, 1% 50%, 0% 25%);
+    /* OBRYS WYCZYSZCZONY 2026-09-06. Wcześniej miał 15 punktów z mikroodchyleniami
+       imitującymi ręczne cięcie - ale odchylenia miały ŚREDNIO 0,28 px przy
+       płytce 72 px, maksymalnie 0,8. To poniżej piksela, więc przeglądarka nie
+       rysowała krawędzi, tylko ją rozmywała: zamiast „ręcznie ciętej" wychodziła
+       pofalowana i pognieciona.
+
+       Zostaje sam ścięty prawy dolny róg - to jest gest zamierzony i czytelny
+       w każdym rozmiarze. Charakter ręki ma nieść OBRYS KRESEK, gdy rysownik
+       dorysuje krzywe wejścia i wyjścia pędzla; podrabianie go krawędzią płytki
+       było zastępstwem, które nie zadziałało.
+       Zgłoszone przez Damiana: „wygląda na pogniecione, lekko falowane". */
+    --pieczec-clip: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%);
   }
   [data-scheme="dark"]{
     --pcz-mok: #B0885E;
@@ -6400,7 +6411,8 @@
      czego przycinać, a przycinało róg znaku. Skalowanie znaku w dół musiałoby
      zejść do 50%, żeby wyjść poza łuk; prościej zdjąć przycinanie.
      Zgłoszone przez Damiana 2026-09-06. */
-  .login-mark{ border:0; overflow:visible; }
+  /* .login-mark{border:0; overflow:visible} usunięte - pozostałość po wersji
+     bez płytki. Przy clip-path ani border, ani overflow nie mają znaczenia. */
   /* KOLOR TUSZU, nie tła. Dałem tu color:var(--bg) zakładając, że .login-mark
      ma kolorową płytkę (--primary z pierwszej reguły) - ale DRUGA reguła
      .login-mark ustawia background:0, czyli przezroczyste. Znak w kolorze tła
@@ -6424,9 +6436,12 @@
   /* Znak wewnątrz ramy, nie na pełnej płytce: kreska nie wchodzi ani w narożnik,
      ani w odchylenia krawędzi. overflow zostaje ZDJĘTY - przy nierównym obrysie
      przycinałby dokładnie te odchylenia, które mają znak ożywić. */
+/* margin:0 KONIECZNE. .login-logo ma margin-bottom:10px (potrzebny, gdy znak
+     stoi sam, bez płytki), a wewnątrz wyśrodkowanej pieczęci ten margines
+     wypycha go w górę o 5px - stąd wrażenie rozjechania.
+     Zgłoszone przez Damiana 2026-09-06. */
   .login-mark > .login-logo{
-    display:block; width:52%; height:52%; color:var(--on-accent);
-  }
+    display:block; width:52%; height:52%; color:var(--on-accent); margin:0;}
   /* Ten sam znak słowny co w nagłówku i na ekranie głównym (.391): wersaliki,
      tracking, waga 700. Rozmiar zszedł z 30 do 24 px, bo wersaliki z trackingiem
      są optycznie szersze i cięższe niż tekst mieszany tej samej wysokości. */
@@ -58324,7 +58339,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.391';
+const APP_VERSION = '2026-09-06.393';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
