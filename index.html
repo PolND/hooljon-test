@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.393
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.396
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -757,10 +757,10 @@
   }
   /* Nagłówek w tych wariantach niesie kontekst (seria/postęp), nie nazwę marki -
      dlatego jest zwykłym tekstem, nie drobnymi wersalikami. */
-  [data-theme="jade"] .home-head .hh-brand,
-  [data-theme="kobalt"] .home-head .hh-brand{
-    font-size:13px; font-weight:600; letter-spacing:.02em; text-transform:none;
-  }
+  /* Nadpisanie .hh-brand USUNIĘTE 2026-09-06 dla Jadeitu i Kobaltu. Robiły nazwę
+     na 13px, reszta motywów na 15 - czyli „Hooljon" wyglądał inaczej zależnie
+     od skórki. Motyw ma prawo zmienić kolor, promień i tło; nie ma prawa
+     zmieniać stopnia nazwy produktu. Ustalone z Design. */
 
   /* Jadeit: duże miękkie kafle One UI - większe niż w 1a, z płytką pod ikoną. */
   [data-theme="jade"] .home-card{ padding:20px; gap:16px; }
@@ -4811,7 +4811,14 @@
   }
   .hj-rama > svg{ width:64%; height:64%; }
 
-  .loading-mark{ width:56px; height:56px; color:var(--ink); }
+/* CYNOBER, nie tusz. Ekran ładowania to ten sam moment co logowanie: znak
+     stoi sam, duży, bez nazwy obok - jest tożsamością, nie częścią tekstu.
+     Tusz dawał czarne kreski, które przy rysowaniu wyglądały jak wykres.
+
+     Bez płytki, bo znak SIĘ RYSUJE - pieczęć wokół kresek, które dopiero
+     powstają, byłaby ramą wokół pustki przez pierwsze 250 ms.
+     Zgłoszone przez Damiana 2026-09-06. */
+  .loading-mark{ width:56px; height:56px; color:var(--hwang); }
 /* ═══ EKRAN ŁADOWANIA ══════════════════════════════════════════════════════
      Kółko zastąpione oddechem znaku. Stockowy spinner mówi „coś się dzieje",
      ale nie mówi CO ani gdzie jesteś - a to pierwsza rzecz, jaką widzi user
@@ -5994,8 +6001,8 @@
 
   .home-head{ margin:2px 0 4px; }
   .home-head .hh-brand{
-    font-size:11px; font-weight:500; letter-spacing:.16em;
-    text-transform:uppercase; color:var(--ink-dim);
+    font-size:15px; font-weight:600; letter-spacing:-.01em;
+    text-transform:none; color:var(--ink);
     display:flex; align-items:center; gap:7px;
   }
   /* Stary pasek marki jest schowany od redesignu 1a, więc znak wraca tutaj -
@@ -6019,7 +6026,7 @@
   .hh-brand{
     display:flex; align-items:center; justify-content:center;
     gap:8px; margin-bottom:6px;
-    font-weight:700; letter-spacing:.12em;
+    font-weight:600; letter-spacing:-.01em;
   }
   .hh-mark{ width:24px; height:24px; flex:none; color:var(--ink); }
   .home-head .hh-title{
@@ -58339,7 +58346,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.393';
+const APP_VERSION = '2026-09-06.396';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
