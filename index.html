@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.381
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.385
   Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -4547,8 +4547,7 @@
     font-family:var(--font-ko);
     font-size:30px;
     color:var(--ink);
-    letter-spacing:0.5px;
-  }
+    letter-spacing:0.5px; margin:14px 0 0;}
   .login-tagline{
     font-size:14.5px;
     color:var(--ink-dim);
@@ -5950,7 +5949,15 @@
   }
   /* Stary pasek marki jest schowany od redesignu 1a, więc znak wraca tutaj -
      przy nazwie, w jedynym miejscu na ekranie głównym, które ją nosi. */
-  .hh-mark{ width:18px; height:18px; flex:none; color:var(--ink);}
+  /* Znak stoi W LINII z napisem „Hooljon", ale .hh-brand nie miało własnej
+     reguły - znak siadał na linii bazowej tekstu, czyli za wysoko względem
+     jego środka, i był o połowę mniejszy niż litery obok.
+
+     24px zamiast 18: nazwa ma 15px wysokości wersalika, więc znak niższy od
+     niej wyglądał jak przypis. Wyrównanie do środka, nie do linii bazowej.
+     Zgłoszone przez Damiana 2026-09-06. */
+  .hh-brand{ display:inline-flex; align-items:center; gap:8px; }
+  .hh-mark{ width:24px; height:24px; flex:none; color:var(--ink); }
   .home-head .hh-title{
     font-size:34px; font-weight:300; letter-spacing:-.02em;
     line-height:1.1; margin:6px 0 0; color:var(--ink);
@@ -6320,8 +6327,30 @@
   /* Znak marki stoi sam, bez kolorowej płytki pod spodem: to nie jest
      wycinanka w kwadracie, tylko dwie kolorowe strzałki. Płytka robiłaby
      z tego kolor na kolorze. 2026-09-01. */
-  .login-mark{ background:0; border:0; }
-  .login-mark > .login-logo{ display:block; width:100%; height:100%;  color:var(--bg);}
+/* overflow:hidden ZDJĘTE razem z tłem. Pierwsza reguła .login-mark ma
+     overflow:hidden i zaokrąglenie 18px - przy przezroczystej płytce nie ma
+     czego przycinać, a przycinało róg znaku. Skalowanie znaku w dół musiałoby
+     zejść do 50%, żeby wyjść poza łuk; prościej zdjąć przycinanie.
+     Zgłoszone przez Damiana 2026-09-06. */
+  .login-mark{ background:0; border:0; overflow:visible; }
+  /* KOLOR TUSZU, nie tła. Dałem tu color:var(--bg) zakładając, że .login-mark
+     ma kolorową płytkę (--primary z pierwszej reguły) - ale DRUGA reguła
+     .login-mark ustawia background:0, czyli przezroczyste. Znak w kolorze tła
+     na przezroczystym tle jest niewidoczny.
+
+     To ten sam błąd, przed którym ostrzegałem Design przy geometrii: sprawdź,
+     czy nie ma drugiej reguły nadpisującej. Zgłoszone przez Damiana 2026-09-06. */
+/* ODDECH WEWNĄTRZ PŁYTKI. .login-mark ma overflow:hidden i zaokrąglone rogi
+     (18px na 72px), a znak wypełniał 100% - pierwsza kreska zaczyna się 3,5 px
+     od lewej krawędzi, czyli GŁĘBOKO w krzywiźnie rogu. Stąd ucięty lewy górny
+     narożnik.
+
+     Marginesu nie da się dodać w viewBox bez zmiany proporcji w pozostałych
+     czterech miejscach, więc zmniejszamy sam znak w płytce.
+     Zgłoszone przez Damiana 2026-09-06. */
+  .login-mark > .login-logo{
+    display:block; width:100%; height:100%; color:var(--ink);
+  }
   .login-title{ font-size:30px; letter-spacing:-.02em; margin:6px 0 0; color:var(--ink); font-weight:600; }
   .login-tag{ font-size:12.5px; color:var(--ink-dim); margin:0; text-wrap:balance; white-space:nowrap; }
 
@@ -58211,7 +58240,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.381';
+const APP_VERSION = '2026-09-06.385';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
