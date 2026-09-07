@@ -2,8 +2,13 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.385
-  Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.391
+  Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
+  Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
+  z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
+  akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
+  czatu i znak szkoły przeniesione na --avatar-radius; napis marki na wersalikach
+  w nagłówku i na ekranie głównym. Kreski znaku, oś, wagi i kąty NIETKNIĘTE.
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
   pliki z tym samym .NN są różne. Przy każdym buildzie wpisz sumę pliku wejściowego.
@@ -26,7 +31,7 @@
 <meta name="theme-color" content="#F6F3EE">
 <title>Hooljon</title>
 <!-- Ikona karty i ekranu głównego. Wektor, więc jest ostra w każdym rozmiarze. -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%2793%20150%20828%20828%27%3E%3Crect%20width%3D%271024%27%20height%3D%271024%27%20x%3D%270%27%20y%3D%270%27%20fill%3D%27%23C1512F%27%2F%3E%3Cg%20fill%3D%27%23F6F3EE%27%20fill-rule%3D%27evenodd%27%20transform%3D%27translate%280%2C900%29%20scale%281%2C-1%29%27%3E%3Cpath%20d%3D%27M133%2C695%20L860%2C634%20L881%2C490%20L154%2C552%20Z%27%2F%3E%3Cpath%20d%3D%27M133%2C408%20L614%2C347%20L625%2C234%20L143%2C296%20Z%27%2F%3E%3Cpath%20d%3D%27M133%2C142%20L758%2C50%20L768%2C-22%20L143%2C71%20Z%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%201024%201024%27%3E%3Crect%20width%3D%271024%27%20height%3D%271024%27%20rx%3D%27224%27%20ry%3D%27224%27%20fill%3D%27%23C1512F%27%2F%3E%3Cg%20fill%3D%27%23F6F3EE%27%20fill-rule%3D%27evenodd%27%20transform%3D%27translate%28512%2C512%29%20scale%280.66%29%20translate%28-512%2C-512%29%20translate%280%2C900%29%20scale%281%2C-1%29%27%3E%3Cpath%20d%3D%27M133%2C695%20L860%2C634%20L881%2C490%20L154%2C552%20Z%27%2F%3E%3Cpath%20d%3D%27M133%2C408%20L614%2C347%20L625%2C234%20L143%2C296%20Z%27%2F%3E%3Cpath%20d%3D%27M133%2C142%20L758%2C50%20L768%2C-22%20L143%2C71%20Z%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
 <!-- iOS nie czyta faviconu SVG przy dodaniu do ekranu głównego - potrzebuje PNG. -->
 <link rel="apple-touch-icon" href="data:image/png;base64,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">
 <!-- ═══ MANIFEST PWA ═══════════════════════════════════════════════════════
@@ -70,7 +75,12 @@
     --ink-dim: #6B625A;   /* tekst drugorzędny */
     --border: #E4DED5;    /* obramowania kart, pól, separatorów */
     --surface-2: #EFEAE2; /* tło pól input, chipów, drugorzędnych powierzchni */
-    --primary: #171412;
+    /* KOLOR AKCJI. Było #171412, czyli dokładnie to samo co --ink - przez co
+       przyciski główne wyglądały jak czarne prostokąty, a nie jak coś do
+       kliknięcia. Sześć miejsc naraz: plakietki rankingu, filtry słownika,
+       potwierdzenie Szkoły, płytka logowania.
+       Rozstrzygnięte przez Damiana 2026-09-06: --primary znaczy AKCJĘ. */
+    --primary: #C1512F;
     --hwang: #C1512F;     /* accent - terakota/pieczęć */
     --heuk: #171412;      /* kierunek N (kompas) */
     --jeok: #C1512F;      /* kierunek S (kompas) */
@@ -107,7 +117,12 @@
     --field-radius: 0px;   /* 0 = pole "podkreślenie", >0 = pole "pudełko" */
     --field-bg: transparent;
     --btn-radius: var(--radius-pill);
-    --mark-radius: 18px;   /* kwadrat znaku marki 훈 */
+    --avatar-radius: 18px; /* awatar czatu i znak szkoły; NIE płytka logowania */
+    /* Obrys odbitej pieczęci. Ścięcie 100%/72% → 72%/100% z ramy logo zostaje
+       nietknięte; odchylenia (0,2-1,2%) idą na cztery proste krawędzie i trzy
+       pozostałe narożniki. Liczby są stałe - znak musi być ten sam za każdym
+       renderem, więc żadnego losowania. */
+    --pieczec-clip: polygon(0.8% 0.4%, 26% 0%, 54% 1.1%, 78% 0.2%, 99.4% 1%, 100% 26%, 99% 50%, 100% 71.8%, 71.8% 100%, 52% 99%, 27% 100%, 1.2% 99.6%, 0.2% 74%, 1% 50%, 0% 25%);
   }
   [data-scheme="dark"]{
     --pcz-mok: #B0885E;
@@ -135,8 +150,14 @@
     --shadow-card: none;
   }
 
-  /* Palety z jasnym akcentem: na nich biel nie ma szans, wygrywa własne tło. */
+  /* Palety z jasnym akcentem: na nich biel nie ma szans, wygrywa własne tło.
+     Zaślepka usunięta w .391 w całości: miała dwie deklaracje w jednej regule
+     (druga wygrywała) i oba wpisy trafiły do łańcucha zaczynającego się od dark,
+     więc Jadeit i Neon - motywy, dla których powstała - nigdy jej nie dostały.
+     --on-accent ma wartość dla wszystkich sześciu motywów, każda powyżej 4,5:1
+     na własnym --hwang. */
   [data-scheme="dark"], [data-scheme="jade"], [data-scheme="neon"]{ --on-accent: var(--bg); }
+  [data-scheme="hanji"]{ --on-accent:#FBF6EA; }
 
   @supports (background: color-mix(in oklab, red 8%, transparent)){
     :root{
@@ -240,9 +261,9 @@
   /* Tokeny komponentowe per układ i paleta (v2 §1). Przypisanie rozdzielone
      zgodnie z naszą dwuosiową architekturą: jade/kobalt/oldstyle to układy,
      hanji/neon to palety - w oryginale v2 wszystkie były jedną osią. */
-  [data-theme="jade"]{   --field-radius:20px; --field-bg:var(--card); --btn-radius:24px; --mark-radius:22px; }
-  [data-theme="kobalt"]{ --field-radius:14px; --field-bg:var(--surface-2); --btn-radius:14px; --mark-radius:0px; }
-  [data-theme="oldstyle"]{ --field-radius:var(--radius); --field-bg:var(--card); --btn-radius:var(--radius); --mark-radius:var(--radius); }
+  [data-theme="jade"]{   --field-radius:20px; --field-bg:var(--card); --btn-radius:24px; --avatar-radius:22px; }
+  [data-theme="kobalt"]{ --field-radius:14px; --field-bg:var(--surface-2); --btn-radius:14px; --avatar-radius:0px; }
+  [data-theme="oldstyle"]{ --field-radius:var(--radius); --field-bg:var(--card); --btn-radius:var(--radius); --avatar-radius:var(--radius); }
 
   /* ══ ZNAK MARKI ══════════════════════════════════════════════════════════
      Logo to dwie strzałki: głębsza (--logo-b) i akcentowa (--logo-a).
@@ -449,8 +470,20 @@
   .acct-id{ display:flex; align-items:center; gap:14px; margin:4px 0 6px; }
   /* Znak marki bez kolorowej płytki - to logo, nie wycinanka (decyzja z 2026-09-01,
      ta sama co na logowaniu). §6 mówił o PNG/glifie 훈; jedno i drugie zniknęło. */
-  .acct-mark{ flex:none; width:56px; height:56px; }
-  .acct-mark svg{ width:100%; height:100%; display:block; }
+  /* Ta sama pieczęć co na logowaniu (.391): konto i logowanie to dwa miejsca,
+     gdzie znak stoi przy nazwie i ma miejsce na płytkę. */
+  .acct-mark{
+    position:relative; flex:none; width:56px; height:56px;
+    display:grid; place-items:center;
+    background:var(--hwang); color:var(--on-accent);
+    clip-path:var(--pieczec-clip);
+  }
+  .acct-mark::before{
+    content:''; position:absolute; inset:5px;
+    border:2px solid var(--on-accent);
+    clip-path:var(--pieczec-clip);
+  }
+  .acct-mark svg{ width:52%; height:52%; display:block; }
   .acct-who{ flex:1; min-width:0; }
   .acct-name{ font:600 15px var(--font-ui); color:var(--ink);
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -492,7 +525,7 @@
      więc głębsza strzałka bierze ciemniejszy biegun palety. */
   [data-scheme="hanji"]{ --logo-b:#241F1B; }  /* tusz i akcent hanji leżą zbyt blisko siebie */
   [data-scheme="hanji"], [data-scheme="neon"]{
-    --field-radius:var(--radius); --field-bg:var(--card); --btn-radius:var(--radius); --mark-radius:var(--radius);
+    --field-radius:var(--radius); --field-bg:var(--card); --btn-radius:var(--radius); --avatar-radius:var(--radius);
   }
 
   /* ── KLASYCZNY: przywrócenie STRUKTURY sprzed redesignu ─────────────────
@@ -1046,10 +1079,17 @@
     justify-content:space-between;
     margin-bottom:6px;
   }
+  /* WERSALIKI (.391). Napis w nagłówku, na ekranie głównym i w lockupie ma być
+     tym samym znakiem słownym - dwa różne "Hooljon" na dwóch ekranach czytały
+     się jak dwie marki. Znak w nagłówku zostaje bez płytki: przy 26 px płytka
+     zabiera ramkę i margines wewnętrzny, więc na kreski zostaje kilkanaście
+     pikseli, a to one niosą znaczenie. */
   .brand{
-    font-family:var(--font-ko);
-    font-size:22px;
-    letter-spacing:0.5px;
+    font-family:var(--font-ui);
+    font-size:16px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.12em;
     color:var(--ink);
     display:flex;
     align-items:center;
@@ -3259,7 +3299,7 @@
   .szk-marka{
     position:relative; flex:none;
     width:26px; height:26px; display:grid; place-items:center;
-    margin-left:8px; border-radius:calc(var(--mark-radius) / 2.2);
+    margin-left:8px; border-radius:calc(var(--avatar-radius) / 2.2);
     font-family:var(--font-ko); font-size:15px; font-weight:700;
     color:var(--hwang); background:var(--surface-2);
     box-shadow:inset 0 0 0 1px var(--hwang-line);
@@ -5956,7 +5996,20 @@
      24px zamiast 18: nazwa ma 15px wysokości wersalika, więc znak niższy od
      niej wyglądał jak przypis. Wyrównanie do środka, nie do linii bazowej.
      Zgłoszone przez Damiana 2026-09-06. */
-  .hh-brand{ display:inline-flex; align-items:center; gap:8px; }
+/* LINIA MARKI NA ŚRODKU, tytuł zostaje po lewej.
+
+     Wyśrodkowanie „Nauka" byłoby gorsze z dwóch powodów: to tytuł ekranu,
+     a wyrównane do lewej czyta się szybciej; do tego pod spodem stoi wiersz
+     statystyk rozciągnięty na krawędzie, więc wyśrodkowany tytuł kłóciłby się
+     z tym, co jest bezpośrednio niżej.
+
+     Znak z nazwą to tożsamość i takie linie stoją centralnie - jak winieta
+     nad tekstem. Zgłoszone przez Damiana 2026-09-06. */
+  .hh-brand{
+    display:flex; align-items:center; justify-content:center;
+    gap:8px; margin-bottom:6px;
+    font-weight:700; letter-spacing:.12em;
+  }
   .hh-mark{ width:24px; height:24px; flex:none; color:var(--ink); }
   .home-head .hh-title{
     font-size:34px; font-weight:300; letter-spacing:-.02em;
@@ -6130,7 +6183,7 @@
     border-bottom:1px solid var(--border); margin-bottom:14px;
   }
   .chat-avatar{
-    width:38px; height:38px; flex:none; border-radius:var(--mark-radius, 14px);
+    width:38px; height:38px; flex:none; border-radius:var(--avatar-radius, 14px);
     display:grid; place-items:center; font-family:var(--font-ko); font-size:17px;
     background:var(--surface-2); color:var(--hwang);
   }
@@ -6300,9 +6353,10 @@
 
   /* ══ v2 §2 · LOGOWANIE ═══════════════════════════════════════════════════
      Jeden zestaw reguł dla wszystkich siedmiu motywów. Różnice wizualne
-     niosą tokeny komponentowe (--field-radius/--field-bg/--btn-radius/
-     --mark-radius) z §1, nie reguły [data-theme="X"] .login-*. Wyjątki niżej
-     są trzy i tyle ich zostaje. */
+     niosą tokeny komponentowe (--field-radius/--field-bg/--btn-radius) z §1,
+     nie reguły [data-theme="X"] .login-*. Wyjątki niżej są trzy i tyle ich
+     zostaje. Płytka znaku nie ma już tokenu promienia: od .391 nosi ścięcie
+     narożnika i nierówny obrys odbicia, wspólne dla wszystkich motywów. */
   .login-screen{
     display:flex; flex-direction:column; min-height:100dvh;
     padding:0 26px calc(26px + env(safe-area-inset-bottom));
@@ -6318,11 +6372,25 @@
     position:absolute; top:10px; right:14px; z-index:20; margin:0;
   }
   .login-head{ display:flex; flex-direction:column; align-items:center; gap:10px; padding:34px 0 0; }
+  /* PIECZĘĆ, nie zaokrąglony kwadrat (.391). Płytka bierze --hwang, więc chodzi
+     za motywem; stały --cynober zostaje ikonie aplikacji i splashowi, bo poza
+     apką nie ma motywu, do którego miałaby się dostroić. Zaokrąglenie zastąpione
+     ścięciem narożnika z ramy znaku plus nierównym obrysem odbicia
+     (--pieczec-clip); rama po wewnętrznej stronie idzie ::before - tak zbudowana
+     jest każda 도장. To odpowiedź na zgłoszenie "wygląda tanio, jak w paincie":
+     głębia z warstw i nierówności, bez fazy, gradientu i cienia. */
   .login-mark{
-    width:72px; height:72px; border-radius:var(--mark-radius);
-    background:var(--primary); color:var(--bg);
+    position:relative;
+    width:72px; height:72px; border-radius:0;
+    background:var(--hwang); color:var(--on-accent);
+    clip-path:var(--pieczec-clip);
     display:flex; align-items:center; justify-content:center;
-    font-family:var(--font-ko); font-size:26px; flex:none; overflow:hidden;
+    font-family:var(--font-ko); font-size:26px; flex:none;
+  }
+  .login-mark::before{
+    content:''; position:absolute; inset:7px;
+    border:2.5px solid var(--on-accent);
+    clip-path:var(--pieczec-clip);
   }
   /* Znak marki stoi sam, bez kolorowej płytki pod spodem: to nie jest
      wycinanka w kwadracie, tylko dwie kolorowe strzałki. Płytka robiłaby
@@ -6332,7 +6400,7 @@
      czego przycinać, a przycinało róg znaku. Skalowanie znaku w dół musiałoby
      zejść do 50%, żeby wyjść poza łuk; prościej zdjąć przycinanie.
      Zgłoszone przez Damiana 2026-09-06. */
-  .login-mark{ background:0; border:0; overflow:visible; }
+  .login-mark{ border:0; overflow:visible; }
   /* KOLOR TUSZU, nie tła. Dałem tu color:var(--bg) zakładając, że .login-mark
      ma kolorową płytkę (--primary z pierwszej reguły) - ale DRUGA reguła
      .login-mark ustawia background:0, czyli przezroczyste. Znak w kolorze tła
@@ -6348,11 +6416,22 @@
      Marginesu nie da się dodać w viewBox bez zmiany proporcji w pozostałych
      czterech miejscach, więc zmniejszamy sam znak w płytce.
      Zgłoszone przez Damiana 2026-09-06. */
+/* CYNOBER, nie tusz. Na logowaniu znak jest TOŻSAMOŚCIĄ - stoi sam, duży,
+     nad nazwą - więc bierze kolor pieczęci, tak jak ikona aplikacji.
+     --ink dawał prawie czarny znak i wyglądał jak brak koloru, a nie wybór.
+     W nagłówku i na ekranie głównym zostaje tusz, bo tam znak jest częścią
+     tekstu, nie osobnym elementem. Zgłoszone przez Damiana 2026-09-06. */
+  /* Znak wewnątrz ramy, nie na pełnej płytce: kreska nie wchodzi ani w narożnik,
+     ani w odchylenia krawędzi. overflow zostaje ZDJĘTY - przy nierównym obrysie
+     przycinałby dokładnie te odchylenia, które mają znak ożywić. */
   .login-mark > .login-logo{
-    display:block; width:100%; height:100%; color:var(--ink);
+    display:block; width:52%; height:52%; color:var(--on-accent);
   }
-  .login-title{ font-size:30px; letter-spacing:-.02em; margin:6px 0 0; color:var(--ink); font-weight:600; }
-  .login-tag{ font-size:12.5px; color:var(--ink-dim); margin:0; text-wrap:balance; white-space:nowrap; }
+  /* Ten sam znak słowny co w nagłówku i na ekranie głównym (.391): wersaliki,
+     tracking, waga 700. Rozmiar zszedł z 30 do 24 px, bo wersaliki z trackingiem
+     są optycznie szersze i cięższe niż tekst mieszany tej samej wysokości. */
+  .login-title{ font-size:24px; text-transform:uppercase; letter-spacing:.14em; margin:0;   /* BEZ marginesu: znak ma własny zapas w viewBox (55 jednostek u dołu), więc każdy dodatkowy odstęp się sumuje. 18px czytało się jako dziura. */ color:var(--ink); font-weight:600; }
+  .login-tag{ font-size:12px; letter-spacing:.06em; color:var(--ink-dim); margin:0; text-wrap:balance; white-space:nowrap; }
 
   .login-tabs{
     display:flex; padding:3px; margin-top:26px; margin-bottom:0; gap:0;
@@ -6390,9 +6469,13 @@
   }
 
   .login-actions{ margin-top:auto; display:flex; flex-direction:column; gap:14px; padding-top:26px; }
+/* KOLOR AKCENTU, nie --primary. --primary to #171412, czyli praktycznie ten
+     sam czarny co --ink - przycisk „Zaloguj się" wyglądał jak czarny prostokąt,
+     a nie jak akcja. Pozostałe przyciski główne używają --hwang (cynober);
+     ten był wyjątkiem. Zgłoszone przez Damiana 2026-09-06. */
   .login-actions .btn-primary{
     min-height:52px; border:0; border-radius:var(--btn-radius);
-    background:var(--primary); color:var(--bg);
+    background:var(--hwang); color:var(--on-accent, #FFFFFF);
     font:500 16px var(--font-ui); cursor:pointer;
   }
   .login-actions .btn-google{
@@ -6409,6 +6492,7 @@
      nagłówek kurczy się do rzędu poziomego (makieta 2b). */
   .login-screen[data-mode="up"] .login-head{ flex-direction:row; align-items:center; gap:12px; padding-top:22px; }
   .login-screen[data-mode="up"] .login-mark{ width:40px; height:40px; font-size:19px; }
+  .login-screen[data-mode="up"] .login-mark::before{ inset:4px; border-width:1.5px; }
   .login-screen[data-mode="up"] .login-title{ font-size:19px; margin:0; }
   .login-screen[data-mode="up"] .login-tag{ display:none; }
 
@@ -58240,7 +58324,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.385';
+const APP_VERSION = '2026-09-06.391';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
