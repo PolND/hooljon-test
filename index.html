@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.370
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.373
   Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -42,7 +42,7 @@
        marginesu i Android przyciąłby mu boki. Dołożyć przy nowym logo (2b),
        razem z wariantem monochromatycznym dla Androida 13+.
        Dodane 2026-09-06. -->
-  <link rel="manifest" href='data:application/manifest+json,{"name":"Hooljon — nauka koreańskiego","short_name":"Hooljon","description":"Koreański od podstaw: słownictwo, gramatyka, hanja i rozmowa z lektorem AI.","start_url":".","scope":".","display":"standalone","orientation":"portrait","background_color":"%23F6F3EE","theme_color":"%23F6F3EE","lang":"pl","dir":"ltr","categories":["education","productivity"]}'>
+  <link rel="manifest" href='data:application/manifest+json,{"name":"Hooljon — nauka koreańskiego","short_name":"Hooljon","description":"Koreański od podstaw: słownictwo, gramatyka, hanja i rozmowa z lektorem AI.","start_url":".","scope":".","display":"standalone","orientation":"portrait","background_color":"%23F6F3EE","theme_color":"%23C1512F","lang":"pl","dir":"ltr","categories":["education","productivity"]}'>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -78,6 +78,11 @@
     --baek: #5F7A5A;      /* kierunek W (kompas) */
     --good: #4E7A5F;      /* sukces / poprawna odpowiedź */
     --bad: #B4562F;       /* błąd / ostrzeżenie */
+    /* Cynober - kolor pieczęci (도장). Tusz jest tym, czym się pisze; pieczęć
+       jest znakiem własności. Ikona aplikacji i rama znaku biorą ten kolor.
+       Kontrast --papier na --cynober to 4,23:1 - obiekt graficzny wymaga 3:1. */
+    --cynober: #C1512F;
+    --papier: #F6F3EE;
     --radius: 22px;
     --radius-lg: 28px;
     --radius-pill: 999px;
@@ -4714,25 +4719,43 @@
      bo to WYPEŁNIONE obrysy, nie linie - dasharray na nich nie zadziała. */
   @keyframes ld-rys{ to{ clip-path:inset(0 0 0 0); } }
 
-  .ld-znak path:nth-child(1){
+  .ld-znak g path:nth-child(1){
     clip-path:inset(0 100% 0 0);
     animation:ld-rys 250ms linear 0ms forwards;
   }
-  .ld-znak path:nth-child(2){
+  .ld-znak g path:nth-child(2){
     clip-path:inset(0 100% 0 0);
     animation:ld-rys 250ms linear 250ms forwards;
   }
-  .ld-znak path:nth-child(3){
+  .ld-znak g path:nth-child(3){
     clip-path:inset(0 100% 0 0);
     animation:ld-rys 250ms linear 500ms forwards;
   }
 
   /* Bez ruchu: znak stoi od razu w całości. */
   @media (prefers-reduced-motion: reduce){
-    .ld-znak path{ animation:none !important; clip-path:none !important; }
+    .ld-znak g path{ animation:none !important; clip-path:none !important; }
   }
 
-  .loading-mark{ width:56px; height:56px; }
+  /* currentColor bierze kolor z .loading-screen, więc znak zmienia się
+     z motywem zamiast być czarny wszędzie. */
+  /* ═══ OPRAWA ZNAKU ═══════════════════════════════════════════════════════
+     Same trzy kreski bez ramy wyglądają jak przypadkowe linie - dopiero
+     ścięty kwadrat czyta się jako ZNAK. Ścięcie prawego dolnego rogu, bo tam
+     kończy się ostatnia, najcieńsza kreska: rama otwiera się dokładnie tam,
+     gdzie pędzel schodzi z papieru.
+
+     Kolor pieczęci (--cynober), nie tusz. Tusz jest tym, czym się PISZE;
+     pieczęć jest znakiem własności, więc to ona oznacza rzeczy jako nasze.
+     Uwaga Design 2026-09-06. */
+  .hj-rama{
+    display:inline-grid; place-items:center;
+    background:var(--cynober); color:var(--papier);
+    clip-path:polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%);
+  }
+  .hj-rama > svg{ width:64%; height:64%; }
+
+  .loading-mark{ width:56px; height:56px; color:var(--ink); }
 /* ═══ EKRAN ŁADOWANIA ══════════════════════════════════════════════════════
      Kółko zastąpione oddechem znaku. Stockowy spinner mówi „coś się dzieje",
      ale nie mówi CO ani gdzie jesteś - a to pierwsza rzecz, jaką widzi user
@@ -6375,7 +6398,7 @@
        OTWARTE: obrysy są ścięte pod linijkę. Krzywe wejścia i wyjścia pędzla
        wymagają rysownika - przy 16 px różnicy nie widać, przy 96 px owszem.
        Dane od Design 2026-09-06 (logo-2b-kreski.json). -->
-  <g id="hj-logo" fill-rule="evenodd" transform="translate(0,900) scale(1,-1)">
+  <g id="hj-logo" fill="currentColor" fill-rule="evenodd" transform="translate(0,900) scale(1,-1)">
     <path d="M133,695 L860,634 L881,490 L154,552 Z"/>
     <path d="M133,408 L614,347 L625,234 L143,296 Z"/>
     <path d="M133,142 L758,50 L768,-22 L143,71 Z"/>
@@ -6383,7 +6406,7 @@
 </defs></svg>
 <div class="wrap">
   <header>
-    <div class="brand">Hooljon <svg class="brand-icon hj-logo" viewBox="93 150 828 828" role="img" aria-label="Hooljon"><use href="#hj-logo"/></svg><button type="button" class="szk-marka" id="brandSzkola" hidden></button></div>
+    <div class="brand">Hooljon <span class="hj-rama" style="width:26px; height:26px; border-radius:5px;"><svg class="brand-icon hj-logo" viewBox="93 150 828 828" role="img" aria-label="Hooljon"><use href="#hj-logo"/></svg></span><button type="button" class="szk-marka" id="brandSzkola" hidden></button></div>
     <div class="stats">
       <span data-i18n="statScore">Wynik</span> <b id="scoreVal">0</b><span data-i18n="statStreak">Seria</span> <b id="streakVal">0</b><span class="quota-note" id="dailyQuotaNote"></span><span class="quota-note" id="headerMonthlyUsageNote" style="display:none;"></span>
     </div>
@@ -6518,7 +6541,18 @@
   </div>
 
   <div class="loading-screen" id="loadingScreen">
-    <svg class="loading-mark hj-logo ld-znak" viewBox="93 150 828 828" aria-hidden="true"><use href="#hj-logo"/></svg>
+    <!-- ŚCIEŻKI WPROST, nie przez <use>. Element <use> tworzy DRZEWO CIENIA,
+         do którego CSS nie sięga selektorem potomka - `.ld-znak path` nie trafiało
+         w nic i animacja rysowania po prostu się nie odpalała.
+         Pozostałe cztery miejsca zostają na <use>, bo tam nic nie animujemy.
+         Zgłoszone przez Damiana 2026-09-06. -->
+    <svg class="loading-mark ld-znak" viewBox="93 150 828 828" aria-hidden="true">
+      <g fill="currentColor" fill-rule="evenodd" transform="translate(0,900) scale(1,-1)">
+        <path d="M133,695 L860,634 L881,490 L154,552 Z"/>
+        <path d="M133,408 L614,347 L625,234 L143,296 Z"/>
+        <path d="M133,142 L758,50 L768,-22 L143,71 Z"/>
+      </g>
+    </svg>
     
     <div class="loading-text" id="loadingScreenText" data-i18n="loadingScreenText">Wczytywanie danych…</div>
   </div>
@@ -6564,7 +6598,7 @@
     <button class="back-btn" id="sandboxToStoryBtn" data-back="modeSelect" data-i18n="backModeSelect">Wybór trybu</button>
 
     <div class="home-head">
-      <div class="hh-brand"><svg class="hh-mark hj-logo" viewBox="93 150 828 828" aria-hidden="true"><use href="#hj-logo"/></svg>Hooljon</div>
+      <div class="hh-brand"><span class="hj-rama" style="width:32px; height:32px; border-radius:5px;"><svg class="hh-mark hj-logo" viewBox="93 150 828 828" aria-hidden="true"><use href="#hj-logo"/></svg></span>Hooljon</div>
       <div class="hh-title"><b data-i18n="navLearn">Nauka</b></div>
       <div class="home-today">
         <div><span class="ht-lab" data-i18n="homeStatStreak">Seria</span><span class="ht-val" id="homeStreakVal">0</span></div>
@@ -58044,7 +58078,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.370';
+const APP_VERSION = '2026-09-06.373';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
