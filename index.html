@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.373
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.379
   Zbudowane na: d1a4f62a23d592fb3eee69f94031a3f0 (.299)
   Sam numer wersji NIE wykrywa rozejścia gałęzi - dwie kopie zbudowane od tego
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
@@ -5313,6 +5313,47 @@
   .ai-bubble.bot .ai-error-wrong{color:var(--bad);}
   .ai-error-correct{font-weight:700;}
   /* Koła ratunkowe - patrz komentarz przy #kolaRatunkowe. */
+  /* ═══ TRENING ODRUCHU (WIP) ══════════════════════════════════════════════ */
+  .wip-baner{
+    max-width:460px; margin:0 auto 16px; padding:11px 14px;
+    background:color-mix(in srgb, var(--bad) 10%, var(--card));
+    border:1px solid var(--bad); border-radius:var(--radius);
+    font:600 12.5px var(--font-ui); color:var(--bad); line-height:1.45;
+  }
+  .tr-cel{
+    font:600 19px var(--font-ui); color:var(--ink);
+    margin:10px 0 8px; line-height:1.4; text-wrap:pretty;
+  }
+  .tr-klocki{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:14px 0; }
+  .tr-klocek{
+    font-family:var(--font-ko); font-size:16px; padding:9px 13px; min-height:36px;
+    background:var(--surface-2); color:var(--ink);
+    border:1px solid var(--border); border-radius:var(--radius);
+  }
+  /* Pasek rytmu - tryb B. Nie odliczanie 3-2-1, tylko płynący wskaźnik:
+     agresywne odliczanie podnosi tętno, a chodzi o zdjęcie lęku. */
+  .tr-rytm{
+    height:3px; background:var(--surface-2); border-radius:2px;
+    margin:16px auto 6px; max-width:260px; overflow:hidden; display:none;
+  }
+  .tr-rytm > i{ display:block; height:100%; width:100%; background:var(--hwang); transform-origin:left; }
+  .tr-rytm.tr-plynie > i{ animation:tr-rytm-plyn var(--tr-czas, 6000ms) linear forwards; }
+  @keyframes tr-rytm-plyn{ from{ transform:scaleX(1); } to{ transform:scaleX(0); } }
+  .tr-mik{
+    width:76px; height:76px; border-radius:50%; margin:8px auto 0; display:block;
+    background:var(--card-hi); border:2px solid var(--border);
+    font-size:30px; cursor:pointer; transition:border-color 160ms ease;
+  }
+  .tr-mik.tr-slucha{ border-color:var(--hwang); background:var(--hwang-tint); }
+  .tr-podpis{ font:400 12.5px var(--font-ui); color:var(--ink-dim); margin-top:8px; }
+  .tr-wynik{ margin-top:14px; font:600 14px var(--font-ui); min-height:20px; }
+  .tr-wynik.ok{ color:var(--good); }
+  .tr-wynik.zle{ color:var(--bad); }
+  @media (prefers-reduced-motion: reduce){
+    .tr-rytm.tr-plynie > i{ animation:none; transform:scaleX(0); }
+    .tr-mik{ transition:none; }
+  }
+
   .kola-rat{ margin-top:12px; }
   .kr-etykieta{ display:block; font:600 11.5px var(--font-ui); color:var(--ink-dim);
     letter-spacing:.06em; text-transform:uppercase; margin-bottom:8px; }
@@ -7325,6 +7366,16 @@
            Kliknięcie wypowiada zwrot na głos, więc uczeń SŁYSZY wzorzec i może
            go powtórzyć. To nie ściąga - to modelowanie.
            Zgłoszone przez Damiana 2026-09-06. -->
+      <!-- Wejście do treningu. WIP, więc kafel jest przygaszony jak dziedziny
+           „wkrótce" w Akademii - user widzi, że to jeszcze nie jest gotowe. -->
+      <button type="button" class="home-card variant-row soon" data-target="train" style="margin-top:14px;">
+        <span class="icon">훈</span>
+        <span>
+          <div class="title" data-i18n="trWejscie">Trening odruchu</div>
+          <div class="desc" data-i18n="trWejscieOpis">W budowie — most między regułą a mówieniem</div>
+        </span>
+      </button>
+
       <div class="kola-rat" id="kolaRatunkowe">
         <span class="kr-etykieta" data-i18n="kolaRatLabel">Nie wiesz co powiedzieć?</span>
         <div class="kr-chipy" id="krChipy"></div>
@@ -7362,6 +7413,51 @@
           Uwaga: bot wykrywa błędy gramatyczne i słownikowe w tym, co <b>rozpoznał</b> mikrofon — to nie jest ocena wymowy/akcentu, tylko analiza tekstu.
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ═══ TRENING ODRUCHU — WORK IN PROGRESS ═══════════════════════════════
+       Most między biernym rozpoznawaniem reguły a mówieniem. Otwarty czat
+       zakłada, że to przejście jest płynne - nie jest: inny szyk (SOV),
+       kaskada partykuł i strach przed błędem w rejestrze blokują mowę.
+
+       Trzy tryby o rosnącej presji czasu:
+         A (A1-A2)  zero presji, klocki podpowiedzi, nieograniczony czas
+         B (B1-B2)  bez klocków, pasek rytmu 6 s zatrzymywany mową
+         C (B2+)    3 sekundy na reakcję, akceptowane krótkie zwroty
+
+       ⚠️ NIEUKOŃCZONE. Wszystkie trzy opierają się na rozpoznawaniu mowy,
+       które w przeglądarce Damiana (Edge) zawodzi - dziś trzy razy: przy
+       odpytywaniu, przy Haksie i przy czytance. Moduł jest zbudowany, ale
+       NIE PRZETESTOWANY na żywo. Do domknięcia po moście natywnym.
+
+       Zaprojektowane 2026-09-06, wdrożone jako szkielet. -->
+  <div id="trainScreen" style="display:none;">
+    <button class="back-btn" data-back="aiChat" data-i18n="backChat">Rozmowa</button>
+
+    <div class="wip-baner" data-i18n="wipBaner">
+      Moduł w budowie — działa, ale nie został jeszcze przetestowany na żywo.
+      Wymaga działającego rozpoznawania mowy.
+    </div>
+
+    <div class="center-card" style="max-width:460px; margin:0 auto;">
+      <div class="eyebrow" id="trWzorzec"></div>
+      <div class="tr-cel" id="trCel"></div>
+      <div class="hint-note" id="trWskazowka"></div>
+
+      <div class="tr-klocki" id="trKlocki"></div>
+
+      <div class="tr-rytm" id="trRytm"><i></i></div>
+
+      <button type="button" class="tr-mik" id="trMikBtn" aria-label="Mów">🎙️</button>
+      <div class="tr-podpis" id="trPodpis"></div>
+
+      <div class="tr-wynik" id="trWynik"></div>
+    </div>
+
+    <div class="row" id="trNawigacja">
+      <button class="tool-btn" id="trSluchajBtn" data-i18n="trSluchaj">Posłuchaj wzoru</button>
+      <button class="primary" id="trDalejBtn" data-i18n="trDalej">Dalej</button>
     </div>
   </div>
 
@@ -9374,9 +9470,31 @@ async function connectGeminiRelay(isRetry){
     if(msg.setupComplete){
       clearTimeout(setupTimeout);
       geminiSetupComplete = true;
-      // Mikrofon startuje SAM po nawiązaniu sesji - user nie musi nic klikać,
+// Mikrofon startuje SAM po nawiązaniu sesji - user nie musi nic klikać,
       // żeby zacząć mówić. To sedno rozmowy ciągłej.
       setTimeout(() => { startGeminiMic().catch(()=>{}); }, 120);
+
+      /* HAKSA ODZYWA SIĘ PIERWSZA. Wcześniej po połączeniu zapadała cisza
+         i to UCZEŃ musiał zacząć - czyli dokładnie ta bariera, dla której
+         w ogóle robimy koła ratunkowe. Rozmowa, w której trzeba zagaić
+         w obcym języku, zaczyna się od najtrudniejszego momentu.
+
+         Wysyłamy niewidoczny sygnał tekstowy: model dostaje polecenie
+         przywitania, user tego nie widzi, słyszy tylko odpowiedź.
+         Zgłoszone przez Damiana 2026-09-06. */
+      setTimeout(() => {
+        try{
+          if(!geminiSocket || geminiSocket.readyState !== WebSocket.OPEN) return;
+          geminiSocket.send(JSON.stringify({
+            clientContent: {
+              turns: [{ role:'user', parts:[{ text:
+                'Przywitaj się krótko i zadaj JEDNO proste pytanie otwierające rozmowę. ' +
+                'Maksymalnie dwa zdania. Nie tłumacz, co robisz.' }] }],
+              turnComplete: true
+            }
+          }));
+        }catch(e){ /* brak powitania nie może zablokować rozmowy */ }
+      }, 400);
       document.getElementById('geminiConnectBtn').style.display = 'none';
       document.getElementById('geminiDisconnectBtn').style.display = '';
       document.getElementById('geminiMicBtn').style.display = '';
@@ -9976,6 +10094,15 @@ async function suggestGeminiResponse(){
 document.getElementById('geminiTranslateBtn').addEventListener('click', translateLastGeminiUtterance);
 document.getElementById('conjShowRefBtn').addEventListener('click', () => openConjRef(conjCurrent));
 document.getElementById('conjRefPracticeBtn').addEventListener('click', () => setScreen('conjugation'));
+
+/* Trening odruchu - WIP, patrz komentarz przy #trainScreen. */
+document.getElementById('trMikBtn').addEventListener('click', trStart);
+document.getElementById('trSluchajBtn').addEventListener('click', () => {
+  if(trZadanie){ try{ speakKorean(trZadanie.blocks.join(' ')); }catch(e){} }
+});
+document.getElementById('trDalejBtn').addEventListener('click', () => {
+  trIndeks++; trRundaNowa();
+});
 
 document.getElementById('geminiConnectBtn').addEventListener('click', connectGeminiRelay);
 document.getElementById('geminiDisconnectBtn').addEventListener('click', disconnectGeminiRelay);
@@ -58078,7 +58205,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.373';
+const APP_VERSION = '2026-09-06.379';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -58097,7 +58224,13 @@ const SCREEN_IDS = {
   vocab: 'vocabScreen',
   vocabStudy:'vocabStudyScreen', vocabLevel:'vocabLevelScreen',
   conjCategory:'conjCategoryScreen', conjLevel:'conjLevelScreen', conjugation:'conjugationScreen', conjRef:'conjRefScreen',
-  aiChat:'aiChatScreen', reading:'readingScreen',
+  aiChat:'aiChatScreen',
+  // Trening odruchu (WIP, 2026-09-06) - komentarz w OSOBNEJ linii.
+  // Wcześniej stał po 'trainScreen' i zjadał resztę wiersza razem z wpisem
+  // reading:'readingScreen' - ekran czytanki przestawał istnieć w mapie,
+  // a setScreen('reading') trafiało w undefined. Cicha awaria, składnia OK.
+  train: 'trainScreen',
+  reading:'readingScreen',
   grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
   achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', myWords:'myWordsScreen', folderEdit:'folderEditScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen', reports:'reportsScreen', account:'accountScreen'
 };
@@ -58412,6 +58545,7 @@ function setScreen(screen){
   if(screen === 'grammarQuiz') grammarNewRound();
   if(screen === 'achievements') renderAchievementsScreen();
   if(screen === 'aiChat') renderKolaRatunkowe();
+  if(screen === 'train'){ trPrzygotujPule(); trRundaNowa(); }
   if(screen === 'register') renderRegisterScreen();
   if(screen === 'topikTest') startTopikTest();
   if(screen === 'sentenceBuilder') startSentenceBuilder();
@@ -58942,6 +59076,12 @@ const I18N = {
   zrodlaLabel: { pl: 'Dane kolejności kresek', en: 'Stroke order data' },
   manifestTytul: { pl: 'Dlaczego trzy kreski', en: 'Why three strokes' },
   kolaRatLabel: { pl: 'Nie wiesz co powiedzieć?', en: 'Not sure what to say?' },
+  trWejscie: { pl: 'Trening odruchu', en: 'Reflex training' },
+  trWejscieOpis: { pl: 'W budowie — most między regułą a mówieniem', en: 'In progress — bridge from rule to speech' },
+  trSluchaj: { pl: 'Posłuchaj wzoru', en: 'Hear the model' },
+  trDalej: { pl: 'Dalej', en: 'Next' },
+  backChat: { pl: 'Rozmowa', en: 'Conversation' },
+  wipBaner: { pl: 'Moduł w budowie — działa, ale nie został jeszcze przetestowany na żywo. Wymaga działającego rozpoznawania mowy.', en: 'Work in progress — functional but not yet tested live. Requires working speech recognition.' },
   addModePhoto: { pl: 'Ze zdjęcia', en: 'From photo' },
   lvPodpowiedzi: { pl: 'Scenariusz i przydatne zwroty', en: 'Scenario and useful phrases' },
   haksaDrillTitle: { pl: 'Haksa odpytuje', en: 'Haksa quizzes you' },
@@ -63442,6 +63582,131 @@ function renderKolaRatunkowe(){
       try{ speakKorean(z); }catch(e){ /* dźwięk to dodatek, nie może blokować */ }
     });
   });
+}
+
+/* ═══ TRENING ODRUCHU — WORK IN PROGRESS ══════════════════════════════════
+   ⚠️ NIEPRZETESTOWANE NA ŻYWO. Opiera się na Web Speech, które w Edge
+   u Damiana zawodzi. Szkielet działa, ocena wymaga sprawdzenia.
+
+   Trzy tryby o rosnącej presji - szczegóły w komentarzu przy #trainScreen. */
+let trTryb = 'A';
+let trZadanie = null;
+let trPula = [];
+let trIndeks = 0;
+let trRozp = null;
+let trTimer = null;
+
+/* Pula z SENTENCE_BUILDER_ITEMS - zdania mają już klocki, tłumaczenie
+   i poziom, więc nie trzeba osobnych danych. */
+function trPrzygotujPule(){
+  const lvl = (typeof unlockedLevel !== 'undefined' ? unlockedLevel : 1);
+  trTryb = lvl >= 3 ? 'C' : lvl === 2 ? 'B' : 'A';
+  const zrodlo = (typeof SENTENCE_BUILDER_ITEMS !== 'undefined') ? SENTENCE_BUILDER_ITEMS : [];
+  trPula = shuffle(zrodlo.filter(x => (x.level || 1) <= lvl)).slice(0, 10);
+  trIndeks = 0;
+}
+
+function trRundaNowa(){
+  if(!trPula.length) trPrzygotujPule();
+  trZadanie = trPula[trIndeks % Math.max(1, trPula.length)];
+  if(!trZadanie) return;
+
+  const en = uiLang === 'en';
+  document.getElementById('trWzorzec').textContent = en ? 'Say it out loud' : 'Powiedz na głos';
+  document.getElementById('trCel').textContent = en ? (trZadanie.en || trZadanie.pl) : trZadanie.pl;
+  document.getElementById('trWynik').textContent = '';
+  document.getElementById('trWynik').className = 'tr-wynik';
+
+  /* Klocki TYLKO w trybie A. Wyżej uczeń ma złożyć zdanie z głowy - to jest
+     cała różnica między układanką a mówieniem. */
+  const kl = document.getElementById('trKlocki');
+  kl.innerHTML = (trTryb === 'A')
+    ? shuffle(trZadanie.blocks.slice()).map(b => `<span class="tr-klocek">${escapeHtml(b)}</span>`).join('')
+    : '';
+
+  const rytm = document.getElementById('trRytm');
+  rytm.style.display = (trTryb === 'A') ? 'none' : 'block';
+  rytm.classList.remove('tr-plynie');
+  rytm.style.setProperty('--tr-czas', trTryb === 'C' ? '3000ms' : '6000ms');
+
+  document.getElementById('trPodpis').textContent = trTryb === 'A'
+    ? (en ? 'No timer. Take your time.' : 'Czas nie biegnie. Spokojnie.')
+    : (en ? 'Start speaking before the bar runs out.' : 'Zacznij mówić, zanim pasek zniknie.');
+}
+
+function trStart(){
+  if(!trZadanie) return;
+  const przycisk = document.getElementById('trMikBtn');
+  const wynik = document.getElementById('trWynik');
+
+  /* Pasek rytmu rusza dopiero przy trybie B i C - i zatrzymuje się, gdy
+     padnie pierwsze słowo, nie gdy skończy się czas. */
+  if(trTryb !== 'A'){
+    const rytm = document.getElementById('trRytm');
+    rytm.classList.remove('tr-plynie');
+    void rytm.offsetWidth;
+    rytm.classList.add('tr-plynie');
+  }
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){
+    wynik.textContent = uiLang === 'en'
+      ? 'Speech recognition unavailable in this browser.'
+      : 'Rozpoznawanie mowy niedostępne w tej przeglądarce.';
+    wynik.className = 'tr-wynik zle';
+    return;
+  }
+
+  try{ if(trRozp) trRozp.abort(); }catch(e){}
+  trRozp = new SR();
+  trRozp.lang = 'ko-KR';
+  trRozp.interimResults = true;
+  trRozp.continuous = false;
+  przycisk.classList.add('tr-slucha');
+
+  trRozp.onresult = (e) => {
+    /* Pierwszy wynik częściowy zatrzymuje pasek - liczy się MOMENT
+       rozpoczęcia mowy, nie jej dokończenie. */
+    const rytm = document.getElementById('trRytm');
+    rytm.classList.remove('tr-plynie');
+    const tekst = Array.from(e.results).map(r => r[0].transcript).join('');
+    if(e.results[e.results.length - 1].isFinal) trOcen(tekst);
+  };
+  trRozp.onerror = () => {
+    przycisk.classList.remove('tr-slucha');
+    wynik.textContent = uiLang === 'en' ? 'Could not hear you.' : 'Nie udało się rozpoznać.';
+    wynik.className = 'tr-wynik zle';
+  };
+  trRozp.onend = () => { przycisk.classList.remove('tr-slucha'); };
+  try{ trRozp.start(); }catch(e){}
+}
+
+/* Ocena po SŁOWACH KLUCZOWYCH, nie po dosłownym dopasowaniu. Chodzi o to,
+   czy uczeń użył właściwych elementów i czy orzeczenie wylądowało na końcu -
+   nie o laboratoryjną intonację. */
+function trOcen(tekst){
+  const wynik = document.getElementById('trWynik');
+  const czyste = String(tekst).replace(/[.,!?\s]/g, '');
+  const bloki = trZadanie.blocks.map(b => b.replace(/\s/g, ''));
+  const trafione = bloki.filter(b => czyste.includes(b)).length;
+  const en = uiLang === 'en';
+
+  if(trafione === bloki.length){
+    wynik.textContent = en ? '✓ Complete and in order' : '✓ Wszystko na miejscu';
+    wynik.className = 'tr-wynik ok';
+    try{ playRealSound('correct'); }catch(e){}
+  } else if(trafione > 0){
+    wynik.textContent = (en ? 'Heard: ' : 'Usłyszałem: ') + tekst +
+      ` (${trafione}/${bloki.length})`;
+    wynik.className = 'tr-wynik';
+    /* Zamiast czerwonego krzyżyka - wzorzec do posłuchania. Poprawianie
+       przez usłyszenie działa lepiej niż przez przeczytanie błędu. */
+    try{ speakKorean(trZadanie.blocks.join(' ')); }catch(e){}
+  } else {
+    wynik.textContent = en ? 'Nothing matched — listen and try again.'
+                           : 'Nic nie pasuje — posłuchaj i spróbuj jeszcze raz.';
+    wynik.className = 'tr-wynik zle';
+  }
 }
 
 function renderAchievementsScreen(){
