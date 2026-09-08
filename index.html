@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.445
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.452
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -4518,6 +4518,17 @@
   /* 56px było dobrane pod emoji. Krok 1 pokazuje teraz 훈련 - dwa znaki
      koreańskie, które w tym rozmiarze wychodzą poza kartę. Mniejszy stopień
      i font koreański; przy emoji różnica jest niezauważalna. 2026-09-06. */
+  .ob-l1{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:18px; }
+  .ob-l1-opt{
+    font:600 13px var(--font-ui); padding:9px 14px; min-height:36px;
+    background:var(--surface-2); color:var(--ink-dim);
+    border:1px solid var(--border); border-radius:6px; cursor:pointer;
+    clip-path:polygon(0 0, 100% 0, 100% 74%, 74% 100%, 0 100%);
+    transition:color 140ms ease, border-color 140ms ease;
+  }
+  .ob-l1-opt.wybrany{ color:var(--on-accent); background:var(--hwang); border-color:var(--hwang); }
+  @media (prefers-reduced-motion: reduce){ .ob-l1-opt{ transition:none; } }
+
   .ob-card .ob-icon{
     font-family:var(--font-ko); font-size:42px; line-height:1.15;
     margin-bottom:16px; color:var(--hwang); letter-spacing:.02em;
@@ -7613,6 +7624,11 @@
       <div id="geminiOcena" style="display:none; margin-top:14px; padding:14px 16px;
            border-radius:var(--radius-lg); background:var(--card-hi); border:1px solid var(--border);">
         <div id="geminiOcenaBody"></div>
+      <div id="mirrorPanel" class="mirror-panel" style="display:none;">
+    <div class="mirror-tytul" data-i18n="mirrorTytul">Jak to zabrzmiało</div>
+    <div class="mirror-wymiary" id="mirrorWymiary"></div>
+    <div class="mirror-nota" id="mirrorNota"></div>
+  </div>
       </div>
       <!-- Trzy kropki "pisze". Jedyna nieustanna animacja w apce, więc
            prefers-reduced-motion ją wyłącza (v3 §4). -->
@@ -7782,11 +7798,7 @@
        Nie ocena, tylko lustro: jak wypowiedź zabrzmiała dla Koreańczyka.
        Cztery wymiary, każdy z komentarzem TYLKO gdy odstaje - pełna lista
        przy każdej rozmowie zamieniłaby to w tabelę wyników. -->
-  <div id="mirrorPanel" class="mirror-panel" style="display:none;">
-    <div class="mirror-tytul" data-i18n="mirrorTytul">Jak to zabrzmiało</div>
-    <div class="mirror-wymiary" id="mirrorWymiary"></div>
-    <div class="mirror-nota" id="mirrorNota"></div>
-  </div>
+  
 
   <div id="readingScreen" style="display:none;">
     <button class="back-btn" data-back="home" data-i18n="backHome">Menu główne</button>
@@ -9763,7 +9775,18 @@ async function connectGeminiRelay(isRetry){
      zamiast rozmówcy. Odrzuca kodem 4010, gdy mode=drill przyjdzie bez słów -
      lepiej jawny błąd niż cicha zamiana na zwykłą rozmowę, o którą nikt nie prosił. */
   const drillParams = geminiDrillWords ? `&mode=drill&words=${encodeURIComponent(geminiDrillWords)}` : '';
-  const wsUrl = SUPABASE_URL.replace(/^https:/, 'wss:') + `/functions/v1/gemini-relay?token=${session.access_token}&level=${geminiSelectedLevel}${targetParams}${drillParams}`;
+
+  /* SCENARIUSZ NUNCHI. Bez tego parametru Haksa nie wie, kogo gra - a wtedy
+     ekran „Z kim rozmawiasz" jest dekoracją: uczeń widzi ciotkę koleżanki,
+     rozmawia z lektorką.
+
+     Przekaźnik przy nieznanym id po cichu wraca do zwykłej rozmowy, więc pusty
+     parametr jest bezpieczny. Zgłoszone przez Claude Code 2026-09-06. */
+  const scenariuszParam = (typeof nunchiAktywny !== 'undefined' && nunchiAktywny && nunchiAktywny.id)
+    ? '&scenariusz=' + encodeURIComponent(nunchiAktywny.id)
+    : '';
+
+  const wsUrl = SUPABASE_URL.replace(/^https:/, 'wss:') + `/functions/v1/gemini-relay?token=${session.access_token}&level=${geminiSelectedLevel}${targetParams}${drillParams}${scenariuszParam}`;
   console.log('[Gemini Live] Łączenie z:', wsUrl.replace(session.access_token, '<token>'));
   geminiSocket = new WebSocket(wsUrl);
   // Domyślny binaryType przeglądarki to 'blob', a JSON.parse(blob) niejawnie wywołuje
@@ -15570,7 +15593,19 @@ const ONBOARDING_STEPS = [
   }
  },
  {
-  "icon": "🧭",
+  "icon": "母",
+  "title": {
+   "pl": "Jaki jest Twój język ojczysty?",
+   "en": "What is your first language?"
+  },
+  "body": {
+   "pl": "Błędy w koreańskim nie są przypadkowe — wynikają z języka, który już znasz. Polak pomija partykuły, bo końcówka przypadka „jest w słowie\". Anglik stawia czasownik w środku zdania. Hiszpan słyszy ㅓ i ㅗ jako jeden dźwięk.\n\nWiedząc, skąd przychodzisz, możemy ostrzegać przed Twoimi błędami, a nie przed czyimiś.",
+   "en": "Mistakes in Korean are not random — they come from the language you already know. Polish speakers drop particles because case endings live inside the word. English speakers put the verb in the middle. Spanish speakers hear ㅓ and ㅗ as one sound.\n\nKnowing where you come from lets us warn you about YOUR mistakes, not someone else’s."
+  },
+  "wybor": "l1"
+ },
+ {
+  "icon": "道",
   "title": {
    "pl": "Cztery sposoby nauki",
    "en": "Four ways to learn"
@@ -15599,7 +15634,7 @@ const ONBOARDING_STEPS = [
   ]
  },
  {
-  "icon": "🔁",
+  "icon": "習",
   "title": {
    "pl": "Ucz się we właściwym tempie",
    "en": "Learn at the right pace"
@@ -15610,7 +15645,7 @@ const ONBOARDING_STEPS = [
   }
  },
  {
-  "icon": "🚀",
+  "icon": "始",
   "title": {
    "pl": "Od czego zacząć?",
    "en": "Where to start?"
@@ -61846,7 +61881,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.445';
+const APP_VERSION = '2026-09-06.452';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -67225,6 +67260,117 @@ function nastepnaNagroda(){
       honoryfikatywny u Polaków - a lustro patrzące tylko na OBECNOŚĆ
       honoryfikatywu zaklasyfikowałoby to jako „za dużo uprzejmości".
       Ocena musi rozróżniać KIERUNEK: wobec rozmówcy tak, wobec siebie nigdy. */
+/* ═══ PROFILOWANIE L1 ═════════════════════════════════════════════════════
+   Błąd ucznia nie jest przypadkowy - wynika z języka, który już zna. Polak
+   pomija partykuły, bo końcówka przypadka „jest w słowie"; Anglik stawia
+   czasownik w środku; Hiszpan zlewa ㅓ z ㅗ, bo w jego języku ta różnica nie
+   niesie znaczenia.
+
+   Komunikat odwołujący się do TEGO mechanizmu działa, bo uczeń rozpoznaje
+   własny nawyk. Komunikat ogólny („uwaga na partykuły") nie mówi nic.
+
+   POLSKI MA NAJWIĘCEJ WIERSZY (12) i to nie przypadek: pominąłem go
+   w pierwszej analizie, choć to jedyna grupa, dla której mamy dziś
+   użytkowników. Wychwyciła to lektorka. 2026-09-06.
+
+   Pole `waga` 0 oznacza TRANSFER POZYTYWNY - rzecz, którą uczeń dostaje
+   za darmo (Hán-Việt dla Wietnamczyków, SOV dla Japończyków). Apka ma o tym
+   mówić, nie tylko o błędach. */
+const L1_KLASTRY = {
+ "pl": {
+  "nazwa": "polski",
+  "jezyki": [
+   "pl"
+  ]
+ },
+ "en": {
+  "nazwa": "angielski",
+  "jezyki": [
+   "en"
+  ]
+ },
+ "ro": {
+  "nazwa": "romański (hiszpański, portugalski)",
+  "jezyki": [
+   "es",
+   "pt"
+  ]
+ },
+ "ru": {
+  "nazwa": "rosyjski (i inne słowiańskie wschodnie)",
+  "jezyki": [
+   "ru"
+  ]
+ },
+ "vi": {
+  "nazwa": "wietnamski",
+  "jezyki": [
+   "vi"
+  ]
+ },
+ "zh": {
+  "nazwa": "chiński",
+  "jezyki": [
+   "zh_cn"
+  ]
+ },
+ "ja": {
+  "nazwa": "japoński",
+  "jezyki": [
+   "ja"
+  ]
+ },
+ "id": {
+  "nazwa": "indonezyjski",
+  "jezyki": [
+   "id"
+  ]
+ }
+};
+
+const L1_BLEDY = [{"klaster":"pl","obszar":"partykuly","blad":"Pomijanie partykuł, bo polski ma końcówki przypadków w słowie, nie osobne cząstki","zle":"저 학생 책 읽어요","dobrze":"저는 학생이에요. 책을 읽어요","dlaczego":"W polskim „książkę” niesie informację o dopełnieniu w samej końcówce; w koreańskim robi to osobna partykuła 을/를, którą łatwo uznać za zbędną","komunikat":"Po polsku końcówka jest w słowie („książk-ę”). Po koreańsku to osobny klocek: 책 + 을. Bez niego zdanie brzmi jak telegram.","waga":3},{"klaster":"pl","obszar":"partykuly","blad":"은/는 vs 이/가 traktowane jak mianownik — polski nie rozróżnia tematu i podmiotu","zle":"누가 왔어요? — 민수는 왔어요","dobrze":"누가 왔어요? — 민수가 왔어요","dlaczego":"Polski wyraża temat szykiem i intonacją, nie morfologią; uczeń szuka „mianownika” i wybiera losowo","komunikat":"은/는 = „jeśli chodzi o…”, 이/가 = nowa informacja. Odpowiedź na „kto?” zawsze bierze 이/가.","waga":3},{"klaster":"pl","obszar":"szyk","blad":"Czasownik w środku zdania (SVO) zamiast na końcu","zle":"저는 먹어요 밥을","dobrze":"저는 밥을 먹어요","dlaczego":"Polski szyk jest swobodny, ale domyślnie SVO; koreański jest sztywno SOV","komunikat":"Koreańskie zdanie kończy się czasownikiem — zawsze. Wszystko inne idzie przed nim.","waga":2},{"klaster":"pl","obszar":"grzecznosc","blad":"Traktowanie 해요체 jak polskiego „pan/pani” i 반말 jak „ty” — brak trzeciego poziomu","zle":"팀장님, 내일 휴가 갈게요 (do szefa, prośba)","dobrze":"팀장님, 내일 연차를 써도 될까요?","dlaczego":"Polski ma dwa poziomy (ty / pan), koreański co najmniej trzy plus honoryfikatywy; uczeń mapuje 해요체 na „pan” i uważa, że wystarczy","komunikat":"„Pan/pani” to dopiero środek skali. Wobec szefa i w prośbach potrzebna jest jeszcze forma pytająca lub 합니다체.","waga":3},{"klaster":"pl","obszar":"grzecznosc","blad":"Honoryfikatyw -시- wobec siebie („제가 아프세요”) przez analogię do „pan” w polskim, które dotyczy rozmówcy","zle":"제가 아프세요","dobrze":"제가 아파요 / 어디가 아프세요?","dlaczego":"Polski „pan” to zaimek rozmówcy; uczeń wie, że -시- jest grzeczne i dokleja je wszędzie, także do siebie","komunikat":"-시- podnosi osobę, o której mowa. Do siebie nigdy — o sobie mówisz 저 + forma bez 시.","waga":2},{"klaster":"pl","obszar":"fonologia","blad":"Brak rozróżnienia trzech szeregów spółgłosek: ㄱ/ㅋ/ㄲ słyszane jako g/k","zle":"가다 = 까다 = 카다","dobrze":"가다 (iść) ≠ 까다 (obierać) ≠ 카다","dlaczego":"Polski ma dźwięczne/bezdźwięczne (g/k), koreański ma zwykłe/przydechowe/napięte; polskie „k” jest bez przydechu, więc brzmi jak ㄲ","komunikat":"Polskie „k” to prawie ㄲ. ㅋ wymaga wydechu (przyłóż dłoń do ust — ma poruszyć powietrze), ㄱ jest miękkie i bez wydechu.","waga":3},{"klaster":"pl","obszar":"fonologia","blad":"ㅓ wymawiane jak polskie „o”","zle":"서울 → „soul”","dobrze":"서울 z ㅓ (otwarte, między „o” a „a”)","dlaczego":"Polski ma jedno „o”; ㅓ nie ma polskiego odpowiednika i najbliższe wydaje się „o”","komunikat":"ㅓ to „o” z opuszczoną szczęką, bez zaokrąglania ust. ㅗ — usta w dziubek.","waga":2},{"klaster":"pl","obszar":"fonologia","blad":"ㅡ wymawiane jak polskie „y”","zle":"그 → „gy”","dobrze":"그 z ㅡ (usta rozciągnięte jak do „i”, język jak do „u”)","dlaczego":"Polskie „y” jest najbliższe, ale ㅡ jest bardziej tylne; błąd jest mały i rzadko blokuje zrozumienie","komunikat":"Polskie „y” jest blisko — cofnij język jeszcze trochę, jakbyś mówił „u” bez zaokrąglania ust.","waga":1},{"klaster":"pl","obszar":"fonologia","blad":"Akcent na przedostatniej sylabie przenoszony z polskiego","zle":"한국 사람 z akcentem na 한 i 사","dobrze":"równa długość sylab, lekkie podniesienie końca frazy","dlaczego":"Polski ma stały akcent paroksytoniczny; koreański nie ma akcentu wyrazowego","komunikat":"Po koreańsku sylaby są równe. Nie „wzmacniaj” przedostatniej — brzmi to jak polska melodia.","waga":1},{"klaster":"pl","obszar":"leksyka","blad":"Tłumaczenie „lubić” jako czasownika z dopełnieniem zamiast przymiotnika 좋다 z podmiotem","zle":"저는 김치를 좋아요","dobrze":"저는 김치가 좋아요 / 김치를 좋아해요","dlaczego":"„Lubię kimchi” ma dopełnienie; 좋다 to przymiotnik („kimchi jest dobre dla mnie”), a 좋아하다 to czasownik","komunikat":"좋다 = „X jest fajne” → X bierze 이/가. 좋아하다 = „lubić X” → X bierze 을/를. Nie mieszaj.","waga":2},{"klaster":"pl","obszar":"czas-aspekt","blad":"Szukanie aspektu dokonanego/niedokonanego w koreańskim czasie przeszłym","zle":"„읽었어요” = przeczytałem czy czytałem?","dobrze":"읽었어요 (oba); 다 읽었어요 (przeczytałem do końca); 읽고 있었어요 (czytałem właśnie)","dlaczego":"Polski koduje aspekt w każdym czasowniku; koreański nie ma tej opozycji i wyraża ją leksykalnie (다, 있다)","komunikat":"Koreański nie pyta „dokonany czy nie”. Jeśli to ważne, dodaj 다 (do końca) albo -고 있다 (w trakcie).","waga":2},{"klaster":"pl","obszar":"leksyka","blad":"Przecinki i „że” — próba użycia spójnika przed zdaniem podrzędnym","zle":"저는 생각해요 (que) 비가 와요","dobrze":"비가 온다고 생각해요","dlaczego":"Polski wprowadza zdanie podrzędne spójnikiem po czasowniku; koreański wbudowuje je przed czasownikiem końcówką -다고","komunikat":"Nie ma „że”. Zdanie podrzędne dostaje końcówkę -다고 i idzie PRZED 생각해요.","waga":2},{"klaster":"en","obszar":"szyk","blad":"SVO zamiast SOV — czasownik zaraz po podmiocie","zle":"I eat rice → 저는 먹어요 밥","dobrze":"저는 밥을 먹어요","dlaczego":"Angielski szyk jest sztywno SVO i niesie funkcję gramatyczną; przeniesienie go jest automatyczne","komunikat":"The verb goes last. Every time. Subject – object – verb.","waga":3},{"klaster":"en","obszar":"partykuly","blad":"Pomijanie partykuł, bo angielski wyraża role szykiem","zle":"친구 책 줬어요","dobrze":"친구에게 책을 줬어요","dlaczego":"W angielskim „I gave my friend a book” rozstrzyga kolejność; w koreańskim role niosą partykuły, a kolejność jest luźna","komunikat":"Korean does not care about word order the way English does — the particles do the job. Drop them and nobody knows who gave what to whom.","waga":3},{"klaster":"en","obszar":"leksyka","blad":"Szukanie przedimków a/the","zle":"한 책 (a book), 그 책 (the book) doklejane odruchowo","dobrze":"책","dlaczego":"Angielski wymaga przedimka przy każdym rzeczowniku policzalnym; uczeń czuje, że „coś brakuje”","komunikat":"There is no a/the. 책 means a book, the book, books. Context does the rest.","waga":2},{"klaster":"en","obszar":"grzecznosc","blad":"Jeden rejestr na wszystko — brak intuicji, że końcówka koduje relację","zle":"할머니, 밥 먹었어? (do cudzej babci)","dobrze":"할머니, 진지 드셨어요?","dlaczego":"Angielski nie ma gramatycznej honoryfikacji; „polite” to dla ucznia kwestia słów (please), nie końcówek","komunikat":"In Korean politeness is grammar, not vocabulary. The ending of every sentence says who you are talking to.","waga":3},{"klaster":"en","obszar":"grzecznosc","blad":"Odmowa i prośba wprost (No / I want) przenoszone 1:1","zle":"싫어요 / 물 주세요 (bez zmiękczenia wobec starszych)","dobrze":"좀 어려울 것 같아요 / 물 좀 주시겠어요?","dlaczego":"Angielska bezpośredniość jest kulturowo neutralna; po koreańsku brzmi szorstko","komunikat":"A flat “no” to a senior sounds rude. Say it is “a bit difficult” and offer an alternative.","waga":2},{"klaster":"en","obszar":"fonologia","blad":"ㅓ/ㅗ i ㅡ/ㅜ zlewane","zle":"어 = 오, 으 = 우","dobrze":"넣다 ≠ 놓다; 글 ≠ 굴","dlaczego":"Angielski ma wiele samogłosek, ale nie te; „uh” jest blisko ㅓ, „oo” blisko ㅜ, a ㅡ nie ma odpowiednika","komunikat":"ㅓ is the vowel in “cut”; ㅗ is “o” with rounded lips. ㅡ is “oo” said with a flat smile.","waga":2},{"klaster":"en","obszar":"fonologia","blad":"Przydech na każdym ㄱ/ㄷ/ㅂ na początku wyrazu (jak w „key”, „two”, „pie”)","zle":"바다 → „pʰada”","dobrze":"바다 z miękkim, nieprzydechowym ㅂ","dlaczego":"Angielskie bezdźwięczne p/t/k są przydechowe na początku wyrazu; koreańskie ㅂ/ㄷ/ㄱ nie","komunikat":"English p/t/k at the start of a word have a puff of air. Korean ㅂ/ㄷ/ㄱ do not — hold a tissue in front of your mouth, it must not move.","waga":2},{"klaster":"en","obszar":"fonologia","blad":"Końcowe spółgłoski uwalniane (batchim wymawiane z wygłosem)","zle":"밥 → „bap-uh”, 국 → „gook-uh”","dobrze":"밥 z zamkniętym ㅂ (usta zostają zamknięte)","dlaczego":"Angielski wygłos często ma słyszalne rozwarcie; koreański batchim jest niezwolniony","komunikat":"Final consonants in Korean stop — the lips or tongue close and stay closed. Nothing comes out after 밥.","waga":2},{"klaster":"en","obszar":"leksyka","blad":"„Be” tłumaczone zawsze jako 이다, także dla przymiotników","zle":"날씨가 좋다 이에요","dobrze":"날씨가 좋아요","dlaczego":"Angielski wymaga „is” przed przymiotnikiem; koreański przymiotnik sam jest orzeczeniem","komunikat":"Korean adjectives are verbs. 좋아요 already means “is good” — no extra “is”.","waga":2},{"klaster":"en","obszar":"czas-aspekt","blad":"Present continuous dla stanów (I am knowing)","zle":"알고 있어요 wszędzie zamiast 알아요","dobrze":"알아요 (wiem); 알고 있어요 tylko dla „jestem świadomy / śledzę”","dlaczego":"Uczeń uczy się -고 있다 = -ing i stosuje je do każdego angielskiego progressive","komunikat":"-고 있다 is for actions in progress, not states. “I know” is just 알아요.","waga":1},{"klaster":"en","obszar":"leksyka","blad":"Liczba mnoga 들 doklejana do każdego rzeczownika","zle":"사과들 세 개","dobrze":"사과 세 개","dlaczego":"Angielski oznacza liczbę mnogą obowiązkowo; koreański rzadko","komunikat":"들 is optional and usually left out, especially after a number.","waga":1},{"klaster":"ro","obszar":"fonologia","blad":"ㅓ zlewane z ㅗ — pięć samogłosek zamiast dziesięciu","zle":"서울 = 소울; 어머니 = 오모니","dobrze":"서울 (ㅓ otwarte) vs 소 (ㅗ zaokrąglone)","dlaczego":"Hiszpański i portugalski mają 5 samogłosek; różnica ㅓ/ㅗ nie niesie tam znaczenia, więc ucho ją ignoruje","komunikat":"ㅓ y ㅗ son dos vocales distintas en coreano. ㅗ se dice con los labios redondeados como en „o”; ㅓ con la boca abierta y los labios relajados, entre „o” y „a”.","waga":3},{"klaster":"ro","obszar":"fonologia","blad":"ㅡ zlewane z ㅜ","zle":"글 = 굴","dobrze":"글 (ㅡ, usta płaskie) vs 굴 (ㅜ, usta okrągłe)","dlaczego":"Brak samogłoski ㅡ w systemie; najbliższe „u”","komunikat":"ㅡ es una „u” sin redondear los labios — sonríe y di „u”.","waga":3},{"klaster":"ro","obszar":"fonologia","blad":"ㅐ/ㅔ oba jako „e” (tu bez szkody) — ale ㅕ/ㅛ mylone","zle":"여 = 요","dobrze":"여자 (ㅕ) vs 요리 (ㅛ)","dlaczego":"Ten sam problem ㅓ/ㅗ z jotą","komunikat":"Misma diferencia que ㅓ/ㅗ, con „y” delante: 여 abierta, 요 redondeada.","waga":2},{"klaster":"ro","obszar":"fonologia","blad":"Napięte spółgłoski ㄲ/ㄸ/ㅃ/ㅆ/ㅉ wymawiane jak zwykłe","zle":"싸다 = 사다, 빵 = 방","dobrze":"싸다 (tani) ≠ 사다 (kupować); 빵 (chleb) ≠ 방 (pokój)","dlaczego":"Języki romańskie nie mają serii napiętej; różnica słyszana jako „ta sama spółgłoska głośniej”","komunikat":"Las consonantes dobles (ㄲ ㄸ ㅃ ㅆ ㅉ) se pronuncian con la garganta tensa y sin aire, como si contuvieras la respiración un instante antes.","waga":3},{"klaster":"ro","obszar":"fonologia","blad":"ㅂ/ㅍ jako b/p dźwięczne/bezdźwięczne zamiast zwykłe/przydechowe","zle":"불 = 풀","dobrze":"불 (ogień) ≠ 풀 (trawa)","dlaczego":"Hiszpański rozróżnia dźwięczność, nie przydech","komunikat":"La diferencia no es b/p sino cuánto aire sale: ㅍ con soplo fuerte, ㅂ suave y sin aire.","waga":2},{"klaster":"ro","obszar":"fonologia","blad":"ㄹ między samogłoskami jako hiszpańskie „rr” lub „l” końcowe jako „l” jasne","zle":"머리 → „merri”; 물 → „mul” z jasnym l","dobrze":"머리 z pojedynczym uderzeniem języka (jak „pero”); 물 z ciemnym, cofniętym ㄹ","dlaczego":"Hiszpańskie „r” pojedyncze (pero) jest bardzo bliskie ㄹ — transfer pozytywny; problem to „rr” i „l”","komunikat":"ㄹ entre vocales = la „r” de „pero”, nunca „rr”. ㄹ al final de sílaba = una „l” con la lengua hacia atrás.","waga":2},{"klaster":"ro","obszar":"szyk","blad":"SVO zamiast SOV","zle":"저는 먹어요 밥을","dobrze":"저는 밥을 먹어요","dlaczego":"Jak w angielskim; hiszpański szyk jest elastyczny, ale czasownik rzadko trafia na koniec","komunikat":"El verbo siempre va al final de la oración.","waga":2},{"klaster":"ro","obszar":"grzecznosc","blad":"tú/usted mapowane na 반말/해요체 — brak trzeciego poziomu i honoryfikatywów","zle":"팀장님한테 뭐 먹었어요? (do szefa)","dobrze":"팀장님, 뭐 드셨어요?","dlaczego":"Usted daje poczucie, że „forma grzeczna” jest jedna; koreański dodaje 합니다체 i osobne czasowniki honoryfikatywne","komunikat":"„Usted” es solo el primer escalón. Con jefes y mayores hay además verbos especiales (드시다, 계시다) y el estilo -습니다.","waga":3},{"klaster":"ro","obszar":"partykuly","blad":"Pomijanie partykuł lub użycie przyimka przed rzeczownikiem (에 서울 zamiast 서울에)","zle":"에 서울 가요","dobrze":"서울에 가요","dlaczego":"Przyimki stoją przed rzeczownikiem; koreańskie „postpozycje” po nim","komunikat":"Las partículas van DESPUÉS del sustantivo: 서울 + 에 = „a Seúl”.","waga":2},{"klaster":"ro","obszar":"leksyka","blad":"ser/estar oba jako 이다","zle":"피곤해요 이에요","dobrze":"피곤해요","dlaczego":"Estar + przymiotnik przenoszone jako 이다 + przymiotnik","komunikat":"Los adjetivos coreanos ya llevan el „estar” dentro: 피곤해요 = „estoy cansado”.","waga":1},{"klaster":"ru","obszar":"partykuly","blad":"Pomijanie partykuł — końcówki przypadków jak w polskim","zle":"저 책 읽어요","dobrze":"저는 책을 읽어요","dlaczego":"Rosyjska fleksja koduje role w słowie","komunikat":"Падеж в корейском — это отдельная частица после слова: 책 + 을.","waga":3},{"klaster":"ru","obszar":"grzecznosc","blad":"ты/вы jako jedyna oś; brak honoryfikatywów","zle":"아버지가 왔어요 (o czyimś ojcu)","dobrze":"아버님께서 오셨어요","dlaczego":"Rosyjskie „вы” jest jednym poziomem; koreański dodaje -시-, 께서, osobne czasowniki","komunikat":"„Вы” — только начало. Про старших меняется и глагол (드시다, 계시다), и частица (께서).","waga":3},{"klaster":"ru","obszar":"fonologia","blad":"Miękkie/twarde spółgłoski przenoszone: 시 jako „sy”/„si” z palatalizacją, ㄹ jako twarde „л”","zle":"물 → „мул” z twardym л","dobrze":"물 z ㄹ bez pełnej twardości; 시 = „shi”","dlaczego":"Rosyjski ma opozycję twardości, koreański nie; ㅅ przed ㅣ jest „sz”-podobne","komunikat":"시 звучит как „щи”, а не „сы”. ㄹ в конце слога — мягче русского „л”.","waga":2},{"klaster":"ru","obszar":"fonologia","blad":"Trzy szeregi ㄱ/ㅋ/ㄲ jako г/к","zle":"가 = 까 = 카","dobrze":"가 (bez przydechu) / 카 (z przydechem) / 까 (napięte)","dlaczego":"Jak polski: г/к to dźwięczność, nie przydech ani napięcie","komunikat":"Русское „к” ближе всего к ㄲ. ㅋ — с сильным выдохом, ㄱ — мягко и без выдоха.","waga":3},{"klaster":"ru","obszar":"fonologia","blad":"Redukcja nieakcentowanych samogłosek (아까니예 zamiast 아까니에)","zle":"오늘 → „анныль”","dobrze":"오늘 — obie samogłoski pełne","dlaczego":"Rosyjskie „аканье” redukuje „o” do „a” poza akcentem; koreańskie samogłoski nie redukują się","komunikat":"В корейском нет редукции: каждая гласная звучит полностью, ударения нет.","waga":2},{"klaster":"ru","obszar":"szyk","blad":"SVO zamiast SOV","zle":"저는 먹어요 밥","dobrze":"저는 밥을 먹어요","dlaczego":"Rosyjski szyk elastyczny, domyślnie SVO","komunikat":"Глагол всегда в конце.","waga":2},{"klaster":"ru","obszar":"czas-aspekt","blad":"Szukanie aspektu (совершенный/несовершенный)","zle":"읽었어요 — прочитал или читал?","dobrze":"읽었어요 (oba); 다 읽었어요; 읽고 있었어요","dlaczego":"Jak polski","komunikat":"Вида в корейском нет. Если важно — добавь 다 (до конца) или -고 있다 (в процессе).","waga":2},{"klaster":"vi","obszar":"fonologia","blad":"Tony przenoszone na sylaby koreańskie; szukanie tonu w każdym słowie","zle":"사람 z opadającym tonem na 람","dobrze":"równa intonacja, wznosząca tylko na końcu pytania","dlaczego":"Wietnamski ma 6 tonów leksykalnych; uczeń nadaje sylabom kontur, którego koreański nie ma","komunikat":"Tiếng Hàn không có thanh điệu. Mọi âm tiết đều ngang; chỉ cuối câu hỏi mới lên giọng.","waga":2},{"klaster":"vi","obszar":"fonologia","blad":"ㅅ/ㅆ zlewane; brak serii napiętej","zle":"사다 = 싸다","dobrze":"사다 (kupować) ≠ 싸다 (tani)","dlaczego":"Wietnamski nie ma napiętych spółgłosek; ㅆ słyszane jako ㅅ","komunikat":"ㅆ phát âm với cổ họng căng, không bật hơi — như nín thở một chút trước khi nói.","waga":3},{"klaster":"vi","obszar":"fonologia","blad":"Batchim ㄹ końcowe jako „n” lub pomijane (wietnamski nie ma końcowego „l”)","zle":"물 → „mun”; 달 → „đa”","dobrze":"물, 달 z końcowym ㄹ (język do podniebienia)","dlaczego":"Wietnamski dopuszcza w wygłosie tylko p/t/k/m/n/ng/nh","komunikat":"Âm cuối ㄹ: đưa lưỡi chạm vòm miệng và giữ, không phải „n”.","waga":3},{"klaster":"vi","obszar":"fonologia","blad":"ㅓ/ㅗ zwykle OK (wietnamski ma ơ/ô), ale ㅡ jako „ư” — akurat dobrze","zle":"—","dobrze":"—","dlaczego":"Transfer pozytywny: ơ≈ㅓ, ô≈ㅗ, ư≈ㅡ — Wietnamczycy słyszą koreańskie samogłoski lepiej niż Europejczycy","komunikat":"Nguyên âm tiếng Hàn gần với tiếng Việt: ㅓ = ơ, ㅗ = ô, ㅡ = ư. Đây là lợi thế của bạn.","waga":0},{"klaster":"vi","obszar":"partykuly","blad":"Pomijanie partykuł — wietnamski jest izolujący, role niesie szyk","zle":"저 밥 먹어요","dobrze":"저는 밥을 먹어요","dlaczego":"Wietnamski nie ma fleksji ani partykuł przypadka; szyk SVO","komunikat":"Tiếng Hàn dùng tiểu từ (은/는, 을/를) thay cho trật tự từ.","waga":3},{"klaster":"vi","obszar":"szyk","blad":"SVO zamiast SOV","zle":"저는 먹어요 밥","dobrze":"저는 밥을 먹어요","dlaczego":"Wietnamski jest SVO","komunikat":"Động từ luôn đứng cuối câu.","waga":3},{"klaster":"vi","obszar":"leksyka","blad":"Słownictwo sinokoreańskie: transfer pozytywny przez Hán-Việt (학생 = học sinh, 국가 = quốc gia)","zle":"—","dobrze":"—","dlaczego":"Ok. 60% słownictwa koreańskiego ma odpowiedniki Hán-Việt o podobnym brzmieniu","komunikat":"Nhiều từ Hàn-Hán giống Hán-Việt: 학생 = học sinh, 감사 = cảm tạ, 준비 = chuẩn bị. Hãy tận dụng.","waga":0},{"klaster":"vi","obszar":"grzecznosc","blad":"Bogaty system zaimków (anh/chị/em) mapowany na koreańskie tytuły — transfer częściowo pozytywny, ale końcówki czasownika są nowe","zle":"언니, 밥 먹었어? (do starszej nieznajomej)","dobrze":"언니, 밥 먹었어요?","dlaczego":"Wietnamczyk ma intuicję hierarchii wieku (dobrze), ale koduje ją zaimkiem, nie końcówką czasownika","komunikat":"Bạn đã quen xưng hô theo tuổi — tốt. Nhưng tiếng Hàn còn đổi cả đuôi động từ (-요, -습니다).","waga":2},{"klaster":"zh","obszar":"fonologia","blad":"Tony przenoszone; szukanie tonu","zle":"—","dobrze":"równa intonacja","dlaczego":"Jak wietnamski","komunikat":"韩语没有声调。每个音节平读，只有疑问句句尾上扬。","waga":2},{"klaster":"zh","obszar":"fonologia","blad":"ㅓ/ㅗ — mandaryński ma „e” (ㅓ-podobne) i „o”, więc częściowo OK; problem: ㅡ vs ㅜ i ㅐ/ㅔ","zle":"으 = 우","dobrze":"그 (ㅡ) vs 구 (ㅜ)","dlaczego":"Mandaryńskie „i” po sz/s (思) jest blisko ㅡ — transfer pozytywny, ale niepełny","komunikat":"ㅡ 类似“思”里的韵母，嘴唇不圆。ㅜ 嘴唇圆。","waga":2},{"klaster":"zh","obszar":"fonologia","blad":"Batchim: mandaryński dopuszcza w wygłosie tylko n/ng → ㄱ/ㄷ/ㅂ/ㄹ końcowe gubione","zle":"밥 → „ba”, 국 → „gu”","dobrze":"밥, 국 z zamkniętym wygłosem","dlaczego":"Brak spółgłosek zwartych w wygłosie w mandaryńskim (kantoński je ma — Kantończycy radzą sobie lepiej)","komunikat":"收音（받침）要把嘴或舌头闭住：밥 结尾双唇闭合，국 舌根抬起，不要发出“a”“u”。","waga":3},{"klaster":"zh","obszar":"fonologia","blad":"Napięte ㄲ/ㄸ/ㅃ jako zwykłe nieprzydechowe b/d/g","zle":"까 = 가","dobrze":"까 (napięte) ≠ 가","dlaczego":"Mandaryński ma opozycję przydech/brak (p/b), więc ㅋ/ㄱ jest OK; brak trzeciego, napiętego szeregu","komunikat":"ㄱ/ㅋ 像 g/k，你已经会了。ㄲ 是第三种：不送气、喉咙用力。","waga":2},{"klaster":"zh","obszar":"szyk","blad":"SVO zamiast SOV","zle":"我吃饭 → 저는 먹어요 밥","dobrze":"저는 밥을 먹어요","dlaczego":"Chiński jest SVO","komunikat":"动词永远放在句尾。","waga":3},{"klaster":"zh","obszar":"partykuly","blad":"Pomijanie partykuł","zle":"저 밥 먹어요","dobrze":"저는 밥을 먹어요","dlaczego":"Chiński jest izolujący","komunikat":"韩语靠助词（은/는、을/를）表示主语和宾语，不靠语序。","waga":3},{"klaster":"zh","obszar":"leksyka","blad":"Sinokoreańskie słownictwo: transfer pozytywny, ale fałszywi przyjaciele (공부 工夫 ≠ 学习; 편지 便紙 ≠ 信)","zle":"공부 rozumiane jako „wysiłek/czas”","dobrze":"공부 = nauka","dlaczego":"60% słownictwa jest sino, ale znaczenia się rozjechały","komunikat":"汉字词是你的优势，但小心假朋友：공부(工夫)=学习，편지(便纸)=信，애인(爱人)=恋人（不是配偶）。","waga":1},{"klaster":"zh","obszar":"grzecznosc","blad":"Brak gramatycznej honoryfikacji w mandaryńskim (poza 您)","zle":"선생님이 왔어요","dobrze":"선생님께서 오셨어요","dlaczego":"您 to jedno słowo; koreański zmienia czasownik i partykułę","komunikat":"中文只有“您”，韩语要改动词（오다→오시다）和助词（이→께서）。","waga":3},{"klaster":"ja","obszar":"szyk","blad":"Transfer pozytywny: SOV, partykuły, honoryfikacja — struktura niemal 1:1","zle":"—","dobrze":"—","dlaczego":"Japoński ma は/が ≈ 은/는 / 이/가, を ≈ 을/를, に ≈ 에, 敬語 ≈ 존댓말","komunikat":"語順・助詞・敬語の仕組みはほぼ同じ。日本語の感覚をそのまま使える。","waga":0},{"klaster":"ja","obszar":"partykuly","blad":"は/が mapowane na 은/는 / 이/가 zbyt mechanicznie — koreańskie 이/가 w zdaniach podrzędnych i po 누가","zle":"내가 좋아하는 것은…","dobrze":"내가 좋아하는 것은… (OK) / 누가 왔어요? — 민수가","dlaczego":"Zasadniczo zgodne; różnice w szczegółach (koreański częściej 이/가 w pytaniach o podmiot)","komunikat":"ほぼ同じだが、疑問詞「誰が」への答えは必ず 이/가。","waga":1},{"klaster":"ja","obszar":"fonologia","blad":"Batchim — japoński ma tylko ん i っ w wygłosie; ㄱ/ㄷ/ㅂ/ㄹ końcowe dostają samogłoskę","zle":"밥 → „papu”, 김치 → „kimuchi”","dobrze":"밥, 김치 z zamkniętym wygłosem","dlaczego":"Japońska sylaba jest otwarta (CV); uczeń dodaje „u”","komunikat":"パッチムの後に母音を足さない。밥は唇を閉じて終わる、「パプ」ではない。","waga":3},{"klaster":"ja","obszar":"fonologia","blad":"ㅓ/ㅗ i ㅡ/ㅜ zlewane — japoński ma 5 samogłosek","zle":"어 = 오","dobrze":"서 (ㅓ) vs 소 (ㅗ)","dlaczego":"Jak języki romańskie","komunikat":"ㅗは「お」、ㅓは口を大きく開けて唇を丸めない「お」。ㅡは「う」を唇を横に引いて。","waga":3},{"klaster":"ja","obszar":"fonologia","blad":"Napięte ㄲ/ㄸ/ㅃ — japońskie っ (sokuon) jest bliskie: transfer częściowo pozytywny na początku wyrazu nie działa","zle":"까 na początku wyrazu jako zwykłe か","dobrze":"까 z napięciem","dlaczego":"Sokuon działa tylko wewnątrz wyrazu","komunikat":"語頭の ㄲ ㄸ ㅃ は「っか」の「か」の部分だけを出すイメージ。","waga":2},{"klaster":"ja","obszar":"fonologia","blad":"ㄹ jako japońskie ら (uderzeniowe) — OK między samogłoskami, ale końcowe ㄹ jako „ru”","zle":"물 → „muru”","dobrze":"물 z ㄹ końcowym (język do podniebienia, bez samogłoski)","dlaczego":"Brak końcowego „l” w japońskim","komunikat":"語末の ㄹ は舌を上あごにつけたまま終わる。「ル」と言わない。","waga":2},{"klaster":"ja","obszar":"grzecznosc","blad":"敬語 przenoszone 1:1, ale koreański używa honoryfikatywów o własnej rodzinie wobec obcych (japoński — nie)","zle":"저희 아버지가 왔어요 (o własnym ojcu wobec obcego)","dobrze":"저희 아버지께서 오셨어요","dlaczego":"W japońskim wobec obcego „obniża się” własną rodzinę (父); w koreańskim ojciec zawsze dostaje -시-","komunikat":"日本語では身内を下げるが、韓国語では自分の父にも 께서/-시- を使う（絶対敬語）。","waga":2},{"klaster":"ja","obszar":"leksyka","blad":"Sino-słownictwo bardzo bliskie (약속=約束, 준비=準備) — transfer pozytywny; fałszywi przyjaciele rzadsi niż z chińskim","zle":"—","dobrze":"—","dlaczego":"Wymowa sinokoreańska i sinojapońska często podobna","komunikat":"漢字語はほぼそのまま使える：약속＝約束、가족＝家族、시간＝時間。","waga":0},{"klaster":"id","obszar":"szyk","blad":"SVO zamiast SOV","zle":"Saya makan nasi → 저는 먹어요 밥","dobrze":"저는 밥을 먹어요","dlaczego":"Indonezyjski SVO","komunikat":"Kata kerja selalu di akhir kalimat.","waga":3},{"klaster":"id","obszar":"partykuly","blad":"Pomijanie partykuł","zle":"저 밥 먹어요","dobrze":"저는 밥을 먹어요","dlaczego":"Język bez fleksji przypadka","komunikat":"Bahasa Korea memakai partikel (은/는, 을/를), bukan urutan kata.","waga":3},{"klaster":"id","obszar":"fonologia","blad":"ㅓ/ㅗ i ㅡ/ㅜ — indonezyjski ma „e pepet” (ə) bliskie ㅓ/ㅡ: transfer częściowo pozytywny","zle":"—","dobrze":"서 (ㅓ) ≈ „e” w „sepuluh”","dlaczego":"Sześć samogłosek w tym szwa","komunikat":"ㅓ mirip „e” dalam „sepuluh”. ㅗ bibir bulat seperti „o” dalam „bola”.","waga":1},{"klaster":"id","obszar":"fonologia","blad":"Napięte i przydechowe spółgłoski — indonezyjski ma tylko dźwięczne/bezdźwięczne","zle":"가 = 카 = 까","dobrze":"trzy różne","dlaczego":"Jak romański","komunikat":"Ada tiga jenis: ㄱ lembut tanpa napas, ㅋ dengan hembusan kuat, ㄲ tegang di tenggorokan.","waga":3},{"klaster":"id","obszar":"grzecznosc","blad":"Poziomy grzeczności istnieją (saya/aku, Bapak/Ibu), ale w zaimkach, nie w czasowniku","zle":"선생님이 밥 먹었어요","dobrze":"선생님께서 진지 드셨어요","dlaczego":"Transfer częściowy: intuicja hierarchii jest, ale realizowana leksykalnie","komunikat":"Anda sudah terbiasa memilih „saya/aku” — di bahasa Korea, yang berubah adalah akhiran kata kerja (-요, -습니다) dan kata kerja itu sendiri (먹다 → 드시다).","waga":2},{"klaster":"id","obszar":"czas-aspekt","blad":"Brak czasu gramatycznego w indonezyjskim → pomijanie -았/었-","zle":"어제 밥 먹어요","dobrze":"어제 밥 먹었어요","dlaczego":"Indonezyjski wyraża czas przysłówkiem (kemarin), nie końcówką","komunikat":"Kata „kemarin” saja tidak cukup — kata kerja harus berubah: 먹어요 → 먹었어요.","waga":3}];
+
+/* Pary minimalne pogrupowane w 12 cech, każda z listą klastrów, dla których
+   jest DEFICYTEM. Dzięki temu moduł wymowy wybiera zestaw pod ucznia, zamiast
+   serwować wszystkim to samo. Wszystkie pary to prawdziwe słowa. */
+const L1_PARY = [{"cecha":"ㅓ vs ㅗ","klastry":["pl","en","ro","ja","ru"],"a":"서","b":"소","plA":"zachód (przedrostek), 서다","plB":"krowa"},{"cecha":"ㅓ vs ㅗ","klastry":["pl","en","ro","ja","ru"],"a":"넣다","b":"놓다","plA":"wkładać","plB":"kłaść"},{"cecha":"ㅓ vs ㅗ","klastry":["pl","en","ro","ja","ru"],"a":"벌","b":"볼","plA":"pszczoła; kara","plB":"policzek"},{"cecha":"ㅓ vs ㅗ","klastry":["pl","en","ro","ja","ru"],"a":"어른","b":"오른","plA":"dorosły","plB":"prawy (오른쪽)"},{"cecha":"ㅓ vs ㅗ","klastry":["pl","en","ro","ja","ru"],"a":"멀다","b":"몰다","plA":"daleki","plB":"prowadzić (pojazd)"},{"cecha":"ㅓ vs ㅗ","klastry":["pl","en","ro","ja","ru"],"a":"털","b":"톨","plA":"sierść","plB":"ziarno (licznik)"},{"cecha":"ㅓ vs ㅗ","klastry":["pl","en","ro","ja","ru"],"a":"정","b":"종","plA":"uczucie; 정말","plB":"dzwon"},{"cecha":"ㅡ vs ㅜ","klastry":["pl","en","ro","ja","ru","zh"],"a":"글","b":"굴","plA":"tekst","plB":"ostryga; jaskinia"},{"cecha":"ㅡ vs ㅜ","klastry":["pl","en","ro","ja","ru","zh"],"a":"그","b":"구","plA":"ten","plB":"dziewięć"},{"cecha":"ㅡ vs ㅜ","klastry":["pl","en","ro","ja","ru","zh"],"a":"쓰다","b":"쑤다","plA":"pisać; gorzki","plB":"gotować kleik"},{"cecha":"ㅡ vs ㅜ","klastry":["pl","en","ro","ja","ru","zh"],"a":"음","b":"움","plA":"dźwięk; hm","plB":"pęd, kiełek"},{"cecha":"ㄱ / ㅋ / ㄲ","klastry":["pl","ro","ru","id","zh","vi"],"a":"가다","b":"까다","plA":"iść","plB":"obierać"},{"cecha":"ㄱ / ㅋ / ㄲ","klastry":["pl","ro","ru","id","zh","vi"],"a":"기","b":"키","plA":"energia","plB":"wzrost; klucz"},{"cecha":"ㄱ / ㅋ / ㄲ","klastry":["pl","ro","ru","id","zh","vi"],"a":"개","b":"깨","plA":"pies","plB":"sezam"},{"cecha":"ㄱ / ㅋ / ㄲ","klastry":["pl","ro","ru","id","zh","vi"],"a":"굴","b":"꿀","plA":"ostryga","plB":"miód"},{"cecha":"ㄱ / ㅋ / ㄲ","klastry":["pl","ro","ru","id","zh","vi"],"a":"공","b":"콩","plA":"piłka","plB":"fasola"},{"cecha":"ㄷ / ㅌ / ㄸ","klastry":["pl","ro","ru","id","zh","vi"],"a":"달","b":"딸","plA":"księżyc","plB":"córka"},{"cecha":"ㄷ / ㅌ / ㄸ","klastry":["pl","ro","ru","id","zh","vi"],"a":"덜","b":"털","plA":"mniej","plB":"sierść"},{"cecha":"ㄷ / ㅌ / ㄸ","klastry":["pl","ro","ru","id","zh","vi"],"a":"도","b":"토","plA":"też; stopień","plB":"sobota (skrót)"},{"cecha":"ㄷ / ㅌ / ㄸ","klastry":["pl","ro","ru","id","zh","vi"],"a":"담","b":"땀","plA":"mur","plB":"pot"},{"cecha":"ㄷ / ㅌ / ㄸ","klastry":["pl","ro","ru","id","zh","vi"],"a":"대","b":"때","plA":"bambus; licznik maszyn","plB":"czas, moment; brud"},{"cecha":"ㅂ / ㅍ / ㅃ","klastry":["pl","ro","ru","id","zh","vi"],"a":"불","b":"풀","plA":"ogień","plB":"trawa; klej"},{"cecha":"ㅂ / ㅍ / ㅃ","klastry":["pl","ro","ru","id","zh","vi"],"a":"방","b":"빵","plA":"pokój","plB":"chleb"},{"cecha":"ㅂ / ㅍ / ㅃ","klastry":["pl","ro","ru","id","zh","vi"],"a":"비","b":"피","plA":"deszcz","plB":"krew"},{"cecha":"ㅂ / ㅍ / ㅃ","klastry":["pl","ro","ru","id","zh","vi"],"a":"발","b":"팔","plA":"stopa","plB":"ramię; osiem"},{"cecha":"ㅂ / ㅍ / ㅃ","klastry":["pl","ro","ru","id","zh","vi"],"a":"바르다","b":"빠르다","plA":"smarować; prawy","plB":"szybki"},{"cecha":"ㅂ / ㅍ / ㅃ","klastry":["pl","ro","ru","id","zh","vi"],"a":"부리","b":"뿌리","plA":"dziób","plB":"korzeń"},{"cecha":"ㅅ / ㅆ","klastry":["vi","ro","id","zh","pl"],"a":"사다","b":"싸다","plA":"kupować","plB":"tani; pakować"},{"cecha":"ㅅ / ㅆ","klastry":["vi","ro","id","zh","pl"],"a":"살","b":"쌀","plA":"wiek (lata); ciało","plB":"ryż (surowy)"},{"cecha":"ㅅ / ㅆ","klastry":["vi","ro","id","zh","pl"],"a":"시","b":"씨","plA":"godzina; wiersz","plB":"pan/pani (-씨); nasiono"},{"cecha":"ㅅ / ㅆ","klastry":["vi","ro","id","zh","pl"],"a":"소다","b":"쏘다","plA":"soda","plB":"strzelać"},{"cecha":"ㅅ / ㅆ","klastry":["vi","ro","id","zh","pl"],"a":"수다","b":"쑤다","plA":"gadanie","plB":"gotować kleik"},{"cecha":"ㅈ / ㅊ / ㅉ","klastry":["pl","ro","ru","id","vi"],"a":"자다","b":"짜다","plA":"spać","plB":"słony; wyciskać"},{"cecha":"ㅈ / ㅊ / ㅉ","klastry":["pl","ro","ru","id","vi"],"a":"집","b":"칩","plA":"dom","plB":"chip"},{"cecha":"ㅈ / ㅊ / ㅉ","klastry":["pl","ro","ru","id","vi"],"a":"종","b":"총","plA":"dzwon","plB":"pistolet"},{"cecha":"ㅈ / ㅊ / ㅉ","klastry":["pl","ro","ru","id","vi"],"a":"자","b":"차","plA":"linijka; no więc","plB":"samochód; herbata"},{"cecha":"ㅈ / ㅊ / ㅉ","klastry":["pl","ro","ru","id","vi"],"a":"지다","b":"찌다","plA":"przegrywać","plB":"parować; tyć"},{"cecha":"batchim: wygłos zamknięty","klastry":["ja","zh","vi","en"],"a":"국","b":"구","plA":"zupa","plB":"dziewięć"},{"cecha":"batchim: wygłos zamknięty","klastry":["ja","zh","vi","en"],"a":"옷","b":"오","plA":"ubranie","plB":"pięć"},{"cecha":"batchim: wygłos zamknięty","klastry":["ja","zh","vi","en"],"a":"낮","b":"나","plA":"dzień (pora)","plB":"ja"},{"cecha":"ㄹ końcowe","klastry":["vi","ja","zh","en"],"a":"물","b":"무","plA":"woda","plB":"rzodkiew"},{"cecha":"ㄹ końcowe","klastry":["vi","ja","zh","en"],"a":"달","b":"다","plA":"księżyc","plB":"wszystko"},{"cecha":"ㄹ końcowe","klastry":["vi","ja","zh","en"],"a":"길","b":"기","plA":"droga","plB":"energia"},{"cecha":"ㄹ końcowe","klastry":["vi","ja","zh","en"],"a":"불","b":"부","plA":"ogień","plB":"część (부분)"},{"cecha":"ㄴ vs ㅇ w wygłosie","klastry":["ro","pl","ru"],"a":"산","b":"상","plA":"góra","plB":"stół; nagroda"},{"cecha":"ㄴ vs ㅇ w wygłosie","klastry":["ro","pl","ru"],"a":"반","b":"방","plA":"połowa; klasa","plB":"pokój"},{"cecha":"ㄴ vs ㅇ w wygłosie","klastry":["ro","pl","ru"],"a":"한","b":"항","plA":"jeden (przydawkowo)","plB":"port (항구)"},{"cecha":"ㄴ vs ㅇ w wygłosie","klastry":["ro","pl","ru"],"a":"돈","b":"동","plA":"pieniądze","plB":"wschód; dzielnica"},{"cecha":"ㅕ vs ㅛ","klastry":["ro","ja","pl","en"],"a":"겨울","b":"교","plA":"zima","plB":"szkoła (przedrostek 교-)"},{"cecha":"ㅕ vs ㅛ","klastry":["ro","ja","pl","en"],"a":"연","b":"용","plA":"latawiec; rok","plB":"smok"},{"cecha":"ㅐ vs ㅔ (dziś niemal zlane — informacyjnie)","klastry":["pl","ro"],"a":"개","b":"게","plA":"pies","plB":"krab"},{"cecha":"ㅐ vs ㅔ (dziś niemal zlane — informacyjnie)","klastry":["pl","ro"],"a":"내","b":"네","plA":"mój","plB":"twój; tak"},{"cecha":"ㅐ vs ㅔ (dziś niemal zlane — informacyjnie)","klastry":["pl","ro"],"a":"배","b":"베","plA":"brzuch; gruszka; statek","plB":"ciąć; poduszka (베개)"}];
+
+/* Klaster ucznia. Domyślnie z języka interfejsu; user może zmienić przy
+   wprowadzeniu i w Ustawieniach. */
+let l1Klaster = null;
+
+function l1Domyslny(){
+  const map = { pl:'pl', en:'en', es:'ro', pt:'ro', ru:'ru', vi:'vi', zh_cn:'zh', ja:'ja', id:'id' };
+  return map[typeof uiLang !== 'undefined' ? uiLang : 'pl'] || 'en';
+}
+
+function l1Aktywny(){
+  if(l1Klaster) return l1Klaster;
+  try{ l1Klaster = localStorage.getItem('hooljon_l1') || l1Domyslny(); }
+  catch(e){ l1Klaster = l1Domyslny(); }
+  return l1Klaster;
+}
+
+function l1Ustaw(k){
+  l1Klaster = k;
+  try{ localStorage.setItem('hooljon_l1', k); }catch(e){}
+}
+
+/* Podpowiedź dla obszaru błędu. Zwraca najcięższy wiersz z tego obszaru dla
+   klastra ucznia - albo nic, jeśli dany język nie ma tu problemu. */
+function l1Podpowiedz(obszar){
+  const k = l1Aktywny();
+  const pas = L1_BLEDY.filter(x => x.klaster === k && x.obszar === obszar && x.waga > 0);
+  if(!pas.length) return null;
+  return pas.sort((a, b) => b.waga - a.waga)[0];
+}
+
+/* Pary minimalne pod deficyty ucznia. */
+function l1ParyDlaUcznia(){
+  const k = l1Aktywny();
+  return L1_PARY.filter(x => (x.klastry || []).includes(k));
+}
+
 const NUNCHI_TABELA = [
  {
   "rozmowca": "starszy",
@@ -71240,7 +71386,7 @@ function renderGrammarTeachCard(item, card){
       // pytanie-odpowiedź, nie głęboka analiza, zgodnie z ustaloną wcześniej zasadą
       // podziału kosztów między modelami.
       const langName = uiLang === 'en' ? 'English' : 'polski';
-      const instruction = `Uczeń uczy się koreańskiego wzorca gramatycznego "${item.pattern}".\nPrzykładowe zdanie: "${item.full}" (${item.pl})\nWyjaśnienie, które już widział: ${item.explain}\n\nPytanie ucznia: "${question}"\n\nOdpowiedz konkretnie i przyjaźnie w języku \${langName}, bezpośrednio na to pytanie. Wyjaśnij tyle, ile trzeba - nie skracaj na siłę.
+      const instruction = `Uczeń uczy się koreańskiego wzorca gramatycznego "${item.pattern}".\nPrzykładowe zdanie: "${item.full}" (${item.pl})\nWyjaśnienie, które już widział: ${item.explain}\n\nPytanie ucznia: "${question}"\n\nOdpowiedz konkretnie i przyjaźnie w języku ${langName}, bezpośrednio na to pytanie. Wyjaśnij tyle, ile trzeba - nie skracaj na siłę.
 
 Koreańskie formy i cząstki pisz **pogrubieniem**. Dłuższą odpowiedź dziel na akapity pustą linią.`;
       const response = await callAiProxy({ model: "claude-haiku-4-5-20251001", /* 200 tokenów starczało na 4-5 zdań i ucinało dłuższe wyjaśnienia
@@ -72005,6 +72151,29 @@ function renderOnboardingStep(){
     <div class="ob-title">${uiLang === 'en' ? step.title.en : step.title.pl}</div>
     ${bodyHtml}
   `;
+
+  /* WYBÓR JĘZYKA OJCZYSTEGO. Krok z polem `wybor: 'l1'` dostaje siatkę
+     klastrów zamiast samego tekstu. Zaznaczenie zapisuje się od razu -
+     user może przejść dalej bez potwierdzania, bo domyślna wartość
+     (z języka interfejsu) już jest ustawiona. 2026-09-06. */
+  if(step.wybor === 'l1'){
+    const en = uiLang === 'en';
+    const akt = l1Aktywny();
+    const wrap = document.createElement('div');
+    wrap.className = 'ob-l1';
+    wrap.innerHTML = Object.entries(L1_KLASTRY).map(([id, k]) =>
+      `<button type="button" class="ob-l1-opt${id === akt ? ' wybrany' : ''}" data-l1="${id}">` +
+      `${escapeHtml(k.nazwa)}</button>`).join('');
+    card.appendChild(wrap);
+    wrap.querySelectorAll('[data-l1]').forEach(b => {
+      b.addEventListener('click', () => {
+        l1Ustaw(b.dataset.l1);
+        wrap.querySelectorAll('[data-l1]').forEach(x => x.classList.remove('wybrany'));
+        b.classList.add('wybrany');
+      });
+    });
+  }
+
 
   const nextBtn = document.getElementById('obNextBtn');
   const skipBtn = document.getElementById('obSkipBtn');
@@ -74210,12 +74379,59 @@ async function ocenGeminiSesje(){
     const langName = uiLang === 'en' ? 'angielski' : 'polski';
     const historyText = geminiTranscriptHistory
       .map(t => `${t.speaker === 'bot' ? 'HAKSA' : 'UCZEŃ'}: ${t.text}`).join('\n');
+
+    /* ═══ PRAGMATIC MIRROR ═════════════════════════════════════════════════
+       Cztery wymiary dopisane do TEJ SAMEJ oceny - jedno zapytanie, koszt bez
+       zmian. Claude Code słusznie odmówił robienia tego w przekaźniku: jego
+       sesja jest już zamknięta, gdy ocena leci przez ai-proxy.
+
+       TRZY REGUŁY, bez których lustro szkodzi zamiast pomagać:
+
+       1. KIERUNEK honoryfikatywu. Uczeń mówiący o SOBIE z -시- (제가 아프세요)
+          popełnia błąd GRAMATYCZNY, nie nadmiar grzeczności. Ocena patrząca
+          na samą obecność honoryfikatywu ukarałaby go za uprzejmość.
+
+       2. NATURALNOŚĆ w sytuacji oficjalnej. Wypełniacze (음, 그니까) są
+          w rozmowie kwalifikacyjnej BŁĘDEM. Przy scenariuszu oficjalnym ten
+          wymiar zwraca null - klient go wtedy nie pokazuje.
+
+       3. BEZPOŚREDNIOŚĆ zależy od dystansu I od języka ucznia. Wobec bliskiej
+          osoby w 반말 „안 돼" jest poprawne. Anglik przenosi bezpośredniość
+          jako neutralną, Japończyk odwrotnie - próg musi to uwzględniać.
+
+       Wszystkie trzy zgłoszone przez lektorkę PRZED budową. 2026-09-06. */
+    const sc = (typeof nunchiAktywny !== 'undefined') ? nunchiAktywny : null;
+    const l1 = (typeof l1Aktywny === 'function') ? l1Aktywny() : 'pl';
+    const oficjalna = sc && sc.sytuacja === 'oficjalna';
+    const mirrorSchema = sc ? (
+      ',"mirror":{'
+      + '"uprzejmosc":{"odchylenie":-2..2,"komentarz":"tylko gdy odchylenie != 0"},'
+      + '"bezposrednosc":{"odchylenie":-2..2,"komentarz":"tylko gdy odchylenie != 0"},'
+      + '"dystans":{"odchylenie":-2..2,"komentarz":"tylko gdy odchylenie != 0"},'
+      + '"naturalnosc":' + (oficjalna ? 'null' : '{"odchylenie":-2..2,"komentarz":"tylko gdy odchylenie != 0"}')
+      + ',"nota":"jedno zdanie o tym, jak rozmowa zabrzmiała jako całość"}'
+    ) : '';
+    const mirrorZasady = sc ? (
+      '\n\nOCENA PRAGMATYCZNA (pole "mirror"):\n'
+      + `Scenariusz: rozmówca=${sc.rozmowca}, sytuacja=${sc.sytuacja}, dystans=${sc.dystans}, oczekiwany rejestr=${sc.rejestr}.\n`
+      + 'Skala odchylenia: 0 = trafione, wartości ujemne = ZA MAŁO, dodatnie = ZA DUŻO. To NIE jest punktacja - '
+      + 'i za mało, i za dużo jest błędem.\n'
+      + '- uprzejmosc: czy rejestr i formy honoryfikatywne pasują do rozmówcy. UWAGA: -시-/께서/드리다 wobec ROZMÓWCY to poprawne; '
+      + 'wobec SIEBIE („제가 아프세요") to BŁĄD GRAMATYCZNY, nie nadmiar uprzejmości - zgłoś go w recurring_patterns, nie jako odchylenie dodatnie.\n'
+      + `- bezposrednosc: czy uczeń łagodził odmowy i niezgodę. Przy dystans=bliski bezpośredniość jest POPRAWNA, nie karz jej. Język ojczysty ucznia: ${l1}.\n`
+      + '- dystans: czy uczeń nie skrócił dystansu za wcześnie (너, imię bez -씨, przejście na 반말 bez zaproszenia).\n'
+      + (oficjalna
+          ? '- naturalnosc: POMIŃ, zwróć null - w sytuacji oficjalnej wypełniacze są błędem, nie naturalnością.\n'
+          : '- naturalnosc: czy wypowiedzi brzmią jak rozmowa, czy jak podręcznik. Wypełniacze (음, 글쎄요, 그니까) podnoszą naturalność.\n')
+      + 'Komentarz podawaj TYLKO przy wymiarze z odchyleniem różnym od zera, po polsku, jedno zdanie.'
+    ) : '';
+
     const instruction = `Przeanalizuj CAŁĄ poniższą rozmowę GŁOSOWĄ ucznia (posługującego się na co dzień językiem ${langName}) prowadzoną po koreańsku - to podsumowanie na koniec sesji nauki.\n\n`
       + 'Historia rozmowy:\n' + historyText + '\n\n'
       + 'UWAGA: to transkrypcja MOWY, więc drobne przekręcenia mogą pochodzić z rozpoznawania, nie od ucznia. Nie wytykaj błędów, które wyglądają na pomyłki transkrypcji.\n\n'
       + `Odpowiedz WYŁĄCZNIE czystym tekstem JSON, bez markdown, bez bloków kodu, w dokładnym formacie: `
-      + `{"summary":"ogólne podsumowanie sesji w języku ${langName} - jak poszła rozmowa, 2-3 zdania","recurring_patterns":["lista powtarzających się błędów w języku ${langName} - pusta tablica jeśli nic się nie powtarzało"],"vocabulary_highlights":["konstrukcje, których uczeń użył dobrze, w języku ${langName} - pusta tablica jeśli za mało materiału"],"suggestion":"jedna konkretna sugestia czego poćwiczyć następnym razem, w języku ${langName}"}. `
-      + 'Bądź konkretny, odnoś się do faktycznych fragmentów tej rozmowy. Nie pisz niczego poza tym JSON-em.';
+      + `{"summary":"ogólne podsumowanie sesji w języku ${langName} - jak poszła rozmowa, 2-3 zdania","recurring_patterns":["lista powtarzających się błędów w języku ${langName} - pusta tablica jeśli nic się nie powtarzało"],"vocabulary_highlights":["konstrukcje, których uczeń użył dobrze, w języku ${langName} - pusta tablica jeśli za mało materiału"],"suggestion":"jedna konkretna sugestia czego poćwiczyć następnym razem, w języku ${langName}"${mirrorSchema}}. `
+      + 'Bądź konkretny, odnoś się do faktycznych fragmentów tej rozmowy. Nie pisz niczego poza tym JSON-em.' + mirrorZasady;
 
     const response = await callAiProxy({
       model: "claude-sonnet-4-6", max_tokens: 1200,
@@ -74235,6 +74451,14 @@ async function ocenGeminiSesje(){
       ${lista(en ? 'Used well' : 'Dobrze użyte', report.vocabulary_highlights)}
       <h4>${en ? 'Next time' : 'Następnym razem'}</h4>
       <p>${escapeHtml(report.suggestion || '')}</p>`;
+
+      /* Lustro renderujemy POD raportem, nie zamiast niego. Raport mówi
+         o poprawności, lustro o wrażeniu - to dwie różne rzeczy i uczeń
+         potrzebuje obu. Bez scenariusza pole `mirror` nie przychodzi
+         i panel zostaje ukryty. */
+      if(report.mirror && typeof renderMirror === 'function'){
+        try{ renderMirror(report.mirror); }catch(e){ /* lustro to dodatek */ }
+      }
   }catch(err){
     console.warn('[ocena sesji]', err);
     body.innerHTML = `<p class="hint-note">${uiLang === 'en'
