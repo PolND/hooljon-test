@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.430
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.434
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -6663,13 +6663,16 @@
   </g>
 </defs></svg>
 <div class="wrap">
-  <header>
+  <!-- UKRYTY OD STARTU. Bez tego nagłówek z plakietką Premium i wyborem motywu
+       błyska przez moment przed pierwszym setScreen(), zanim JS zdąży go schować.
+       setScreen pokazuje go z powrotem po wejściu do apki. 2026-09-06. -->
+  <header style="display:none;">
     <div class="brand">Hooljon <svg class="brand-icon hj-logo" viewBox="93 150 828 828" role="img" aria-label="Hooljon"><use href="#hj-logo"/></svg><button type="button" class="szk-marka" id="brandSzkola" hidden></button></div>
     <div class="stats">
       <span data-i18n="statScore">Wynik</span> <b id="scoreVal">0</b><span data-i18n="statStreak">Seria</span> <b id="streakVal">0</b><span class="quota-note" id="dailyQuotaNote"></span><span class="quota-note" id="headerMonthlyUsageNote" style="display:none;"></span>
     </div>
   </header>
-  <div class="header-tools" id="headerTools">
+  <div class="header-tools" id="headerTools" style="display:none;">
     <button class="theme-toggle-btn" id="themeToggleBtn" title="Motyw" aria-label="Wybierz motyw" aria-haspopup="true" aria-expanded="false">🌙</button>
 
     <div class="panel" id="themePanel">
@@ -11347,7 +11350,9 @@ const READING_TEXTS = [
     ],
     "answer": 0
    }
-  ]
+  ],
+  "level": 2,
+  "gatunek": "lamaniec"
  },
  {
   "id": "tw-giraffe",
@@ -11375,7 +11380,9 @@ const READING_TEXTS = [
     ],
     "answer": 0
    }
-  ]
+  ],
+  "level": 2,
+  "gatunek": "lamaniec"
  },
  {
   "id": "tw-doctors",
@@ -11403,7 +11410,9 @@ const READING_TEXTS = [
     ],
     "answer": 0
    }
-  ]
+  ],
+  "level": 2,
+  "gatunek": "lamaniec"
  },
  {
   "id": "tw-factory",
@@ -11431,7 +11440,9 @@ const READING_TEXTS = [
     ],
     "answer": 0
    }
-  ]
+  ],
+  "level": 2,
+  "gatunek": "lamaniec"
  },
  {
   "id": "beauty-etykieta",
@@ -12598,6 +12609,1246 @@ const READING_TEXTS = [
      "Promotion to team leader",
      "Complete Japanese training",
      "Achieve 200% of the sales target"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-praca-zmiana",
+  "level": 3,
+  "title": "새 부서 (Nowy dział)",
+  "titleEn": "새 부서 (A new department)",
+  "ko": "점심시간에 민호가 커피를 들고 내 자리로 왔다. 다음 달부터 마케팅팀으로 옮기게 됐다고 했다. 원래 자기가 원했던 자리라 기뻐할 줄 알았는데, 표정이 밝지 않았다.\n\"왜 그래요? 원하던 부서잖아요.\"\n\"원하긴 했는데, 막상 가려니까 어깨가 무거워요. 팀장님이 새 프로젝트를 저한테 맡기겠다고 하시더라고요. 경험도 없는데 잘할 수 있을지 모르겠어요.\"\n나는 그가 3년 동안 뼈 빠지게 일한 걸 알기 때문에 걱정할 필요 없다고 말해 주었다. 민호는 씩 웃더니, 사실 지금 팀 사람들과 헤어지는 게 제일 마음에 걸린다고 털어놓았다. 그러고는 다음 주에 한턱 낼 테니 다 같이 저녁을 먹자고 했다.",
+  "pl": "W porze lunchu Minho przyszedł do mojego biurka z kawą. Powiedział, że od przyszłego miesiąca przenoszą go do działu marketingu. Myślałem, że będzie się cieszył, bo sam chciał tam trafić, ale nie wyglądał na zadowolonego.\n„Co jest? Przecież chciałeś do tego działu.”\n„Chciałem, ale jak przyszło co do czego, czuję ciężar odpowiedzialności. Kierownik powiedział, że powierzy mi nowy projekt. Nie mam doświadczenia i nie wiem, czy dam radę.”\nWiedziałem, że przez trzy lata harował, więc powiedziałem mu, że nie ma się czym martwić. Minho uśmiechnął się i przyznał, że najbardziej ciąży mu rozstanie z obecnym zespołem. A potem zaproponował, że w przyszłym tygodniu stawia — zjemy wszyscy razem kolację.",
+  "en": "At lunchtime Minho came to my desk with a coffee. He said he was being moved to the marketing team from next month. I thought he would be pleased, since it was the position he had wanted, but his face was not bright.\n\"What's wrong? It's the department you wanted.\"\n\"I did want it, but now that it's happening I feel the weight of it. The team leader said he'd put me in charge of a new project. I have no experience and I don't know if I can do it.\"\nI knew he had worked himself to the bone for three years, so I told him there was nothing to worry about. Minho grinned and admitted that what weighed on him most was leaving his current team. Then he said he'd treat everyone to dinner next week.",
+  "quiz": [
+   {
+    "q": "민호는 왜 표정이 밝지 않았습니까?",
+    "qEn": "Why did Minho not look happy?",
+    "choices": [
+     "새 일에 대한 부담과 팀을 떠나는 아쉬움 때문에",
+     "마케팅팀에 가고 싶지 않았기 때문에",
+     "월급이 줄었기 때문에",
+     "팀장님과 싸웠기 때문에"
+    ],
+    "choicesEn": [
+     "Because of the burden of the new job and sadness about leaving his team",
+     "Because he did not want to join the marketing team",
+     "Because his salary was cut",
+     "Because he had argued with the team leader"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "팀장님은 민호에게 무엇을 하겠다고 했습니까?",
+    "qEn": "What did the team leader say he would do?",
+    "choices": [
+     "새 프로젝트를 맡기겠다고 했다",
+     "승진을 시켜 주겠다고 했다",
+     "휴가를 주겠다고 했다",
+     "다른 회사를 소개하겠다고 했다"
+    ],
+    "choicesEn": [
+     "Put him in charge of a new project",
+     "Promote him",
+     "Give him a holiday",
+     "Introduce him to another company"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "'나'는 왜 민호가 걱정할 필요 없다고 생각했습니까?",
+    "qEn": "Why did the narrator think Minho had nothing to worry about?",
+    "choices": [
+     "민호가 그동안 열심히 일해 온 것을 알기 때문에",
+     "마케팅 일이 쉽기 때문에",
+     "팀장님이 도와줄 것이기 때문에",
+     "민호가 이미 경험이 많기 때문에"
+    ],
+    "choicesEn": [
+     "Because he knew how hard Minho had worked all along",
+     "Because marketing work is easy",
+     "Because the team leader would help",
+     "Because Minho already had plenty of experience"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-siolo-rodzina",
+  "level": 3,
+  "title": "할머니 댁에서 (U babci na wsi)",
+  "titleEn": "할머니 댁에서 (At Grandma's in the country)",
+  "ko": "추석에 오랜만에 할머니 댁에 내려갔다. 마당에 들어서자마자 개가 멍멍 짖었고, 할머니는 손자가 왔다며 활짝 웃으셨다. 할머니는 사투리가 심해서 나는 가끔 무슨 말씀인지 못 알아듣고 눈치로 대답한다.\n\"밥은 먹고 다니냐? 얼굴이 반쪽이 됐네.\"\n\"저 잘 먹어요, 할머니. 회사 근처에 맛있는 집이 많아요.\"\n할머니는 혀를 차시면서 상에 음식을 잔뜩 올리셨다. 어머니가 그만 하라고 말려도 소용없었다. 할머니 손이 크신 건 온 동네가 아는 일이다.\n저녁에 아버지와 할머니가 옛날 이야기를 하시는 걸 들었다. 두 분은 같은 일을 전혀 다르게 기억하고 계셨다. 나는 아무 말도 하지 않고 배가 터지도록 먹었다. 서울로 돌아오는 차 안에서 할머니가 싸 주신 반찬 냄새가 가득했다.",
+  "pl": "Na Chuseok po długiej przerwie pojechałem do babci na wieś. Ledwo wszedłem na podwórko, pies zaszczekał, a babcia rozpromieniła się, że przyjechał wnuk. Babcia mówi mocną gwarą, więc czasem nie rozumiem, o co chodzi, i odpowiadam na wyczucie.\n„Jesz ty w ogóle? Twarz ci się zmniejszyła o połowę.”\n„Jem dobrze, babciu. Koło firmy jest dużo dobrych knajpek.”\nBabcia cmoknęła z dezaprobatą i zastawiła stół jedzeniem. Mama próbowała ją powstrzymać, ale na nic. Że babcia ma rozmach, wie cała wieś.\nWieczorem słuchałem, jak tata i babcia wspominają dawne czasy. To samo zdarzenie każde z nich pamiętało zupełnie inaczej. Nic nie mówiłem, tylko jadłem, aż pękałem. W drodze do Seulu cały samochód pachniał przystawkami, które babcia mi zapakowała.",
+  "en": "At Chuseok I went down to my grandmother's in the country for the first time in ages. The moment I stepped into the yard the dog barked, and Grandma beamed that her grandson had come. Grandma's dialect is strong, so sometimes I don't catch what she says and answer by intuition.\n\"Are you eating at all? Your face has shrunk by half.\"\n\"I eat well, Grandma. There are lots of good places near work.\"\nGrandma clicked her tongue and piled the table with food. Mum tried to stop her, but it was no use. The whole village knows Grandma cooks in huge amounts.\nIn the evening I listened to Dad and Grandma talk about the old days. They remembered the same events completely differently. I said nothing and ate until I was bursting. On the drive back to Seoul the car was full of the smell of the side dishes Grandma had packed for me.",
+  "quiz": [
+   {
+    "q": "'나'는 할머니 말씀을 왜 가끔 못 알아듣습니까?",
+    "qEn": "Why does the narrator sometimes not understand Grandma?",
+    "choices": [
+     "할머니가 사투리를 심하게 쓰시기 때문에",
+     "할머니 목소리가 작기 때문에",
+     "'나'가 한국어를 잘 못하기 때문에",
+     "개가 너무 시끄럽기 때문에"
+    ],
+    "choicesEn": [
+     "Because Grandma speaks in a strong dialect",
+     "Because Grandma's voice is quiet",
+     "Because the narrator's Korean is poor",
+     "Because the dog is too loud"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "'할머니 손이 크시다'는 무슨 뜻입니까?",
+    "qEn": "What does 'Grandma's hands are big' mean here?",
+    "choices": [
+     "음식을 아주 많이 하신다는 뜻",
+     "손이 실제로 크다는 뜻",
+     "일을 빨리 하신다는 뜻",
+     "돈을 많이 버신다는 뜻"
+    ],
+    "choicesEn": [
+     "That she cooks a great deal of food",
+     "That her hands are literally big",
+     "That she works fast",
+     "That she earns a lot of money"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "'나'는 왜 아버지와 할머니의 대화에 끼어들지 않았을까요?",
+    "qEn": "Why did the narrator most likely stay out of the conversation between Dad and Grandma?",
+    "choices": [
+     "누구 기억이 맞는지 따지는 것이 의미 없다고 느꼈기 때문에",
+     "두 분의 이야기가 재미없었기 때문에",
+     "사투리를 전혀 못 알아들었기 때문에",
+     "할머니가 말하지 말라고 하셨기 때문에"
+    ],
+    "choicesEn": [
+     "Because he felt there was no point arguing whose memory was right",
+     "Because their story was boring",
+     "Because he understood none of the dialect",
+     "Because Grandma told him not to speak"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-przyjaciel-obraza",
+  "level": 3,
+  "title": "읽씹 (Zostawione bez odpowiedzi)",
+  "titleEn": "읽씹 (Left on read)",
+  "ko": "수진이가 일주일째 내 메시지를 읽고도 답을 안 한다. 처음에는 바쁜가 보다 했는데, 다른 친구들과는 연락을 한다는 말을 듣고 나서야 뭔가 잘못됐다는 걸 알았다. 아무리 생각해도 이유를 모르겠어서 결국 전화를 걸었다.\n\"수진아, 나한테 화난 거 있어? 있으면 딱 잘라 말해 줘.\"\n한참 말이 없더니 수진이가 조용히 물었다.\n\"내 생일에 왜 안 왔어?\"\n순간 가슴이 뜨끔했다. 생일 모임을 깜빡 잊고 있었던 것이다. 나는 변명하지 않고 바로 사과했다. 수진이는 서운했다고, 그런데 먼저 말하기가 자존심 상해서 못 했다고 했다. 우리는 이번 주말에 만나서 내가 밥을 사기로 했다. 말 한마디에 천 냥 빚도 갚는다더니, 미안하다는 말이 이렇게 어려울 줄 몰랐다.",
+  "pl": "Sujin od tygodnia czyta moje wiadomości i nie odpisuje. Najpierw myślałem, że jest zajęta, ale gdy usłyszałem, że z innymi znajomymi ma kontakt, zrozumiałem, że coś jest nie tak. Nie mogłem wymyślić powodu, więc w końcu zadzwoniłem.\n„Sujin, gniewasz się o coś? Jeśli tak, powiedz wprost.”\nDługo milczała, aż w końcu cicho zapytała:\n„Dlaczego nie przyszedłeś na moje urodziny?”\nPoczułem ukłucie sumienia. Kompletnie zapomniałem o jej urodzinach. Nie tłumaczyłem się, tylko od razu przeprosiłem. Sujin powiedziała, że było jej przykro, ale duma nie pozwoliła jej odezwać się pierwszej. Umówiliśmy się na weekend — ja stawiam obiad. Mówią, że dobre słowo wiele może, ale nie sądziłem, że „przepraszam” może być aż tak trudne.",
+  "en": "Sujin has been reading my messages for a week without replying. At first I assumed she was busy, but only when I heard she was in touch with other friends did I realise something was wrong. I couldn't think of a reason, so in the end I called.\n\"Sujin, are you angry with me about something? If so, just say it straight.\"\nAfter a long silence she asked quietly:\n\"Why didn't you come to my birthday?\"\nI felt a pang of guilt. I had completely forgotten her birthday get-together. I didn't make excuses; I apologised at once. Sujin said she had been hurt, but that her pride wouldn't let her bring it up first. We agreed to meet this weekend and I'd buy dinner. They say a kind word can settle a great debt — I never knew \"sorry\" could be this hard.",
+  "quiz": [
+   {
+    "q": "'나'는 언제 뭔가 잘못됐다는 것을 알았습니까?",
+    "qEn": "When did the narrator realise something was wrong?",
+    "choices": [
+     "수진이가 다른 친구들과는 연락한다는 말을 들었을 때",
+     "수진이가 전화를 받지 않았을 때",
+     "수진이가 화를 냈을 때",
+     "생일 모임에 갔을 때"
+    ],
+    "choicesEn": [
+     "When he heard Sujin was in touch with other friends",
+     "When Sujin did not answer the phone",
+     "When Sujin got angry",
+     "When he went to the birthday party"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "수진이는 왜 먼저 말하지 않았습니까?",
+    "qEn": "Why didn't Sujin bring it up first?",
+    "choices": [
+     "자존심이 상해서",
+     "'나'의 전화번호를 몰라서",
+     "바빠서 시간이 없어서",
+     "이미 잊어버려서"
+    ],
+    "choicesEn": [
+     "Because her pride was hurt",
+     "Because she did not have his number",
+     "Because she was too busy",
+     "Because she had already forgotten"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "'가슴이 뜨끔했다'는 '나'의 어떤 마음을 나타냅니까?",
+    "qEn": "What feeling does 'my chest stung' express?",
+    "choices": [
+     "잘못을 깨닫고 뜨끔한 죄책감",
+     "수진이에 대한 화",
+     "갑작스러운 기쁨",
+     "몸이 아픈 느낌"
+    ],
+    "choicesEn": [
+     "Guilt on realising his mistake",
+     "Anger at Sujin",
+     "Sudden joy",
+     "Physical pain"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-seul-przeprowadzka",
+  "level": 3,
+  "title": "서울살이 (Życie w Seulu)",
+  "titleEn": "서울살이 (Living in Seoul)",
+  "ko": "서울로 올라온 지 석 달이 됐다. 회사는 마음에 드는데, 집이 문제다. 월세가 고향의 두 배인데도 방은 절반이고, 창문을 열면 큰길 소리가 쏴 하고 들어온다. 밤에는 위층에서 쿵쿵 걷는 소리 때문에 잠을 설칠 때도 있다.\n어제 엄마가 전화해서 잘 지내냐고 물으셨다. 나는 괜찮다고, 회사 사람들도 다 좋다고 했다. 집 이야기는 하지 않았다. 말해 봤자 걱정만 하실 텐데 굳이 그럴 필요가 없었다.\n주말에 처음으로 한강에 나가 봤다. 강바람을 쐬면서 걷다 보니 정신이 좀 들었다. 강가에서는 서울도 조용할 수 있다는 걸 그때 알았다. 다음 달부터는 허리띠를 졸라매서라도 조금 더 조용한 동네로 옮길까 생각 중이다.",
+  "pl": "Minęły trzy miesiące, odkąd przeniosłem się do Seulu. Praca mi się podoba, problemem jest mieszkanie. Czynsz jest dwa razy wyższy niż w rodzinnym mieście, a pokój dwa razy mniejszy; gdy otworzę okno, wpada szum ruchliwej ulicy. W nocy zdarza się, że nie mogę spać przez łomot kroków z góry.\nWczoraj zadzwoniła mama i zapytała, czy u mnie w porządku. Powiedziałem, że tak, że ludzie w firmie są fajni. O mieszkaniu nie wspomniałem. Gdybym powiedział, tylko by się martwiła, więc po co.\nW weekend po raz pierwszy poszedłem nad rzekę Han. Spacer na wietrze od rzeki przewietrzył mi głowę. Wtedy zrozumiałem, że nad wodą nawet Seul potrafi być cichy. Od przyszłego miesiąca myślę o przeprowadzce do spokojniejszej dzielnicy, nawet gdybym miał zacisnąć pasa.",
+  "en": "It's been three months since I moved up to Seoul. I like the company, but the flat is the problem. The rent is twice what it was back home, yet the room is half the size, and when I open the window the roar of the main road pours in. At night I sometimes lose sleep because of the thudding footsteps upstairs.\nYesterday Mum called and asked how I was doing. I said fine, that the people at work were all nice. I didn't mention the flat. Telling her would only make her worry, so there was no point.\nAt the weekend I went out to the Han River for the first time. Walking in the river breeze cleared my head a little. That's when I learned that by the water even Seoul can be quiet. From next month I'm thinking of moving to a quieter neighbourhood, even if I have to tighten my belt.",
+  "quiz": [
+   {
+    "q": "'나'는 왜 엄마에게 집 이야기를 하지 않았습니까?",
+    "qEn": "Why didn't the narrator tell Mum about the flat?",
+    "choices": [
+     "말해도 엄마가 걱정만 하실 것 같아서",
+     "엄마가 물어보지 않아서",
+     "집에 만족하고 있어서",
+     "전화가 끊겨서"
+    ],
+    "choicesEn": [
+     "Because it would only make her worry",
+     "Because Mum didn't ask",
+     "Because he was happy with the flat",
+     "Because the call was cut off"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "서울 집의 문제가 아닌 것은 무엇입니까?",
+    "qEn": "Which is NOT a problem with the Seoul flat?",
+    "choices": [
+     "회사에서 너무 멀다",
+     "월세가 비싸다",
+     "방이 작다",
+     "시끄럽다"
+    ],
+    "choicesEn": [
+     "It is too far from work",
+     "The rent is high",
+     "The room is small",
+     "It is noisy"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "한강에 다녀온 뒤 '나'의 생각은 어떻게 바뀌었습니까?",
+    "qEn": "How did the narrator's thinking change after the Han River?",
+    "choices": [
+     "서울에서도 조용하게 살 수 있는 곳을 찾기로 했다",
+     "고향으로 돌아가기로 했다",
+     "회사를 그만두기로 했다",
+     "지금 집에 계속 살기로 했다"
+    ],
+    "choicesEn": [
+     "He decided to look for a quiet place in Seoul after all",
+     "He decided to go back to his hometown",
+     "He decided to quit his job",
+     "He decided to stay in the current flat"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-nauka-jezyka",
+  "level": 3,
+  "title": "벽을 넘다 (Przebić ścianę)",
+  "titleEn": "벽을 넘다 (Breaking through the wall)",
+  "ko": "한국어를 배운 지 2년이 넘었는데도 드라마를 보면 절반밖에 못 알아듣는다. 단어를 외우고 문법을 정리해도 실력이 제자리인 것 같아서 몇 번이나 그만두려고 했다. 학원 선생님은 그런 시기가 누구에게나 온다고 하셨지만, 남의 일처럼 들렸다.\n지난주에 한국인 친구 지훈이가 밥을 먹다가 갑자기 물었다.\n\"요즘 왜 이렇게 말이 늘었어요? 예전엔 제가 천천히 말해야 했는데.\"\n나는 멍하니 친구를 쳐다봤다. 나는 전혀 몰랐는데, 남이 먼저 알아본 것이다. 생각해 보니 언제부턴가 한국어로 꿈을 꾸고, 혼잣말도 한국어로 하고 있었다.\n실력은 계단처럼 는다고 한다. 한참 평평하다가 어느 날 한 칸 올라간다. 그날 집에 오는 길에 드라마를 틀었는데, 대사가 술술 들렸다. 첫술에 배부르랴 — 이제 다음 계단을 기다릴 차례다.",
+  "pl": "Uczę się koreańskiego ponad dwa lata, a z seriali rozumiem najwyżej połowę. Wkuwam słówka, porządkuję gramatykę, a poziom jakby stał w miejscu — kilka razy chciałem rzucić. Nauczycielka w szkole językowej mówiła, że taki okres przychodzi na każdego, ale brzmiało to, jakby mówiła o kimś innym.\nW zeszłym tygodniu mój koreański kolega Jihun zapytał nagle przy jedzeniu:\n„Skąd ci się tak poprawiło mówienie? Kiedyś musiałem mówić do ciebie powoli.”\nPatrzyłem na niego z pustką w oczach. Sam niczego nie zauważyłem, a ktoś inny zauważył pierwszy. Kiedy się zastanowiłem, od jakiegoś czasu śniłem po koreańsku i mówiłem do siebie po koreańsku.\nPodobno umiejętności rosną jak schody: długo płasko, aż pewnego dnia o stopień w górę. Tego wieczoru w drodze do domu włączyłem serial i dialogi płynęły same. Nie od razu Kraków zbudowano — teraz czas czekać na następny stopień.",
+  "en": "I've been learning Korean for over two years, yet I understand only half of what's said in dramas. I memorise words and sort out grammar, but my level seems stuck, and several times I've wanted to quit. My teacher at the language school said such a period comes to everyone, but it sounded like someone else's problem.\nLast week my Korean friend Jihun suddenly asked over a meal:\n\"Why has your speaking improved so much lately? I used to have to talk slowly for you.\"\nI stared at him blankly. I hadn't noticed at all; someone else had noticed first. Thinking about it, at some point I'd started dreaming in Korean and talking to myself in Korean.\nThey say skill grows like a staircase: flat for a long time, then up a step one day. On the way home that night I put on a drama, and the lines just flowed. Rome wasn't built in a day — now it's time to wait for the next step.",
+  "quiz": [
+   {
+    "q": "'나'는 왜 그만두려고 했습니까?",
+    "qEn": "Why did the narrator want to quit?",
+    "choices": [
+     "열심히 해도 실력이 늘지 않는 것 같아서",
+     "선생님이 그만두라고 해서",
+     "드라마가 재미없어서",
+     "친구가 한국어를 못 알아들어서"
+    ],
+    "choicesEn": [
+     "Because effort seemed to bring no progress",
+     "Because the teacher told him to quit",
+     "Because dramas were boring",
+     "Because his friend couldn't understand his Korean"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "지훈이는 무엇을 물었습니까?",
+    "qEn": "What did Jihun ask?",
+    "choices": [
+     "요즘 왜 이렇게 말이 늘었냐고 물었다",
+     "왜 천천히 말하냐고 물었다",
+     "드라마를 보냐고 물었다",
+     "학원에 다니냐고 물었다"
+    ],
+    "choicesEn": [
+     "Why his speaking had improved so much",
+     "Why he spoke so slowly",
+     "Whether he watched dramas",
+     "Whether he attended a language school"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "'나'는 왜 자기 실력이 늘었다는 것을 몰랐을까요?",
+    "qEn": "Why hadn't the narrator noticed his own progress?",
+    "choices": [
+     "변화가 천천히 쌓여서 스스로는 느끼기 어려웠기 때문에",
+     "한국어를 전혀 쓰지 않았기 때문에",
+     "친구가 거짓말을 했기 때문에",
+     "선생님이 말해 주지 않았기 때문에"
+    ],
+    "choicesEn": [
+     "Because the change built up slowly and was hard to feel from inside",
+     "Because he never used Korean",
+     "Because his friend was lying",
+     "Because the teacher hadn't told him"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-zakupy-reklamacja",
+  "level": 3,
+  "title": "택배 상자 (Paczka)",
+  "titleEn": "택배 상자 (The parcel)",
+  "ko": "인터넷으로 주문한 운동화가 드디어 도착했다. 상자를 뜯는 순간 뭔가 이상했다. 분명히 260을 주문했는데 250이 들어 있었다. 게다가 한쪽 신발 뒤꿈치에 긁힌 자국까지 있었다.\n고객센터에 전화했더니 상담원이 죄송하다며 교환해 드리겠다고 했다. 그런데 재고가 없어서 2주는 기다려야 한다는 것이었다. 다음 주 여행 때 신으려고 산 건데, 그때까지 기다리면 사나 마나였다.\n\"그럼 환불은 되나요?\"\n\"네, 되는데요, 반품 택배비는 고객님 부담이세요.\"\n\"물건이 잘못 온 건데 왜 제가 내야 하죠?\"\n상담원은 잠시 확인하겠다고 하더니, 회사 실수라 택배비는 받지 않겠다고 했다. 처음부터 그렇게 말했으면 열 받을 일도 없었을 텐데. 전화를 끊고 나니 속이 시원하기는커녕 괜히 피곤했다. 다음부터는 후기를 꼼꼼히 읽고 사야겠다.",
+  "pl": "Buty sportowe zamówione przez internet w końcu dotarły. W chwili, gdy rozerwałem pudełko, coś było nie tak. Zamawiałem na pewno rozmiar 260, a w środku było 250. Na dodatek na pięcie jednego buta była rysa.\nZadzwoniłem na infolinię; konsultantka przeprosiła i powiedziała, że wymienią. Tyle że nie ma na stanie i trzeba czekać dwa tygodnie. Kupiłem je na wyjazd w przyszłym tygodniu, więc czekanie tak długo mijało się z celem.\n„To czy mogę dostać zwrot pieniędzy?”\n„Tak, ale koszt odesłania ponosi klient.”\n„Przecież to wy wysłaliście zły towar, dlaczego mam płacić?”\nKonsultantka powiedziała, że sprawdzi, po czym przyznała, że to błąd firmy i nie obciążą mnie przesyłką. Gdyby powiedziała tak od razu, nie miałbym się o co wkurzać. Po odłożeniu słuchawki zamiast ulgi poczułem tylko zmęczenie. Następnym razem dokładnie przeczytam opinie, zanim kupię.",
+  "en": "The trainers I ordered online finally arrived. The moment I tore the box open something felt wrong. I had definitely ordered a 260, but a 250 was inside. On top of that, one heel had a scratch on it.\nI called customer service; the agent apologised and said they would exchange them. But they were out of stock and I'd have to wait two weeks. I'd bought them for a trip next week, so waiting that long defeated the purpose.\n\"Then can I get a refund?\"\n\"Yes, but the return shipping is at the customer's expense.\"\n\"You sent the wrong item — why should I pay?\"\nThe agent said she'd check, then admitted it was the company's mistake and they wouldn't charge for shipping. If she'd said that from the start, there'd have been nothing to get worked up about. After hanging up, far from feeling relieved, I just felt tired. Next time I'll read the reviews carefully before buying.",
+  "quiz": [
+   {
+    "q": "도착한 운동화의 문제는 무엇이었습니까?",
+    "qEn": "What was wrong with the trainers?",
+    "choices": [
+     "사이즈가 다르고 긁힌 자국이 있었다",
+     "색깔이 달랐다",
+     "한 짝만 왔다",
+     "상자가 비어 있었다"
+    ],
+    "choicesEn": [
+     "The size was wrong and there was a scratch",
+     "The colour was wrong",
+     "Only one shoe came",
+     "The box was empty"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "'나'는 왜 교환 대신 환불을 물어봤습니까?",
+    "qEn": "Why did the narrator ask about a refund instead of an exchange?",
+    "choices": [
+     "교환하면 여행 전에 받을 수 없기 때문에",
+     "환불이 더 이익이기 때문에",
+     "운동화가 마음에 안 들었기 때문에",
+     "상담원이 환불을 권했기 때문에"
+    ],
+    "choicesEn": [
+     "Because an exchange wouldn't arrive before the trip",
+     "Because a refund was more profitable",
+     "Because he no longer liked the trainers",
+     "Because the agent recommended a refund"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "전화를 끊고 '나'는 왜 피곤했을까요?",
+    "qEn": "Why did the narrator feel tired after the call?",
+    "choices": [
+     "당연한 일을 따져서 얻어 내야 했기 때문에",
+     "전화가 너무 길었기 때문에",
+     "환불을 못 받았기 때문에",
+     "운동화를 다시 주문해야 했기 때문에"
+    ],
+    "choicesEn": [
+     "Because he had to argue to get what should have been automatic",
+     "Because the call was too long",
+     "Because he didn't get the refund",
+     "Because he had to order the shoes again"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-szpital",
+  "level": 3,
+  "title": "대기실 (Poczekalnia)",
+  "titleEn": "대기실 (The waiting room)",
+  "ko": "아버지가 검사를 받으시는 동안 나는 대기실에 앉아 있었다. 의사는 결과가 나오려면 두 시간은 걸린다고 했다. 텔레비전에서는 요리 프로그램이 나오고 있었지만 아무것도 눈에 들어오지 않았다.\n옆자리 아주머니가 말을 걸었다.\n\"누구 기다리세요?\"\n\"아버지요. 별거 아닐 거라고 하시는데, 그래도 걱정이 돼서요.\"\n\"우리 남편도 작년에 여기서 검사받았어요. 그때는 저도 속이 타서 밥도 못 먹었는데, 지금은 멀쩡해요.\"\n아주머니는 걱정한다고 결과가 바뀌는 건 아니라며 자판기 커피를 하나 뽑아 주셨다. 나는 고맙다고 하고 커피를 받았지만 마시지는 못했다.\n두 시간 뒤 간호사가 이름을 불렀다. 의사는 큰 문제는 없으니 약을 드시면서 지켜보자고 했다. 가슴을 쓸어내리며 진료실을 나오는데, 아버지가 배고프다며 국밥이나 먹으러 가자고 하셨다. 그제야 커피 생각이 났다.",
+  "pl": "Gdy tata był na badaniach, siedziałem w poczekalni. Lekarz powiedział, że na wyniki trzeba czekać co najmniej dwie godziny. W telewizorze leciał program kulinarny, ale nic do mnie nie docierało.\nZagadnęła mnie kobieta z sąsiedniego krzesła.\n„Na kogo pan czeka?”\n„Na ojca. Mówi, że to nic takiego, ale i tak się martwię.”\n„Mój mąż w zeszłym roku też tu miał badania. Wtedy tak się zamartwiałam, że nie mogłam jeść, a dziś jest zdrów jak ryba.”\nPowiedziała, że zamartwianie się nie zmieni wyniku, i kupiła mi kawę z automatu. Podziękowałem i wziąłem kubek, ale nie zdołałem się napić.\nDwie godziny później pielęgniarka wywołała nazwisko. Lekarz powiedział, że nic poważnego, będziemy brać leki i obserwować. Wychodziłem z gabinetu z ulgą, a tata oznajmił, że jest głodny i może pójdziemy na gukbap. Dopiero wtedy przypomniałem sobie o kawie.",
+  "en": "While my father was having his tests I sat in the waiting room. The doctor had said the results would take at least two hours. A cooking programme was on the TV, but nothing registered.\nThe woman in the next seat spoke to me.\n\"Who are you waiting for?\"\n\"My father. He says it's nothing, but I'm still worried.\"\n\"My husband had tests here last year too. I was so sick with worry then that I couldn't eat, and now he's perfectly fine.\"\nShe said worrying doesn't change the result and got me a coffee from the vending machine. I thanked her and took it, but couldn't drink it.\nTwo hours later a nurse called the name. The doctor said there was no major problem; we'd take medication and keep an eye on things. I came out of the consulting room with a sigh of relief, and my father announced he was hungry and suggested we go for gukbap. Only then did I remember the coffee.",
+  "quiz": [
+   {
+    "q": "의사는 결과가 나올 때까지 얼마나 걸린다고 했습니까?",
+    "qEn": "How long did the doctor say the results would take?",
+    "choices": [
+     "두 시간",
+     "삼십 분",
+     "하루",
+     "일주일"
+    ],
+    "choicesEn": [
+     "Two hours",
+     "Thirty minutes",
+     "A day",
+     "A week"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "아주머니는 왜 '나'에게 커피를 뽑아 주었습니까?",
+    "qEn": "Why did the woman buy the narrator a coffee?",
+    "choices": [
+     "같은 경험을 해 봐서 마음을 알기 때문에",
+     "'나'가 커피를 부탁했기 때문에",
+     "자기가 마시기 싫어서",
+     "커피가 공짜였기 때문에"
+    ],
+    "choicesEn": [
+     "Because she had been through the same thing and understood",
+     "Because the narrator asked for one",
+     "Because she didn't want it herself",
+     "Because the coffee was free"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "'나'는 왜 커피를 마시지 못했을까요?",
+    "qEn": "Why couldn't the narrator drink the coffee?",
+    "choices": [
+     "걱정 때문에 아무것도 넘어가지 않아서",
+     "커피를 싫어해서",
+     "커피가 너무 뜨거워서",
+     "아버지 것이었기 때문에"
+    ],
+    "choicesEn": [
+     "Because worry made it impossible to swallow anything",
+     "Because he dislikes coffee",
+     "Because it was too hot",
+     "Because it was for his father"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-spotkanie-po-latach",
+  "level": 3,
+  "title": "십 년 만에 (Po dziesięciu latach)",
+  "titleEn": "십 년 만에 (After ten years)",
+  "ko": "고등학교 동창 모임에 나갔다. 졸업하고 십 년 만이었다. 식당 문을 열자 낯익은 얼굴들이 보였는데, 이름이 바로 떠오르지 않는 사람도 있었다.\n제일 먼저 알아본 건 준서였다. 학교 다닐 때는 말도 별로 없고 늘 뒷자리에 앉아 있었는데, 지금은 목소리도 크고 사람들 사이를 성큼성큼 다니면서 술을 따라 주고 있었다. 회사를 차렸다고 했다.\n반대로 반장이었던 은지는 조용했다. 예전에는 무슨 일이든 앞장서더니, 이제는 남의 이야기를 듣기만 했다. 아이가 둘이라고 했다.\n\"너는 하나도 안 변했다.\"\n누가 나한테 그렇게 말했을 때 웃었지만, 사실 그게 칭찬인지 아닌지 알 수 없었다.\n헤어질 때 다들 자주 보자고 했다. 하지만 십 년 전에도 똑같은 말을 했었다. 집에 오는 길에 준서가 보낸 명함을 지갑에 넣으며, 이번에는 정말 연락해 볼까 생각했다.",
+  "pl": "Poszedłem na spotkanie klasowe. Dziesięć lat po maturze. Gdy otworzyłem drzwi restauracji, zobaczyłem znajome twarze, choć przy niektórych imię nie od razu przychodziło do głowy.\nPierwszego rozpoznałem Junseo. W szkole prawie się nie odzywał i zawsze siedział z tyłu, a teraz mówił głośno i chodził między ludźmi zamaszystym krokiem, dolewając wszystkim. Powiedział, że założył firmę.\nEunji, dawna przewodnicząca, była z kolei cicha. Kiedyś we wszystkim przewodziła, dziś tylko słuchała innych. Ma dwoje dzieci.\n„Ty się w ogóle nie zmieniłeś.”\nGdy ktoś mi to powiedział, roześmiałem się, ale tak naprawdę nie wiedziałem, czy to komplement.\nNa pożegnanie wszyscy mówili, że trzeba się częściej widywać. Ale dziesięć lat temu mówili dokładnie to samo. Wracając do domu, schowałem do portfela wizytówkę od Junseo i pomyślałem, że tym razem może naprawdę się odezwę.",
+  "en": "I went to my high school reunion. It was ten years since graduation. When I opened the restaurant door I saw familiar faces, though for some the name didn't come straight away.\nThe first I recognised was Junseo. At school he hardly spoke and always sat at the back, but now his voice was loud and he strode among people pouring drinks. He said he'd started a company.\nEunji, our former class president, was quiet by contrast. She used to lead everything, but now she only listened. She has two children.\n\"You haven't changed a bit.\"\nWhen someone said that to me I laughed, but I honestly didn't know whether it was a compliment.\nAs we parted everyone said we should meet more often. But we'd said exactly the same ten years ago. On the way home I put the business card Junseo had given me into my wallet and thought that this time I might actually get in touch.",
+  "quiz": [
+   {
+    "q": "준서는 학교 다닐 때 어떤 학생이었습니까?",
+    "qEn": "What was Junseo like at school?",
+    "choices": [
+     "말이 없고 뒷자리에 앉는 학생",
+     "반장으로 앞장서는 학생",
+     "목소리가 큰 학생",
+     "회사를 차린 학생"
+    ],
+    "choicesEn": [
+     "Quiet, sitting at the back",
+     "The class president who led everything",
+     "A loud student",
+     "A student who ran a company"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "은지에 대한 설명으로 맞는 것은 무엇입니까?",
+    "qEn": "Which statement about Eunji is correct?",
+    "choices": [
+     "예전과 달리 지금은 조용하다",
+     "예전과 똑같이 앞장선다",
+     "회사를 차렸다",
+     "'나'를 알아보지 못했다"
+    ],
+    "choicesEn": [
+     "Unlike before, she is quiet now",
+     "She leads just as she used to",
+     "She started a company",
+     "She did not recognise the narrator"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "'너는 하나도 안 변했다'는 말에 '나'는 왜 웃기만 했을까요?",
+    "qEn": "Why did the narrator only laugh at 'you haven't changed at all'?",
+    "choices": [
+     "그 말이 좋은 뜻인지 아닌지 확신할 수 없었기 때문에",
+     "그 말이 너무 웃겼기 때문에",
+     "말한 사람이 누군지 몰랐기 때문에",
+     "자신이 많이 변했다고 생각했기 때문에"
+    ],
+    "choicesEn": [
+     "Because he wasn't sure whether it was meant well",
+     "Because it was very funny",
+     "Because he didn't know who said it",
+     "Because he thought he had changed a lot"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-wlasna-dzialalnosc",
+  "level": 3,
+  "title": "사직서 (Wypowiedzenie)",
+  "titleEn": "사직서 (The resignation letter)",
+  "ko": "현우는 8년 다닌 회사에 사직서를 냈다. 작은 카페를 열 거라고 했다. 아내는 처음에 말도 안 된다고 했지만, 결국 일 년만 해 보라고 허락했다.\n\"솔직히 무섭지 않아요?\"\n내가 묻자 현우는 커피를 한 모금 마시고 대답했다.\n\"무섭죠. 밤에 두근두근해서 잠이 안 올 때도 있어요. 그런데 이대로 십 년 더 다니면 그때 가서 더 후회할 것 같아서요.\"\n부장님은 그를 붙잡으려고 연봉을 올려 주겠다고까지 했다고 한다. 동료들은 요즘 카페가 얼마나 많은데 그러냐며 혀를 찼다. 하지만 현우는 이미 마음을 먹은 뒤였다.\n개업 첫 달은 손님이 가뭄에 콩 나듯 왔다. 그런데 석 달째부터 동네 사람들이 단골이 되기 시작했다. 얼마 전에 들렀더니 현우는 예전보다 훨씬 피곤해 보였는데, 이상하게도 표정은 회사 다닐 때보다 밝았다.",
+  "pl": "Hyunwoo złożył wypowiedzenie w firmie, w której pracował osiem lat. Powiedział, że otworzy małą kawiarnię. Żona z początku uznała to za absurd, ale w końcu zgodziła się na rok próby.\n„Szczerze, nie boisz się?”\nGdy zapytałem, Hyunwoo upił łyk kawy i odpowiedział:\n„Boję się. Czasem w nocy serce mi wali i nie mogę zasnąć. Ale jeśli przesiedzę tam jeszcze dziesięć lat, potem będę żałował jeszcze bardziej.”\nPodobno dyrektor, żeby go zatrzymać, zaproponował nawet podwyżkę. Koledzy cmokali, że przecież kawiarni jest dziś na pęczki. Ale Hyunwoo już podjął decyzję.\nW pierwszym miesiącu po otwarciu klienci pojawiali się raz na ruski rok. Od trzeciego miesiąca jednak ludzie z okolicy zaczęli być stałymi gośćmi. Gdy niedawno wpadłem, Hyunwoo wyglądał na dużo bardziej zmęczonego niż kiedyś, ale — co dziwne — miał pogodniejszą twarz niż za czasów pracy w firmie.",
+  "en": "Hyunwoo handed in his resignation at the company where he'd worked for eight years. He said he was going to open a small café. His wife at first called it nonsense, but eventually agreed to let him try for one year.\n\"Honestly, aren't you scared?\"\nWhen I asked, Hyunwoo took a sip of coffee and replied:\n\"Of course. Some nights my heart pounds and I can't sleep. But if I stay another ten years, I think I'll regret it even more.\"\nApparently the director even offered him a raise to keep him. His colleagues clicked their tongues, saying there were far too many cafés already. But Hyunwoo had already made up his mind.\nIn the first month after opening, customers came once in a blue moon. From the third month, though, people from the neighbourhood started becoming regulars. When I dropped by recently, Hyunwoo looked far more tired than before, yet strangely his face was brighter than when he worked at the company.",
+  "quiz": [
+   {
+    "q": "현우의 아내는 처음에 어떻게 반응했습니까?",
+    "qEn": "How did Hyunwoo's wife react at first?",
+    "choices": [
+     "말도 안 된다고 했다",
+     "바로 찬성했다",
+     "같이 카페를 하자고 했다",
+     "아무 말도 하지 않았다"
+    ],
+    "choicesEn": [
+     "She said it was nonsense",
+     "She agreed straight away",
+     "She suggested running the café together",
+     "She said nothing"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "현우가 회사를 그만둔 가장 큰 이유는 무엇입니까?",
+    "qEn": "What was Hyunwoo's main reason for leaving?",
+    "choices": [
+     "더 늦으면 후회할 것 같아서",
+     "연봉이 너무 적어서",
+     "동료들과 사이가 나빠서",
+     "커피를 좋아해서"
+    ],
+    "choicesEn": [
+     "He felt he would regret it if he waited longer",
+     "His salary was too low",
+     "He didn't get on with colleagues",
+     "He liked coffee"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "현우가 피곤한데도 표정이 밝은 이유는 무엇이라고 볼 수 있습니까?",
+    "qEn": "Why can Hyunwoo's face be bright despite his tiredness?",
+    "choices": [
+     "자기가 선택한 일을 하고 있기 때문에",
+     "손님이 없어서 편하기 때문에",
+     "회사에서 다시 불러 줬기 때문에",
+     "아내가 도와주기 때문에"
+    ],
+    "choicesEn": [
+     "Because he is doing what he chose himself",
+     "Because there are no customers so it's easy",
+     "Because the company asked him back",
+     "Because his wife helps him"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-sasiedzi",
+  "level": 3,
+  "title": "윗집 (Sąsiedzi z góry)",
+  "titleEn": "윗집 (The upstairs neighbours)",
+  "ko": "윗집에 새 가족이 이사 온 뒤로 밤마다 아이들이 뛰는 소리가 쿵쿵 울린다. 처음 며칠은 참았다. 이사 왔으니 정리할 것도 많을 테고, 아이들이 뛰는 걸 어떻게 막겠나 싶었다. 그런데 한 달이 지나도 똑같았다.\n결국 떡을 사 들고 올라갔다. 문을 열어 준 아이 엄마는 미안하다며 얼굴을 붉혔다.\n\"저희도 알아요. 애들한테 매일 말하는데 말을 안 들어서요. 매트도 깔았는데……\"\n\"아니에요, 아이들이 그럴 수도 있죠. 그냥 열 시 이후에만 조금 조심해 주시면 돼요.\"\n말은 그렇게 했지만 사실은 그 열 시도 이미 늦은 시간이었다. 서로 웃으면서 인사했지만 내려오는 계단에서 나는 한숨을 쉬었다.\n그날 밤은 조용했다. 그다음 날도. 그런데 일주일 뒤에 다시 쿵쿵 소리가 났다. 이번에는 조금 작았다. 아마 이것이 그 집이 할 수 있는 최선인 모양이다. 나는 이어폰을 샀다.",
+  "pl": "Odkąd nad nami zamieszkała nowa rodzina, co wieczór dudni tupot biegających dzieci. Przez pierwsze dni wytrzymywałem. Świeżo po przeprowadzce mają pewnie dużo do ogarnięcia, a dzieciom biegania nie zabronisz. Ale po miesiącu było tak samo.\nW końcu kupiłem tteok i poszedłem na górę. Mama dzieci, która otworzyła drzwi, zaczerwieniła się i przepraszała.\n„My wiemy. Codziennie im powtarzamy, ale nie słuchają. Położyliśmy nawet maty…”\n„Nic się nie stało, dzieci tak mają. Wystarczy trochę uważać po dziesiątej.”\nTak powiedziałem, choć prawdę mówiąc, dziesiąta to i tak już późno. Rozstaliśmy się z uśmiechem, ale na schodach westchnąłem.\nTej nocy było cicho. Następnej też. Tydzień później dudnienie wróciło — trochę cichsze. Najwyraźniej to wszystko, na co ich stać. Kupiłem sobie słuchawki.",
+  "en": "Since a new family moved in upstairs, the thud of children running echoes every night. For the first few days I put up with it. They'd just moved in and had lots to sort out, and how do you stop children running? But after a month it was the same.\nIn the end I bought some rice cakes and went up. The children's mother who opened the door flushed and apologised.\n\"We know. We tell them every day, but they won't listen. We even put down mats...\"\n\"It's fine, kids will be kids. If you could just be a little careful after ten.\"\nThat's what I said, but honestly even ten was already late. We parted with smiles, but on the stairs down I sighed.\nThat night was quiet. The next too. A week later, though, the thudding was back — a little softer. Apparently that's the best that household can do. I bought earphones.",
+  "quiz": [
+   {
+    "q": "'나'는 처음 며칠 동안 왜 참았습니까?",
+    "qEn": "Why did the narrator put up with it for the first few days?",
+    "choices": [
+     "이사 직후라 어쩔 수 없다고 생각해서",
+     "소리가 작았기 때문에",
+     "윗집이 무서웠기 때문에",
+     "이어폰이 있었기 때문에"
+    ],
+    "choicesEn": [
+     "Because he thought it was unavoidable right after a move",
+     "Because the noise was quiet",
+     "Because he was afraid of the neighbours",
+     "Because he had earphones"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "아이 엄마는 이미 무엇을 했다고 했습니까?",
+    "qEn": "What did the mother say they had already done?",
+    "choices": [
+     "매트를 깔았다",
+     "이사를 다시 가기로 했다",
+     "아이들을 학원에 보냈다",
+     "경비실에 신고했다"
+    ],
+    "choicesEn": [
+     "Put down mats",
+     "Decided to move again",
+     "Sent the children to an academy",
+     "Reported it to the security office"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "'나'는 왜 '열 시 이후에만'이라고 말했을까요?",
+    "qEn": "Why did the narrator say 'only after ten'?",
+    "choices": [
+     "실제 바람보다 부드럽게 말해서 관계를 해치지 않으려고",
+     "열 시 이전 소리는 정말 괜찮아서",
+     "아이들이 열 시에 자기 때문에",
+     "자기가 열 시에 퇴근하기 때문에"
+    ],
+    "choicesEn": [
+     "To put it more gently than he really felt and keep the peace",
+     "Because noise before ten was truly fine",
+     "Because the children go to bed at ten",
+     "Because he gets home from work at ten"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-podroz-zle",
+  "level": 3,
+  "title": "부산행 (Do Busanu)",
+  "titleEn": "부산행 (To Busan)",
+  "ko": "부산 출장이 처음부터 꼬였다. 서울역에 도착했을 때 기차는 이미 떠난 뒤였다. 지하철이 고장으로 이십 분이나 멈춰 있었기 때문이다. 다음 기차표를 사느라 진땀을 흘렸고, 자리는 없어서 두 시간 반을 서서 갔다.\n부산역에 내려서 짐칸을 봤을 때 가슴이 덜컹 내려앉았다. 내 캐리어가 없었다. 옆에 있던 비슷한 검은색 캐리어를 누군가 잘못 들고 간 것이다. 역무원은 분실물 신고를 하면 연락이 올 거라고 했지만, 발표 자료가 그 안에 있었다.\n거래처에 전화해서 사정을 말했더니, 담당자가 웃으며 괜찮다고 했다.\n\"자료는 메일로 보내 주시면 저희가 출력할게요. 저녁이나 먼저 드세요.\"\n그날 저녁 캐리어는 돌아왔다. 바꿔 간 사람이 역에 다시 갖다 놓은 것이다. 산 넘어 산이라더니, 돌아보면 한 가지도 내 잘못은 없었는데 하루 종일 죄인처럼 뛰어다녔다.",
+  "pl": "Delegacja do Busanu od początku szła jak po grudzie. Kiedy dotarłem na Dworzec Seulski, pociąg już odjechał — metro stało przez awarię całe dwadzieścia minut. Kupując bilet na następny, spociłem się ze stresu, a że miejsc nie było, dwie i pół godziny jechałem na stojąco.\nGdy na dworcu w Busanie zajrzałem na półkę bagażową, serce mi zamarło. Mojej walizki nie było. Ktoś przez pomyłkę zabrał ją zamiast swojej, podobnej, czarnej. Pracownik dworca powiedział, że po zgłoszeniu zguby dadzą znać, ale w środku były materiały na prezentację.\nZadzwoniłem do kontrahenta i wyjaśniłem sytuację; osoba odpowiedzialna roześmiała się, że nic się nie stało.\n„Materiały proszę wysłać mailem, my wydrukujemy. Niech pan najpierw coś zje.”\nWalizka wróciła tego samego wieczoru — ten, kto ją zabrał, odniósł ją na dworzec. Z deszczu pod rynnę, jak to mówią; patrząc wstecz, nic nie było moją winą, a cały dzień biegałem jak winowajca.",
+  "en": "The business trip to Busan went wrong from the start. When I got to Seoul Station the train had already left — the subway had been stopped for twenty minutes by a breakdown. I sweated bullets buying a ticket for the next train, and with no seats left I stood for two and a half hours.\nWhen I checked the luggage rack at Busan Station my heart sank. My suitcase wasn't there. Someone had taken it by mistake instead of their own similar black one. The station staff said they'd contact me if I filed a lost property report, but my presentation materials were inside.\nI called the client and explained; the person in charge laughed and said not to worry.\n\"Email us the materials and we'll print them. Go and have dinner first.\"\nThe suitcase came back that evening — whoever took it had returned it to the station. One thing after another, as they say; looking back, none of it was my fault, yet I'd run around all day like a guilty man.",
+  "quiz": [
+   {
+    "q": "'나'는 왜 기차를 놓쳤습니까?",
+    "qEn": "Why did the narrator miss the train?",
+    "choices": [
+     "지하철이 고장으로 멈춰 있었기 때문에",
+     "늦잠을 잤기 때문에",
+     "표를 잘못 샀기 때문에",
+     "캐리어를 찾느라 늦었기 때문에"
+    ],
+    "choicesEn": [
+     "Because the subway was stopped by a breakdown",
+     "Because he overslept",
+     "Because he bought the wrong ticket",
+     "Because he was late looking for his suitcase"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "거래처 담당자는 어떻게 반응했습니까?",
+    "qEn": "How did the client's contact react?",
+    "choices": [
+     "괜찮다며 자료를 메일로 보내 달라고 했다",
+     "화를 내며 회의를 취소했다",
+     "다음 날 다시 오라고 했다",
+     "캐리어를 찾아 주겠다고 했다"
+    ],
+    "choicesEn": [
+     "Said it was fine and asked for the materials by email",
+     "Got angry and cancelled the meeting",
+     "Told him to come back the next day",
+     "Offered to find the suitcase"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "'죄인처럼 뛰어다녔다'는 말에서 알 수 있는 것은 무엇입니까?",
+    "qEn": "What does 'ran around like a guilty man' tell us?",
+    "choices": [
+     "잘못이 없는데도 스스로 책임을 느꼈다",
+     "실제로 큰 잘못을 했다",
+     "경찰에 쫓기고 있었다",
+     "달리기를 좋아한다"
+    ],
+    "choicesEn": [
+     "He felt responsible even though he had done nothing wrong",
+     "He had actually done something seriously wrong",
+     "He was being chased by the police",
+     "He likes running"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-pieniadze-rodzic",
+  "level": 3,
+  "title": "아버지의 통장 (Konto ojca)",
+  "titleEn": "아버지의 통장 (Father's bank account)",
+  "ko": "아버지가 은퇴하신 뒤 처음으로 돈 이야기를 꺼냈다. 어머니가 아버지 병원비가 만만치 않다고 살짝 귀띔을 해 주셨기 때문이다. 하지만 막상 아버지 앞에 앉으니 입이 떨어지지 않았다.\n\"아버지, 요즘 생활비는…… 괜찮으세요?\"\n\"괜찮다. 네 걱정이나 해.\"\n예상했던 대답이었다. 아버지는 평생 자식한테 돈 이야기를 하신 적이 없다. 내가 대학 다닐 때 등록금이 어디서 나왔는지도 나중에야 알았다.\n나는 다른 방법을 썼다. 회사에서 부모님 앞으로 보험을 들어 준다고, 서류에 계좌번호가 필요하다고 거짓말을 했다. 아버지는 잠시 나를 보시더니 통장을 꺼내 오셨다. 그 눈빛을 보고 나는 아버지가 다 알면서 모르는 척하신다는 걸 느꼈다.\n다음 달부터 매달 조금씩 보내 드리고 있다. 아버지는 한 번도 그 돈 이야기를 꺼내지 않으셨다. 나도 꺼내지 않는다. 우리 부자는 그렇게 서로 시치미를 떼고 있다.",
+  "pl": "Po raz pierwszy od przejścia ojca na emeryturę poruszyłem temat pieniędzy. Mama szepnęła mi, że rachunki za leczenie taty nie są małe. Ale kiedy usiadłem naprzeciw ojca, słowa nie chciały przejść przez gardło.\n„Tato, a jak tam z wydatkami… dajesz radę?”\n„Daję. Martw się o siebie.”\nTakiej odpowiedzi się spodziewałem. Ojciec przez całe życie nie rozmawiał z dziećmi o pieniądzach. Skąd brały się pieniądze na moje czesne, dowiedziałem się dopiero po latach.\nUżyłem innego sposobu. Skłamałem, że firma wykupuje rodzicom ubezpieczenie i do dokumentów potrzebny jest numer konta. Ojciec popatrzył na mnie przez chwilę i przyniósł książeczkę. Po jego spojrzeniu poczułem, że wszystko wie i tylko udaje, że nie wie.\nOd następnego miesiąca co miesiąc przelewam mu trochę. Ojciec ani razu nie wspomniał o tych pieniądzach. Ja też nie. Tak obaj udajemy Greka.",
+  "en": "For the first time since my father retired I brought up money. Mum had quietly tipped me off that his medical bills were no small matter. But once I sat down in front of him, the words wouldn't come.\n\"Dad, how are you managing... with living costs these days?\"\n\"Fine. Worry about yourself.\"\nIt was the answer I'd expected. My father has never once talked money with his children. I only learned years later where my university tuition had come from.\nI tried another way. I lied that my company was taking out insurance for parents and needed an account number for the paperwork. Dad looked at me for a moment, then fetched his bankbook. From that look I sensed he knew everything and was only pretending not to.\nSince the following month I've been sending him a little every month. He has never once mentioned the money. Neither have I. That's how the two of us keep playing innocent.",
+  "quiz": [
+   {
+    "q": "'나'는 왜 돈 이야기를 꺼내게 되었습니까?",
+    "qEn": "Why did the narrator bring up money?",
+    "choices": [
+     "어머니가 병원비 부담을 귀띔해 주셔서",
+     "아버지가 돈을 빌려 달라고 하셔서",
+     "회사에서 보험을 들어 준다고 해서",
+     "아버지가 은퇴 파티를 하셔서"
+    ],
+    "choicesEn": [
+     "Because his mother hinted at the burden of medical bills",
+     "Because his father asked to borrow money",
+     "Because his company really was taking out insurance",
+     "Because his father had a retirement party"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "'나'는 계좌번호를 어떻게 알아냈습니까?",
+    "qEn": "How did the narrator get the account number?",
+    "choices": [
+     "보험 서류가 필요하다고 거짓말을 해서",
+     "어머니에게 물어봐서",
+     "아버지가 직접 알려 주셔서",
+     "은행에 가서 확인해서"
+    ],
+    "choicesEn": [
+     "By lying that it was needed for insurance paperwork",
+     "By asking his mother",
+     "His father told him directly",
+     "By checking at the bank"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "아버지는 왜 돈 이야기를 한 번도 꺼내지 않으셨을까요?",
+    "qEn": "Why has the father never mentioned the money?",
+    "choices": [
+     "자식에게 부담을 준 것을 인정하기 싫고, 아들의 배려를 그대로 받아들이려고",
+     "돈이 들어오는 것을 정말 모르셔서",
+     "그 돈이 필요 없어서",
+     "아들과 사이가 나빠서"
+    ],
+    "choicesEn": [
+     "He doesn't want to admit burdening his child and quietly accepts his son's care",
+     "He really doesn't know the money is arriving",
+     "He doesn't need the money",
+     "He is on bad terms with his son"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-zwierze-w-domu",
+  "level": 3,
+  "title": "콩이 (Kong)",
+  "titleEn": "콩이 (Kong the dog)",
+  "ko": "강아지를 데려오기 전에 우리는 모든 걸 준비했다고 생각했다. 사료, 집, 장난감, 그리고 산책은 하루 두 번씩 번갈아 하기로 약속까지 했다. 콩이는 첫날부터 우리를 보고 꼬리를 흔들며 폴짝폴짝 뛰었다.\n그런데 아무도 말해 주지 않은 것들이 있었다. 콩이는 새벽 다섯 시에 일어나서 문을 긁는다. 비 오는 날에도 산책은 가야 한다. 소파 다리는 이미 반쯤 없어졌고, 여행은 계획조차 세울 수 없게 됐다.\n\"이럴 줄 알았으면……\"\n남편이 말을 꺼내다가 멈췄다. 콩이가 남편 무릎에 올라와 얼굴을 핥고 있었기 때문이다. 남편은 한숨을 쉬더니 결국 웃었다.\n지난주에 콩이가 아파서 병원에 갔다. 별일 아니었지만, 그 하루 동안 우리 둘 다 일이 손에 잡히지 않았다. 집에 돌아와 쿨쿨 자는 콩이를 보면서, 우리는 이제 이 개 없이는 못 살겠다는 걸 인정할 수밖에 없었다.",
+  "pl": "Zanim wzięliśmy szczeniaka, myśleliśmy, że przygotowaliśmy wszystko. Karma, legowisko, zabawki, a nawet umowa, że na spacery chodzimy na zmianę, dwa razy dziennie. Kong od pierwszego dnia machał do nas ogonem i podskakiwał.\nAle były rzeczy, o których nikt nam nie powiedział. Kong wstaje o piątej rano i drapie w drzwi. Na spacer trzeba iść także w deszcz. Noga kanapy jest już w połowie zjedzona, a wyjazdów nie da się nawet zaplanować.\n„Gdybym wiedział, że tak będzie…”\nMąż zaczął, ale urwał. Kong właśnie wszedł mu na kolana i lizał go po twarzy. Mąż westchnął i w końcu się roześmiał.\nW zeszłym tygodniu Kong zachorował i pojechaliśmy do weterynarza. Nic poważnego, ale przez cały ten dzień żadne z nas nie mogło się skupić na pracy. Patrząc w domu na Konga chrapiącego w najlepsze, musieliśmy przyznać, że bez tego psa już nie damy rady żyć.",
+  "en": "Before we brought the puppy home we thought we had prepared everything. Food, a bed, toys, and even a promise to take turns walking him twice a day. From day one Kong wagged his tail at us and hopped about.\nBut there were things nobody had told us. Kong wakes at five in the morning and scratches at the door. Walks happen even in the rain. One sofa leg is already half gone, and holidays can't even be planned.\n\"If I'd known it would be like this...\"\nMy husband started, then stopped. Kong had climbed onto his lap and was licking his face. He sighed, then laughed after all.\nLast week Kong was ill and we went to the vet. It was nothing serious, but for that whole day neither of us could concentrate on work. Watching Kong snoring away back at home, we had to admit we couldn't live without this dog any more.",
+  "quiz": [
+   {
+    "q": "강아지를 데려오기 전에 부부가 한 약속은 무엇입니까?",
+    "qEn": "What promise did the couple make before getting the puppy?",
+    "choices": [
+     "산책을 하루 두 번 번갈아 하기로 했다",
+     "여행을 가지 않기로 했다",
+     "소파를 새로 사기로 했다",
+     "새벽 다섯 시에 일어나기로 했다"
+    ],
+    "choicesEn": [
+     "To take turns walking him twice a day",
+     "Not to travel",
+     "To buy a new sofa",
+     "To get up at five in the morning"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "남편은 왜 말을 하다가 멈췄습니까?",
+    "qEn": "Why did the husband stop mid-sentence?",
+    "choices": [
+     "콩이가 무릎에 올라와 얼굴을 핥아서",
+     "아내가 화를 내서",
+     "전화가 와서",
+     "할 말을 잊어버려서"
+    ],
+    "choicesEn": [
+     "Because Kong climbed onto his lap and licked his face",
+     "Because his wife got angry",
+     "Because the phone rang",
+     "Because he forgot what to say"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "부부가 '이 개 없이는 못 살겠다'고 느낀 결정적인 계기는 무엇입니까?",
+    "qEn": "What made the couple realise they couldn't live without the dog?",
+    "choices": [
+     "콩이가 아팠던 날 아무 일도 못 했던 경험",
+     "콩이가 소파를 물어뜯은 일",
+     "콩이가 새벽에 깨운 일",
+     "여행을 못 가게 된 일"
+    ],
+    "choicesEn": [
+     "The day Kong was ill and they could do nothing",
+     "Kong chewing the sofa",
+     "Kong waking them at dawn",
+     "Not being able to travel"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-powrot-do-sportu",
+  "level": 3,
+  "title": "오 년 만의 축구 (Piłka po pięciu latach)",
+  "titleEn": "오 년 만의 축구 (Football after five years)",
+  "ko": "대학 때는 매주 축구를 했다. 취직하고 나서는 야근에 회식에, 공을 찰 시간이 없었다. 그러다 동호회에서 한 명이 빠졌다며 급하게 나를 불렀다. 오 년 만이었다.\n머리는 다 기억하고 있었다. 어디로 뛰어야 하는지, 언제 패스해야 하는지. 문제는 몸이었다. 십 분도 안 돼서 숨이 턱까지 찼고, 공을 잡으려고 뛰었는데 발이 한 박자 늦게 나갔다. 스무 살짜리 후배가 나를 휙 지나쳐 갈 때는 코가 납작해지는 기분이었다.\n후반전에는 벤치에 앉아 있었다. 옆에 앉은 형이 웃으며 말했다.\n\"처음엔 다 그래. 나도 첫날엔 다음 날 계단도 못 내려갔어.\"\n정말 그랬다. 다음 날 아침에 온몸이 욱신욱신 아파서 침대에서 일어나는 데 오 분이 걸렸다. 그런데도 이상하게 기분은 좋았다. 이번 주말에 또 나가기로 했다. 이번에는 전반전만이라도 끝까지 뛰어 보는 게 목표다.",
+  "pl": "Na studiach grałem w piłkę co tydzień. Po podjęciu pracy — nadgodziny, firmowe kolacje — nie było kiedy kopnąć piłki. Aż pewnego dnia klub zadzwonił w pośpiechu, że brakuje im jednego zawodnika. Minęło pięć lat.\nGłowa pamiętała wszystko: gdzie biec, kiedy podać. Problemem było ciało. Nie minęło dziesięć minut, a brakowało mi tchu; rzuciłem się do piłki, a noga wyszła o takt za późno. Gdy dwudziestoletni kolega śmignął obok mnie, poczułem, że ktoś sprowadził mnie na ziemię.\nDrugą połowę przesiedziałem na ławce. Starszy kolega obok roześmiał się:\n„Na początku każdy tak ma. Ja po pierwszym treningu następnego dnia nie mogłem zejść po schodach.”\nI rzeczywiście. Następnego ranka całe ciało pulsowało bólem i wstanie z łóżka zajęło mi pięć minut. A mimo to, o dziwo, byłem w dobrym nastroju. W ten weekend znowu idę. Tym razem cel jest taki, żeby wytrzymać do końca chociaż pierwszą połowę.",
+  "en": "At university I played football every week. After I started work there was overtime and company dinners, and no time to kick a ball. Then one day the club called in a hurry, saying they were a man short. It had been five years.\nMy head remembered everything: where to run, when to pass. The problem was my body. Within ten minutes I was gasping, and when I ran for the ball my foot moved a beat too late. When a twenty-year-old whizzed past me, I felt thoroughly humbled.\nI spent the second half on the bench. The older guy next to me laughed.\n\"Everyone's like that at first. After my first day I couldn't even walk down stairs the next morning.\"\nHe was right. The next morning my whole body throbbed and it took me five minutes to get out of bed. And yet, strangely, I felt good. I'm going again this weekend. This time the goal is to last at least the whole first half.",
+  "quiz": [
+   {
+    "q": "'나'는 왜 오 년 동안 축구를 못 했습니까?",
+    "qEn": "Why hadn't the narrator played football for five years?",
+    "choices": [
+     "야근과 회식 때문에 시간이 없어서",
+     "다쳐서",
+     "동호회가 없어져서",
+     "축구를 싫어하게 돼서"
+    ],
+    "choicesEn": [
+     "Because overtime and company dinners left no time",
+     "Because he was injured",
+     "Because the club had closed",
+     "Because he stopped liking football"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "'머리는 기억하는데 몸이 문제였다'는 것은 무슨 뜻입니까?",
+    "qEn": "What does 'my head remembered but my body was the problem' mean?",
+    "choices": [
+     "방법은 알지만 체력이 따라 주지 않았다",
+     "규칙을 잊어버렸다",
+     "머리를 다쳤다",
+     "공을 어디로 차야 할지 몰랐다"
+    ],
+    "choicesEn": [
+     "He knew what to do but his fitness couldn't keep up",
+     "He had forgotten the rules",
+     "He had hurt his head",
+     "He didn't know where to kick"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "온몸이 아픈데도 '나'의 기분이 좋았던 이유는 무엇일까요?",
+    "qEn": "Why did the narrator feel good despite the pain?",
+    "choices": [
+     "오랫동안 잊고 있던 즐거움을 다시 찾았기 때문에",
+     "경기에서 이겼기 때문에",
+     "후배보다 잘 뛰었기 때문에",
+     "다음 날 쉬는 날이었기 때문에"
+    ],
+    "choicesEn": [
+     "Because he had rediscovered a pleasure he'd long forgotten",
+     "Because they won the match",
+     "Because he ran better than the younger player",
+     "Because the next day was a day off"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l3-wyprowadzka",
+  "level": 3,
+  "title": "독립 (Na swoim)",
+  "titleEn": "독립 (Moving out)",
+  "ko": "서른이 되던 해에 나는 부모님 집에서 나오기로 마음을 먹었다. 회사에서 집까지 왕복 세 시간이 걸리는 것도 이유였지만, 사실은 어머니가 매일 몇 시에 들어오냐고 묻는 게 더 힘들었다.\n부모님께 말씀드리자 아버지는 아무 말씀도 안 하셨고, 어머니는 밥은 어떻게 할 거냐고 물으셨다. 반대는 없었다. 그게 오히려 더 마음에 걸렸다.\n이사하던 날 아버지가 말없이 냉장고를 옮겨 주셨다. 어머니는 반찬통을 열 개나 싸 오셨다.\n혼자 산 지 두 달이 됐다. 집에 돌아오면 텅 빈 방에 불을 켜는 것도, 설거지가 쌓이는 것도 다 내 몫이다. 월급의 절반이 월세와 생활비로 나간다. 그런데도 일요일 아침에 아무도 깨우지 않는 방에서 눈을 뜰 때면, 이 값을 치를 만하다고 생각한다.\n지난주에 어머니가 전화해서 물으셨다. \"밥은 먹었니?\" 나는 처음으로 그 질문이 반가웠다.",
+  "pl": "W roku, w którym skończyłem trzydzieści lat, postanowiłem wyprowadzić się od rodziców. Powodem były trzy godziny dojazdu dziennie, ale tak naprawdę trudniejsze było to, że mama codziennie pytała, o której wrócę.\nGdy powiedziałem rodzicom, ojciec nie odezwał się ani słowem, a mama zapytała, co będę jadł. Sprzeciwu nie było. I właśnie to nie dawało mi spokoju.\nW dniu przeprowadzki ojciec bez słowa przeniósł mi lodówkę. Mama przywiozła dziesięć pojemników z przystawkami.\nMieszkam sam od dwóch miesięcy. Zapalanie światła w pustym pokoju po powrocie, piętrzące się naczynia — wszystko to jest teraz moje. Połowa pensji idzie na czynsz i życie. A jednak kiedy w niedzielny poranek budzę się w pokoju, w którym nikt mnie nie budzi, myślę, że warto było zapłacić tę cenę.\nW zeszłym tygodniu zadzwoniła mama i zapytała: „Jadłeś?” Po raz pierwszy ucieszyłem się z tego pytania.",
+  "en": "The year I turned thirty I made up my mind to move out of my parents' house. The three-hour round trip to work was one reason, but honestly what wore me down more was my mother asking every day what time I'd be home.\nWhen I told my parents, my father said nothing and my mother asked what I'd do about meals. There was no objection. That, if anything, weighed on me more.\nOn moving day my father carried the fridge in without a word. My mother brought ten containers of side dishes.\nI've lived alone for two months now. Switching on the light in an empty room when I get home, the dishes piling up — all of it is mine now. Half my salary goes on rent and living costs. And yet when I open my eyes on a Sunday morning in a room where nobody wakes me, I think it's worth the price.\nLast week my mother called and asked, \"Have you eaten?\" For the first time, I was glad to hear the question.",
+  "quiz": [
+   {
+    "q": "'나'가 독립을 결심한 진짜 이유는 무엇입니까?",
+    "qEn": "What was the real reason the narrator decided to move out?",
+    "choices": [
+     "어머니가 매일 귀가 시간을 묻는 것이 힘들어서",
+     "회사가 이사를 가서",
+     "친구와 같이 살고 싶어서",
+     "부모님이 나가라고 하셔서"
+    ],
+    "choicesEn": [
+     "His mother asking about his return time every day wore him down",
+     "His company relocated",
+     "He wanted to live with a friend",
+     "His parents told him to leave"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "부모님이 반대하지 않은 것이 왜 '나'의 마음에 걸렸을까요?",
+    "qEn": "Why did the lack of objection weigh on the narrator?",
+    "choices": [
+     "부모님이 서운함을 말로 표현하지 않으셨다고 느꼈기 때문에",
+     "부모님이 자기를 싫어한다고 생각했기 때문에",
+     "반대를 기대하고 나가지 않으려 했기 때문에",
+     "부모님이 이사 비용을 안 주셨기 때문에"
+    ],
+    "choicesEn": [
+     "He felt his parents were holding back their sadness",
+     "He thought his parents disliked him",
+     "He had hoped for objections so he could stay",
+     "His parents didn't pay for the move"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "'나'는 왜 어머니의 '밥은 먹었니?'가 반가웠습니까?",
+    "qEn": "Why was the narrator glad to hear 'Have you eaten?'?",
+    "choices": [
+     "떨어져 살게 되니 같은 질문이 걱정이 아니라 관심으로 느껴져서",
+     "정말 배가 고팠기 때문에",
+     "어머니가 반찬을 또 보내 주실 것 같아서",
+     "오랫동안 연락이 없었기 때문에"
+    ],
+    "choicesEn": [
+     "Living apart, the same question now felt like care rather than control",
+     "Because he was really hungry",
+     "Because he expected more side dishes",
+     "Because they hadn't spoken for a long time"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l2-fryzjer",
+  "level": 2,
+  "title": "미용실에서 (U fryzjera)",
+  "titleEn": "미용실에서 (At the hairdresser's)",
+  "ko": "미용사: 어서 오세요. 어떻게 해 드릴까요?\n손님: 좀 짧게 자르고 싶은데요. 너무 짧은 건 싫고요.\n미용사: 지금 길이에서 얼마나 자를까요?\n손님: 어깨에 닿을 정도로요. 그리고 앞머리도 조금 다듬어 주세요.\n미용사: 층은 넣을까요?\n손님: 네, 살짝만요. 머리숱이 많아서 무거워 보여요.\n미용사: 그럼 끝부분만 가볍게 쳐 드릴게요. 염색이나 펌은 안 하세요?\n손님: 오늘은 커트만 할게요. 얼마예요?\n미용사: 커트는 이만 오천 원이에요. 이쪽으로 앉으세요.",
+  "pl": "Fryzjerka: Dzień dobry. Co robimy?\nKlientka: Chciałabym trochę skrócić. Ale nie za krótko.\nFryzjerka: Ile ścinamy z obecnej długości?\nKlientka: Tak do ramion. I proszę jeszcze podciąć trochę grzywkę.\nFryzjerka: Cieniujemy?\nKlientka: Tak, ale leciutko. Mam gęste włosy i wyglądają ciężko.\nFryzjerka: To tylko końcówki lekko przerzedzę. Farbowania ani trwałej nie robimy?\nKlientka: Dziś tylko strzyżenie. Ile to kosztuje?\nFryzjerka: Strzyżenie dwadzieścia pięć tysięcy wonów. Proszę usiąść tutaj.",
+  "en": "Hairdresser: Welcome. What can I do for you?\nCustomer: I'd like it a bit shorter. But not too short.\nHairdresser: How much shall I take off the current length?\nCustomer: To about shoulder length. And please trim my fringe a little too.\nHairdresser: Shall I put in layers?\nCustomer: Yes, just slightly. My hair is thick and looks heavy.\nHairdresser: Then I'll just thin out the ends lightly. No colour or perm?\nCustomer: Just a cut today. How much is it?\nHairdresser: A cut is twenty-five thousand won. Please take a seat here.",
+  "quiz": [
+   {
+    "q": "손님은 머리를 얼마나 자르고 싶어 합니까?",
+    "qEn": "How much does the customer want cut?",
+    "choices": [
+     "어깨에 닿을 정도로",
+     "아주 짧게",
+     "전혀 안 자르고 염색만",
+     "앞머리만"
+    ],
+    "choicesEn": [
+     "To shoulder length",
+     "Very short",
+     "No cut, just colour",
+     "Only the fringe"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "손님은 왜 층을 넣고 싶어 합니까?",
+    "qEn": "Why does the customer want layers?",
+    "choices": [
+     "머리숱이 많아서 무거워 보여서",
+     "머리가 너무 얇아서",
+     "유행이라서",
+     "미용사가 권해서"
+    ],
+    "choicesEn": [
+     "Her hair is thick and looks heavy",
+     "Her hair is too thin",
+     "It's in fashion",
+     "The hairdresser recommended it"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "오늘 손님이 하는 것은 무엇입니까?",
+    "qEn": "What is the customer having done today?",
+    "choices": [
+     "커트만",
+     "커트와 염색",
+     "펌",
+     "염색만"
+    ],
+    "choicesEn": [
+     "Just a cut",
+     "A cut and colour",
+     "A perm",
+     "Just colour"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l2-wynajem",
+  "level": 2,
+  "title": "집 보러 왔어요 (Oglądanie mieszkania)",
+  "titleEn": "집 보러 왔어요 (Viewing a flat)",
+  "ko": "세입자: 안녕하세요, 집 보러 왔어요.\n집주인: 들어오세요. 방은 이쪽이에요.\n세입자: 햇빛은 잘 들어와요?\n집주인: 남향이라서 오후에 아주 밝아요.\n세입자: 관리비는 얼마예요? 수도세도 포함이에요?\n집주인: 한 달에 오만 원이고 수도는 포함이에요. 전기랑 가스는 따로예요.\n세입자: 냉장고는 없네요.\n집주인: 냉장고는 직접 가져오셔야 해요. 계약은 언제부터예요?\n세입자: 다음 달 초요. 더 생각해 보고 연락드릴게요.",
+  "pl": "Najemca: Dzień dobry, przyszedłem obejrzeć mieszkanie.\nWłaściciel: Proszę wejść. Pokój jest tutaj.\nNajemca: Jest dużo słońca?\nWłaściciel: Okna na południe, po południu jest bardzo jasno.\nNajemca: Ile wynosi czynsz administracyjny? Woda jest wliczona?\nWłaściciel: Pięćdziesiąt tysięcy miesięcznie, woda wliczona. Prąd i gaz osobno.\nNajemca: Lodówki nie ma.\nWłaściciel: Lodówkę trzeba przywieźć własną. Od kiedy umowa?\nNajemca: Od początku przyszłego miesiąca. Jeszcze się zastanowię i dam znać.",
+  "en": "Tenant: Hello, I've come to view the flat.\nLandlord: Come in. The room is this way.\nTenant: Does it get much sunlight?\nLandlord: It faces south, so it's very bright in the afternoon.\nTenant: How much is the maintenance fee? Is water included?\nLandlord: Fifty thousand a month, water included. Electricity and gas are separate.\nTenant: There's no fridge.\nLandlord: You'd need to bring your own fridge. When would the contract start?\nTenant: Early next month. I'll think it over a bit and get back to you.",
+  "quiz": [
+   {
+    "q": "관리비에 포함되지 않는 것은 무엇입니까?",
+    "qEn": "What is NOT included in the maintenance fee?",
+    "choices": [
+     "전기와 가스",
+     "수도",
+     "청소",
+     "엘리베이터"
+    ],
+    "choicesEn": [
+     "Electricity and gas",
+     "Water",
+     "Cleaning",
+     "The lift"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "집에 없는 것은 무엇입니까?",
+    "qEn": "What is missing from the flat?",
+    "choices": [
+     "냉장고",
+     "세탁기",
+     "화장실",
+     "창문"
+    ],
+    "choicesEn": [
+     "A fridge",
+     "A washing machine",
+     "A bathroom",
+     "A window"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "세입자는 마지막에 무엇을 하기로 했습니까?",
+    "qEn": "What did the tenant decide at the end?",
+    "choices": [
+     "더 생각해 보고 연락하기로 했다",
+     "바로 계약하기로 했다",
+     "다른 집을 보러 가기로 했다",
+     "냉장고를 사기로 했다"
+    ],
+    "choicesEn": [
+     "To think it over and get back",
+     "To sign right away",
+     "To go and see another flat",
+     "To buy a fridge"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l2-poczta",
+  "level": 2,
+  "title": "국제 소포 (Paczka za granicę)",
+  "titleEn": "국제 소포 (An international parcel)",
+  "ko": "직원: 다음 분이요. 어디로 보내세요?\n손님: 폴란드요. 친구 생일 선물이에요.\n직원: 내용물이 뭐예요?\n손님: 책 두 권하고 과자예요. 깨지는 건 없어요.\n직원: 저울에 올려 주세요. 항공은 일주일, 배는 한 달 넘게 걸려요.\n손님: 생일이 이 주 뒤라서 항공으로 할게요. 얼마예요?\n직원: 삼만 이천 원이에요. 여기에 받는 분 주소를 영어로 써 주세요.\n손님: 네. 추적은 돼요?\n직원: 네, 영수증에 번호가 있어요.",
+  "pl": "Pracownik: Następna osoba. Dokąd wysyłamy?\nKlient: Do Polski. To prezent urodzinowy dla koleżanki.\nPracownik: Co jest w środku?\nKlient: Dwie książki i ciastka. Nic się nie tłucze.\nPracownik: Proszę położyć na wadze. Lotniczą idzie tydzień, morską ponad miesiąc.\nKlient: Urodziny są za dwa tygodnie, więc lotniczą. Ile to kosztuje?\nPracownik: Trzydzieści dwa tysiące wonów. Tu proszę wpisać adres odbiorcy po angielsku.\nKlient: Dobrze. Da się śledzić przesyłkę?\nPracownik: Tak, numer jest na paragonie.",
+  "en": "Clerk: Next, please. Where is it going?\nCustomer: To Poland. It's a birthday present for a friend.\nClerk: What's inside?\nCustomer: Two books and some biscuits. Nothing breakable.\nClerk: Please put it on the scale. By air it takes a week; by sea, over a month.\nCustomer: The birthday is in two weeks, so air, please. How much is it?\nClerk: Thirty-two thousand won. Please write the recipient's address here in English.\nCustomer: Okay. Can I track it?\nClerk: Yes, the number is on the receipt.",
+  "quiz": [
+   {
+    "q": "손님은 왜 항공으로 보내기로 했습니까?",
+    "qEn": "Why did the customer choose air mail?",
+    "choices": [
+     "친구 생일이 이 주 뒤라서",
+     "배가 더 비싸서",
+     "과자가 상할까 봐",
+     "직원이 권해서"
+    ],
+    "choicesEn": [
+     "Because the friend's birthday is in two weeks",
+     "Because sea mail is more expensive",
+     "In case the biscuits go off",
+     "Because the clerk recommended it"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "소포 안에 무엇이 들어 있습니까?",
+    "qEn": "What is in the parcel?",
+    "choices": [
+     "책 두 권과 과자",
+     "옷과 신발",
+     "화장품",
+     "전자 제품"
+    ],
+    "choicesEn": [
+     "Two books and biscuits",
+     "Clothes and shoes",
+     "Cosmetics",
+     "Electronics"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "소포를 추적하려면 무엇이 필요합니까?",
+    "qEn": "What is needed to track the parcel?",
+    "choices": [
+     "영수증에 있는 번호",
+     "받는 사람의 전화번호",
+     "우체국 도장",
+     "여권"
+    ],
+    "choicesEn": [
+     "The number on the receipt",
+     "The recipient's phone number",
+     "A post office stamp",
+     "A passport"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l2-umawianie",
+  "level": 2,
+  "title": "이번 주말에 뭐 해요? (Co robisz w weekend?)",
+  "titleEn": "이번 주말에 뭐 해요? (What are you doing this weekend?)",
+  "ko": "지수: 이번 주말에 시간 있어요? 같이 영화 볼래요?\n민재: 토요일은 약속이 있는데, 일요일은 괜찮아요.\n지수: 그럼 일요일 오후 어때요? 두 시쯤?\n민재: 두 시는 좀 이른데, 네 시는 어때요? 점심 먹고 나가고 싶어서요.\n지수: 네 시도 좋아요. 그럼 영화 보고 저녁도 같이 먹을까요?\n민재: 좋아요. 어디서 만날까요?\n지수: 강남역 10번 출구요. 제가 표 예매할게요.\n민재: 고마워요. 그럼 제가 저녁을 살게요.",
+  "pl": "Jisu: Masz czas w ten weekend? Pójdziemy razem do kina?\nMinjae: W sobotę jestem umówiony, ale w niedzielę mogę.\nJisu: To może w niedzielę po południu? Koło drugiej?\nMinjae: Druga to trochę wcześnie, może czwarta? Chciałbym spokojnie zjeść obiad i dopiero wyjść.\nJisu: Czwarta też pasuje. To po filmie zjemy razem kolację?\nMinjae: Jasne. Gdzie się spotkamy?\nJisu: Wyjście 10 na Gangnam. Ja zarezerwuję bilety.\nMinjae: Dzięki. To ja stawiam kolację.",
+  "en": "Jisu: Are you free this weekend? Want to see a film together?\nMinjae: I have plans on Saturday, but Sunday is fine.\nJisu: How about Sunday afternoon then? Around two?\nMinjae: Two is a bit early — how about four? I'd like to have lunch and head out slowly.\nJisu: Four works too. Then shall we have dinner together after the film?\nMinjae: Sure. Where shall we meet?\nJisu: Exit 10 at Gangnam Station. I'll book the tickets.\nMinjae: Thanks. Then I'll buy dinner.",
+  "quiz": [
+   {
+    "q": "두 사람은 언제 만나기로 했습니까?",
+    "qEn": "When did the two agree to meet?",
+    "choices": [
+     "일요일 네 시",
+     "토요일 두 시",
+     "일요일 두 시",
+     "토요일 네 시"
+    ],
+    "choicesEn": [
+     "Sunday at four",
+     "Saturday at two",
+     "Sunday at two",
+     "Saturday at four"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "민재는 왜 두 시가 이르다고 했습니까?",
+    "qEn": "Why did Minjae say two was early?",
+    "choices": [
+     "점심을 먹고 천천히 나가고 싶어서",
+     "토요일에 늦게 자서",
+     "교회에 가야 해서",
+     "일이 늦게 끝나서"
+    ],
+    "choicesEn": [
+     "He wanted to have lunch and leave slowly",
+     "He'd be up late on Saturday",
+     "He had to go to church",
+     "Work finishes late"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "누가 무엇을 하기로 했습니까?",
+    "qEn": "Who agreed to do what?",
+    "choices": [
+     "지수는 표를 예매하고 민재는 저녁을 산다",
+     "민재는 표를 예매하고 지수는 저녁을 산다",
+     "둘 다 표를 예매한다",
+     "지수가 표와 저녁을 다 낸다"
+    ],
+    "choicesEn": [
+     "Jisu books the tickets and Minjae buys dinner",
+     "Minjae books the tickets and Jisu buys dinner",
+     "Both book tickets",
+     "Jisu pays for both tickets and dinner"
+    ],
+    "answer": 0
+   }
+  ]
+ },
+ {
+  "id": "l2-zgubione",
+  "level": 2,
+  "title": "분실물 센터 (Biuro rzeczy znalezionych)",
+  "titleEn": "분실물 센터 (Lost and found)",
+  "ko": "손님: 저기요, 지하철에 가방을 두고 내렸어요.\n직원: 언제, 어느 선에서요?\n손님: 오늘 아침에 2호선이요. 시청역에서 내렸어요.\n직원: 어떤 가방이에요?\n손님: 까만색 백팩이에요. 안에 노트북하고 지갑이 있어요.\n직원: 잠깐만요. …까만색 백팩이 하나 있긴 한데, 노트북은 없네요.\n손님: 아, 그건 제 거 아닌가 봐요.\n직원: 아직 안 들어왔을 수도 있어요. 이름하고 전화번호 남겨 주세요.\n손님: 보통 얼마나 걸려요?\n직원: 하루 이틀이면 대부분 들어와요.",
+  "pl": "Klient: Przepraszam, zostawiłem torbę w metrze.\nPracownik: Kiedy i na której linii?\nKlient: Dziś rano, linia 2. Wysiadłem na City Hall.\nPracownik: Jaka to torba?\nKlient: Czarny plecak. W środku jest laptop i portfel.\nPracownik: Chwileczkę. …Jest jeden czarny plecak, ale bez laptopa.\nKlient: Aha, to chyba nie mój.\nPracownik: Mógł jeszcze nie dotrzeć. Proszę zostawić imię i numer telefonu.\nKlient: Ile to zwykle trwa?\nPracownik: Większość rzeczy trafia do nas w dzień, dwa.",
+  "en": "Customer: Excuse me, I left my bag on the subway.\nClerk: When, and on which line?\nCustomer: This morning, on Line 2. I got off at City Hall.\nClerk: What kind of bag?\nCustomer: A black backpack. There's a laptop and a wallet inside.\nClerk: One moment. ...There is one black backpack, but no laptop.\nCustomer: Ah, then that's probably not mine.\nClerk: It may not have come in yet. Please leave your name and phone number.\nCustomer: How long does it usually take?\nClerk: Most things come in within a day or two.",
+  "quiz": [
+   {
+    "q": "손님은 어디에서 가방을 잃어버렸습니까?",
+    "qEn": "Where did the customer lose the bag?",
+    "choices": [
+     "2호선 지하철",
+     "버스",
+     "택시",
+     "시청 건물"
+    ],
+    "choicesEn": [
+     "On the Line 2 subway",
+     "On a bus",
+     "In a taxi",
+     "In the City Hall building"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "들어와 있는 까만색 백팩이 손님 것이 아닌 이유는 무엇입니까?",
+    "qEn": "Why isn't the black backpack that came in the customer's?",
+    "choices": [
+     "노트북이 없다고 되어 있어서",
+     "색깔이 달라서",
+     "주머니가 없어서",
+     "다른 역에서 들어와서"
+    ],
+    "choicesEn": [
+     "Because it says there's no laptop",
+     "Because the colour is different",
+     "Because it has no pocket",
+     "Because it came from another station"
+    ],
+    "answer": 0
+   },
+   {
+    "q": "직원은 손님에게 무엇을 하라고 했습니까?",
+    "qEn": "What did the clerk ask the customer to do?",
+    "choices": [
+     "이름과 전화번호를 남기라고 했다",
+     "내일 다시 오라고 했다",
+     "경찰에 신고하라고 했다",
+     "가방 사진을 보내라고 했다"
+    ],
+    "choicesEn": [
+     "Leave a name and phone number",
+     "Come back tomorrow",
+     "Report to the police",
+     "Send a photo of the bag"
     ],
     "answer": 0
    }
@@ -58910,7 +60161,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.430';
+const APP_VERSION = '2026-09-06.434';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -59097,6 +60348,22 @@ function setScreen(screen){
   currentScreen = screen;
 
   const targetId = SCREEN_IDS[screen];
+
+  /* NAGŁÓWEK I NARZĘDZIA TYLKO PO ZALOGOWANIU. Pasek z motywem, plakietką
+     Premium i licznikiem limitów stał POZA ekranami, więc wyświetlał się
+     także na logowaniu i ładowaniu - user widział „Premium" i wybór motywu,
+     zanim w ogóle wszedł do apki.
+
+     Ekrany przed wejściem: ładowanie, logowanie, wprowadzenie i wybór trybu.
+     Zgłoszone przez Damiana 2026-09-06. */
+  {
+    const PRZED_WEJSCIEM = new Set(['loading', 'login', 'onboarding']);
+    const ukryj = PRZED_WEJSCIEM.has(screen);
+    const nag = document.querySelector('header');
+    const tools = document.getElementById('headerTools');
+    if(nag) nag.style.display = ukryj ? 'none' : '';
+    if(tools) tools.style.display = ukryj ? 'none' : '';
+  }
   const targetEl = document.getElementById(targetId);
   // vocabStudy dołączony 2026-09-01: układ fiszki z pakietu v2 zakłada kolumnę flex
   // na pełną wysokość (.sc-screen). Bez tego 'margin-top:auto' na podpisie ocen i
