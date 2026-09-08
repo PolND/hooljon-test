@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.422
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.428
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -241,8 +241,8 @@
     font-size:25px;
   }
   [data-scheme="hanji"] .sc-progress-fill,
-  [data-scheme="hanji"] .grammar-dot.active,
-  [data-scheme="hanji"] .grammar-dot.done{
+  [data-scheme="hanji"] .grammar-dot.active::before,
+  [data-scheme="hanji"] .grammar-dot.done::before{
     border-radius:0;
     animation:hj-ink 4s ease-in-out infinite;
   }
@@ -962,7 +962,7 @@
   [data-scheme="neon"] .ans-btn.selected,
   [data-scheme="neon"] .ans-btn:active{ box-shadow:0 0 0 3px rgba(255,46,136,.25); }
   [data-scheme="neon"] .sc-progress-fill,
-  [data-scheme="neon"] .grammar-dot.active{
+  [data-scheme="neon"] .grammar-dot.active::before{
     background:linear-gradient(90deg, var(--hwang), var(--primary));
     animation:hj-neon 2.2s ease-in-out infinite;
   }
@@ -1411,9 +1411,25 @@
     cursor:pointer;
   }
 
+  .grammar-dot::before{
+    content:''; display:block; width:100%; height:4px;
+    border-radius:2px; background:var(--border);
+  }
+  .grammar-dot.active::before, .grammar-dot.done::before{ background:var(--hwang); }
+  .grammar-dot.active{ color:var(--hwang); }
+  .grammar-dot > span{ line-height:1.2; text-align:center; }
+
   .grammar-dots{display:flex; gap:6px; margin-bottom:14px;}
-  .grammar-dot{height:4px; flex:1; border-radius:2px; background:var(--border);}
-  .grammar-dot.active, .grammar-dot.done{background:var(--hwang);}
+  .grammar-dot{
+    /* Kropki z NAZWĄ KROKU. Były paskami 4px bez opisu - user nie wiedział,
+       czy „Dalej" przeniosło go dalej, zwłaszcza gdy krok „Budowa" zaczyna się
+       zdaniem podobnym do „Zasady". Pasek zostaje jako wskaźnik postępu,
+       nad nim nazwa. 2026-09-06. */
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:5px;
+    font:600 10.5px var(--font-ui); color:var(--ink-dim);
+    letter-spacing:.04em; text-transform:uppercase;
+  }
+  /* tło przeniesione na ::before - patrz reguła wyżej */
   .grammar-step-view{min-height:80px;}
   .grammar-nav-row{display:flex; justify-content:space-between; gap:10px; margin-top:16px;}
   .grammar-nav-btn{
@@ -1461,10 +1477,19 @@
   .teach-ask-ai-send:disabled{opacity:0.4; cursor:default;}
 /* Akapity i listy w odpowiedzi AI. Model odpowiada strukturą, więc pierwszy
      akapit (odpowiedź wprost) ma stać osobno od reszty. */
+  .teach-ask-ai-response .ai-naglowek{
+    font:700 13px var(--font-ui); color:var(--ink);
+    letter-spacing:.02em; margin:0 0 8px;
+  }
+  .teach-ask-ai-response .ai-naglowek:not(:first-child){ margin-top:12px; }
   .teach-ask-ai-response p{ margin:0 0 8px; }
   .teach-ask-ai-response p:last-child{ margin-bottom:0; }
   .teach-ask-ai-response b{ color:var(--hwang); font-family:var(--font-ko); font-weight:700; }
   .teach-ask-ai-response i{ color:var(--ink-dim); }
+  /* Akapit wprowadzający listę („Wzór wygląda tak:") ma do niej przylegać,
+     a nie odstawać jak osobna myśl. */
+  .teach-ask-ai-response p:has(+ ul){ margin-bottom:4px; }
+  .teach-ask-ai-response li b{ font-family:var(--font-ko); }
   .teach-ask-ai-response ul{ margin:0 0 8px; padding-left:18px; }
   .teach-ask-ai-response li{ margin-bottom:3px; }
 
@@ -12870,48 +12895,162 @@ const STORY_LESSONS = [
   {"id":142,"type":"vocab","title":{"pl":"Zakupy i usługi","en":"Shopping and services"},"sources":[{"category":"Zakupy i usługi","start":0,"count":14}]}
 ];
 const CULTURE_TOPICS = [
-  {
-    id:'musok', icon:'🔔',
-    title:'무속신앙', titlePl:'Musok — rodzimy szamanizm koreański', titleEn:'Musok — Native Korean Shamanism',
-    body:'Musok to najstarsza, rdzenna tradycja duchowa Korei, poprzedzająca przybycie buddyzmu i konfucjanizmu. Centralną postacią jest mudang (무당) — zazwyczaj kobieta, pełniąca rolę pośredniczki między światem ludzi a duchami.\n\nPodczas rytuału zwanego gut (굿) mudang wchodzi w trans, tańczy, śpiewa i przemawia w imieniu duchów przodków lub bóstw natury — żeby uzdrowić, oczyścić miejsce, albo poprowadzić duszę zmarłego w zaświaty.\n\nMimo wieków oficjalnego tłumienia (zwłaszcza w okresie dynastii Joseon, gdy konfucjanizm był religią państwową) musok przetrwał do dziś i bywa uznawany za niematerialne dziedzictwo kulturowe.',
-    bodyEn:'Musok is Korea\'s oldest native spiritual tradition, predating the arrival of Buddhism and Confucianism. Its central figure is the mudang (무당) — usually a woman, acting as an intermediary between the human world and spirits.\n\nDuring a ritual called gut (굿), the mudang enters a trance, dancing, singing, and speaking on behalf of ancestral spirits or nature deities — to heal, purify a place, or guide a departed soul into the afterlife.\n\nDespite centuries of official suppression (especially during the Confucian Joseon dynasty), musok has survived to this day and is sometimes recognized as intangible cultural heritage.',
-    quiz:{ q:'Kim jest mudang?', qEn:'Who is a mudang?', choices:['Pośredniczka między ludźmi a duchami','Nauczycielka szkolna','Strażniczka pałacu','Kucharka dworska'], choicesEn:['An intermediary between people and spirits','A schoolteacher','A palace guard','A court cook'], answer:0 }
-  },
-  {
-    id:'ondol', icon:'🔥',
-    title:'온돌', titlePl:'Ondol — tradycyjne ogrzewanie podłogowe', titleEn:'Ondol — Traditional Underfloor Heating',
-    body:'Ondol to unikalny system ogrzewania, w którym ciepło z paleniska rozprowadza się kanałami pod podłogą całego domu. Ten sposób ogrzewania ma tysiące lat i ukształtował całą koreańską kulturę mieszkalną.\n\nStąd właśnie wywodzi się zwyczaj siedzenia i spania bezpośrednio na podłodze, a nie na krzesłach czy łóżkach jak w wielu innych kulturach — podłoga była po prostu najcieplejszym miejscem w domu.\n\nNawet dziś, w nowoczesnych apartamentowcach, standardem jest ogrzewanie podłogowe nawiązujące bezpośrednio do tradycji ondolu.',
-    bodyEn:'Ondol is a unique heating system where heat from a firebox is channeled beneath the floor of the entire house. This method is thousands of years old and shaped all of Korean domestic culture.\n\nThis is the origin of the custom of sitting and sleeping directly on the floor rather than on chairs or beds as in many other cultures — the floor was simply the warmest place in the house.\n\nEven today, in modern apartment buildings, underfloor heating is standard, directly descended from the ondol tradition.',
-    quiz:{ q:'Gdzie prowadzą kanały ciepła w systemie ondol?', qEn:'Where do the heat channels run in the ondol system?', choices:['Pod podłogą','W suficie','Na zewnątrz domu','W ścianach'], choicesEn:['Under the floor','In the ceiling','Outside the house','In the walls'], answer:0 }
-  },
-  {
-    id:'hanbok', icon:'👘',
-    title:'한복', titlePl:'Hanbok — tradycyjny strój koreański', titleEn:'Hanbok — Traditional Korean Dress',
-    body:'Hanbok to tradycyjny strój koreański, noszony na co dzień aż do końca XIX wieku, dziś zakładany głównie na święta (jak Seollal czy Chuseok), śluby i inne ważne uroczystości.\n\nCharakteryzuje się prostymi liniami i żywymi kolorami. Damski strój to zazwyczaj krótka bluzka (저고리, jeogori) i wysoko wiązana, obszerna spódnica (치마, chima). Męski to jeogori z luźnymi spodniami (바지, baji).\n\nKolory i wzory hanboku historycznie oznaczały status społeczny i wiek noszącej go osoby — jaskrawe barwy nosiły dzieci i panny młode, stonowane — starsi.',
-    bodyEn:'Hanbok is traditional Korean dress, worn daily until the late 19th century, today worn mainly for holidays (like Seollal or Chuseok), weddings, and other important occasions.\n\nIt is characterized by simple lines and vivid colors. Women\'s dress typically consists of a short jacket (저고리, jeogori) and a high-waisted, voluminous skirt (치마, chima). Men\'s dress is a jeogori with loose trousers (바지, baji).\n\nHanbok colors and patterns historically indicated social status and the wearer\'s age — bright colors were worn by children and brides, muted tones by elders.',
-    quiz:{ q:'Jak nazywa się damska spódnica w hanboku?', qEn:'What is the women\'s skirt in hanbok called?', choices:['치마 (chima)','저고리 (jeogori)','바지 (baji)','두루마기 (durumagi)'], choicesEn:['치마 (chima)','저고리 (jeogori)','바지 (baji)','두루마기 (durumagi)'], answer:0 }
-  },
-  {
-    id:'obangsaek', icon:'🎨',
-    title:'오방색', titlePl:'Obangsaek — filozofia pięciu żywiołów', titleEn:'Obangsaek — Five Elements Philosophy',
-    body:'Obangsaek to wywodząca się z Chin, głęboko zakorzeniona w koreańskiej kulturze filozofia pięciu żywiołów i przypisanych im pięciu kolorów: biały (metal), czarny (woda), niebieski/zielony (drewno), czerwony (ogień), żółty (ziemia).\n\nSystem ten przenika koreańską kulturę na wielu poziomach — od barwnych malowideł zdobiących świątynie i pałace (단청, dancheong), przez tradycyjne, kolorowe rękawy niemowlęcych ubranek (mające chronić przed złymi duchami), po codzienne jedzenie — kolorowe bibimbap symbolicznie łączy na jednym talerzu wszystkie pięć żywiołów naraz.\n\nTa sama logika kolorystyczna stoi za znakami Hanja 金/水/木/火/土, które już poznałeś/aś w dziale Hanja.',
-    bodyEn:'Obangsaek is a philosophy of five elements and their five associated colors, originating in China and deeply rooted in Korean culture: white (metal), black (water), blue/green (wood), red (fire), yellow (earth).\n\nThis system permeates Korean culture on many levels — from the colorful paintings decorating temples and palaces (단청, dancheong), through the traditional colorful sleeves of infant clothing (meant to ward off evil spirits), to everyday food — colorful bibimbap symbolically combines all five elements on one plate.\n\nThe same color logic underlies the Hanja characters 金/水/木/火/土, which you already encountered in the Hanja section.',
-    quiz:{ q:'Ile żywiołów/kolorów obejmuje obangsaek?', qEn:'How many elements/colors does obangsaek cover?', choices:['Pięć','Trzy','Siedem','Cztery'], choicesEn:['Five','Three','Seven','Four'], answer:0 }
-  },
-  {
-    id:'holidays', icon:'🌕',
-    title:'설날과 추석', titlePl:'Seollal i Chuseok — najważniejsze święta', titleEn:'Seollal and Chuseok — the Major Holidays',
-    body:'Seollal (koreański Nowy Rok według kalendarza księżycowego) i Chuseok (Święto Zbiorów, często porównywane do amerykańskiego Święta Dziękczynienia) to dwa najważniejsze święta w koreańskim kalendarzu.\n\nOba wiążą się z powrotem do rodzinnego domu — dosłownie największą migracją ludności w Korei, gdy miliony ludzi jednocześnie podróżują, żeby spędzić święta z rodziną — oraz z ceremonią czarye (차례), upamiętniającą przodków.\n\nKażde ze świąt ma swoje charakterystyczne jedzenie: na Seollal je się zupę tteokguk (떡국) — zjedzenie jej symbolicznie oznacza "dodanie roku" do wieku — a na Chuseok piecze się półksiężycowate ryżowe ciastka songpyeon (송편).',
-    bodyEn:'Seollal (Korean Lunar New Year) and Chuseok (Harvest Festival, often compared to American Thanksgiving) are the two most important holidays in the Korean calendar.\n\nBoth involve returning to the family home — literally the largest mass migration in Korea, as millions of people travel simultaneously to spend the holiday with family — along with the czarye (차례) ceremony honoring ancestors.\n\nEach holiday has its characteristic food: on Seollal, people eat tteokguk (떡국) soup — eating it symbolically means "adding a year" to your age — while on Chuseok, crescent-shaped rice cakes called songpyeon (송편) are made.',
-    quiz:{ q:'Jaką zupę tradycyjnie je się na Seollal?', qEn:'What soup is traditionally eaten on Seollal?', choices:['떡국 (tteokguk)','김치찌개 (kimchi jjigae)','삼계탕 (samgyetang)','미역국 (miyeokguk)'], choicesEn:['떡국 (tteokguk)','김치찌개 (kimchi jjigae)','삼계탕 (samgyetang)','미역국 (miyeokguk)'], answer:0 }
-  },
-  {
-    id:'dangun-context', icon:'⛰️',
-    title:'단군신화', titlePl:'Dangun — mit założycielski Korei', titleEn:'Dangun — Korea\'s Founding Myth',
-    body:'Mit o Dangunie opowiada o niedźwiedzicy, która po stu dniach cierpliwości w jaskini stała się kobietą, poślubiła syna niebios i urodziła Dangun Wanggeoma — legendarnego założyciela pierwszego koreańskiego królestwa, Gojoseon, w 2333 roku p.n.e.\n\nTo nie tylko opowieść — to fundament koreańskiej tożsamości narodowej. Data założenia Gojoseon jest wciąż formalnie liczona w koreańskim kalendarzu Dangi, a sama postać Danguna pojawia się w podręcznikach, na pomnikach i w codziennym języku jako symbol wspólnego pochodzenia narodu koreańskiego.\n\nPełną wersję tej opowieści, jako ćwiczenie z czytania, znajdziesz w dziale Czytanie.',
-    bodyEn:'The myth of Dangun tells of a female bear who, after a hundred days of patience in a cave, became a woman, married the son of heaven, and gave birth to Dangun Wanggeom — the legendary founder of Korea\'s first kingdom, Gojoseon, in 2333 BCE.\n\nThis is more than a story — it is a foundation of Korean national identity. The founding date of Gojoseon is still formally counted in the Korean Dangi calendar, and the figure of Dangun appears in textbooks, monuments, and everyday language as a symbol of the shared origin of the Korean people.\n\nYou can find the full version of this story as a reading exercise in the Reading section.',
-    quiz:{ q:'W jakim roku Dangun miał założyć Gojoseon?', qEn:'In what year did Dangun reportedly found Gojoseon?', choices:['2333 p.n.e.','1392 n.e.','918 n.e.','57 p.n.e.'], choicesEn:['2333 BCE','1392 CE','918 CE','57 BCE'], answer:0 }
-  },
+ {
+  "id": "musok",
+  "icon": "巫",
+  "title": "무속신앙",
+  "titlePl": "Musok — rodzimy szamanizm koreański",
+  "titleEn": "Musok — Native Korean Shamanism",
+  "body": "Musok to najstarsza, rdzenna tradycja duchowa Korei, poprzedzająca przybycie buddyzmu i konfucjanizmu. Centralną postacią jest mudang (무당) — zazwyczaj kobieta, pełniąca rolę pośredniczki między światem ludzi a duchami.\n\nPodczas rytuału zwanego gut (굿) mudang wchodzi w trans, tańczy, śpiewa i przemawia w imieniu duchów przodków lub bóstw natury — żeby uzdrowić, oczyścić miejsce, albo poprowadzić duszę zmarłego w zaświaty.\n\nMimo wieków oficjalnego tłumienia (zwłaszcza w okresie dynastii Joseon, gdy konfucjanizm był religią państwową) musok przetrwał do dziś i bywa uznawany za niematerialne dziedzictwo kulturowe.",
+  "bodyEn": "Musok is Korea's oldest native spiritual tradition, predating the arrival of Buddhism and Confucianism. Its central figure is the mudang (무당) — usually a woman, acting as an intermediary between the human world and spirits.\n\nDuring a ritual called gut (굿), the mudang enters a trance, dancing, singing, and speaking on behalf of ancestral spirits or nature deities — to heal, purify a place, or guide a departed soul into the afterlife.\n\nDespite centuries of official suppression (especially during the Confucian Joseon dynasty), musok has survived to this day and is sometimes recognized as intangible cultural heritage.",
+  "quiz": {
+   "q": "Kim jest mudang?",
+   "qEn": "Who is a mudang?",
+   "choices": [
+    "Pośredniczka między ludźmi a duchami",
+    "Nauczycielka szkolna",
+    "Strażniczka pałacu",
+    "Kucharka dworska"
+   ],
+   "choicesEn": [
+    "An intermediary between people and spirits",
+    "A schoolteacher",
+    "A palace guard",
+    "A court cook"
+   ],
+   "answer": 0
+  }
+ },
+ {
+  "id": "ondol",
+  "icon": "溫",
+  "title": "온돌",
+  "titlePl": "Ondol — tradycyjne ogrzewanie podłogowe",
+  "titleEn": "Ondol — Traditional Underfloor Heating",
+  "body": "Ondol to unikalny system ogrzewania, w którym ciepło z paleniska rozprowadza się kanałami pod podłogą całego domu. Ten sposób ogrzewania ma tysiące lat i ukształtował całą koreańską kulturę mieszkalną.\n\nStąd właśnie wywodzi się zwyczaj siedzenia i spania bezpośrednio na podłodze, a nie na krzesłach czy łóżkach jak w wielu innych kulturach — podłoga była po prostu najcieplejszym miejscem w domu.\n\nNawet dziś, w nowoczesnych apartamentowcach, standardem jest ogrzewanie podłogowe nawiązujące bezpośrednio do tradycji ondolu.",
+  "bodyEn": "Ondol is a unique heating system where heat from a firebox is channeled beneath the floor of the entire house. This method is thousands of years old and shaped all of Korean domestic culture.\n\nThis is the origin of the custom of sitting and sleeping directly on the floor rather than on chairs or beds as in many other cultures — the floor was simply the warmest place in the house.\n\nEven today, in modern apartment buildings, underfloor heating is standard, directly descended from the ondol tradition.",
+  "quiz": {
+   "q": "Gdzie prowadzą kanały ciepła w systemie ondol?",
+   "qEn": "Where do the heat channels run in the ondol system?",
+   "choices": [
+    "Pod podłogą",
+    "W suficie",
+    "Na zewnątrz domu",
+    "W ścianach"
+   ],
+   "choicesEn": [
+    "Under the floor",
+    "In the ceiling",
+    "Outside the house",
+    "In the walls"
+   ],
+   "answer": 0
+  }
+ },
+ {
+  "id": "hanbok",
+  "icon": "韓",
+  "title": "한복",
+  "titlePl": "Hanbok — tradycyjny strój koreański",
+  "titleEn": "Hanbok — Traditional Korean Dress",
+  "body": "Hanbok to tradycyjny strój koreański, noszony na co dzień aż do końca XIX wieku, dziś zakładany głównie na święta (jak Seollal czy Chuseok), śluby i inne ważne uroczystości.\n\nCharakteryzuje się prostymi liniami i żywymi kolorami. Damski strój to zazwyczaj krótka bluzka (저고리, jeogori) i wysoko wiązana, obszerna spódnica (치마, chima). Męski to jeogori z luźnymi spodniami (바지, baji).\n\nKolory i wzory hanboku historycznie oznaczały status społeczny i wiek noszącej go osoby — jaskrawe barwy nosiły dzieci i panny młode, stonowane — starsi.",
+  "bodyEn": "Hanbok is traditional Korean dress, worn daily until the late 19th century, today worn mainly for holidays (like Seollal or Chuseok), weddings, and other important occasions.\n\nIt is characterized by simple lines and vivid colors. Women's dress typically consists of a short jacket (저고리, jeogori) and a high-waisted, voluminous skirt (치마, chima). Men's dress is a jeogori with loose trousers (바지, baji).\n\nHanbok colors and patterns historically indicated social status and the wearer's age — bright colors were worn by children and brides, muted tones by elders.",
+  "quiz": {
+   "q": "Jak nazywa się damska spódnica w hanboku?",
+   "qEn": "What is the women's skirt in hanbok called?",
+   "choices": [
+    "치마 (chima)",
+    "저고리 (jeogori)",
+    "바지 (baji)",
+    "두루마기 (durumagi)"
+   ],
+   "choicesEn": [
+    "치마 (chima)",
+    "저고리 (jeogori)",
+    "바지 (baji)",
+    "두루마기 (durumagi)"
+   ],
+   "answer": 0
+  }
+ },
+ {
+  "id": "obangsaek",
+  "icon": "五",
+  "title": "오방색",
+  "titlePl": "Obangsaek — filozofia pięciu żywiołów",
+  "titleEn": "Obangsaek — Five Elements Philosophy",
+  "body": "Obangsaek to wywodząca się z Chin, głęboko zakorzeniona w koreańskiej kulturze filozofia pięciu żywiołów i przypisanych im pięciu kolorów: biały (metal), czarny (woda), niebieski/zielony (drewno), czerwony (ogień), żółty (ziemia).\n\nSystem ten przenika koreańską kulturę na wielu poziomach — od barwnych malowideł zdobiących świątynie i pałace (단청, dancheong), przez tradycyjne, kolorowe rękawy niemowlęcych ubranek (mające chronić przed złymi duchami), po codzienne jedzenie — kolorowe bibimbap symbolicznie łączy na jednym talerzu wszystkie pięć żywiołów naraz.\n\nTa sama logika kolorystyczna stoi za znakami Hanja 金/水/木/火/土, które już poznałeś/aś w dziale Hanja.",
+  "bodyEn": "Obangsaek is a philosophy of five elements and their five associated colors, originating in China and deeply rooted in Korean culture: white (metal), black (water), blue/green (wood), red (fire), yellow (earth).\n\nThis system permeates Korean culture on many levels — from the colorful paintings decorating temples and palaces (단청, dancheong), through the traditional colorful sleeves of infant clothing (meant to ward off evil spirits), to everyday food — colorful bibimbap symbolically combines all five elements on one plate.\n\nThe same color logic underlies the Hanja characters 金/水/木/火/土, which you already encountered in the Hanja section.",
+  "quiz": {
+   "q": "Ile żywiołów/kolorów obejmuje obangsaek?",
+   "qEn": "How many elements/colors does obangsaek cover?",
+   "choices": [
+    "Pięć",
+    "Trzy",
+    "Siedem",
+    "Cztery"
+   ],
+   "choicesEn": [
+    "Five",
+    "Three",
+    "Seven",
+    "Four"
+   ],
+   "answer": 0
+  }
+ },
+ {
+  "id": "holidays",
+  "icon": "節",
+  "title": "설날과 추석",
+  "titlePl": "Seollal i Chuseok — najważniejsze święta",
+  "titleEn": "Seollal and Chuseok — the Major Holidays",
+  "body": "Seollal (koreański Nowy Rok według kalendarza księżycowego) i Chuseok (Święto Zbiorów, często porównywane do amerykańskiego Święta Dziękczynienia) to dwa najważniejsze święta w koreańskim kalendarzu.\n\nOba wiążą się z powrotem do rodzinnego domu — dosłownie największą migracją ludności w Korei, gdy miliony ludzi jednocześnie podróżują, żeby spędzić święta z rodziną — oraz z ceremonią czarye (차례), upamiętniającą przodków.\n\nKażde ze świąt ma swoje charakterystyczne jedzenie: na Seollal je się zupę tteokguk (떡국) — zjedzenie jej symbolicznie oznacza \"dodanie roku\" do wieku — a na Chuseok piecze się półksiężycowate ryżowe ciastka songpyeon (송편).",
+  "bodyEn": "Seollal (Korean Lunar New Year) and Chuseok (Harvest Festival, often compared to American Thanksgiving) are the two most important holidays in the Korean calendar.\n\nBoth involve returning to the family home — literally the largest mass migration in Korea, as millions of people travel simultaneously to spend the holiday with family — along with the czarye (차례) ceremony honoring ancestors.\n\nEach holiday has its characteristic food: on Seollal, people eat tteokguk (떡국) soup — eating it symbolically means \"adding a year\" to your age — while on Chuseok, crescent-shaped rice cakes called songpyeon (송편) are made.",
+  "quiz": {
+   "q": "Jaką zupę tradycyjnie je się na Seollal?",
+   "qEn": "What soup is traditionally eaten on Seollal?",
+   "choices": [
+    "떡국 (tteokguk)",
+    "김치찌개 (kimchi jjigae)",
+    "삼계탕 (samgyetang)",
+    "미역국 (miyeokguk)"
+   ],
+   "choicesEn": [
+    "떡국 (tteokguk)",
+    "김치찌개 (kimchi jjigae)",
+    "삼계탕 (samgyetang)",
+    "미역국 (miyeokguk)"
+   ],
+   "answer": 0
+  }
+ },
+ {
+  "id": "dangun-context",
+  "icon": "檀",
+  "title": "단군신화",
+  "titlePl": "Dangun — mit założycielski Korei",
+  "titleEn": "Dangun — Korea's Founding Myth",
+  "body": "Mit o Dangunie opowiada o niedźwiedzicy, która po stu dniach cierpliwości w jaskini stała się kobietą, poślubiła syna niebios i urodziła Dangun Wanggeoma — legendarnego założyciela pierwszego koreańskiego królestwa, Gojoseon, w 2333 roku p.n.e.\n\nTo nie tylko opowieść — to fundament koreańskiej tożsamości narodowej. Data założenia Gojoseon jest wciąż formalnie liczona w koreańskim kalendarzu Dangi, a sama postać Danguna pojawia się w podręcznikach, na pomnikach i w codziennym języku jako symbol wspólnego pochodzenia narodu koreańskiego.\n\nPełną wersję tej opowieści, jako ćwiczenie z czytania, znajdziesz w dziale Czytanie.",
+  "bodyEn": "The myth of Dangun tells of a female bear who, after a hundred days of patience in a cave, became a woman, married the son of heaven, and gave birth to Dangun Wanggeom — the legendary founder of Korea's first kingdom, Gojoseon, in 2333 BCE.\n\nThis is more than a story — it is a foundation of Korean national identity. The founding date of Gojoseon is still formally counted in the Korean Dangi calendar, and the figure of Dangun appears in textbooks, monuments, and everyday language as a symbol of the shared origin of the Korean people.\n\nYou can find the full version of this story as a reading exercise in the Reading section.",
+  "quiz": {
+   "q": "W jakim roku Dangun miał założyć Gojoseon?",
+   "qEn": "In what year did Dangun reportedly found Gojoseon?",
+   "choices": [
+    "2333 p.n.e.",
+    "1392 n.e.",
+    "918 n.e.",
+    "57 p.n.e."
+   ],
+   "choicesEn": [
+    "2333 BCE",
+    "1392 CE",
+    "918 CE",
+    "57 BCE"
+   ],
+   "answer": 0
+  }
+ }
 ];
 
 // HANGUL — podstawowy alfabet, dla kompletnych początkujących nieznających jeszcze pisma.
@@ -58459,7 +58598,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.422';
+const APP_VERSION = '2026-09-06.428';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -67406,8 +67545,26 @@ function renderGrammarTeachCard(item, card){
   let current = 0;
   let practiceIndex = 0;
 
+  /* NAZWY KROKÓW. Kropki nie mówiły, gdzie się jest - a przy wzorcach, gdzie
+  // krok „odmiana" zaczyna się zdaniem podobnym do wyjaśnienia, user klikał
+  // „Dalej" i był przekonany, że nic się nie stało.
+  //
+  // Zmierzone: 12 z 216 wzorców ma w kroku 2 zdanie powtarzające krok 1 w 40%+.
+  // Nazwa kroku rozstrzyga to bez ruszania treści.
+  // Zgłoszone przez Damiana 2026-09-06. */
+  const NAZWY_KROKOW = {
+    explain: { pl:'Zasada',    en:'Rule' },
+    conj:    { pl:'Budowa',    en:'Form' },
+    try:     { pl:'Spróbuj',   en:'Try it' },
+    reveal:  { pl:'Podsumowanie', en:'Recap' },
+  };
   function dotsHtml(){
-    return views.map((v,i) => `<div class="grammar-dot${i===current?' active':''}${i<current?' done':''}"></div>`).join('');
+    return views.map((v,i) => {
+      const n = NAZWY_KROKOW[v] || { pl:v, en:v };
+      const etykieta = uiLang === 'en' ? n.en : n.pl;
+      return `<div class="grammar-dot${i===current?' active':''}${i<current?' done':''}">` +
+             `<span>${escapeHtml(etykieta)}</span></div>`;
+    }).join('');
   }
 
   function stepViewHtml(){
@@ -67807,19 +67964,40 @@ function levenshteinDistance(a, b){
    Zgłoszone przez Damiana 2026-09-06. */
 function formatujOdpowiedzAI(tekst){
   const bezpieczny = escapeHtml(String(tekst || '').trim());
-  return bezpieczny
-    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
-    .replace(/(^|[^*])\*([^*]+)\*/g, '$1<i>$2</i>')
-    .split(/\n{2,}/)
-    .map(akapit => {
-      const linie = akapit.split(/\n/).filter(Boolean);
-      /* Lista, jeśli KAŻDA linia zaczyna się od myślnika albo gwiazdki. */
-      if(linie.length > 1 && linie.every(l => /^\s*[-•*]\s+/.test(l))){
-        return '<ul>' + linie.map(l => '<li>' + l.replace(/^\s*[-•*]\s+/, '') + '</li>').join('') + '</ul>';
-      }
-      return '<p>' + linie.join('<br>') + '</p>';
-    })
-    .join('');
+
+  /* Znaczniki liniowe robimy PO escape, na całości - inaczej gwiazdki
+     w środku listy nie zostałyby złapane. */
+  const zeZnacznikami = bezpieczny
+    .replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>')
+    .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<i>$2</i>');
+
+  const out = [];
+  let lista = null;
+
+  const zamknijListe = () => { if(lista){ out.push('<ul>' + lista.join('') + '</ul>'); lista = null; } };
+
+  zeZnacznikami.split(/\n/).forEach(raw => {
+    const linia = raw.trim();
+    if(!linia){ zamknijListe(); return; }
+
+    /* NAGŁÓWEK. Model bywa, że zaczyna od „# Wyjaśnienie wzorca…" - w małym
+       polu odpowiedzi wielki nagłówek nie ma sensu, więc renderujemy go jako
+       wyróżnioną linijkę, nie jako <h1>. */
+    const nag = /^#{1,6}\s+(.*)$/.exec(linia);
+    if(nag){ zamknijListe(); out.push('<div class="ai-naglowek">' + nag[1] + '</div>'); return; }
+
+    /* PUNKT LISTY. Wcześniejsza wersja wymagała, żeby KAŻDA linia akapitu
+       zaczynała się myślnikiem - a model pisze „Wzór wygląda tak:" i dopiero
+       pod spodem punkty. Przez to lista lądowała w jednym akapicie z <br>.
+       Teraz punkt rozpoznajemy niezależnie od tego, co było nad nim. */
+    const pkt = /^[-•*]\s+(.*)$/.exec(linia);
+    if(pkt){ (lista = lista || []).push('<li>' + pkt[1] + '</li>'); return; }
+
+    zamknijListe();
+    out.push('<p>' + linia + '</p>');
+  });
+  zamknijListe();
+  return out.join('');
 }
 
 async function evaluateTypedAnswerAI(koreanWord, correctMeaning, userTyped){
