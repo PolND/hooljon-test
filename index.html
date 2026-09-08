@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.414
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.417
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -1460,11 +1460,19 @@
   }
   .teach-ask-ai-send:disabled{opacity:0.4; cursor:default;}
   .teach-ask-ai-response{
-    font-size:14.5px;
-    color:var(--ink-dim);
-    line-height:1.6;
-    margin-bottom:8px;
-    display:none;
+    /* ODPOWIEDŹ AI JAKO WYODRĘBNIONY BLOK. Wcześniej to był goły tekst
+       przyklejony nad polem wpisywania - user nie widział, gdzie kończy się
+       wyjaśnienie wzorca, a zaczyna odpowiedź na jego pytanie. Stąd wrażenie
+       chaosu przy dłuższych odpowiedziach.
+
+       Teraz: własne tło, lewa krawędź w kolorze akcentu (ten sam gest, co przy
+       zaznaczeniu kafla), odstęp od pola. Zgłoszone przez Damiana 2026-09-06. */
+    font-size:14.5px; color:var(--ink); line-height:1.65;
+    margin:0 0 12px; padding:12px 14px;
+    background:var(--surface-2);
+    border-left:3px solid var(--hwang);
+    border-radius:0 var(--radius) var(--radius) 0;
+    text-wrap:pretty; display:none;
   }
   .teach-ask-ai-response.shown{display:block;}
 
@@ -4783,6 +4791,10 @@
   /* Odsłanianie kreski od lewej do prawej. clip-path zamiast stroke-dashoffset,
      bo to WYPEŁNIONE obrysy, nie linie - dasharray na nich nie zadziała. */
   @keyframes ld-rys{ to{ clip-path:inset(0 0 0 0); } }
+  @keyframes ld-poswiata{
+    0%, 100%{ filter:drop-shadow(0 0 2px color-mix(in srgb, var(--hwang) 30%, transparent)); }
+    50%     { filter:drop-shadow(0 0 10px color-mix(in srgb, var(--hwang) 55%, transparent)); }
+  }
 
   .ld-znak g path:nth-child(1){
     clip-path:inset(0 100% 0 0);
@@ -4855,13 +4867,25 @@
        dwudziestu trzech. 250 ms na kreskę, 750 ms razem.
        Design 2026-09-06. */
     transform-origin:50% 50%;
+    /* POŚWIATA PO NARYSOWANIU. Rysowanie trwa 750 ms i się kończy - przy
+       dłuższym ładowaniu znak stał nieruchomo i wyglądało to, jakby apka
+       zawisła.
+
+       NIE zapętlamy samego rysowania: kreski znikałyby i pojawiały się od nowa,
+       co czyta się jak błąd, nie jak czekanie. Znak zostaje narysowany,
+       a pulsuje sama poświata - ruch mówi „pracuję", kształt zostaje.
+
+       Start po 750 ms, czyli gdy ostatnia kreska jest gotowa.
+       Zgłoszone przez Damiana 2026-09-06. */
+    animation:ld-poswiata 1800ms ease-in-out 750ms infinite;
   }
   /* ld-oddech usunięte - zastąpione rysowaniem kresek (ld-rys). */
   /* Pasek tuszu USUNIĘTY 2026-09-06: biegł 1600 ms w pętli, a kreski rysują się
      750 ms raz - oko nie wiedziało, który ruch mierzy czas, a pasek mówił „trwa"
      po tym, jak znak się dokończył. Uwaga Design. */
   @media (prefers-reduced-motion: reduce){
-    .ld-znak{ animation:none; opacity:1; }
+    /* Bez ruchu: znak stoi, bez rysowania i bez pulsowania. */
+    .ld-znak{ animation:none !important; opacity:1; filter:none; }
     
   }
   @keyframes loading-spin{ to{ transform:rotate(360deg); } }
@@ -58425,7 +58449,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.414';
+const APP_VERSION = '2026-09-06.417';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -67196,8 +67220,24 @@ function startStoryLesson(){
     roundItems.forEach(({item, isReview}) => storyQueue.push(buildStoryTestItem(subtype, item, isReview)));
   }
 
-  storyQIndex = 0;
+storyQIndex = 0;
   storyCorrectCount = 0;
+
+  /* WZNOWIENIE. Jeśli user wyszedł w połowie tej samej lekcji, wracamy tam,
+     gdzie skończył - zamiast zaczynać od zera.
+
+     Warunek na długość kolejki jest potrzebny, bo pytania są losowane przy
+     każdym starcie: gdyby lekcja wygenerowała się krótsza niż zapisany indeks,
+     wznowienie wypchnęłoby poza koniec. Wtedy zaczynamy normalnie.
+     Zgłoszone przez Damiana 2026-09-06. */
+  try{
+    const wt = storyProgress.wTrakcie;
+    if(wt && wt.lekcja === lesson.id && wt.pytanie > 0 && wt.pytanie < storyQueue.length){
+      storyQIndex = wt.pytanie;
+      storyCorrectCount = wt.trafione || 0;
+    }
+  }catch(e){ /* wznowienie to udogodnienie, nie może zablokować lekcji */ }
+
   document.getElementById('storyLessonResult').style.display = 'none';
   document.getElementById('storyQuestionCard').style.display = 'block';
   document.getElementById('storyChoiceGrid').style.display = '';
@@ -67380,12 +67420,17 @@ function renderGrammarTeachCard(item, card){
       // "___ 새 휴대폰이에요" wszystkie trzy opcje są gramatycznie poprawne i wybór
       // jest zgadywanką. Poprawki z .73 i .87 objęły quiz i sesję ćwiczeniową;
       // to jest karta nauki w Trybie Opowieści. Zgłoszone 2026-09-03.
-      const tgtHtml = `<div class="grammar-target">${escapeHtml(uiLang === 'en' ? (ex.en || '') : (ex.pl || ''))}</div>`;
+      /* CEL POZA SIATKĄ ODPOWIEDZI. tgtHtml stał WEWNĄTRZ .teach-try-choices,
+    // czyli w siatce dwukolumnowej - zajmował pierwszą komórkę, a odpowiedzi
+    // przesuwały się o jedną pozycję: cel obok pierwszej odpowiedzi, dwie
+    // w drugim rzędzie, ostatnia sama w trzecim. Stąd układ 2x3 z dziurą.
+    // Zgłoszone przez Damiana 2026-09-06. */
+    const tgtHtml = `<div class="grammar-target">${escapeHtml(uiLang === 'en' ? (ex.en || '') : (ex.pl || ''))}</div>`;
       return `<div class="teach-try-box" id="teachTryBox">
         ${practiceQueue.length > 1 ? `<div class="teach-try-progress">${uiLang === 'en' ? 'Example' : 'Przykład'} ${practiceIndex + 1} / ${practiceQueue.length}</div>` : ''}
         <div class="teach-try-sentence">${escapeHtml(ex.sentence)}</div>
-        <div class="teach-try-choices">${tgtHtml}
-        ${choicesHtml}</div>
+        ${tgtHtml}
+        <div class="teach-try-choices">${choicesHtml}</div>
         <div class="teach-try-feedback" id="teachTryFeedback"></div>
       </div>`;
     }
@@ -67559,8 +67604,18 @@ function showStoryQuestion(){
   });
   const typedIn = document.getElementById('storyTypedInput');
   if(typedIn){ typedIn.value = ''; typedIn.disabled = false; }
-  const aiLoad = document.getElementById('storyTypedAiLoading');
+const aiLoad = document.getElementById('storyTypedAiLoading');
   if(aiLoad) aiLoad.style.display = 'none';
+
+  /* ODPOWIEDŹ AI NIE PRZECHODZI DO NASTĘPNEGO PYTANIA. Pasek „Zapytaj AI" stoi
+     POZA obszarem, który się podmienia - celowo, żeby przetrwał przechodzenie
+     między krokami wyjaśnienia wzorca. Ale przy zmianie PYTANIA to już błąd:
+     user widział odpowiedź o poprzednim słowie nad nowym.
+     Zgłoszone przez Damiana 2026-09-06. */
+  const aiOdp = document.getElementById('teachAskAiResponse');
+  if(aiOdp){ aiOdp.innerHTML = ''; aiOdp.classList.remove('shown'); }
+  const aiIn = document.getElementById('teachAskAiInput');
+  if(aiIn) aiIn.value = '';
   document.getElementById('storyLessonProgress').textContent = `${storyQIndex + 1} / ${storyQueue.length}`;
   document.getElementById('storyFeedback').innerHTML = '';
   document.getElementById('storyFeedback').className = 'feedback';
@@ -67837,6 +67892,24 @@ function finishStoryTestAnswer(isCorrect, correctText){
     : `<span>${uiLang === 'en' ? 'Correct answer' : 'Poprawna odpowiedź'}: ${escapeHtml(correctText)}</span>`;
   feedback.className = 'feedback ' + (isCorrect ? 'good' : 'bad');
   document.getElementById('storyNextRow').style.display = 'flex';
+
+  /* ZAPIS MIEJSCA W LEKCJI. Do tej pory postęp zapisywał się WYŁĄCZNIE na końcu
+     (markLessonDone w finishStoryLesson) - kto wyszedł w połowie dwudziestu
+     pytań, tracił wszystko i zaczynał od zera. Przy dłuższych lekcjach to
+     znaczyło, że trzeba je zrobić za jednym posiedzeniem.
+
+     Zapisujemy indeks pytania i liczbę trafień; wznowienie w startStoryLesson.
+     Zgłoszone przez Damiana 2026-09-06. */
+  try{
+    storyProgress.wTrakcie = {
+      lekcja: (STORY_LESSONS[storyCurrentLessonIndex] || {}).id,
+      pytanie: storyQIndex + 1,
+      trafione: storyCorrectCount,
+      kiedy: Date.now(),
+    };
+    saveStoryProgress();
+  }catch(e){ /* zapis miejsca nie może przerwać lekcji */ }
+
   // Dzień zalicza się dopiero po 10 odpowiedziach - patrz policzOdpowiedz().
   if(policzOdpowiedz()) registerDailyActivity();
 
@@ -67949,6 +68022,8 @@ function renderStoryLoopActions(lesson){
 function finishStoryLesson(){
   const lesson = STORY_LESSONS[storyCurrentLessonIndex];
   markLessonDone(lesson.id);
+  /* Lekcja skończona - zapisane miejsce przestaje być potrzebne. */
+  if(storyProgress.wTrakcie) { delete storyProgress.wTrakcie; }
   registerLessonCompletedToday();
   // Ukończona lekcja zalicza dzień OD RAZU - to zawsze więcej pracy niż dziesięć
   // pojedynczych odpowiedzi, więc nie każemy jeszcze dopłacać klikaniem fiszek.
