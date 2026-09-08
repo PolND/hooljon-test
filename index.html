@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.417
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.422
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -1459,6 +1459,15 @@
     flex:none;
   }
   .teach-ask-ai-send:disabled{opacity:0.4; cursor:default;}
+/* Akapity i listy w odpowiedzi AI. Model odpowiada strukturą, więc pierwszy
+     akapit (odpowiedź wprost) ma stać osobno od reszty. */
+  .teach-ask-ai-response p{ margin:0 0 8px; }
+  .teach-ask-ai-response p:last-child{ margin-bottom:0; }
+  .teach-ask-ai-response b{ color:var(--hwang); font-family:var(--font-ko); font-weight:700; }
+  .teach-ask-ai-response i{ color:var(--ink-dim); }
+  .teach-ask-ai-response ul{ margin:0 0 8px; padding-left:18px; }
+  .teach-ask-ai-response li{ margin-bottom:3px; }
+
   .teach-ask-ai-response{
     /* ODPOWIEDŹ AI JAKO WYODRĘBNIONY BLOK. Wcześniej to był goły tekst
        przyklejony nad polem wpisywania - user nie widział, gdzie kończy się
@@ -4790,23 +4799,35 @@
   }
   /* Odsłanianie kreski od lewej do prawej. clip-path zamiast stroke-dashoffset,
      bo to WYPEŁNIONE obrysy, nie linie - dasharray na nich nie zadziała. */
-  @keyframes ld-rys{ to{ clip-path:inset(0 0 0 0); } }
-  @keyframes ld-poswiata{
-    0%, 100%{ filter:drop-shadow(0 0 2px color-mix(in srgb, var(--hwang) 30%, transparent)); }
-    50%     { filter:drop-shadow(0 0 10px color-mix(in srgb, var(--hwang) 55%, transparent)); }
-  }
+/* RYSOWANIE W PĘTLI. Wcześniej sekwencja szła raz (`forwards`) i znak stał
+     nieruchomo - przy dłuższym ładowaniu wyglądało to, jakby apka zawisła.
+     Poświata jako sygnał „pracuję" nie wypadła dobrze, więc zapętlamy samo
+     rysowanie.
 
-  .ld-znak g path:nth-child(1){
-    clip-path:inset(0 100% 0 0);
-    animation:ld-rys 250ms linear 0ms forwards;
+     Jeden cykl 2400 ms: trzy kreski po 240 ms jedna po drugiej (0-31%), potem
+     komplet stoi do 85%, a między 85% a 86% wszystkie znikają naraz. Znikanie
+     w JEDNYM momencie jest ważne - gdyby kreski gasły po kolei, wyglądałoby to
+     jak wymazywanie, a ma wyglądać jak nowe pociągnięcie pędzla.
+     Zgłoszone przez Damiana 2026-09-06. */
+  .ld-znak g path{ clip-path:inset(0 100% 0 0); animation:2400ms linear infinite; }
+  .ld-znak g path:nth-child(1){ animation-name:ld-rys1; }
+  .ld-znak g path:nth-child(2){ animation-name:ld-rys2; }
+  .ld-znak g path:nth-child(3){ animation-name:ld-rys3; }
+
+  @keyframes ld-rys1{
+    0%{ clip-path:inset(0 100% 0 0); }
+    10%, 85%{ clip-path:inset(0 0 0 0); }
+    86%, 100%{ clip-path:inset(0 100% 0 0); }
   }
-  .ld-znak g path:nth-child(2){
-    clip-path:inset(0 100% 0 0);
-    animation:ld-rys 250ms linear 250ms forwards;
+  @keyframes ld-rys2{
+    0%, 10%{ clip-path:inset(0 100% 0 0); }
+    20%, 85%{ clip-path:inset(0 0 0 0); }
+    86%, 100%{ clip-path:inset(0 100% 0 0); }
   }
-  .ld-znak g path:nth-child(3){
-    clip-path:inset(0 100% 0 0);
-    animation:ld-rys 250ms linear 500ms forwards;
+  @keyframes ld-rys3{
+    0%, 20%{ clip-path:inset(0 100% 0 0); }
+    31%, 85%{ clip-path:inset(0 0 0 0); }
+    86%, 100%{ clip-path:inset(0 100% 0 0); }
   }
 
   /* Bez ruchu: znak stoi od razu w całości. */
@@ -4867,17 +4888,6 @@
        dwudziestu trzech. 250 ms na kreskę, 750 ms razem.
        Design 2026-09-06. */
     transform-origin:50% 50%;
-    /* POŚWIATA PO NARYSOWANIU. Rysowanie trwa 750 ms i się kończy - przy
-       dłuższym ładowaniu znak stał nieruchomo i wyglądało to, jakby apka
-       zawisła.
-
-       NIE zapętlamy samego rysowania: kreski znikałyby i pojawiały się od nowa,
-       co czyta się jak błąd, nie jak czekanie. Znak zostaje narysowany,
-       a pulsuje sama poświata - ruch mówi „pracuję", kształt zostaje.
-
-       Start po 750 ms, czyli gdy ostatnia kreska jest gotowa.
-       Zgłoszone przez Damiana 2026-09-06. */
-    animation:ld-poswiata 1800ms ease-in-out 750ms infinite;
   }
   /* ld-oddech usunięte - zastąpione rysowaniem kresek (ld-rys). */
   /* Pasek tuszu USUNIĘTY 2026-09-06: biegł 1600 ms w pętli, a kreski rysują się
@@ -58449,7 +58459,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.417';
+const APP_VERSION = '2026-09-06.422';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -67546,10 +67556,16 @@ function renderGrammarTeachCard(item, card){
       // pytanie-odpowiedź, nie głęboka analiza, zgodnie z ustaloną wcześniej zasadą
       // podziału kosztów między modelami.
       const langName = uiLang === 'en' ? 'English' : 'polski';
-      const instruction = `Uczeń uczy się koreańskiego wzorca gramatycznego "${item.pattern}".\nPrzykładowe zdanie: "${item.full}" (${item.pl})\nWyjaśnienie, które już widział: ${item.explain}\n\nPytanie ucznia: "${question}"\n\nOdpowiedz krótko (2-4 zdania), przyjaźnie i konkretnie, w języku ${langName}, bezpośrednio na to pytanie.`;
-      const response = await callAiProxy({ model: "claude-haiku-4-5-20251001", max_tokens: 200, messages: [{ role: "user", content: instruction }] });
+      const instruction = `Uczeń uczy się koreańskiego wzorca gramatycznego "${item.pattern}".\nPrzykładowe zdanie: "${item.full}" (${item.pl})\nWyjaśnienie, które już widział: ${item.explain}\n\nPytanie ucznia: "${question}"\n\nOdpowiedz konkretnie i przyjaźnie w języku \${langName}, bezpośrednio na to pytanie. Wyjaśnij tyle, ile trzeba - nie skracaj na siłę.
+
+Koreańskie formy i cząstki pisz **pogrubieniem**. Dłuższą odpowiedź dziel na akapity pustą linią.`;
+      const response = await callAiProxy({ model: "claude-haiku-4-5-20251001", /* 200 tokenów starczało na 4-5 zdań i ucinało dłuższe wyjaśnienia
+        w połowie. Pytania o wzorzec bywają złożone („czemu tu 에, a nie 에서?")
+        i odpowiedź na dwa akapity jest wtedy właściwa, nie rozwlekła.
+        Zgłoszone przez Damiana 2026-09-06. */
+      max_tokens: 500, messages: [{ role: "user", content: instruction }] });
       const data = await response.json();
-      responseEl.textContent = data.content[0].text;
+      responseEl.innerHTML = formatujOdpowiedzAI(data.content[0].text);
     }catch(err){
       responseEl.textContent = translateAiErrorMessage(err.message) || (uiLang === 'en' ? 'Something went wrong.' : 'Coś poszło nie tak.');
     }finally{
@@ -67777,6 +67793,35 @@ function levenshteinDistance(a, b){
 // pokazuje zrozumienie znaczenia (np. "miło cię poznać" zamiast oczekiwanego "miło poznać").
 // AI dotyka tylko MNIEJSZOŚCI przypadków (te na granicy) — lokalne sprawdzenie i tak łapie
 // większość poprawnych odpowiedzi za darmo i natychmiast, bez czekania na sieć.
+/* FORMATOWANIE ODPOWIEDZI AI. Model odpowiada markdownem - **pogrubienia**,
+   akapity, czasem listy - a wstawialiśmy to przez textContent, więc user widział
+   surowe gwiazdki w jednym bloku tekstu bez podziału.
+
+   Konwertujemy MINIMALNY zestaw: pogrubienie, kursywę, akapity i punkty listy.
+   Nie używamy gotowej biblioteki, bo to 200 znaków odpowiedzi, nie dokument -
+   a każda zewnętrzna zależność to kolejne 30 KB w pliku, który ma już 6 MB.
+
+   ESCAPE IDZIE PIERWSZY. Treść pochodzi z modelu, więc traktujemy ją jak dane
+   niezaufane: najpierw uciekamy HTML, dopiero potem wstawiamy własne znaczniki.
+   Odwrotna kolejność otworzyłaby wstrzyknięcie skryptu.
+   Zgłoszone przez Damiana 2026-09-06. */
+function formatujOdpowiedzAI(tekst){
+  const bezpieczny = escapeHtml(String(tekst || '').trim());
+  return bezpieczny
+    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    .replace(/(^|[^*])\*([^*]+)\*/g, '$1<i>$2</i>')
+    .split(/\n{2,}/)
+    .map(akapit => {
+      const linie = akapit.split(/\n/).filter(Boolean);
+      /* Lista, jeśli KAŻDA linia zaczyna się od myślnika albo gwiazdki. */
+      if(linie.length > 1 && linie.every(l => /^\s*[-•*]\s+/.test(l))){
+        return '<ul>' + linie.map(l => '<li>' + l.replace(/^\s*[-•*]\s+/, '') + '</li>').join('') + '</ul>';
+      }
+      return '<p>' + linie.join('<br>') + '</p>';
+    })
+    .join('');
+}
+
 async function evaluateTypedAnswerAI(koreanWord, correctMeaning, userTyped){
   const langName = uiLang === 'en' ? 'angielski' : 'polski';
   const instruction = `Uczeń uczy się koreańskiego słowa/frazy "${koreanWord}", które oficjalnie tłumaczy się jako "${correctMeaning}". ` +
