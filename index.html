@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.434
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.439
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -2474,21 +2474,24 @@
      min-height rozciągnąłby okrąg 26px w owal - wygląd musi zostać, rośnie tylko
      cel. Ta sama technika pasuje wszędzie, gdzie ikona jest mniejsza niż 36px.
      Audyt wizualny 2026-09-04. */
+  .theme-toggle-btn:hover{ color:var(--hwang); border-color:var(--hwang); }
+  .theme-toggle-btn:active{ background:var(--hwang-tint); }
+  @media (prefers-reduced-motion: reduce){ .theme-toggle-btn{ transition:none; } }
+
   .theme-toggle-btn{
-    width:26px;
-    height:26px;
-    border-radius:50%;
-    border:1px solid var(--border);
-    background:var(--card);
-    color:var(--ink);
-    font-size:14.5px;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    padding:0;
-    line-height:1;
-    transition:transform .15s ease; position:relative;}
+    /* PRZYCISKI PASKA. Były okrągłymi guzikami 26px z emoji - wyglądem
+       z 2015 roku, obcym wobec reszty apki, która operuje glifami i ostrą
+       geometrią. Teraz: kwadrat ze ściętym rogiem jak rama znaku, glif hanja
+       zamiast emoji, obramowanie zamiast wypełnienia.
+       Zgłoszone przez Damiana 2026-09-06. */
+    width:32px; height:32px; flex:none;
+    display:inline-grid; place-items:center;
+    font-family:var(--font-ko); font-size:14px; font-weight:600;
+    color:var(--ink-dim); background:transparent;
+    border:1px solid var(--border); border-radius:6px;
+    clip-path:polygon(0 0, 100% 0, 100% 74%, 74% 100%, 0 100%);
+    cursor:pointer; transition:color 140ms ease, border-color 140ms ease;
+  }
   .theme-toggle-btn::after{
     content:''; position:absolute; inset:-6px; border-radius:50%;
   }
@@ -2496,16 +2499,20 @@
 
   /* PREMIUM */
   .premium-badge-btn{
-    background:linear-gradient(135deg, var(--hwang), #A62839);
-    color:#FFFFFF;
-    border:none;
-    font-weight:600;
-    font-size:14px;
-    padding:6px 11px;
-    border-radius:var(--radius-lg);
+    /* PLAKIETKA PREMIUM. Miała gradient 135deg z drugim kolorem spoza palety
+       (#A62839) - jedyny gradient w apce i jedyne miejsce z kolorem, którego
+       nie ma w tokenach. Wyglądała jak wklejona z innego produktu.
+
+       Teraz: ten sam ścięty róg co przyciski paska, pełne tło w kolorze
+       pieczęci. Wyróżnia się kolorem, nie efektem.
+       Zgłoszone przez Damiana 2026-09-06. */
+    height:32px; padding:0 12px; flex:none;
+    display:inline-grid; place-items:center;
+    font:700 11px var(--font-ui); letter-spacing:.08em; text-transform:uppercase;
+    background:var(--hwang); color:var(--on-accent);
+    border:none; border-radius:6px;
+    clip-path:polygon(0 0, 100% 0, 100% 74%, 74% 100%, 0 100%);
     cursor:pointer;
-    font-family:var(--font-ui);
-    white-space:nowrap;
   }
   .premium-badge-btn.is-active{background:linear-gradient(135deg,var(--good),var(--good));}
   /* ── PANEL SUBSKRYPCJI W MOTYWACH (v2 §3) ───────────────────────────────
@@ -6673,18 +6680,14 @@
     </div>
   </header>
   <div class="header-tools" id="headerTools" style="display:none;">
-    <button class="theme-toggle-btn" id="themeToggleBtn" title="Motyw" aria-label="Wybierz motyw" aria-haspopup="true" aria-expanded="false">🌙</button>
+    <!-- PRZYCISK MOTYWU USUNIĘTY Z PASKA 2026-09-06. Wybór motywu był w DWÓCH
+         miejscach naraz: tutaj i w Ustawieniach. Dwa wejścia do tego samego
+         ustawienia to nie wygoda, tylko niepewność - user nie wie, czy to
+         to samo. Zostaje jedno, w Ustawieniach. -->
 
-    <div class="panel" id="themePanel">
-      <div class="modal-card">
-        <button class="modal-close" data-close="themePanel" aria-label="Zamknij">✕</button>
-        <h3 data-i18n="themePanelTitle">Motyw</h3>
-        <div id="themeRows"></div>
-        <div class="hint-note" id="themeProHint" style="margin-top:8px; display:none;" data-i18n="themeProHint">
-          Motywy Hanji i Neon są częścią Premium Pro.
-        </div>
-      </div>
-    </div>
+    <!-- #themePanel USUNIĘTY 2026-09-06 razem z przyciskiem motywu w pasku.
+       Wybór motywu ma teraz JEDNO miejsce: #acctThemePicker w Koncie, który
+       renderuje własną siatkę kafli - panel wysuwany nie miał już kto otworzyć. -->
 
     <div class="panel" id="langPanel">
       <div class="modal-card">
@@ -6720,8 +6723,8 @@
         <div class="feedback" id="reportFeedback" style="margin-top:10px;"></div>
       </div>
     </div>
-    <button class="theme-toggle-btn" id="settingsBtn" title="Ustawienia" aria-label="Ustawienia">⚙️</button>
-    <button class="theme-toggle-btn" id="accountBtn" title="Moje konto" aria-label="Moje konto">👤</button>
+    <button class="theme-toggle-btn" id="settingsBtn" title="Ustawienia" aria-label="Ustawienia">設</button>
+    <button class="theme-toggle-btn" id="accountBtn" title="Moje konto" aria-label="Moje konto">己</button>
     <button class="premium-badge-btn" id="premiumBtn">Premium</button>
   </div>
 
@@ -7098,7 +7101,7 @@
 
     <div class="settings-row">
       <span class="sr-label" data-i18n="settingsSound">Dźwięki w aplikacji</span>
-<button class="theme-toggle-btn" id="soundToggleBtn" title="Dźwięki" aria-label="Włącz/wyłącz dźwięki">🔊</button>
+<button class="theme-toggle-btn" id="soundToggleBtn" title="Dźwięki" aria-label="Włącz/wyłącz dźwięki">音</button>
     </div>
     <div class="settings-row">
       <span class="sr-label" data-i18n="settingsLang">Język tłumaczeń</span>
@@ -7106,11 +7109,11 @@
     </div>
     <div class="settings-row" id="settingsReportsRow" style="display:none;">
       <span class="sr-label">Zgłoszenia od użytkowników</span>
-      <button class="theme-toggle-btn" id="openReportsBtn" title="Zgłoszenia" aria-label="Zgłoszenia">📥</button>
+      <button class="theme-toggle-btn" id="openReportsBtn" title="Zgłoszenia" aria-label="Zgłoszenia">箱</button>
     </div>
     <div class="settings-row">
       <span class="sr-label" data-i18n="settingsReport">Zgłoś błąd lub uwagę</span>
-<button class="theme-toggle-btn" id="globalReportBtn" title="Zgłoś błąd" aria-label="Zgłoś błąd">🐞</button>
+<button class="theme-toggle-btn" id="globalReportBtn" title="Zgłoś błąd" aria-label="Zgłoś błąd">報</button>
     </div>
 
         <!-- ATRYBUCJA ŹRÓDEŁ. Dane kolejności kresek są na Arphic Public License
@@ -7149,8 +7152,11 @@
           </div>
         </details>
 
+        <!-- „ZNAKÓW HANJA" jest tu KONIECZNE. Nota stoi pod manifestem o trzech
+             kreskach logo, więc bez doprecyzowania czytało się jak licencja na
+             NASZ znak. Zgłoszone przez Damiana 2026-09-06. -->
         <div class="zrodla-nota">
-          <span data-i18n="zrodlaLabel">Dane kolejności kresek</span>:
+          <span data-i18n="zrodlaLabel">Dane kolejności kresek znaków hanja</span>:
           Make Me a Hanzi / hanzi-writer-data oraz animCJK, na podstawie fontów
           Arphic Technology. Arphic Public License; animCJK dodatkowo LGPL 3.
         </div>
@@ -60161,7 +60167,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.434';
+const APP_VERSION = '2026-09-06.439';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -61045,7 +61051,7 @@ const I18N = {
   rankSeason: { pl: 'Sezon', en: 'Season' },
   rankEternal: { pl: 'Wszech czasów', en: 'All time' },
   bargeLabel: { pl: 'Pozwól przerywać (słuchawki)', en: 'Allow interrupting (headphones)' },
-  zrodlaLabel: { pl: 'Dane kolejności kresek', en: 'Stroke order data' },
+  zrodlaLabel: { pl: 'Dane kolejności kresek znaków hanja', en: 'Hanja stroke order data' },
   manifestTytul: { pl: 'Dlaczego trzy kreski', en: 'Why three strokes' },
   kolaRatLabel: { pl: 'Nie wiesz co powiedzieć?', en: 'Not sure what to say?' },
   trWejscie: { pl: 'Trening odruchu', en: 'Reflex training' },
@@ -63262,31 +63268,9 @@ async function loadTheme(){
   applyTheme(prefersDark ? 'dark' : 'papier');
 }
 
-document.getElementById('themeToggleBtn').addEventListener('click', (e) => {
-  e.stopPropagation();
-  const panel = document.getElementById('themePanel');
-  const open = panel.classList.toggle('open');   // '.panel.open' — ta sama mechanika co #langPanel
-  e.currentTarget.setAttribute('aria-expanded', open ? 'true' : 'false');
-  if(open) renderThemePanel();
-});
-
-document.getElementById('themePanel').addEventListener('click', async (e) => {
-  const row = e.target.closest('.theme-row');
-  if(!row) return;
-  // Wybór PALETY: zostajemy w panelu, bo user zwykle porównuje kilka.
-  if(row.dataset.schemeId){
-    applyScheme(row.dataset.schemeId);
-    return;
-  }
-  applyTheme(row.dataset.themeId);
-  document.getElementById('themePanel').classList.remove('open');
-  try{ await window.storage.set(STORAGE_KEYS.theme, currentTheme); }catch(err){}
-});
-
-document.addEventListener('click', () => {
-  const p = document.getElementById('themePanel');
-  if(p) p.classList.remove('open');
-});
+/* Nasłuch na themeToggleBtn USUNIĘTY razem z przyciskiem 2026-09-06.
+   Panel #themePanel też usunięty - wybór motywu ma jedno miejsce
+   (#acctThemePicker w Koncie). */
 
 async function loadStorage(){
   try{
