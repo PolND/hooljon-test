@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.452
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.454
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -2474,21 +2474,34 @@
      min-height rozciągnąłby okrąg 26px w owal - wygląd musi zostać, rośnie tylko
      cel. Ta sama technika pasuje wszędzie, gdzie ikona jest mniejsza niż 36px.
      Audyt wizualny 2026-09-04. */
-  .theme-toggle-btn:hover{ color:var(--hwang); border-color:var(--hwang); }
+  .theme-toggle-btn > svg{ width:17px; height:17px; stroke-linecap:round; stroke-linejoin:round; }
+  .theme-toggle-btn:hover{
+    color:var(--on-accent); background:var(--hwang); border-color:var(--hwang);
+  }
   .theme-toggle-btn:active{ background:var(--hwang-tint); }
   @media (prefers-reduced-motion: reduce){ .theme-toggle-btn{ transition:none; } }
 
   .theme-toggle-btn{
     /* PRZYCISKI PASKA. Były okrągłymi guzikami 26px z emoji - wyglądem
-       z 2015 roku, obcym wobec reszty apki, która operuje glifami i ostrą
-       geometrią. Teraz: kwadrat ze ściętym rogiem jak rama znaku, glif hanja
-       zamiast emoji, obramowanie zamiast wypełnienia.
+       z 2015 roku, obcym wobec reszty apki.
+
+       IKONY RYSOWANE, NIE GLIFY. Były najpierw emoji, potem hanja, potem
+       hangul (설정, 계정, 소리) - i dopiero pytanie Damiana rozstrzygnęło:
+       „czy ktoś, kto jeszcze nie potrafi hangulu, znajdzie ustawienia?".
+
+       NIE ZNAJDZIE. Apka uczy hangul od zera, więc pierwszego dnia user widzi
+       pięć nieczytelnych kwadratów i klika po kolei. Glif niosący znaczenie
+       jest dobry w TREŚCI, gdzie uczeń ma czas; w NAWIGACJI musi być
+       zrozumiały natychmiast. 2026-09-06.
+
+       Kolor pieczęci zamiast przygaszonego szarego - pasek narzędzi należy do
+       marki, nie do tła. Poprawione po uwadze Damiana 2026-09-06.
        Zgłoszone przez Damiana 2026-09-06. */
     width:32px; height:32px; flex:none;
     display:inline-grid; place-items:center;
-    font-family:var(--font-ko); font-size:14px; font-weight:600;
-    color:var(--ink-dim); background:transparent;
-    border:1px solid var(--border); border-radius:6px;
+    padding:0;
+    color:var(--hwang); background:transparent;
+    border:1px solid color-mix(in srgb, var(--hwang) 35%, transparent); border-radius:6px;
     clip-path:polygon(0 0, 100% 0, 100% 74%, 74% 100%, 0 100%);
     cursor:pointer; transition:color 140ms ease, border-color 140ms ease;
   }
@@ -6788,8 +6801,8 @@
         <div class="feedback" id="reportFeedback" style="margin-top:10px;"></div>
       </div>
     </div>
-    <button class="theme-toggle-btn" id="settingsBtn" title="Ustawienia" aria-label="Ustawienia">設</button>
-    <button class="theme-toggle-btn" id="accountBtn" title="Moje konto" aria-label="Moje konto">己</button>
+    <button class="theme-toggle-btn" id="settingsBtn" title="Ustawienia" aria-label="Ustawienia"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10" cy="10" r="2.6"/><path d="M10 2v2.2M10 15.8V18M18 10h-2.2M4.2 10H2M15.7 4.3l-1.6 1.6M5.9 14.1l-1.6 1.6M15.7 15.7l-1.6-1.6M5.9 5.9L4.3 4.3"/></svg></button>
+    <button class="theme-toggle-btn" id="accountBtn" title="Moje konto" aria-label="Moje konto"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10" cy="6.5" r="3.2"/><path d="M3.5 17c0-3.3 2.9-5.2 6.5-5.2s6.5 1.9 6.5 5.2"/></svg></button>
     <button class="premium-badge-btn" id="premiumBtn">Premium</button>
   </div>
 
@@ -7166,7 +7179,7 @@
 
     <div class="settings-row">
       <span class="sr-label" data-i18n="settingsSound">Dźwięki w aplikacji</span>
-<button class="theme-toggle-btn" id="soundToggleBtn" title="Dźwięki" aria-label="Włącz/wyłącz dźwięki">音</button>
+<button class="theme-toggle-btn" id="soundToggleBtn" title="Dźwięki" aria-label="Włącz/wyłącz dźwięki"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 7.5h2.8L10.5 4v12L6.8 12.5H4z"/><path d="M13.5 7.6a3.4 3.4 0 0 1 0 4.8M15.8 5.3a6.7 6.7 0 0 1 0 9.4"/></svg></button>
     </div>
     <div class="settings-row">
       <span class="sr-label" data-i18n="settingsLang">Język tłumaczeń</span>
@@ -7174,11 +7187,11 @@
     </div>
     <div class="settings-row" id="settingsReportsRow" style="display:none;">
       <span class="sr-label">Zgłoszenia od użytkowników</span>
-      <button class="theme-toggle-btn" id="openReportsBtn" title="Zgłoszenia" aria-label="Zgłoszenia">箱</button>
+      <button class="theme-toggle-btn" id="openReportsBtn" title="Zgłoszenia" aria-label="Zgłoszenia"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2.5 11.5h4l1 2h5l1-2h4M3.6 4.5h12.8l1.1 7v4H2.5v-4z"/></svg></button>
     </div>
     <div class="settings-row">
       <span class="sr-label" data-i18n="settingsReport">Zgłoś błąd lub uwagę</span>
-<button class="theme-toggle-btn" id="globalReportBtn" title="Zgłoś błąd" aria-label="Zgłoś błąd">報</button>
+<button class="theme-toggle-btn" id="globalReportBtn" title="Zgłoś błąd" aria-label="Zgłoś błąd"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M10 2.5l7.5 13H2.5z"/><path d="M10 7.5v4M10 13.6v.1"/></svg></button>
     </div>
 
         <!-- ATRYBUCJA ŹRÓDEŁ. Dane kolejności kresek są na Arphic Public License
@@ -61881,7 +61894,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.452';
+const APP_VERSION = '2026-09-06.454';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
