@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.463
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.464
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -2497,7 +2497,10 @@
   .theme-toggle-btn::after{
     content:''; position:absolute; inset:-6px; border-radius:50%;
   }
-  .theme-toggle-btn:hover{transform:scale(1.08); border-color:var(--hwang);}
+  /* Stara reguła :hover ze scale(1.08) USUNIĘTA 2026-09-06. Nakładała się na
+     nowszą (opacity) i przy najechaniu przycisk skakał - a przy sąsiadujących
+     kaflach wyglądało to jak drżenie. Trzecia w tej sesji sytuacja, gdzie DRUGA
+     reguła tego samego selektora psuła pierwszą. Zgłoszone przez Damiana. */
 
   /* PREMIUM */
   .premium-badge-btn{
@@ -26191,7 +26194,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.463';
+const APP_VERSION = '2026-09-06.464';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
