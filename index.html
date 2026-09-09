@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-09.468
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-09.469
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -9879,7 +9879,17 @@ async function connectGeminiRelay(isRetry){
     : null;
   const registerParam = rejestrScenariusza ? '&register=' + rejestrScenariusza : '';
 
-  const wsUrl = SUPABASE_URL.replace(/^https:/, 'wss:') + `/functions/v1/gemini-relay?token=${session.access_token}&level=${geminiSelectedLevel}${targetParams}${drillParams}${scenariuszParam}${registerParam}`;
+  /* JĘZYK WŁASNYCH WYPOWIEDZI w trybie odpytywania. Przekaźnik czyta `promptLang`
+     i bez niego zawsze przyjmuje 'pl' - więc uczeń z angielskim interfejsem
+     dostawał polskie polecenia. Klient nie wysyłał tego parametru nigdy.
+
+     Ten błąd znalazła kontrola kontraktu (runtime-check.js, kontrola 8) przy
+     pierwszym uruchomieniu, nie człowiek. Ta sama rodzina co `register`:
+     parametr czytany przez przekaźnik, nigdy niewysyłany przez klienta,
+     objaw nieodróżnialny od zepsutego wdrożenia. */
+  const promptLangParam = '&promptLang=' + (uiLang === 'en' ? 'en' : 'pl');
+
+  const wsUrl = SUPABASE_URL.replace(/^https:/, 'wss:') + `/functions/v1/gemini-relay?token=${session.access_token}&level=${geminiSelectedLevel}${targetParams}${drillParams}${scenariuszParam}${registerParam}${promptLangParam}`;
   console.log('[Gemini Live] Łączenie z:', wsUrl.replace(session.access_token, '<token>'));
   geminiSocket = new WebSocket(wsUrl);
   // Domyślny binaryType przeglądarki to 'blob', a JSON.parse(blob) niejawnie wywołuje
@@ -26879,7 +26889,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-09.468';
+const APP_VERSION = '2026-09-09.469';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
