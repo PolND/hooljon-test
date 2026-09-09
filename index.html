@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.464
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.466
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -2474,20 +2474,36 @@
      min-height rozciągnąłby okrąg 26px w owal - wygląd musi zostać, rośnie tylko
      cel. Ta sama technika pasuje wszędzie, gdzie ikona jest mniejsza niż 36px.
      Audyt wizualny 2026-09-04. */
-  .premium-badge-btn:hover{ opacity:.82; }
+  .premium-badge-btn:hover{ background:color-mix(in srgb, var(--hwang) 84%, #000); }
   @media (prefers-reduced-motion: reduce){
     .theme-toggle-btn, .premium-badge-btn{ transition:none; }
   }
   .theme-toggle-btn > svg{ width:17px; height:17px; stroke-linecap:round; stroke-linejoin:round; }
-  .theme-toggle-btn:hover{ opacity:.82; }
+  /* PRZYCIEMNIENIE, NIE PRZYGASZENIE. opacity:.82 czytało się jak „przycisk
+     wyłączony", a nie „najeżdżasz". Ciemniejszy odcień tego samego koloru
+     mówi to samo, nie sugerując niedostępności. Zgłoszone przez Damiana. */
+  .theme-toggle-btn:hover{ background:color-mix(in srgb, var(--hwang) 84%, #000); }
   .theme-toggle-btn:active{ background:var(--hwang-tint); }
   @media (prefers-reduced-motion: reduce){ .theme-toggle-btn{ transition:none; } }
 
   .theme-toggle-btn{
+    /* position:relative KONIECZNE. Przycisk ma powiększony obszar dotyku przez
+       ::after z position:absolute i inset:-6px. Bez punktu zaczepienia nakładka
+       pozycjonuje się względem odległego rodzica i OBEJMUJE CAŁĄ APKĘ - klik
+       gdziekolwiek otwierał Moje konto.
+
+       Usunąłem to przypadkiem, przepisując regułę na wypełnienie. Zgłoszone
+       przez Damiana 2026-09-06. */
+    position:relative;
     /* WYPEŁNIENIE, NIE OBRYS ZE ŚCIĘCIEM. Ścięty róg wyglądał kiepsko przy
        32px - przy tej skali ukos zjada róg ikony, a nie czyta się jako gest.
        Ten sam kształt co „Rozpocznij lekcję" w Trybie Opowieści: pełne tło,
        zaokrąglenie, bez sztuczek. Zgłoszone przez Damiana 2026-09-06. */
+    /* position:relative KONIECZNE - ::after z inset:-6px powiększa obszar
+       dotyku. Bez zaczepienia nakładka pozycjonuje się względem odległego
+       rodzica i OBEJMUJE CAŁĄ APKĘ: klik gdziekolwiek otwierał Moje konto.
+       Usunąłem to, przepisując regułę na wypełnienie. 2026-09-06. */
+    position:relative;
     width:34px; height:34px; flex:none; padding:0;
     display:inline-grid; place-items:center;
     color:var(--on-accent); background:var(--hwang);
@@ -26194,7 +26210,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.464';
+const APP_VERSION = '2026-09-06.466';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
