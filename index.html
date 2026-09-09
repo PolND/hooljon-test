@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-09.467
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-09.468
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -8905,7 +8905,7 @@ const LAUNCH_READINESS = {
    {
     "label": "Rozmowa z Haksa (AI głosowe)",
     "value": 60,
-    "note": "AKTUALIZACJA 2026-09-06: audyt przekaznika wykryl BRAK konfiguracji VAD - to bylo zrodlo nienaturalnej kadencji, nie bufor audio po stronie klienta. Wdrozone: progi ciszy zalezne od poziomu, barge-in, rejestr jako parametr sesji, konkretne listy 216 wzorcow zamiast opisow, naliczanie po aktywnosci zamiast zegara polaczenia. Czeka na deploy przekaznika; ocena po testach na urzadzeniach.",
+    "note": "AKTUALIZACJA 2026-09-06: audyt przekaznika wykryl BRAK konfiguracji VAD - to bylo zrodlo nienaturalnej kadencji, nie bufor audio po stronie klienta. Wdrozone: progi ciszy zalezne od poziomu, barge-in, rejestr jako parametr sesji, konkretne listy 216 wzorcow zamiast opisow, naliczanie po aktywnosci zamiast zegara polaczenia. WDROZONE 2026-09-08T20:32Z (v23) - potwierdzone pobraniem funkcji i porownaniem MD5 ze zrodlem, nie sama data. AKTUALIZACJA 2026-09-09: rejestr byl nieosiagalny - przekaznik czyta parametr register, ktorego klient nigdy nie wysylal, wiec zawsze wychodzilo haeyo, niezaleznie od scenariusza. Naprawione w .468: rejestr idzie ze scenariusza (19 polite, 8 formal, 4 casual). Przekaznik nie zna jeszcze wartosci banmal - 4 scenariusze casual czekaja na tamta strone. Ocena po testach na urzadzeniach.",
     "criteria": [
      "Trafność korekt AI zweryfikowana przez native speakera na próbce prawdziwych rozmów",
      "Przetestowane przez realnych userów na różnych poziomach",
@@ -9690,6 +9690,11 @@ let geminiSetupComplete = false;
 let geminiIsListening = false;
 let geminiPlaybackQueueTime = 0;
 let geminiSelectedLevel = 1; // domyślnie podstawowy
+/* Wersja przekaźnika, przysyłana osobną ramką zaraz po setupComplete.
+   Do 2026-09-09 jedynym sposobem sprawdzenia, co jest wgrane, był test
+   rozmowy albo domysł - i dwa razy z rzędu domysł był zły. */
+let geminiRelayVersion = null;
+let geminiRelayFeatures = [];
 
 const LV_HINTS = [
   { ko:'주문할게요', pl:'Chciałbym zamówić', en:"I'd like to order" },
@@ -9852,7 +9857,29 @@ async function connectGeminiRelay(isRetry){
     ? '&scenariusz=' + encodeURIComponent(nunchiAktywny.id)
     : '';
 
-  const wsUrl = SUPABASE_URL.replace(/^https:/, 'wss:') + `/functions/v1/gemini-relay?token=${session.access_token}&level=${geminiSelectedLevel}${targetParams}${drillParams}${scenariuszParam}`;
+  /* REJESTR SESJI. Przekaźnik czyta parametr `register` i bez niego ZAWSZE
+     ustawia haeyo (potwierdzone w źródle przekaźnika, Claude Code 2026-09-09).
+     Klient nie wysyłał go nigdy, więc cała funkcja rejestru była nieosiągalna:
+     Haksa mówiła 해요체 i do bliskiego przyjaciela, i na rozmowie kwalifikacyjnej.
+     Nie był to błąd wdrożenia - brakowało parametru po tej stronie.
+
+     Źródłem prawdy jest SCENARIUSZ, bo to on niesie pole `rejestr`
+     (31 scenariuszy: 19 polite, 8 formal, 4 casual). Bez scenariusza nie
+     wysyłamy nic i przekaźnik zostaje przy swoim haeyo - czyli dokładnie przy
+     zachowaniu sprzed tej zmiany. Żadnej rozmowy to nie rusza poza Nunchi.
+
+     UWAGA: przekaźnik rozumie dziś tylko `hamnida` i (domyślnie) `haeyo`.
+     Dla `casual` wysyłamy `banmal`, którego jeszcze nie zna - dziś spadnie do
+     haeyo, czyli tam, gdzie był, a zadziała bez zmiany klienta w dniu, w którym
+     przekaźnik pozna tę wartość. Cztery scenariusze na 반말 czekają na tamtą
+     stronę: przyjaciel-blisko, wspolokator, dziecko-znajomych, kuzyn-mlodszy. */
+  const REJESTR_NA_PARAMETR = { formal: 'hamnida', polite: 'haeyo', casual: 'banmal' };
+  const rejestrScenariusza = (typeof nunchiAktywny !== 'undefined' && nunchiAktywny)
+    ? REJESTR_NA_PARAMETR[nunchiAktywny.rejestr]
+    : null;
+  const registerParam = rejestrScenariusza ? '&register=' + rejestrScenariusza : '';
+
+  const wsUrl = SUPABASE_URL.replace(/^https:/, 'wss:') + `/functions/v1/gemini-relay?token=${session.access_token}&level=${geminiSelectedLevel}${targetParams}${drillParams}${scenariuszParam}${registerParam}`;
   console.log('[Gemini Live] Łączenie z:', wsUrl.replace(session.access_token, '<token>'));
   geminiSocket = new WebSocket(wsUrl);
   // Domyślny binaryType przeglądarki to 'blob', a JSON.parse(blob) niejawnie wywołuje
@@ -9929,6 +9956,28 @@ async function connectGeminiRelay(isRetry){
       document.getElementById('geminiLevelSelector').style.display = 'none';
       startGeminiSessionTimer();
       setGeminiVoiceStatus(uiLang === 'en' ? 'Connected — tap to speak' : 'Połączono — dotknij, żeby mówić');
+      return;
+    }
+
+    /* WERSJA PRZEKAŹNIKA. Osobna ramka zaraz po setupComplete - przekaźnik nie
+       modyfikuje ramki Google'a, tylko dokłada własną (Claude Code 2026-09-09).
+       Nazwy pól przyjmujemy tolerancyjnie, bo kontrakt powstał po obu stronach
+       naraz i nie chcę, żeby literówka w nazwie kosztowała kolejny test rozmowy.
+       Nieznana ramka i tak przechodziła tędy bez błędu, więc brak dopasowania
+       niczego nie psuje - po prostu nie pokaże wersji. */
+    const relayVer = msg.relayVersion || msg.RELAY_VERSION || msg.relay_version;
+    if(relayVer){
+      geminiRelayVersion = relayVer;
+      const feats = msg.relayFeatures || msg.RELAY_FEATURES || msg.relay_features || msg.features;
+      geminiRelayFeatures = Array.isArray(feats) ? feats : [];
+      console.info('[Gemini Live] Przekaźnik:', geminiRelayVersion,
+        geminiRelayFeatures.length ? '| ' + geminiRelayFeatures.join(', ') : '');
+      const st = document.getElementById('geminiVoiceStatus');
+      if(st){
+        st.title = 'Przekaźnik ' + geminiRelayVersion +
+          (geminiRelayFeatures.length ? ' — ' + geminiRelayFeatures.join(', ') : '');
+        st.dataset.relayVersion = geminiRelayVersion;
+      }
       return;
     }
 
@@ -26830,7 +26879,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-09.467';
+const APP_VERSION = '2026-09-09.468';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
