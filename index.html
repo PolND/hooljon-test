@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-09.474
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-09.475
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -26920,7 +26920,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-09.474';
+const APP_VERSION = '2026-09-09.475';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -29080,6 +29080,45 @@ function uderz(material, opcje){
     return;
   }
 
+  if(material === 'promien'){
+    /* PROMIEŃ — jedyny materiał, który NIE jest uderzeniem.
+       Obwiednia odwrócona: dźwięk narasta zamiast zanikać, a filtr otwiera się
+       ku górze, więc barwa jaśnieje w miarę narastania. To brzmieniowy
+       odpowiednik rozchodzących się promieni: nic nie uderza i nic nie gaśnie,
+       tylko rośnie. Wysokość unosi się o około pół tonu przez cały czas trwania -
+       ucho słyszy to jako podnoszenie, choć nie ma tu żadnego interwału.
+       Dodane 2026-09-09 po uwadze Damiana, że aura to ruch w górę, a nie
+       ceremonia domykająca. */
+    const dl = o.dlugosc || 2.4;
+    const szczyt = 0.075 * gl;
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(wys, t0);
+    osc.frequency.linearRampToValueAtTime(wys * 1.06, t0 + dl * 0.85);
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(320, t0);
+    lp.frequency.exponentialRampToValueAtTime(5200, t0 + dl * 0.72);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(szczyt, t0 + dl * 0.62);   // NARASTANIE
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dl * 1.75);   // powolne zejście
+    osc.connect(lp); lp.connect(g); g.connect(wyjscieCtx);
+    osc.start(t0); osc.stop(t0 + dl * 1.8);
+    // Poświata: cichy szum przez ten sam ruch filtra - to ona daje „światło".
+    const sz = zrodloSzumu(ctx, dl * 1.8);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.setValueAtTime(wys * 2, t0); bp.Q.value = 2.2;
+    bp.frequency.exponentialRampToValueAtTime(wys * 7, t0 + dl * 0.72);
+    const gS = ctx.createGain();
+    gS.gain.setValueAtTime(0.0001, t0);
+    gS.gain.exponentialRampToValueAtTime(0.022 * gl, t0 + dl * 0.62);
+    gS.gain.exponentialRampToValueAtTime(0.0001, t0 + dl * 1.75);
+    sz.connect(bp); bp.connect(gS); gS.connect(wyjscieCtx);
+    sz.start(t0); sz.stop(t0 + dl * 1.8);
+    return;
+  }
+
   if(material === 'beben'){
     /* 좌고 — bęben. Niski, z opadającą wysokością i szumem na ataku. */
     const dl = o.dlugosc || 0.45;
@@ -29865,8 +29904,17 @@ function playCeremoniaSound(poziom){
     return;
   }
   if(poziom === 2){
-    // Pieczęć, 820 ms - struna z 농현 mniej więcej tyle wybrzmiewa.
-    uderz('struna', { wysokosc: HZ_PYEONGJO.hwang, dlugosc: 0.8 });
+    /* PIECZĘĆ SIĘ PRZYCISKA, NIE SZARPIE. Wcześniej stała tu struna 가야금,
+       czyli szarpnięcie - gest z zupełnie innej rodziny niż to, co widać.
+       Teraz trzy zdarzenia dokładnie pod animacją:
+         0 ms    dociśnięcie - krótki, głuchy bęben i kontakt z papierem
+         380 ms  wstrząs (pcz-wstrzas) - ciche drewno, pieczęć siada
+         420 ms  błysk (pcz-flash 340-760) - jasny, cichy kamień
+       Zgłoszone przez Damiana 2026-09-09. */
+    uderz('beben', { wysokosc: 155, dlugosc: 0.22, glosnosc: 0.9 });
+    uderz('papier', { dlugosc: 0.05, glosnosc: 0.8 });
+    uderz('drewno', { wysokosc: 640, dlugosc: 0.05, glosnosc: 0.45, opoznienie: 0.38 });
+    uderz('kamien', { wysokosc: HZ_PYEONGJO.nam, dlugosc: 0.34, glosnosc: 0.55, opoznienie: 0.42 });
     return;
   }
   if(poziom === 3){
@@ -29876,12 +29924,27 @@ function playCeremoniaSound(poziom){
     uderz('kamien', { wysokosc: HZ_PYEONGJO.hwang, dlugosc: 0.85, glosnosc: 0.6, opoznienie: 0.22 });
     return;
   }
-  // Poziom 4 — 365 dni. Trzy uderzenia w ten sam kamień, coraz wolniej.
-  uderz('beben', { wysokosc: 74, dlugosc: 0.9 });
-  uderz('kamien', { wysokosc: HZ_PYEONGJO.hwang, dlugosc: 0.7, glosnosc: 0.85, opoznienie: 0.10 });
-  uderz('kamien', { wysokosc: HZ_PYEONGJO.hwang, dlugosc: 0.8, glosnosc: 0.8,  opoznienie: 0.65 });
-  uderz('kamien', { wysokosc: HZ_PYEONGJO.hwang, dlugosc: 1.4, glosnosc: 0.9,  opoznienie: 1.35 });
-  uderzBak(2.05, 0.8);
+  /* POZIOM 4 — 365 dni. UNIESIENIE, nie domknięcie.
+     Poprzednia wersja miała trzy uderzenia opadające w ciszę, zamknięte 박 -
+     a 박 dosłownie znaczy „koniec utworu". Animacja robi coś odwrotnego: aura
+     rozchodzi się na zewnątrz, obraca w pętli 9 s i czeka na dotknięcie.
+     Dźwięk kończył się w 2,2 s i aura kręciła się w ciszy.
+
+     Teraz: bęben jako grunt, a nad nim trzy promienie wchodzące jeden po drugim.
+     Każdy narasta i jaśnieje, żaden nie uderza. Wysokości 황 - 중 - 림 to kwarta
+     i kwinta, czyli interwały puste, nie durowe - brzmi jak otwierająca się
+     przestrzeń, nie jak akord nagrody. Ogon sięga około pięciu sekund, więc
+     aura nie zostaje sama.
+
+     ŚWIADOME ODSTĘPSTWO od zasady „tonalne nigdy dwa naraz": tu obraz jest
+     ciągły i warstwowy, więc dźwięk też musi być. Raz na rok nauki. */
+  /* Bęben CICHO. Przy głośności 0,75 jego atak był najgłośniejszym punktem
+     całości i szczyt obwiedni wypadał w 0% czasu - czyli mimo trzech promieni
+     dźwięk wciąż mierzył się jako uderzenie. Grunt ma być gruntem. */
+  uderz('beben', { wysokosc: 70, dlugosc: 1.2, glosnosc: 0.30 });
+  uderz('promien', { wysokosc: HZ_PYEONGJO.hwang, dlugosc: 2.6, glosnosc: 1.35 });
+  uderz('promien', { wysokosc: HZ_PYEONGJO.jung, dlugosc: 2.3, glosnosc: 0.95, opoznienie: 0.60 });
+  uderz('promien', { wysokosc: HZ_PYEONGJO.im,   dlugosc: 2.1, glosnosc: 0.65, opoznienie: 1.20 });
 }
 function playQuizCompleteSound(){
   /* Koniec quizu czytanki był CAŁKOWICIE niemy - żadnego dźwięku, żadnego
