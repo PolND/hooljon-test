@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-09.469
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-09.471
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -532,6 +532,17 @@
   .theme-name{ font-size:12.5px; color:var(--ink-dim); margin-top:8px; }
   .theme-picker--schemes{ margin-top:10px; }
   .theme-picker--schemes .theme-swatch{ height:34px; border-radius:8px; }
+
+  /* Podpis pod próbką. Bez niego motywy były bezimiennymi bloczkami koloru
+     i wybór polegał na zgadywaniu - nazwa istniała tylko w tooltipie, czyli
+     nie istniała na telefonie. Zgłoszone przez Damiana 2026-09-09. */
+  .theme-opcja{ flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+  .theme-opcja .theme-swatch{ flex:none; width:100%; }
+  .theme-opcja-nazwa{ font-size:11.5px; line-height:1.3; color:var(--ink-dim);
+    text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .theme-opcja[data-locked="true"] .theme-opcja-nazwa{ opacity:.6; }
+  .theme-opcja-pro{ font-size:9.5px; font-weight:600; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--hwang); margin-left:3px; }
 
   /* Przełącznik w wierszu ustawień. --border-strong, żeby wyłączony stan
      był widoczny sam z siebie, a nie tylko względem tła. */
@@ -7258,7 +7269,7 @@
              Tekst Damiana, 2026-09-06. -->
         <details class="manifest-blok">
           <summary data-i18n="manifestTytul">Dlaczego trzy kreski</summary>
-          <div class="manifest-tresc">
+          <div class="manifest-tresc" data-lang="pl">
             <p><b>Hooljon (훈련) znaczy trening.</b></p>
             <p>Nie obiecujemy, że nauczysz się koreańskiego mimochodem. Prawdziwa
             biegłość językowa to nie przypadek — to rzemiosło.</p>
@@ -7277,6 +7288,26 @@
             <p>Rezygnujemy z infantylnej grywalizacji i pozorów nauki. Dajemy Ci
             czystą formę, precyzyjne narzędzia i dyscyplinę, która zamienia obcy
             alfabet w Twój własny głos.</p>
+          </div>
+          <div class="manifest-tresc" data-lang="en" style="display:none;">
+            <p><b>Hooljon (훈련) means training.</b></p>
+            <p>We don't promise you'll pick up Korean by accident. Real fluency
+            is not luck — it is a craft.</p>
+            <p>Our mark is three raw, decisive brush strokes. In Korean
+            calligraphic philosophy the horizontal line stands for Earth: the
+            steady ground everything else rests on.</p>
+            <p>In Hooljon those three strokes are your daily path into the language:</p>
+            <ul>
+              <li><b>Understand the rule</b> — no classroom jargon, no rote
+              memorising; you see how a sentence works, laid bare.</li>
+              <li><b>Drill it into habit</b> — repeat until hand and mind stop
+              hesitating.</li>
+              <li><b>Speak up</b> — turn knowledge into a natural, confident
+              reflex in a real conversation.</li>
+            </ul>
+            <p>We do without infantile gamification and the appearance of learning.
+            What you get is clean form, precise tools, and the discipline that
+            turns a foreign alphabet into a voice of your own.</p>
           </div>
         </details>
 
@@ -26889,7 +26920,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-09.469';
+const APP_VERSION = '2026-09-09.471';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -28103,6 +28134,27 @@ const I18N = {
   interstitialTag: { pl: 'Reklama · miejsce na format interstitial / Placeholder: baner sieci reklamowej (np. AdMob) / Krótka przerwa co kilka rund. Wspiera darmowy dostęp do nauki dla wszystkich.', en: 'Advertisement · interstitial format placeholder / Placeholder: ad network banner (e.g. AdMob) / A short break every few rounds. Supports free access to learning for everyone.' },
 };
 
+/* Nazwy motywów i palet po angielsku. Osobno, a nie w THEMES, bo THEMES niesie
+   też strukturę, palety i kolory - nie ma powodu ruszać tamtej tablicy dla
+   samych napisów. Klucz to id, więc nie da się tego rozjechać przez zmianę
+   polskiej nazwy. */
+const THEME_I18N = {
+  papier:   { en:'Paper',   opisEn:'종이 · paper and ink' },
+  jade:     { en:'Jade',    opisEn:'옥 · graphite and jade' },
+  kobalt:   { en:'Cobalt',  opisEn:'청 · graphite and cobalt' },
+  oldstyle: { en:'Classic', opisEn:'옛 · the original Hooljon' },
+};
+const SCHEME_I18N = { light:'Light', dark:'Dark', oldstyle:'Light', hanji:'Hanji', neon:'Neon' };
+function nazwaMotywu(t){
+  return (uiLang === 'en' && THEME_I18N[t.id]) ? THEME_I18N[t.id].en : t.name;
+}
+function opisMotywu(t){
+  return (uiLang === 'en' && THEME_I18N[t.id]) ? THEME_I18N[t.id].opisEn : t.ko;
+}
+function nazwaPalety(x){
+  return (uiLang === 'en' && SCHEME_I18N[x.id]) ? SCHEME_I18N[x.id] : x.name;
+}
+
 function applyI18n(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     const key = el.dataset.i18n;
@@ -28111,6 +28163,11 @@ function applyI18n(){
   });
   // generyczna obsługa placeholderów (np. pola komentarza w zgłoszeniu błędu) —
   // osobny atrybut, bo placeholder to właściwość, nie textContent
+  /* Bloki długiej treści (manifest) - to HTML z akapitami i listą, nie tekst,
+     więc nie przechodzą przez I18N. Pokazujemy ten, który pasuje do języka. */
+  document.querySelectorAll('[data-lang]').forEach(el=>{
+    el.style.display = (el.dataset.lang === uiLang) ? '' : 'none';
+  });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
     const key = el.dataset.i18nPlaceholder;
     const entry = I18N[key];
@@ -28671,10 +28728,14 @@ function renderAccountScreen(){
   const pick = document.getElementById('acctThemePicker');
   pick.innerHTML = THEMES.map(t => {
     const locked = t.pro && !isPro;
-    return `<button type="button" class="theme-swatch" data-theme-id="${t.id}"
-      style="background:${t.sw[0]};" ${locked ? 'data-locked="true"' : ''}
-      aria-pressed="${t.id === currentTheme ? 'true' : 'false'}"
-      aria-label="${escapeHtml(t.name)}" title="${escapeHtml(t.name)}"></button>`;
+    const nazwa = nazwaMotywu(t);
+    return `<span class="theme-opcja" ${locked ? 'data-locked="true"' : ''}>
+      <button type="button" class="theme-swatch" data-theme-id="${t.id}"
+        style="background:${t.sw[0]};" ${locked ? 'data-locked="true"' : ''}
+        aria-pressed="${t.id === currentTheme ? 'true' : 'false'}"
+        aria-label="${escapeHtml(nazwa)}" title="${escapeHtml(nazwa)}"></button>
+      <span class="theme-opcja-nazwa">${escapeHtml(nazwa)}${locked ? '<span class="theme-opcja-pro">Pro</span>' : ''}</span>
+    </span>`;
   }).join('');
   pick.querySelectorAll('.theme-swatch').forEach(b => b.addEventListener('click', () => {
     const t = THEMES.find(x => x.id === b.dataset.themeId);
@@ -28685,7 +28746,7 @@ function renderAccountScreen(){
     renderAccountScreen();
   }));
   const meta = THEMES.find(t => t.id === currentTheme) || THEMES[0];
-  document.getElementById('acctThemeName').textContent = meta.name + ' · ' + meta.ko;
+  document.getElementById('acctThemeName').textContent = nazwaMotywu(meta) + ' · ' + opisMotywu(meta);
 
   // Palety - tylko dla motywu, który je ma
   const spick = document.getElementById('acctSchemePicker');
@@ -28693,10 +28754,14 @@ function renderAccountScreen(){
     const active = resolveScheme(meta);
     spick.innerHTML = meta.schemes.map(x => {
       const locked = x.pro && !isPro;
-      return `<button type="button" class="theme-swatch" data-scheme-id="${x.id}"
-        style="background:${x.sw[0]};" ${locked ? 'data-locked="true"' : ''}
-        aria-pressed="${x.id === active ? 'true' : 'false'}"
-        aria-label="${escapeHtml(x.name)}" title="${escapeHtml(x.name)}"></button>`;
+      const nazwaP = nazwaPalety(x);
+      return `<span class="theme-opcja" ${locked ? 'data-locked="true"' : ''}>
+        <button type="button" class="theme-swatch" data-scheme-id="${x.id}"
+          style="background:${x.sw[0]};" ${locked ? 'data-locked="true"' : ''}
+          aria-pressed="${x.id === active ? 'true' : 'false'}"
+          aria-label="${escapeHtml(nazwaP)}" title="${escapeHtml(nazwaP)}"></button>
+        <span class="theme-opcja-nazwa">${escapeHtml(nazwaP)}${locked ? '<span class="theme-opcja-pro">Pro</span>' : ''}</span>
+      </span>`;
     }).join('');
     spick.querySelectorAll('.theme-swatch').forEach(b => b.addEventListener('click', () => {
       const x = meta.schemes.find(y => y.id === b.dataset.schemeId);
@@ -30045,6 +30110,19 @@ let pickerSearchTimer = null;
 let pickerLastQuery = '';
 let pendingNewFolder = null;
 let myWordsSelectedFolder = null;
+/* JEDNO źródło puli „Moich słówek" dla obu ścieżek: ekranu nauki
+   (renderVocabStudyList) i ćwiczeń (pickPool). Do .470 każda liczyła ją
+   osobno i tylko pickPool znało pojęcie zestawu - więc wejście w zestaw
+   na 37 słów wpadało do gałęzi „dział + poziom" i dociągało 200 słów ze
+   słownika. Zestaw był ignorowany, a nie zawężany.
+   Zgłoszone przez Damiana 2026-09-09. */
+function getMyWordsPool(){
+  let own = allWords.filter(w => (w.category || 'Własne') === 'Własne');
+  if(myWordsSelectedFolder !== null){
+    own = own.filter(w => (w.folder || DEFAULT_FOLDER) === myWordsSelectedFolder);
+  }
+  return own;
+}
 let folderEditName = null;
 
 function pickerTranslationOf(w){ return (uiLang === 'en' ? (w.en || w.pl) : (w.pl || w.en)) || ''; }
@@ -32995,6 +33073,10 @@ async function renderVocabStudyList(){
   if(vocabStudySource === 'review' || vocabStudySource === 'leeches'){
     backBtn.dataset.back = 'vocabMode';
     backBtn.textContent = uiLang === 'en' ? 'Choose mode' : 'Wybór trybu';
+  } else if(vocabStudySource === 'myWords'){
+    // Ta sama zasada co w syncVocabStudyBack: wracamy tam, skąd user wszedł.
+    backBtn.dataset.back = 'myWords';
+    backBtn.textContent = uiLang === 'en' ? 'My sets' : 'Moje zestawy';
   } else {
     backBtn.dataset.back = 'vocabLevel';
     backBtn.textContent = uiLang === 'en' ? 'Choose level' : 'Wybór poziomu';
@@ -33007,6 +33089,11 @@ async function renderVocabStudyList(){
     words = capReviewQueue(dueWordsAll, w => w.ko);
   } else if(vocabStudySource === 'leeches'){
     words = getLeechWords();
+  } else if(vocabStudySource === 'myWords'){
+    /* Własny zestaw: BEZ dociągania ze słownika i bez filtra dział+poziom.
+       User dodał te słowa świadomie - sesja ma mieć dokładnie tyle pozycji,
+       ile pokazywał licznik przy zestawie. */
+    words = getMyWordsPool();
   } else {
     // Nauka wg działu/poziomu - łączymy wykuratorowane DEFAULT_WORDS z rozszerzoną bazą
     // dictionary_words dla TEGO SAMEGO działu+poziomu. Możliwe od migracji Trybu Opowieści
@@ -33045,6 +33132,8 @@ async function renderVocabStudyList(){
       ? (uiLang === 'en' ? 'No reviews due today. Come back tomorrow!' : 'Brak powtórek na dziś. Wróć jutro!')
       : vocabStudySource === 'leeches'
       ? (uiLang === 'en' ? 'No tricky words yet — good sign!' : 'Brak trudnych słów na razie — dobry znak!')
+      : vocabStudySource === 'myWords'
+      ? (uiLang === 'en' ? 'This set is empty. Add words to it first.' : 'Ten zestaw jest pusty. Dodaj do niego słówka.')
       : (uiLang === 'en' ? 'There are no words in the selected sections yet.' : 'W wybranych działach nie ma jeszcze słówek.');
     return;
   }
@@ -33491,9 +33580,7 @@ function pickPool(){
   // Tryb "Moje słówka": własny zestaw usera, CELOWO bez filtrowania po dziale
   // i poziomie - user dodał te słowa świadomie.
   if(vocabStudySource === 'myWords'){
-    let own = allWords.filter(w => (w.category || 'Własne') === 'Własne');
-    if(myWordsSelectedFolder !== null) own = own.filter(w => (w.folder || DEFAULT_FOLDER) === myWordsSelectedFolder);
-    return own;
+    return getMyWordsPool();
   }
   let base;
   if(mode === "review"){
@@ -35110,7 +35197,14 @@ function buildStrokeOrderSvg(strokePaths){
     });
     t += extraStepGap;
   });
-  return `<svg viewBox="93 150 828 828" class="hg-stroke-svg-overlay">${guidePaths}${paths}${dots}</svg>`;
+  /* viewBox MUSI być 0 0 100 100. Współrzędne w HANGUL_* są zmierzone właśnie
+     w tej ramce - pisze o tym komentarz na górze tej funkcji. Stało tu
+     "93 150 828 828", czyli viewBox ZNAKU HOOLJON (ten sam ciąg jest w pięciu
+     innych miejscach pliku) - wklejony razem z markupem logo. Efekt: kreski
+     lądowały poza widocznym obszarem, bounding box 6x0 px, a że glif jest na
+     czas animacji chowany (.hg-big-char.has-strokes{opacity:0}), user widział
+     pusty kwadrat. Zgłoszone przez Damiana 2026-09-09. */
+  return `<svg viewBox="0 0 100 100" class="hg-stroke-svg-overlay">${guidePaths}${paths}${dots}</svg>`;
 }
 
 /* Stary silnik kresek hanja USUNIĘTY 2026-09-06. Zastąpiony przez
@@ -36429,6 +36523,12 @@ function renderGrammarTeachCard(item, card){
 
     if(views[current] === 'try'){
       const ex = practiceQueue[practiceIndex];
+      /* Czyścimy zdanie z poprzedniego kroku. Bez tego karta grała `item.full`
+         — zdanie GŁÓWNE wzorca — mimo że na ekranie stał jeden z moreExamples.
+         Nie ustawiamy tu nowego: pełne zdanie zawiera odpowiedź, więc przed
+         odpowiedzeniem karta ma milczeć, a nie podpowiadać.
+         Zgłoszone przez Damiana 2026-09-09. */
+      delete card.dataset.speakText;
       document.querySelectorAll('#teachTryBox .teach-try-btn').forEach(btn=>{
         btn.addEventListener('click', (e)=>{
           e.stopPropagation();
@@ -36446,6 +36546,9 @@ function renderGrammarTeachCard(item, card){
             ? (uiLang === 'en' ? '✅ Exactly right!' : '✅ Dokładnie tak!')
             : (uiLang === 'en' ? `Not quite — the correct answer is "${ex.answer}".` : `Nie do końca — poprawna odpowiedź to „${ex.answer}”.`);
           fb.classList.add('shown');
+          // Dopiero teraz karta zna swoje zdanie: odpowiedź już padła, więc pełne
+          // zdanie niczego nie zdradza, a dotknięcie karty czyta TEN przykład.
+          card.dataset.speakText = ex.full;
           // User sam decyduje, kiedy iść dalej - żadnego automatycznego podium po chwili,
           // które by go poganiało zanim zdąży przeczytać feedback. Jeśli to nie był ostatni
           // przykład w kolejce, przycisk prowadzi do KOLEJNEGO przykładu (nie od razu do
@@ -36896,6 +36999,23 @@ document.getElementById('storyOrderCheckBtn').addEventListener('click', ()=>{
 // jedno miejsce ustawiające blokadę, liczące kombo/aktywność dzienną i pokazujące feedback,
 // żeby żaden format nie "zapomniał" o którymś z tych kroków (tak jak wcześniej handleStoryAnswer
 // w ogóle nie wywoływało bumpStreak, przez co Tryb Opowieści nie liczył się do serii kombo).
+/* JEDNO miejsce zapisu pozycji w lekcji. Do .471 zapis siedział wyłącznie
+   w finishStoryTestAnswer, czyli odpalał się TYLKO po odpowiedzi na pytanie
+   testowe. Kolejka lekcji ma też kroki kind:"teach" (karty nauki wzorca
+   i słowa) - kto wyszedł na takiej karcie, nie zapisywał nic i wracał na 1/6.
+   Zapis działał, wznowienie działało, ale połowa kroków go nie wołała.
+   Zgłoszone przez Damiana 2026-09-06 i ponownie 2026-09-09. */
+function zapiszMiejsceWLekcji(pytanie){
+  try{
+    storyProgress.wTrakcie = {
+      lekcja: (STORY_LESSONS[storyCurrentLessonIndex] || {}).id,
+      pytanie: pytanie,
+      trafione: storyCorrectCount,
+      kiedy: Date.now(),
+    };
+    saveStoryProgress();
+  }catch(e){ /* zapis miejsca nie może przerwać lekcji */ }
+}
 function finishStoryTestAnswer(isCorrect, correctText){
   storyLocked = true;
   if(isCorrect){ storyCorrectCount += 1; bumpStreak(); playCorrectSound(); }
@@ -36914,15 +37034,7 @@ function finishStoryTestAnswer(isCorrect, correctText){
 
      Zapisujemy indeks pytania i liczbę trafień; wznowienie w startStoryLesson.
      Zgłoszone przez Damiana 2026-09-06. */
-  try{
-    storyProgress.wTrakcie = {
-      lekcja: (STORY_LESSONS[storyCurrentLessonIndex] || {}).id,
-      pytanie: storyQIndex + 1,
-      trafione: storyCorrectCount,
-      kiedy: Date.now(),
-    };
-    saveStoryProgress();
-  }catch(e){ /* zapis miejsca nie może przerwać lekcji */ }
+  zapiszMiejsceWLekcji(storyQIndex + 1);
 
   // Dzień zalicza się dopiero po 10 odpowiedziach - patrz policzOdpowiedz().
   if(policzOdpowiedz()) registerDailyActivity();
@@ -36977,8 +37089,15 @@ function handleStoryAnswer(btn){
 
 document.getElementById('storyNextQBtn').addEventListener('click', ()=>{
   storyQIndex += 1;
-  if(storyQIndex >= storyQueue.length) finishStoryLesson();
-  else showStoryQuestion();
+  if(storyQIndex >= storyQueue.length){
+    finishStoryLesson();
+  }else{
+    /* Tędy przechodzą WSZYSTKIE kroki, także karty nauki - przycisk „Rozumiem"
+       na karcie wzorca klika właśnie storyNextQBtn. Dlatego zapis jest tutaj,
+       a nie tylko przy odpowiedzi testowej. */
+    zapiszMiejsceWLekcji(storyQIndex);
+    showStoryQuestion();
+  }
 });
 
 /* Przejścia z ekranu wyniku do kolejnych etapów pracy z materiałem lekcji.
