@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.460
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-06.463
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -2474,36 +2474,25 @@
      min-height rozciągnąłby okrąg 26px w owal - wygląd musi zostać, rośnie tylko
      cel. Ta sama technika pasuje wszędzie, gdzie ikona jest mniejsza niż 36px.
      Audyt wizualny 2026-09-04. */
-  .theme-toggle-btn > svg{ width:17px; height:17px; stroke-linecap:round; stroke-linejoin:round; }
-  .theme-toggle-btn:hover{
-    color:var(--on-accent); background:var(--hwang); border-color:var(--hwang);
+  .premium-badge-btn:hover{ opacity:.82; }
+  @media (prefers-reduced-motion: reduce){
+    .theme-toggle-btn, .premium-badge-btn{ transition:none; }
   }
+  .theme-toggle-btn > svg{ width:17px; height:17px; stroke-linecap:round; stroke-linejoin:round; }
+  .theme-toggle-btn:hover{ opacity:.82; }
   .theme-toggle-btn:active{ background:var(--hwang-tint); }
   @media (prefers-reduced-motion: reduce){ .theme-toggle-btn{ transition:none; } }
 
   .theme-toggle-btn{
-    /* PRZYCISKI PASKA. Były okrągłymi guzikami 26px z emoji - wyglądem
-       z 2015 roku, obcym wobec reszty apki.
-
-       IKONY RYSOWANE, NIE GLIFY. Były najpierw emoji, potem hanja, potem
-       hangul (설정, 계정, 소리) - i dopiero pytanie Damiana rozstrzygnęło:
-       „czy ktoś, kto jeszcze nie potrafi hangulu, znajdzie ustawienia?".
-
-       NIE ZNAJDZIE. Apka uczy hangul od zera, więc pierwszego dnia user widzi
-       pięć nieczytelnych kwadratów i klika po kolei. Glif niosący znaczenie
-       jest dobry w TREŚCI, gdzie uczeń ma czas; w NAWIGACJI musi być
-       zrozumiały natychmiast. 2026-09-06.
-
-       Kolor pieczęci zamiast przygaszonego szarego - pasek narzędzi należy do
-       marki, nie do tła. Poprawione po uwadze Damiana 2026-09-06.
-       Zgłoszone przez Damiana 2026-09-06. */
-    width:32px; height:32px; flex:none;
+    /* WYPEŁNIENIE, NIE OBRYS ZE ŚCIĘCIEM. Ścięty róg wyglądał kiepsko przy
+       32px - przy tej skali ukos zjada róg ikony, a nie czyta się jako gest.
+       Ten sam kształt co „Rozpocznij lekcję" w Trybie Opowieści: pełne tło,
+       zaokrąglenie, bez sztuczek. Zgłoszone przez Damiana 2026-09-06. */
+    width:34px; height:34px; flex:none; padding:0;
     display:inline-grid; place-items:center;
-    padding:0;
-    color:var(--hwang); background:transparent;
-    border:1px solid color-mix(in srgb, var(--hwang) 35%, transparent); border-radius:6px;
-    clip-path:polygon(0 0, 100% 0, 100% 74%, 74% 100%, 0 100%);
-    cursor:pointer; transition:color 140ms ease, border-color 140ms ease;
+    color:var(--on-accent); background:var(--hwang);
+    border:none; border-radius:var(--radius);
+    cursor:pointer; transition:opacity 140ms ease;
   }
   .theme-toggle-btn::after{
     content:''; position:absolute; inset:-6px; border-radius:50%;
@@ -2512,20 +2501,15 @@
 
   /* PREMIUM */
   .premium-badge-btn{
-    /* PLAKIETKA PREMIUM. Miała gradient 135deg z drugim kolorem spoza palety
-       (#A62839) - jedyny gradient w apce i jedyne miejsce z kolorem, którego
-       nie ma w tokenach. Wyglądała jak wklejona z innego produktu.
-
-       Teraz: ten sam ścięty róg co przyciski paska, pełne tło w kolorze
-       pieczęci. Wyróżnia się kolorem, nie efektem.
-       Zgłoszone przez Damiana 2026-09-06. */
-    height:32px; padding:0 12px; flex:none;
+    /* Premium w tej samej rodzinie co przyciski paska: pełne tło, to samo
+       zaokrąglenie, bez ścięcia. Różni je tylko szerokość i tekst zamiast
+       ikony - bo to akcja, nie narzędzie. 2026-09-06. */
+    height:34px; padding:0 14px; flex:none;
     display:inline-grid; place-items:center;
     font:700 11px var(--font-ui); letter-spacing:.08em; text-transform:uppercase;
     background:var(--hwang); color:var(--on-accent);
-    border:none; border-radius:6px;
-    clip-path:polygon(0 0, 100% 0, 100% 74%, 74% 100%, 0 100%);
-    cursor:pointer;
+    border:none; border-radius:var(--radius);
+    cursor:pointer; transition:opacity 140ms ease;
   }
   .premium-badge-btn.is-active{background:linear-gradient(135deg,var(--good),var(--good));}
   /* ── PANEL SUBSKRYPCJI W MOTYWACH (v2 §3) ───────────────────────────────
@@ -26207,7 +26191,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-06.460';
+const APP_VERSION = '2026-09-06.463';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -32624,14 +32608,25 @@ document.getElementById('wordListPanel').addEventListener('click', (e)=>{
 
 // Generyczna obsługa zamykania dla wszystkich paneli-nakładek (Premium, Działy, Dodaj słówka,
 // Fiszki AI, Trudne słówka, Moje konto): przycisk ✕ oraz klik w przyciemnione tło poza kartą.
+/* Tekst czytanki wraca po zamknięciu quizu - obojętnie czy krzyżykiem,
+   czy kliknięciem w tło. */
+function przywrocTekstCzytanki(id){
+  if(id !== 'readingQuizPanel') return;
+  const t = document.getElementById('readingTextBox');
+  if(t) t.style.display = t.dataset.przedQuizem || '';
+  const l = document.querySelector('#readingScreen .reading-legend');
+  if(l && typeof czytankaZModulu !== 'undefined' && !czytankaZModulu) l.style.display = '';
+}
+
 document.querySelectorAll('.modal-close[data-close]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     document.getElementById(btn.dataset.close).classList.remove('open');
+    przywrocTekstCzytanki(btn.dataset.close);
   });
 });
 document.querySelectorAll('.panel').forEach(panel=>{
   panel.addEventListener('click', (e)=>{
-    if(e.target === e.currentTarget) panel.classList.remove('open');
+    if(e.target === e.currentTarget){ panel.classList.remove('open'); przywrocTekstCzytanki(panel.id); }
   });
 });
 
@@ -33731,7 +33726,7 @@ function pokazTekstyModulu(moduleName){
           <span class="icon">읽</span>
           <span>
             <div class="title">${escapeHtml(en ? t.titleEn : t.title)}</div>
-            <div class="desc">${en ? 'Vocabulary below comes from these texts.' : 'Słownictwo poniżej pochodzi z tych tekstów.'}</div>
+            <div class="desc">${en ? 'Level' : 'Poziom'} ${t.level || 2} · ${en ? 'vocabulary below comes from these texts' : 'słownictwo poniżej pochodzi z tych tekstów'}</div>
           </span>
         </button>`).join('')}
     </div>
@@ -35079,7 +35074,18 @@ async function loadStoryProgress(){
 
   // Suma zbiorów - ukończona lekcja pozostaje ukończona, niezależnie gdzie ją zapisano.
   const merged = [...new Set([...local.completedLessonIds, ...remote.completedLessonIds])];
+  /* wTrakcie MUSI PRZETRWAĆ SCALANIE. Ta linia budowała obiekt od zera
+  // z samą listą ukończonych - i kasowała zapisane miejsce w lekcji przy
+  // KAŻDYM wczytaniu. Zapis działał, wznowienie działało, ale między jednym
+  // a drugim dane znikały.
+  //
+  // Bierzemy je z tego źródła, które je ma; lokalne pierwsze, bo zapisujemy
+  // je lokalnie natychmiast, a na serwer w tle.
+  // Zgłoszone przez Damiana 2026-09-06 (drugi raz - pierwsza naprawa dotknęła
+  // tylko zapisu i wznowienia, nie scalania). */
+  const wTrakcie = local.wTrakcie || remote.wTrakcie || null;
   storyProgress = { completedLessonIds: merged };
+  if(wTrakcie) storyProgress.wTrakcie = wTrakcie;
 
   // KLUCZOWE: odsyłamy na serwer TYLKO jeśli odczyt się udał. Gdy odczyt zawiódł,
   // remote jest pustą tablicą - bez tego warunku uznalibyśmy lokalne dane za "nowsze"
@@ -38120,6 +38126,15 @@ document.getElementById('readingQuizBtn').addEventListener('click', ()=>{
   document.getElementById('rqResult').style.display = 'none';
   document.getElementById('rqQuestion').style.display = 'block';
   document.getElementById('rqChoiceGrid').style.display = '';
+  /* TEKST CHOWANY NA CZAS QUIZU. Sprawdzenie zrozumienia, przy którym widać
+     tekst, mierzy umiejętność wyszukiwania, nie zrozumienie - uczeń przepisuje
+     odpowiedź zamiast ją sobie przypomnieć.
+     Zgłoszone przez Damiana 2026-09-06. */
+  const rqTekst = document.getElementById('readingTextBox');
+  if(rqTekst){ rqTekst.dataset.przedQuizem = rqTekst.style.display || ''; rqTekst.style.display = 'none'; }
+  const rqLegenda = document.querySelector('#readingScreen .reading-legend');
+  if(rqLegenda) rqLegenda.style.display = 'none';
+
   document.getElementById('readingQuizPanel').classList.add('open');
   showRqQuestion();
 });
