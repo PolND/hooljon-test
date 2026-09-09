@@ -2,7 +2,7 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-09.472
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-09.474
   Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
@@ -26920,7 +26920,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-09.472';
+const APP_VERSION = '2026-09-09.474';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -28889,8 +28889,11 @@ const SOUND_LIBRARY = {
   wrong:            { url: null, label: 'Zła odpowiedź' },
   combo:            { url: null, label: 'Kombo / seria poprawnych odpowiedzi' },
   lessonComplete:   { url: null, label: 'Ukończenie lekcji' },
-  badgeUnlocked:    { url: null, label: 'Nowe osiągnięcie / odznaka' },
-  chestOpen:        { url: null, label: 'Otwarcie skrzyni z nagrodami' },
+  badgeUnlocked:    { url: null, label: 'Odznaka i ranga na poziomie 1-2' },
+  /* NIE JEST to skrzynia ani lootbox - mimo nazwy klucza. To dźwięk rangi
+     na poziomie 3 i 4 skali serii dni nauki (120-270 dni i 365 dni).
+     Nazwa została z wcześniejszego pomysłu; etykieta mówi, co to robi. */
+  chestOpen:        { url: null, label: 'Ranga wysoka — seria 120+ dni' },
   examPass:         { url: null, label: 'Zdanie egzaminu' },
   examFail:         { url: null, label: 'Koniec gry / niezdany egzamin' },
   dailyGoal:        { url: null, label: 'Zaliczenie codziennego celu' },
@@ -29840,6 +29843,46 @@ function playScreenTransitionSound(){
 }
 
 // Przesunięcie/odwrócenie fiszki — krótki, "chrupiący" szum
+/**
+ * Ceremonia rangi — cztery poziomy, cztery różne dźwięki.
+ *
+ * Skala jest już opisana w CSS (NAGRODY — SKALA CZTERECH POZIOMÓW): siódmy dzień
+ * i trzysta sześćdziesiąty piąty nie mogą wyglądać tak samo, bo wtedy ta wyższa
+ * przestaje coś znaczyć. To samo dotyczy brzmienia. Czasy dobrane pod animacje:
+ * poziom 2 ma 820 ms, poziom 3 - 1060 ms, poziom 4 czeka na dotknięcie.
+ *
+ * Poziom 4 to JEDYNE miejsce w apce, gdzie trzy tonalne uderzenia idą po sobie.
+ * Nie jest to melodia: TEN SAM ton, uderzany trzy razy, coraz wolniej, nad
+ * bębnem. To gest ceremonialny, nie fanfara - i zdarza się raz w roku nauki.
+ */
+function playCeremoniaSound(poziom){
+  triggerHaptic(poziom >= 3 ? 'chestOpen' : 'badgeUnlocked');
+  if(playRealSound(poziom >= 3 ? 'chestOpen' : 'badgeUnlocked')) return;
+
+  if(poziom <= 1){
+    // Pasek z góry, bez nakładki - nie przerywa pracy, więc i dźwięk jest cichy.
+    uderz('kamien', { wysokosc: HZ_PYEONGJO.im, dlugosc: 0.30, glosnosc: 0.7 });
+    return;
+  }
+  if(poziom === 2){
+    // Pieczęć, 820 ms - struna z 농현 mniej więcej tyle wybrzmiewa.
+    uderz('struna', { wysokosc: HZ_PYEONGJO.hwang, dlugosc: 0.8 });
+    return;
+  }
+  if(poziom === 3){
+    // Ceremonia, 1060 ms: bęben otwiera, 박 przecina, kamień wybrzmiewa pod spodem.
+    uderz('beben', { dlugosc: 0.55 });
+    uderzBak(0.20, 0.9);
+    uderz('kamien', { wysokosc: HZ_PYEONGJO.hwang, dlugosc: 0.85, glosnosc: 0.6, opoznienie: 0.22 });
+    return;
+  }
+  // Poziom 4 — 365 dni. Trzy uderzenia w ten sam kamień, coraz wolniej.
+  uderz('beben', { wysokosc: 74, dlugosc: 0.9 });
+  uderz('kamien', { wysokosc: HZ_PYEONGJO.hwang, dlugosc: 0.7, glosnosc: 0.85, opoznienie: 0.10 });
+  uderz('kamien', { wysokosc: HZ_PYEONGJO.hwang, dlugosc: 0.8, glosnosc: 0.8,  opoznienie: 0.65 });
+  uderz('kamien', { wysokosc: HZ_PYEONGJO.hwang, dlugosc: 1.4, glosnosc: 0.9,  opoznienie: 1.35 });
+  uderzBak(2.05, 0.8);
+}
 function playQuizCompleteSound(){
   /* Koniec quizu czytanki był CAŁKOWICIE niemy - żadnego dźwięku, żadnego
      toastu. Mniejsze zdarzenie niż koniec lekcji, więc kamień + cichy 박,
@@ -32480,7 +32523,12 @@ function nastepnaNagroda(){
   }
   document.body.appendChild(el);
 
-  try{ playRealSound(poziom >= 3 ? 'chestOpen' : 'badgeUnlocked'); }catch(e){ /* dźwięk to dodatek */ }
+  /* Do .473 stało tu playRealSound() BEZPOŚREDNIO - a to ścieżka wyłącznie
+     plikowa. Oba klucze mają url:null, więc zwracała false i nie grało NIC,
+     na żadnym z czterech poziomów. Cała ceremonia, łącznie z rangą za 365 dni
+     codziennej nauki, była niema. Teraz idzie przez funkcję, która zna
+     syntezowany fallback. Znalezione 2026-09-09. */
+  try{ playCeremoniaSound(poziom); }catch(e){ /* dźwięk to dodatek */ }
 
   let zamkniete = false;
   const zamknij = () => {
@@ -34198,7 +34246,7 @@ function renderHanjaScreen(){
       </div>`);
 
     const pole = document.getElementById('pisPole');
-    pisRysowane = []; pisAktywna = null; pisStany = [];
+    pisRysowane = []; pisAktywna = null; pisStany = []; pisByloKomplet = false;
     pisZlyKierunek = false; pisWzorObok = null; pisItem = h;
     pisPodepnij(pole, h);
     pisRysuj(pole);
@@ -35445,6 +35493,10 @@ function buildStrokeOrderSvg(strokePaths){
    estetyki - user może pisać krzywo, byle w dobrej kolejności i kierunku.
    Zaproponowane przez Damiana 2026-09-05. */
 const PIS_TOLERANCJA = 22;      // px w układzie 0-100; poza tym punkt uznajemy za chybiony
+/* Czy znak był już domknięty poprawnie. pisPokazOcene() woła się po KAŻDEJ
+   kresce, więc bez tej flagi dźwięk ukończenia powtarzałby się przy każdym
+   kolejnym dotknięciu pola. */
+let pisByloKomplet = false;
 let pisRysowane = [];           // kreski narysowane przez usera: [[{x,y},...], ...]
 let pisAktywna = null;          // kreska w trakcie rysowania
 let pisStany = [];              // ocena każdej narysowanej kreski: 'ok'|'kierunek'|'polozenie'|'brak'
@@ -35576,7 +35628,7 @@ function pisWyczysc(el){
   const svg = el.querySelector('.pis-inked');
   const skrot = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const dokoncz = () => {
-    pisRysowane = []; pisAktywna = null; pisStany = [];
+    pisRysowane = []; pisAktywna = null; pisStany = []; pisByloKomplet = false;
     pisZlyKierunek = false; pisWzorObok = null;
     if(svg) svg.classList.remove('pis-zanik');
     pisRysuj(el);
@@ -35609,6 +35661,13 @@ function pisPokazOcene(el, item){
   else if(o.nadmiar) uwaga = en ? 'One stroke too many.' : 'O jedną kreskę za dużo.';
 
   const komplet = o.trafione === o.razem && !o.nadmiar;
+  /* Znak domknięty w dobrej kolejności i kierunku - kamień, raz. Flaga pilnuje,
+     żeby nie zagrał ponownie przy każdym kolejnym wywołaniu tej funkcji. */
+  if(komplet && o.razem > 0 && !pisByloKomplet){
+    uderz('kamien', { wysokosc: HZ_PYEONGJO.im, dlugosc: 0.30 });
+    try{ triggerHaptic('correct'); }catch(e){}
+  }
+  pisByloKomplet = komplet;
   box.innerHTML = `<div class="pis-wynik${komplet ? ' ok' : ''}">`
     + (komplet ? (en ? '✓ Correct order and direction' : '✓ Dobra kolejność i kierunek')
                : `${o.trafione} / ${o.razem}`)
@@ -35654,6 +35713,18 @@ function pisPodepnij(el, item){
       const stan = pisOcenKreske(pisAktywna, pisWzorzec(item)[idx]);
       pisRysowane.push(pisAktywna);
       pisStany[idx] = stan;
+      /* PĘDZEL. User maluje naprawdę, więc kreska ma brzmieć jak pociągnięcie -
+         ten sam materiał i ta sama zależność od długości, co przy animacji
+         wzorca. Dzięki temu własna kreska i wzorcowa brzmią jak jedno.
+         Do .474 cały moduł pisania był niemy. */
+      let pisDl = 0;
+      for(let k = 1; k < pisAktywna.length; k++){
+        pisDl += Math.hypot(pisAktywna[k].x - pisAktywna[k-1].x, pisAktywna[k].y - pisAktywna[k-1].y);
+      }
+      uderz('papier', { dlugosc: Math.max(0.05, Math.min(0.30, pisDl / 100 * 0.30)), glosnosc: 0.85 });
+      /* Zła kolejność albo kierunek: ciche drewno PO pędzlu. Informacja, nie kara -
+         ta sama zasada co przy 'wrong'. Kreska i tak zostaje narysowana. */
+      if(stan !== 'ok') uderz('drewno', { wysokosc: 760, dlugosc: 0.05, glosnosc: 0.6, opoznienie: 0.09 });
       /* Wzorzec obok błędnej kreski: widać różnicę, nie sam komunikat. */
       if(stan !== 'ok'){
         pisWzorObok = idx;
@@ -35729,7 +35800,7 @@ function renderHangulLetterStage(list, labelPl, labelEn){
         <button type="button" class="tool-btn pis-czysc">${en ? 'Clear' : 'Wyczyść'}</button>
       </div>`);
     const pole = document.getElementById('pisPole');
-    pisRysowane = []; pisAktywna = null; pisStany = [];
+    pisRysowane = []; pisAktywna = null; pisStany = []; pisByloKomplet = false;
     pisZlyKierunek = false; pisWzorObok = null; pisItem = item;
     pisPodepnij(pole, item);
     pisRysuj(pole);   // zapowiedź pierwszej kreski widoczna przed pierwszą próbą
@@ -36753,6 +36824,10 @@ function renderGrammarTeachCard(item, card){
           if(box.dataset.answered === '1') return; // jedna próba na przykład, potem tylko czytelny wynik
           box.dataset.answered = '1';
           const isCorrect = btn.dataset.choice === String(ex.answer);
+          /* Ten widok był NIEMY, jako jedyny quiz w apce. Wszystkie pozostałe
+             (hanja, hangul, kultura, czytanka, Tryb Opowieści) grały od dawna.
+             Zgłoszone przez Damiana 2026-09-09. */
+          if(isCorrect) playCorrectSound(); else playWrongSound();
           box.querySelectorAll('.teach-try-btn').forEach(b=>{
             b.disabled = true;
             if(b.dataset.choice === String(ex.answer)) b.classList.add('try-correct');
