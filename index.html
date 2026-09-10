@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.488
-  Zbudowane na: 4d5743a4b704c15bf596de15ff6d7633 (.487)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.489
+  Zbudowane na: 7d26e1feb71b4b4c96b59554e0ef981c (.488)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -1824,8 +1824,23 @@
   }
   .picker-empty{ padding:14px 10px; font-size:13px; color:var(--ink-dim); text-align:center; line-height:1.5; }
   .folder-actions{ display:flex; align-items:center; gap:6px; flex:none; margin-left:auto; }
-  .folder-act{ font-size:16px; opacity:.55; padding:4px 6px; border-radius:8px; }
-  .folder-act:hover, .folder-act:active{ opacity:1; background:var(--surface-2); }
+  /* WEJŚCIE W USTAWIENIA ZESTAWU. Był to znak 설 przy opacity .55 w polu
+     28x24 px — Damian zgłosił brak usuwania zestawu, które istnieje od dawna
+     właśnie za tym przyciskiem. Funkcja, do której nie ma jak trafić, jest
+     dla użytkownika tym samym co jej brak. Teraz: zrozumiały znak, pełna
+     widoczność i pole dotknięcia zgodne z wytycznymi dla ekranu dotykowego. */
+  .folder-act{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:40px;
+    min-height:40px;
+    font-size:18px;
+    opacity:.9;
+    border:1px solid var(--border);
+    border-radius:10px;
+  }
+  .folder-act:hover, .folder-act:active{ opacity:1; background:var(--surface-2); border-color:var(--hwang); }
 
   .level-inline{
     display:inline-block;
@@ -26865,7 +26880,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-10.488';
+const APP_VERSION = '2026-09-10.489';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -27783,6 +27798,7 @@ const I18N = {
   btnNewFolder: { pl: 'Nowy zestaw', en: 'New set' },
   backMyWords: { pl: 'Moje zestawy', en: 'My sets' },
   folderEditHint: { pl: 'Dotknij słowa, żeby je usunąć z zestawu.', en: 'Tap a word to remove it.' },
+  folderGearHint: { pl: 'Dotknij ⚙ przy zestawie, żeby zmienić nazwę, dodać słówka albo usunąć.', en: 'Tap ⚙ on a set to rename it, add words or delete it.' },
   btnRenameFolder: { pl: 'Zmień nazwę', en: 'Rename' },
   btnDeleteFolder: { pl: 'Usuń zestaw', en: 'Delete set' },
   sageLadderTitle: { pl: 'Droga Mędrca', en: 'The Sage\'s Path' },
@@ -30370,8 +30386,17 @@ let myWordsSelectedFolder = null;
    na 37 słów wpadało do gałęzi „dział + poziom" i dociągało 200 słów ze
    słownika. Zestaw był ignorowany, a nie zawężany.
    Zgłoszone przez Damiana 2026-09-09. */
+/* JEDNO kryterium dla obu funkcji poniżej. Wcześniej każda miała własny
+   warunek `category === 'Własne'` i obie tak samo gubiły skany. Fiszka jest
+   moja, jeśli sam ją dodałem — niezależnie od tego, którą drogą. */
+const MOJE_KATEGORIE = new Set(['Własne', 'Ze zdjęcia', 'Z pliku']);
+const MOJE_ZRODLA = new Set(['manual', 'picked', 'photo', 'file']);
+function jestMojeSlowo(w){
+  return MOJE_KATEGORIE.has(w.category || 'Własne') || MOJE_ZRODLA.has(w.source);
+}
+
 function getMyWordsPool(){
-  let own = allWords.filter(w => (w.category || 'Własne') === 'Własne');
+  let own = allWords.filter(jestMojeSlowo);
   if(myWordsSelectedFolder !== null){
     own = own.filter(w => (w.folder || DEFAULT_FOLDER) === myWordsSelectedFolder);
   }
@@ -30381,7 +30406,7 @@ let folderEditName = null;
 
 function pickerTranslationOf(w){ return (uiLang === 'en' ? (w.en || w.pl) : (w.pl || w.en)) || ''; }
 function folderLabel(name){ return name === DEFAULT_FOLDER ? (uiLang === 'en' ? 'Unsorted' : 'Bez zestawu') : name; }
-function getMyWords(){ return allWords.filter(w => (w.category || 'Własne') === 'Własne'); }
+function getMyWords(){ return allWords.filter(jestMojeSlowo); }
 /* ═══ PUSTE ZESTAWY ══════════════════════════════════════════════════════
    getMyFolders() wyprowadzało zestawy Z LISTY SŁÓW, więc zestaw istniał tylko
    wtedy, gdy coś w nim było. User tworzył zestaw, nie zdążył dodać słowa
@@ -30542,6 +30567,22 @@ function updateFolderSelect(){
   sel.value = pendingNewFolder || (opts.length ? opts[0] : DEFAULT_FOLDER);
 }
 
+/* ZESTAW DLA WYNIKU ANALIZY (zdjęcie, plik).
+
+   `chosenFolder()` czyta pole wyboru z panelu dodawania — ale panel analizy
+   otwiera się PO jego zamknięciu, więc pytanie „co jest teraz wybrane" nie ma
+   tam sensu. Wybór z chwili wejścia zostaje w `pendingNewFolder`; ta funkcja
+   jest odbiornikiem, którego brakowało od 6 września.
+
+   Wejście z ekranu „Moje słówka" (przycisk „Ze zdjęcia (AI)") nie przechodzi
+   przez panel dodawania — wtedy bierzemy zestaw aktualnie oglądany, bo to
+   jedyny, o którym uczeń w tym momencie myśli. */
+function zestawDlaAnalizy(){
+  if(typeof pendingNewFolder === 'string' && pendingNewFolder) return pendingNewFolder;
+  if(typeof myWordsSelectedFolder === 'string' && myWordsSelectedFolder) return myWordsSelectedFolder;
+  return chosenFolder();
+}
+
 function chosenFolder(){
   const sel = document.getElementById('folderSelect');
   const v = sel ? sel.value : DEFAULT_FOLDER;
@@ -30588,7 +30629,7 @@ function renderMyWordsScreen(){
           <div class="title">${escapeHtml(folderLabel(name))} <span class="level-badge ready">${count}</span></div>
           <div class="desc">${uiLang === 'en' ? 'Practice just this set.' : 'Ucz się tylko tego zestawu.'}</div>
         </span>
-        ${name !== DEFAULT_FOLDER ? `<span class="folder-actions"><span class="folder-act" data-edit="${escapeHtml(name)}">설</span></span>` : ''}
+        ${name !== DEFAULT_FOLDER ? `<span class="folder-actions"><span class="folder-act" data-edit="${escapeHtml(name)}" role="button" tabindex="0" aria-label="${uiLang === 'en' ? 'Set options' : 'Ustawienia zestawu'}" title="${uiLang === 'en' ? 'Rename, add words, delete' : 'Zmień nazwę, dodaj słówka, usuń'}">⚙</span></span>` : ''}
       </button>`);
   });
   wrap.innerHTML = rows.join('');
@@ -41299,6 +41340,10 @@ function resetAiFlashcardUI(){
 }
 
 document.getElementById('btnAiFlashcards').addEventListener('click', ()=>{
+  /* Wejście spoza panelu dodawania: stary `pendingNewFolder` po innej
+     operacji wskazywałby nie ten zestaw. Zerujemy, żeby zadziałał wybór
+     „zestaw aktualnie oglądany". */
+  pendingNewFolder = null;
   els.addPanel.classList.remove('open');
   els.missedPanel.classList.remove('open');
   document.getElementById('categoriesPanel').classList.remove('open');
@@ -41464,7 +41509,7 @@ document.getElementById('aiSaveAllBtn').addEventListener('click', async ()=>{
     const ko = row.querySelector('.ai-field.ko').value.trim();
     const translation = row.querySelector('.ai-field.pl').value.trim();
     if(ko && translation){
-      const wordObj = { ko, category:'Ze zdjęcia', source:'photo' };
+      const wordObj = { ko, category:'Ze zdjęcia', folder: zestawDlaAnalizy(), source:'photo' };
       if(uiLang === 'en') wordObj.en = translation; else wordObj.pl = translation;
       customWords.push(wordObj);
       added++;
@@ -41690,7 +41735,7 @@ document.getElementById('aiFileSaveAllBtn').addEventListener('click', async ()=>
     const ko = row.querySelector('.ai-field.ko').value.trim();
     const translation = row.querySelector('.ai-field.pl').value.trim();
     if(ko && translation){
-      const wordObj = { ko, category:'Z pliku', source:'file' };
+      const wordObj = { ko, category:'Z pliku', folder: zestawDlaAnalizy(), source:'file' };
       if(uiLang === 'en') wordObj.en = translation; else wordObj.pl = translation;
       customWords.push(wordObj);
       added++;
