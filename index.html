@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.493
-  Zbudowane na: 58717fd678aaa05c04454296fde9fbe0 (.492)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.494
+  Zbudowane na: 11dae51a9b6898ec719131c49000440c (.493)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -5620,11 +5620,18 @@
     margin:10px 0 8px; line-height:1.4; text-wrap:pretty;
   }
   .tr-klocki{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:14px 0; }
+  /* Klocek jest teraz PRZYCISKIEM - dotknięcie wypowiada człon. Uczeń widział
+     sylaby, których nie umie przeczytać, i nie miał jak ich usłyszeć. */
   .tr-klocek{
     font-family:var(--font-ko); font-size:16px; padding:9px 13px; min-height:36px;
-    background:var(--surface-2); color:var(--ink);
+    background:var(--surface-2); color:var(--ink); cursor:pointer;
+    -webkit-appearance:none; appearance:none;
     border:1px solid var(--border); border-radius:var(--radius);
   }
+  /* Wzorzec pokazywany PO nieudanej próbie: te same człony, ale w kolejności
+     i z numerami - poprawka przez zobaczenie, nie przez przeczytanie błędu. */
+  .tr-klocek-kolejnosc{ border-color:var(--hwang); background:var(--hwang-tint); }
+  .tr-klocek-kolejnosc > i{ font:600 11px var(--font-ui); font-style:normal; color:var(--ink-dim); margin-right:6px; }
   .tr-rytm{
     height:3px; background:var(--surface-2); border-radius:2px;
     margin:16px auto 6px; max-width:260px; overflow:hidden; display:none;
@@ -5642,6 +5649,9 @@
   .tr-wynik{ margin-top:14px; font:600 14px var(--font-ui); min-height:20px; }
   .tr-wynik.ok{ color:var(--good); }
   .tr-wynik.zle{ color:var(--bad); }
+  /* Osobny kolor: to nie jest błąd tej samej wagi co „nic nie pasuje".
+     Wszystkie człony są - brakuje jednej rzeczy, i o nią właśnie chodzi. */
+  .tr-wynik.szyk{ color:var(--hwang); }
 
   /* ═══ NUNCHI — SCENARIUSZ ════════════════════════════════════════════════ */
   .nu-kontekst{
@@ -7928,18 +7938,28 @@
          B (B1-B2)  bez klocków, pasek rytmu 6 s zatrzymywany mową
          C (B2+)    3 sekundy na reakcję, akceptowane krótkie zwroty
 
-       ⚠️ NIEUKOŃCZONE. Wszystkie trzy opierają się na rozpoznawaniu mowy,
-       które w przeglądarce Damiana (Edge) zawodzi - dziś trzy razy: przy
-       odpytywaniu, przy Haksie i przy czytance. Moduł jest zbudowany, ale
-       NIE PRZETESTOWANY na żywo. Do domknięcia po moście natywnym.
+       STAN NA .494: A i B domknięte. Klocki są przyciskami (dotknięcie
+       wypowiada człon), podpowiedź `#trWskazowka` wreszcie ma treść, ocena
+       ROZRÓŻNIA SZYK (do .493 te same człony od tyłu dostawały „✓ Wszystko
+       na miejscu"), nasłuch jest ciągły (pauza w połowie zdania nie kończy
+       próby), „Posłuchaj wzoru" w trybie B pojawia się dopiero po próbie,
+       a sesja dziesięciu zadań ma koniec i podsumowanie.
 
-       Zaprojektowane 2026-09-06, wdrożone jako szkielet. -->
+       ⚠️ TRYB C NIEUKOŃCZONY: ma „akceptowane krótkie zwroty", a takiej listy
+       nikt jeszcze nie napisał - dziś C to B z krótszym paskiem. Do napisania
+       przez Fable, nie do wymyślenia w kodzie.
+
+       Rozpoznawanie mowy zależy od przeglądarki: w Brave jest domyślnie
+       zablokowane (od .491 apka mówi o tym wprost), w Chrome działa.
+
+       Zaprojektowane 2026-09-06, tryby A i B domknięte 2026-09-10. -->
   <div id="trainScreen" style="display:none;">
     <button class="back-btn" data-back="aiChat" data-i18n="backChat">Rozmowa</button>
 
     <div class="wip-baner" data-i18n="wipBaner">
-      Moduł w budowie — działa, ale nie został jeszcze przetestowany na żywo.
-      Wymaga działającego rozpoznawania mowy.
+      Tryby A i B są gotowe. Tryb C (krótkie reakcje) jeszcze nie — czeka na listę
+      akceptowanych zwrotów. Wymaga rozpoznawania mowy: działa w Chrome, Brave
+      blokuje je domyślnie.
     </div>
 
     <div class="center-card" style="max-width:460px; margin:0 auto;">
@@ -10726,6 +10746,9 @@ document.getElementById('trSluchajBtn').addEventListener('click', () => {
   if(trZadanie){ try{ speakKorean(trZadanie.blocks.join(' ')); }catch(e){} }
 });
 document.getElementById('trDalejBtn').addEventListener('click', () => {
+  /* Po podsumowaniu ten sam przycisk zaczyna nową sesję - inaczej jedynym
+     wyjściem z ekranu końcowego byłoby cofnięcie się i wejście od nowa. */
+  if(trKoniec){ trPrzygotujPule(); trRundaNowa(); return; }
   trIndeks++; trRundaNowa();
 });
 
@@ -26903,7 +26926,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-10.493';
+const APP_VERSION = '2026-09-10.494';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -27804,7 +27827,7 @@ const I18N = {
   trSluchaj: { pl: 'Posłuchaj wzoru', en: 'Hear the model' },
   trDalej: { pl: 'Dalej', en: 'Next' },
   backChat: { pl: 'Rozmowa', en: 'Conversation' },
-  wipBaner: { pl: 'Moduł w budowie — działa, ale nie został jeszcze przetestowany na żywo. Wymaga działającego rozpoznawania mowy.', en: 'Work in progress — functional but not yet tested live. Requires working speech recognition.' },
+  wipBaner: { pl: 'Tryby A i B są gotowe. Tryb C (krótkie reakcje) jeszcze nie — czeka na listę akceptowanych zwrotów. Wymaga rozpoznawania mowy: działa w Chrome, Brave blokuje je domyślnie.', en: 'Modes A and B are ready. Mode C (short reactions) is not — it is waiting for its list of accepted phrases. Needs speech recognition: works in Chrome, Brave blocks it by default.' },
   addModePhoto: { pl: 'Ze zdjęcia', en: 'From photo' },
   lvPodpowiedzi: { pl: 'Scenariusz i przydatne zwroty', en: 'Scenario and useful phrases' },
   haksaDrillTitle: { pl: 'Haksa odpytuje', en: 'Haksa quizzes you' },
@@ -33160,6 +33183,17 @@ let trPula = [];
 let trIndeks = 0;
 let trRozp = null;
 let trTimer = null;
+/* Wynik sesji rozbity na trzy kubełki, bo to trzy różne rzeczy do zrobienia
+   jutro: trafione, „człony dobre - szyk zły" i niepełne. Jedna liczba
+   „8/10" schowałaby dokładnie tę informację, po którą ten tryb istnieje. */
+let trTrafienia = 0;
+let trSzykBledny = 0;
+let trPudla = 0;
+let trKoniec = false;
+let trProbaByla = false;   // czy w TEJ rundzie padła już próba
+let trSluchaTeraz = false; // nasłuch jest ciągły, więc trzeba wiedzieć, kiedy trwa
+let trUslyszane = '';
+let trOcenaTimer = null;
 
 /* Pula z SENTENCE_BUILDER_ITEMS - zdania mają już klocki, tłumaczenie
    i poziom, więc nie trzeba osobnych danych. */
@@ -33206,25 +33240,81 @@ function trPrzygotujPule(){
   const zrodlo = (typeof SENTENCE_BUILDER_ITEMS !== 'undefined') ? SENTENCE_BUILDER_ITEMS : [];
   trPula = stopniowanaProbka(zrodlo, lvl, 10);
   trIndeks = 0;
+  trTrafienia = 0; trSzykBledny = 0; trPudla = 0; trKoniec = false;
+}
+
+/** Liczba członów po polsku. Drobiazg, ale „3 członów" w podpowiedzi
+    czytanej przy każdym zadaniu widać natychmiast. */
+function trCzlony(n){
+  if(n === 1) return '1 człon';
+  const d = n % 10, s = n % 100;
+  return n + ((d >= 2 && d <= 4 && (s < 12 || s > 14)) ? ' człony' : ' członów');
+}
+
+/** Klocki. `wKolejnosci` = wzorzec po nieudanej próbie (numerowany, podświetlony);
+    inaczej potasowana podpowiedź trybu A. Zawsze klikalne - dotknięcie wypowiada
+    człon, bo uczeń, który nie umie przeczytać sylaby, nie ma innego sposobu. */
+function trPokazKlocki(bloki, wKolejnosci){
+  const kl = document.getElementById('trKlocki');
+  if(!kl) return;
+  if(!bloki || !bloki.length){ kl.innerHTML = ''; return; }
+  kl.innerHTML = bloki.map((b, i) =>
+    `<button type="button" class="tr-klocek${wKolejnosci ? ' tr-klocek-kolejnosc' : ''}" data-tr-klocek="${escapeHtml(b)}">` +
+    (wKolejnosci ? `<i>${i + 1}</i>` : '') + escapeHtml(b) + '</button>').join('');
+  kl.querySelectorAll('[data-tr-klocek]').forEach(b => {
+    b.addEventListener('click', () => { try{ speakKorean(b.dataset.trKlocek); }catch(e){} });
+  });
+}
+
+/** „Posłuchaj wzoru" podaje CAŁE zdanie po koreańsku. W trybie A to jest
+    podpowiedź i ma być dostępna od razu. W B i C przed próbą byłoby to
+    wyjście awaryjne kasujące ćwiczenie - więc pojawia się dopiero PO próbie,
+    jako poprawka. */
+function trUstawSluchaj(){
+  const b = document.getElementById('trSluchajBtn');
+  if(b) b.style.display = (trTryb === 'A' || trProbaByla) ? '' : 'none';
 }
 
 function trRundaNowa(){
   if(!trPula.length) trPrzygotujPule();
-  trZadanie = trPula[trIndeks % Math.max(1, trPula.length)];
+  /* Sesja ma DZIESIĘĆ zadań i ma się kończyć. Wcześniej `trIndeks % 10`
+     zawijało na pierwsze zadanie bez słowa - uczeń nie wiedział, że skończył,
+     i dostawał drugi raz to samo w tej samej kolejności. */
+  if(trIndeks >= trPula.length){ trPodsumowanie(); return; }
+  trZadanie = trPula[trIndeks];
   if(!trZadanie) return;
 
   const en = uiLang === 'en';
-  document.getElementById('trWzorzec').textContent = en ? 'Say it out loud' : 'Powiedz na głos';
+  trKoniec = false;
+  trProbaByla = false;
+  trUslyszane = '';
+
+  document.getElementById('trMikBtn').style.display = '';
+  document.getElementById('trDalejBtn').textContent = en ? 'Next' : 'Dalej';
+  document.getElementById('trWzorzec').textContent =
+    (en ? 'Mode ' : 'Tryb ') + trTryb + ' · ' + (en ? 'task ' : 'zadanie ') + (trIndeks + 1) + '/' + trPula.length;
   document.getElementById('trCel').textContent = en ? (trZadanie.en || trZadanie.pl) : trZadanie.pl;
   document.getElementById('trWynik').textContent = '';
   document.getElementById('trWynik').className = 'tr-wynik';
 
   /* Klocki TYLKO w trybie A. Wyżej uczeń ma złożyć zdanie z głowy - to jest
      cała różnica między układanką a mówieniem. */
-  const kl = document.getElementById('trKlocki');
-  kl.innerHTML = (trTryb === 'A')
-    ? shuffle(trZadanie.blocks.slice()).map(b => `<span class="tr-klocek">${escapeHtml(b)}</span>`).join('')
-    : '';
+  trPokazKlocki(trTryb === 'A' ? shuffle(trZadanie.blocks.slice()) : null, false);
+
+  /* Podpowiedź. Element `#trWskazowka` stał w HTML od pierwszej wersji tego
+     ekranu i nigdy nie dostał treści. W trybie A mówi, ILE członów i gdzie
+     stoi orzeczenie - to jest cała reguła, której ten moduł uczy. W B zostaje
+     sama liczba: tyle, żeby uczeń wiedział, czy zapomniał członu, i nie tyle,
+     żeby nie musiał myśleć. Notatka o rejestrze (jest przy zdaniach
+     z mieszanym rejestrem) dochodzi w obu trybach - to ona jest tam
+     najciekawsza. */
+  const ile = trZadanie.blocks.length;
+  const notka = (en ? trZadanie.noteEn : trZadanie.note) || '';
+  const bazowa = (trTryb === 'A')
+    ? (en ? `${ile} parts · the verb goes last · tap a block to hear it`
+          : `${trCzlony(ile)} · orzeczenie na końcu · dotknij klocka, żeby posłuchać`)
+    : (en ? `${ile} parts` : trCzlony(ile));
+  document.getElementById('trWskazowka').textContent = bazowa + (notka ? ' · ' + notka : '');
 
   const rytm = document.getElementById('trRytm');
   rytm.style.display = (trTryb === 'A') ? 'none' : 'block';
@@ -33234,10 +33324,36 @@ function trRundaNowa(){
   document.getElementById('trPodpis').textContent = trTryb === 'A'
     ? (en ? 'No timer. Take your time.' : 'Czas nie biegnie. Spokojnie.')
     : (en ? 'Start speaking before the bar runs out.' : 'Zacznij mówić, zanim pasek zniknie.');
+
+  trUstawSluchaj();
+}
+
+/** Koniec sesji. Trzy liczby zamiast jednej, bo to trzy różne rzeczy. */
+function trPodsumowanie(){
+  const en = uiLang === 'en';
+  trKoniec = true;
+  const razem = trPula.length;
+  document.getElementById('trWzorzec').textContent = en ? 'Session over' : 'Koniec sesji';
+  document.getElementById('trCel').textContent = trTrafienia + '/' + razem +
+    (en ? ' said in full and in order' : ' powiedziane w całości i w szyku');
+  document.getElementById('trWskazowka').textContent = en
+    ? `${trSzykBledny} with the right parts in the wrong order · ${trPudla} incomplete`
+    : `${trSzykBledny} z dobrymi członami w złej kolejności · ${trPudla} niepełne`;
+  trPokazKlocki(null, false);
+  document.getElementById('trRytm').style.display = 'none';
+  document.getElementById('trMikBtn').style.display = 'none';
+  document.getElementById('trPodpis').textContent = '';
+  document.getElementById('trWynik').textContent = '';
+  document.getElementById('trWynik').className = 'tr-wynik';
+  const b = document.getElementById('trSluchajBtn');
+  if(b) b.style.display = 'none';
+  document.getElementById('trDalejBtn').textContent = en ? 'New session' : 'Nowa sesja';
 }
 
 function trStart(){
-  if(!trZadanie) return;
+  if(!trZadanie || trKoniec) return;
+  /* Drugie dotknięcie kończy nagranie - konieczne, odkąd nasłuch jest ciągły. */
+  if(trSluchaTeraz){ trZakonczNaslu(); return; }
   const przycisk = document.getElementById('trMikBtn');
   const wynik = document.getElementById('trWynik');
 
@@ -33263,24 +33379,49 @@ function trStart(){
   trRozp = new SR();
   trRozp.lang = 'ko-KR';
   trRozp.interimResults = true;
-  trRozp.continuous = false;
+  /* NASŁUCH CIĄGŁY. Do .493 było `continuous = false`: rozpoznawanie kończyło
+     się na pierwszej pauzie i oceniało uczenia za jego pierwszy fragment.
+     W treningu ODRUCHU pauza w połowie zdania to nie koniec wypowiedzi, tylko
+     dokładnie ten moment, dla którego ten tryb powstał. Teraz kończy dopiero
+     półtorej sekundy ciszy albo ponowne dotknięcie mikrofonu. */
+  trRozp.continuous = true;
+  trSluchaTeraz = true;
+  trUslyszane = '';
   przycisk.classList.add('tr-slucha');
+  document.getElementById('trPodpis').textContent = uiLang === 'en'
+    ? 'Listening — tap again when you are done.'
+    : 'Słucham — dotknij ponownie, gdy skończysz.';
 
   trRozp.onresult = (e) => {
     /* Pierwszy wynik częściowy zatrzymuje pasek - liczy się MOMENT
        rozpoczęcia mowy, nie jej dokończenie. */
     const rytm = document.getElementById('trRytm');
     rytm.classList.remove('tr-plynie');
-    const tekst = Array.from(e.results).map(r => r[0].transcript).join('');
-    if(e.results[e.results.length - 1].isFinal) trOcen(tekst);
+    trUslyszane = Array.from(e.results).map(r => r[0].transcript).join(' ');
+    if(trOcenaTimer) clearTimeout(trOcenaTimer);
+    trOcenaTimer = setTimeout(trZakonczNaslu, 1500);
   };
   trRozp.onerror = () => {
+    trSluchaTeraz = false;
+    if(trOcenaTimer){ clearTimeout(trOcenaTimer); trOcenaTimer = null; }
     przycisk.classList.remove('tr-slucha');
     wynik.textContent = uiLang === 'en' ? 'Could not hear you.' : 'Nie udało się rozpoznać.';
     wynik.className = 'tr-wynik zle';
   };
-  trRozp.onend = () => { przycisk.classList.remove('tr-slucha'); };
+  trRozp.onend = () => { if(trSluchaTeraz) trZakonczNaslu(); else przycisk.classList.remove('tr-slucha'); };
   try{ trRozp.start(); }catch(e){}
+}
+
+/** Koniec nasłuchu: cisza, ponowne dotknięcie mikrofonu albo koniec od
+    przeglądarki. Jedno miejsce, żeby te trzy drogi nie rozjechały się przy
+    pierwszej zmianie. */
+function trZakonczNaslu(){
+  if(trOcenaTimer){ clearTimeout(trOcenaTimer); trOcenaTimer = null; }
+  trSluchaTeraz = false;
+  try{ if(trRozp) trRozp.stop(); }catch(e){}
+  const przycisk = document.getElementById('trMikBtn');
+  if(przycisk) przycisk.classList.remove('tr-slucha');
+  if(String(trUslyszane).trim()) trOcen(trUslyszane);
 }
 
 /* Ocena po SŁOWACH KLUCZOWYCH, nie po dosłownym dopasowaniu. Chodzi o to,
@@ -33293,21 +33434,57 @@ function trOcen(tekst){
   const trafione = bloki.filter(b => czyste.includes(b)).length;
   const en = uiLang === 'en';
 
-  if(trafione === bloki.length){
+  /* SZYK. Do .493 ocena liczyła same trafienia, bez kolejności - te same człony
+     powiedziane OD TYŁU dostawały „✓ Wszystko na miejscu" (zmierzone sondą,
+     nie przypuszczone). Moduł istnieje po to, żeby uczyć szyku SOV, więc
+     kontrola, która szyku nie widzi, mierzy nie to, czego uczy.
+
+     Sposób: szukamy członów JEDEN PO DRUGIM, każdego od miejsca, w którym
+     skończył się poprzedni. Powtórzony człon nie zaburza wyniku, bo kursor
+     idzie tylko do przodu. */
+  let kursor = 0, wSzyku = true;
+  bloki.forEach(b => {
+    const p = czyste.indexOf(b, kursor);
+    if(p < 0) wSzyku = false; else kursor = p + b.length;
+  });
+
+  trProbaByla = true;
+  trUstawSluchaj();
+
+  if(trafione === bloki.length && wSzyku){
+    trTrafienia += 1;
     wynik.textContent = en ? '✓ Complete and in order' : '✓ Wszystko na miejscu';
     wynik.className = 'tr-wynik ok';
     try{ playRealSound('correct'); }catch(e){}
+  } else if(trafione === bloki.length){
+    /* Wszystkie człony są. To NIE jest ten sam błąd co „nic nie pasuje" -
+       uczeń zna słowa, przestawił kolejność, i to jest dokładnie ta jedna
+       rzecz, której ten moduł uczy. Osobny kubełek, osobny kolor, wzorzec
+       w kolejności na ekranie i do posłuchania. */
+    trSzykBledny += 1;
+    wynik.textContent = en
+      ? 'All the parts are there, but the order slipped — in Korean the verb comes last.'
+      : 'Wszystkie człony są, ale szyk się rozjechał — po koreańsku orzeczenie idzie na koniec.';
+    wynik.className = 'tr-wynik szyk';
+    trPokazKlocki(trZadanie.blocks.slice(), true);
+    try{ speakKorean(trZadanie.blocks.join(' ')); }catch(e){}
   } else if(trafione > 0){
+    trPudla += 1;
     wynik.textContent = (en ? 'Heard: ' : 'Usłyszałem: ') + tekst +
       ` (${trafione}/${bloki.length})`;
     wynik.className = 'tr-wynik';
     /* Zamiast czerwonego krzyżyka - wzorzec do posłuchania. Poprawianie
        przez usłyszenie działa lepiej niż przez przeczytanie błędu. */
+    trPokazKlocki(trZadanie.blocks.slice(), true);
     try{ speakKorean(trZadanie.blocks.join(' ')); }catch(e){}
   } else {
+    trPudla += 1;
     wynik.textContent = en ? 'Nothing matched — listen and try again.'
                            : 'Nic nie pasuje — posłuchaj i spróbuj jeszcze raz.';
     wynik.className = 'tr-wynik zle';
+    /* Wcześniej ta gałąź kazała „posłuchać", a niczego nie odtwarzała. */
+    trPokazKlocki(trZadanie.blocks.slice(), true);
+    try{ speakKorean(trZadanie.blocks.join(' ')); }catch(e){}
   }
 }
 
