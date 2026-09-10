@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.492
-  Zbudowane na: 4618ddd25aa446ed4fc8ec66e7931c3e (.491)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.493
+  Zbudowane na: 58717fd678aaa05c04454296fde9fbe0 (.492)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -26903,7 +26903,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-10.492';
+const APP_VERSION = '2026-09-10.493';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -34054,12 +34054,62 @@ const GRAMMAR_LEVEL_PREREQ = { basic: null, intermediate: 'basic', advanced: 'in
    (test poziomujący, ćwiczenia gramatyczne), a zmienna ustawiona raz przy
    starcie byłaby drugim źródłem prawdy obok `masteryStats` — czyli dokładnie
    tym, co w tym pliku rozjeżdżało się już wielokrotnie. */
-function poziomUcznia(){
+const POZIOM_Z_TESTU_KEY = 'hooljon_poziom_z_testu';
+
+/** Wynik testu poziomującego — zapisany WPROST, nie odczytany z biegłości.
+    Biegłość rośnie też od zwykłego ćwiczenia, więc po niej nie da się poznać,
+    czy ktoś zdał egzamin, czy przerobił jeden rozdział. */
+function poziomZTestu(){
   try{
-    if(getMastery('grammar:intermediate').mastered) return 3;
-    if(getMastery('grammar:basic').mastered) return 2;
-  }catch(e){ /* biegłość jeszcze niewczytana - poziom początkujący */ }
-  return 1;
+    const v = parseInt(localStorage.getItem(POZIOM_Z_TESTU_KEY), 10);
+    return (v >= 1 && v <= 3) ? v : 1;
+  }catch(e){ return 1; }
+}
+function zapiszPoziomZTestu(p){
+  try{ localStorage.setItem(POZIOM_Z_TESTU_KEY, String(p)); }catch(e){}
+}
+
+/** Poziom wynikający z tego, DOKĄD ZAPROWADZIŁA ŚCIEŻKA. Lekcje mają pole
+    `level`, więc nie trzeba wymyślać progu — bierzemy poziom najdalszej
+    ukończonej lekcji.
+
+    Dwa zapisy tego samego: lekcje gramatyczne nazywają poziom słowem
+    ('basic'/'intermediate'/'advanced'), czytanki liczbą (1/2/3). Oba mówią
+    o tym samym miejscu w ścieżce — sprawdzone na materiale: pierwsza lekcja
+    'intermediate' stoi na pozycji 98, pierwsza czytanka o poziomie 2 na 99;
+    'advanced' na 191, czytanka o poziomie 3 na 193. Czytanie tylko jednego
+    z tych zapisów zostawiałoby dziurę bez żadnego powodu. */
+const POZIOM_SLOWEM = { basic: 1, intermediate: 2, advanced: 3 };
+function poziomLekcji(l){
+  if(typeof l.level === 'number') return (l.level >= 1 && l.level <= 3) ? l.level : 0;
+  return POZIOM_SLOWEM[l.level] || 0;
+}
+function poziomZPostepu(){
+  let p = 1;
+  try{
+    STORY_LESSONS.forEach(l => {
+      const m = poziomLekcji(l);
+      if(m > p && isLessonDone(l.id)) p = m;
+    });
+  }catch(e){ /* postęp jeszcze niewczytany */ }
+  return p;
+}
+
+/* POZIOM UCZNIA — jedno źródło dla całej apki, dwie jawne drogi.
+
+   Do .492 liczył się wyłącznie getMastery('grammar:...'), czyli 10 odpowiedzi
+   przy 70% celności. Ten próg powstał, żeby odblokować kartę kolejnego poziomu
+   w trybie gramatyki — a użyłem go jako bramy na całą treść apki. Damian
+   zgłosił to będąc na PIĄTEJ lekcji ścieżki i już na poziomie 2: siedem
+   poprawnych odpowiedzi w jednym rozdziale przestawiało pulę układania zdań
+   z 895 na 1502, wpuszczało scenariusze formalne i zmieniało tryb treningu
+   odruchu z A na B.
+
+   Teraz: większa z dwóch jawnych miar. Test poziomujący ma prawo wpuścić od
+   razu wysoko — po to jest. Ćwiczenie rozdziału gramatyki nie rusza niczego
+   poza trybem gramatyki. */
+function poziomUcznia(){
+  return Math.max(poziomZTestu(), poziomZPostepu());
 }
 
 // Pytania typu "zdania o tym samym znaczeniu" (TOPIK: 다음 문장과 뜻이 가장 비슷한 것은?)
@@ -36268,6 +36318,11 @@ async function finishPlacementTest(){
   document.getElementById('ptResult').style.display = 'block';
 
   placementUnlockedAdvanced = unlocked.includes('intermediate') || unlocked.includes('advanced');
+
+  /* Wynik testu zapisany WPROST. Wcześniej zostawiał tylko ślad w biegłości —
+     ten sam, który zostawia zwykłe ćwiczenie — więc apka nie umiała odróżnić
+     zdanego egzaminu od przerobionego rozdziału. */
+  zapiszPoziomZTestu(unlocked.includes('advanced') ? 3 : (unlocked.includes('intermediate') ? 2 : 1));
 
   if(unlocked.length > 0) showCelebration({
     icon: '🔓',
