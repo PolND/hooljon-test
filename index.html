@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-09.475
-  Zbudowane na: a24de204619e2f67a3d73aa56b713f1c (.390)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.477
+  Zbudowane na: d52d5502c19068b790f13e65f2bae3ee (.476)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -13,6 +13,9 @@
   samego rodzica dostaną ten sam numer. Dopiero suma rodzica pokazuje, że dwa
   pliki z tym samym .NN są różne. Przy każdym buildzie wpisz sumę pliku wejściowego.
   UWAGA dla przyszłych sesji: przy KAŻDEJ zmianie podbij OBA - ten znacznik i APP_VERSION.
+  W .476 ten krok został pominięty: plik miał treść .476, a APP_VERSION nadal '2026-09-09.475'.
+  Od .477 pilnuje tego kontrola 9 w runtime-check.js (numer w nazwie pliku = APP_VERSION),
+  bo to samo miejsce zawiodło dwa razy: raz APP_VERSION, raz „Zbudowane na" (stało na .390).
   Jeśli porównujesz tę kopię z inną (np. w repozytorium Claude Code) i data się różni —
   to NIE jest ta sama wersja. Sprawdź, która jest nowsza, zanim założysz cokolwiek
   o obecności funkcji (Premium Pro, moduł hangul, integracja dictionary_words itd.).
@@ -26945,7 +26948,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-09.475';
+const APP_VERSION = '2026-09-10.477';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
