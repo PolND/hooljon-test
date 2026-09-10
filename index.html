@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.482
-  Zbudowane na: de965d68a46e119916484d88434eef0b (.481)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.483
+  Zbudowane na: 0bc6f39bd9e4478c4b985cce7bdbe174 (.482)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -26851,7 +26851,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-10.482';
+const APP_VERSION = '2026-09-10.483';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -32002,7 +32002,7 @@ async function rankingSync(){
   const dzialy = [...new Set(allWords.map(w => w.category || 'Własne'))];
   let zloto = 0, nefryt = 0;
   dzialy.forEach(c => { const st = stopienPieczeci(c); if(st === 'geum') zloto++; else if(st === 'ok') nefryt++; });
-  const poziom = (typeof unlockedLevel !== 'undefined' ? unlockedLevel : 1);
+  const poziom = poziomUcznia();
   try{ await sb.rpc('leaderboard_sync', { p_seals_gold: zloto, p_seals_jade: nefryt, p_top_level: poziom }); }
   catch(e){}
 }
@@ -32908,7 +32908,7 @@ const NU_ETYKIETY = {
 };
 
 function nunchiLosuj(){
-  const lvl = (typeof unlockedLevel !== 'undefined' ? unlockedLevel : 1);
+  const lvl = poziomUcznia();
   /* Na poziomie 1 zostawiamy scenariusze bez 합니다체 - rejestr formalny wymaga
      form, których uczeń jeszcze nie zna, a wtedy ćwiczenie sprawdza brak wiedzy,
      nie wyczucie. */
@@ -32939,7 +32939,7 @@ function renderNunchiScreen(){
      L3: nic - wtedy to faktycznie jest test wyczucia.
 
      Zgłoszone przez Damiana 2026-09-06. */
-  const lvl = (typeof unlockedLevel !== 'undefined' ? unlockedLevel : 1);
+  const lvl = poziomUcznia();
   const meta = (typeof REGISTER_META !== 'undefined')
     ? REGISTER_META.find(r => r.key === sc.rejestr) : null;
   const wsk = document.getElementById('nuWskazowka');
@@ -33020,7 +33020,7 @@ let krWidoczne = false;
 function krZestaw(){
   const ost = [...geminiTranscriptHistory].reverse().find(t => t.speaker === 'bot');
   const txt = ost ? String(ost.text).trim() : '';
-  const lvl = (typeof unlockedLevel !== 'undefined' ? unlockedLevel : 1);
+  const lvl = poziomUcznia();
   let pula;
   if(/[?？]\s*$/.test(txt) || /(까요|나요|세요|어요|아요)\s*\?$/.test(txt)) pula = KR_PO_PYTANIU;
   else if(txt.length > 40) pula = KR_PO_PYTANIU.concat(KR_PODTRZYMANIE);
@@ -33086,7 +33086,7 @@ let trTimer = null;
 /* Pula z SENTENCE_BUILDER_ITEMS - zdania mają już klocki, tłumaczenie
    i poziom, więc nie trzeba osobnych danych. */
 function trPrzygotujPule(){
-  const lvl = (typeof unlockedLevel !== 'undefined' ? unlockedLevel : 1);
+  const lvl = poziomUcznia();
   trTryb = lvl >= 3 ? 'C' : lvl === 2 ? 'B' : 'A';
   const zrodlo = (typeof SENTENCE_BUILDER_ITEMS !== 'undefined') ? SENTENCE_BUILDER_ITEMS : [];
   trPula = shuffle(zrodlo.filter(x => (x.level || 1) <= lvl)).slice(0, 10);
@@ -33926,6 +33926,26 @@ function getLeechGrammarItems(){
 }
 
 const GRAMMAR_LEVEL_PREREQ = { basic: null, intermediate: 'basic', advanced: 'intermediate' };
+
+/* POZIOM UCZNIA — jedno źródło dla całej apki.
+
+   Do 2026-09-10 sześć miejsc pytało o `unlockedLevel`, zmienną, której NIKT
+   NIGDY NIE ZADEKLAROWAŁ. Każde z nich dostawało więc 1 i przycinało treść do
+   poziomu początkującego — także uczniowi, którego test poziomujący przepuścił
+   przez poziom średni. Wynik testu trafia do `registerMastery('grammar:…')`
+   i był używany wyłącznie do odblokowania kart w trybie gramatyki.
+
+   To FUNKCJA, nie zmienna, i to jest celowe: poziom zmienia się w trakcie sesji
+   (test poziomujący, ćwiczenia gramatyczne), a zmienna ustawiona raz przy
+   starcie byłaby drugim źródłem prawdy obok `masteryStats` — czyli dokładnie
+   tym, co w tym pliku rozjeżdżało się już wielokrotnie. */
+function poziomUcznia(){
+  try{
+    if(getMastery('grammar:intermediate').mastered) return 3;
+    if(getMastery('grammar:basic').mastered) return 2;
+  }catch(e){ /* biegłość jeszcze niewczytana - poziom początkujący */ }
+  return 1;
+}
 
 // Pytania typu "zdania o tym samym znaczeniu" (TOPIK: 다음 문장과 뜻이 가장 비슷한 것은?)
 // Ręcznie dobrane i zweryfikowane pary bliskoznaczne — wzorce, których równoważność
@@ -37592,7 +37612,7 @@ let sbPula = [];
 let sbItem = null;   // zdanie aktualnie na ekranie - patrz showSentenceBuilderItem()
 
 function startSentenceBuilder(){
-  const lvl = (typeof unlockedLevel !== 'undefined' ? unlockedLevel : 1);
+  const lvl = poziomUcznia();
   sbPula = shuffle(SENTENCE_BUILDER_ITEMS.filter(x => (x.level || 1) <= lvl));
   if(sbPula.length < 5) sbPula = shuffle(SENTENCE_BUILDER_ITEMS.slice());
   sbIndex = 0;
