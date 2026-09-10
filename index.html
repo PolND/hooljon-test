@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.501
-  Zbudowane na: bade2af29b7460b85ecf5da26b6d5bfe (.500)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.503
+  Zbudowane na: a0a810e09d055adf383f614375a9c418 (.502)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -27023,7 +27023,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-10.501';
+const APP_VERSION = '2026-09-10.503';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -33848,9 +33848,9 @@ const MISJE = [
         "en": "Give the driver your destination and, when asked, say exactly where to stop."
       },
       "otwarcie": {
-        "ko": "어서 오세요. 어디로 모실까요?",
-        "pl": "Dzień dobry. Dokąd jedziemy?",
-        "en": "Hello. Where to?"
+        "ko": "어서 오세요. 아, 뒤에서 빵빵거리네요. 어디로 모실까요?",
+        "pl": "Dzień dobry. O, trąbią z tyłu. Dokąd jedziemy?",
+        "en": "Hello. Ah, someone is honking behind us. Where to?"
       },
       "kryteria": {
         "pl": [
@@ -33912,7 +33912,7 @@ const MISJE = [
         "en": "Return damaged shoes"
       },
       "cel": {
-        "pl": "Doprowadź do wymiany albo zwrotu: opisz wadę, powiedz, kiedy kupiłeś, zapytaj o możliwość — i nie daj się odesłać do producenta.",
+        "pl": "Uzyskaj wymianę albo zwrot: opisz wadę, podaj datę zakupu, zapytaj o możliwość — nie daj się odesłać dalej.",
         "en": "Get an exchange or refund: describe the defect, say when you bought them, ask what is possible — and don’t get sent to the manufacturer."
       },
       "otwarcie": {
@@ -34116,7 +34116,7 @@ const MISJE = [
         "en": "Small talk in the lift"
       },
       "cel": {
-        "pl": "Odpowiedz starszemu sąsiadowi na pytanie o zdrowie i sam zapytaj o jego — i pożegnaj się, zanim otworzą się drzwi.",
+        "pl": "Odpowiedz sąsiadowi, zapytaj o jego zdrowie z -시- i pożegnaj się, zanim otworzą się drzwi.",
         "en": "Answer the older neighbour’s question about how you are, ask about his health — and say goodbye before the doors open."
       },
       "otwarcie": {
@@ -34150,7 +34150,7 @@ const MISJE = [
         "en": "Own up to a mistake"
       },
       "cel": {
-        "pl": "Powiedz dyrektorowi o błędzie w raporcie, który poszedł do klienta: przeproś, podaj fakt, powiedz, co robisz — bez wymówki.",
+        "pl": "Zgłoś dyrektorowi błąd w raporcie wysłanym do klienta: przeproś, podaj fakt, powiedz, co robisz — bez wymówki.",
         "en": "Tell the director about the error in a report already sent to the client: apologise, state the fact, say what you are doing — no excuses."
       },
       "otwarcie": {
@@ -34248,7 +34248,7 @@ const MISJE = [
       "tury": 3,
       "ikona": "🍻",
       "tytul": {
-        "pl": "Pogadaj z szefem na firmowej kolacji",
+        "pl": "Szef na firmowej kolacji",
         "en": "Chat with the boss at a work dinner"
       },
       "cel": {
@@ -34286,7 +34286,7 @@ const MISJE = [
         "en": "Decline staying late"
       },
       "cel": {
-        "pl": "Odmów szefowi zostania dziś po godzinach: podaj powód, zmiękcz odmowę i zaproponuj, kiedy dokończysz — także gdy naciśnie drugi raz.",
+        "pl": "Odmów zostania po godzinach: podaj powód, zmiękcz odmowę, zaproponuj termin — także przy drugim nacisku.",
         "en": "Decline staying late today: give the reason, soften the refusal, and offer when you will finish — even when he pushes a second time."
       },
       "otwarcie": {
@@ -34354,7 +34354,7 @@ const MISJE = [
         "en": "Introduce yourself to a desk-mate"
       },
       "cel": {
-        "pl": "Pierwszy dzień: przedstaw się koledze z biurka obok, poproś o pomoc w jednej sprawie i zakończ formułą na dobry początek.",
+        "pl": "Pierwszy dzień: przedstaw się koledze z biurka obok, poproś o pomoc w jednej sprawie i zakończ 잘 부탁드려요.",
         "en": "First day: introduce yourself to the colleague at the next desk, ask for help with one thing, and close with the right opening-day formula."
       },
       "otwarcie": {
@@ -34388,7 +34388,7 @@ const MISJE = [
         "en": "Answer a request for help"
       },
       "cel": {
-        "pl": "Kolega prosi o pomoc przy prezentacji, a ty jesteś zajęty: odpowiedz warunkowym „tak” z konkretną godziną, nie „nie”.",
+        "pl": "Kolega prosi o pomoc, a ty jesteś zajęty: odpowiedz warunkowym „tak” z konkretną godziną, nie „nie”.",
         "en": "A colleague asks for help with a presentation while you are busy: answer with a conditional yes and a concrete time, not a no."
       },
       "otwarcie": {
@@ -34435,7 +34435,7 @@ const MISJE = [
           "instrukcja krok po kroku z -(으)면 돼요 (여기 누르면 돼요) — nie sam opis, co system robi",
           "sprawdzenie zrozumienia (알겠어요? / 해 볼래요?)",
           "zaproszenie do pytań (모르는 거 있으면 언제든 물어보세요)",
-          "해요체 wobec młodszego jest bezpieczne; 반말 po miesiącu tolerowane w luźnych firmach — lustro tylko zaznacza; 합니다체 sztywne, ale nie błędne"
+          "해요체 wobec młodszego jest bezpieczne; 반말 po miesiącu tolerowane w luźnych firmach; 합니다체 sztywne, ale nie błędne"
         ],
         "en": [
           "step-by-step instruction with -(으)면 돼요 (press here and it works) — not just a description of what the system does",
@@ -34456,13 +34456,13 @@ const MISJE = [
         "en": "Interview a candidate"
       },
       "cel": {
-        "pl": "Otwórz rozmowę kwalifikacyjną z młodszym kandydatem: rozluźnij go, poproś o przedstawienie się i zadaj jedno pytanie o doświadczenie.",
+        "pl": "Otwórz rozmowę z młodszym kandydatem: rozluźnij go, poproś o przedstawienie się, zapytaj o doświadczenie.",
         "en": "Open an interview with a younger candidate: put him at ease, ask for a self-introduction, and ask one question about his experience."
       },
       "otwarcie": {
-        "ko": "안녕하십니까. 오늘 면접 보러 온 김민재라고 합니다. 잘 부탁드립니다.",
-        "pl": "Dzień dobry. Nazywam się Kim Minjae, przyszedłem na rozmowę. Dziękuję za możliwość.",
-        "en": "Good morning. I am Kim Minjae, here for the interview. Thank you for having me."
+        "ko": "안녕하십니까. 면접 보러 온 김민재라고 합니다. 저… 어디에 앉으면 될까요?",
+        "pl": "Dzień dobry. Nazywam się Kim Minjae, przyszedłem na rozmowę. Yyy… gdzie mogę usiąść?",
+        "en": "Good morning. I am Kim Minjae, here for the interview. Um… where should I sit?"
       },
       "kryteria": {
         "pl": [
@@ -34490,7 +34490,7 @@ const MISJE = [
         "en": "Dinner at a friend’s aunt’s"
       },
       "cel": {
-        "pl": "Podziękuj za kolację, odpowiedz na pytanie o pracę i pochwal potrawę — trzymając 해요체 z -시-, choć ciotka przejdzie na 반말.",
+        "pl": "Podziękuj za kolację, odpowiedz o pracy i pochwal potrawę — w 해요체 z -시-, choć ciotka przejdzie na 반말.",
         "en": "Thank her for dinner, answer the question about your work, and praise the dish — keeping 해요체 with -시- even as the aunt slips into 반말."
       },
       "otwarcie": {
@@ -34524,7 +34524,7 @@ const MISJE = [
         "en": "Thank your future mother-in-law"
       },
       "cel": {
-        "pl": "Po obiedzie podziękuj mamie partnera, pochwal konkretną potrawę i poproś o przepis — z 어머님 i bez imienia partnera na luzie.",
+        "pl": "Podziękuj mamie partnera, pochwal konkretną potrawę i poproś o przepis — z 어머님, bez imienia partnera na luzie.",
         "en": "After dinner thank your partner’s mother, praise one specific dish, and ask for the recipe — with 어머님 and no casual use of your partner’s name."
       },
       "otwarcie": {
@@ -34537,7 +34537,7 @@ const MISJE = [
           "zwrot 어머님 (nie 어머니, nie 아주머니) przynajmniej raz",
           "pochwała konkretnej potrawy (김치찌개 정말 맛있었어요), nie ogólne 다 맛있어요",
           "prośba o przepis z 좀 … 가르쳐 주세요 / 알려 주시겠어요",
-          "해요체 z honoryfikatywami; 합니다체 = dystans, jakby uczeń nie chciał się zbliżyć; imię partnera z 씨 albo tak, jak mówi o nim mama — nie 너/걔"
+          "해요체 z honoryfikatywami; 합니다체 = dystans; imię partnera z 씨 albo tak, jak mówi o nim mama — nie 너/걔"
         ],
         "en": [
           "어머님 (not 어머니, not 아주머니) at least once",
@@ -34570,7 +34570,7 @@ const MISJE = [
         "pl": [
           "przedstawienie się (할머니, 저예요) i pytanie o posiłek z 드셨어요 / 진지 드셨어요 — 밥 먹었어? bez -시- to błąd",
           "uspokojenie: 잘 먹고 있어요 / 감기 안 걸렸어요 — odpowiedź na jej troskę, nie tylko własne wieści",
-          "rodzinne 반말 + honoryfikatyw (드셨어?) jest akceptowalne; 합니다체 brzmi obco — babcia zapyta, czy coś się stało",
+          "해요체 z -시- albo rodzinne 반말 + honoryfikatyw (드셨어?) — oba w porządku; 합니다체 brzmi obco, babcia zapyta, czy coś się stało",
           "życzenie na koniec z -세요 (감기 조심하세요 / 건강하세요)"
         ],
         "en": [
@@ -34592,7 +34592,7 @@ const MISJE = [
         "en": "Meet a friend’s father"
       },
       "cel": {
-        "pl": "Kolega przedstawia cię ojcu na ulicy: przywitaj się, przedstaw pełną formułą i odpowiedz na jedno krótkie pytanie.",
+        "pl": "Przywitaj się z ojcem kolegi, przedstaw się pełną formułą i odpowiedz na jedno krótkie pytanie.",
         "en": "Your friend introduces you to his father on the street: greet him, introduce yourself with the full formula, and answer one short question."
       },
       "otwarcie": {
@@ -34656,11 +34656,11 @@ const MISJE = [
       "tury": 3,
       "ikona": "📚",
       "tytul": {
-        "pl": "Zgódź się na projekt ze starszym kolegą",
+        "pl": "Projekt ze starszym kolegą",
         "en": "Join a senior’s project"
       },
       "cel": {
-        "pl": "Odpowiedz 선배 na propozycję wspólnego projektu: zgódź się, dopytaj o jedną rzecz i umów termin — w 해요체, choć on mówi 반말.",
+        "pl": "Zgódź się na projekt z 선배, dopytaj o jedną rzecz i umów termin — w 해요체, choć on mówi 반말.",
         "en": "Answer a 선배’s offer of a joint project: agree, ask about one thing, and set a time — in 해요체, even though he uses 반말."
       },
       "otwarcie": {
@@ -34694,7 +34694,7 @@ const MISJE = [
         "en": "Be there for a friend"
       },
       "cel": {
-        "pl": "Przyjaciel dzwoni po kłótni z dziewczyną: dowiedz się, co się stało, nie oceniaj od razu i zaproponuj spotkanie — w 반말 od pierwszego słowa.",
+        "pl": "Dowiedz się, co się stało, nie oceniaj od razu i zaproponuj spotkanie — w 반말 od pierwszego słowa.",
         "en": "A friend calls after a fight with his girlfriend: find out what happened, don’t judge right away, and offer to meet — in 반말 from the first word."
       },
       "otwarcie": {
@@ -34728,7 +34728,7 @@ const MISJE = [
         "en": "Praise a child’s drawing"
       },
       "cel": {
-        "pl": "Ośmiolatek pokazuje ci rysunek: pochwal, zapytaj, co przedstawia, i zaproponuj, żeby narysował coś jeszcze — w 반말.",
+        "pl": "Pochwal rysunek, zapytaj, co przedstawia, i zaproponuj, żeby narysował coś jeszcze — w 반말.",
         "en": "An eight-year-old shows you a drawing: praise it, ask what it shows, and suggest he draw one more thing — in 반말."
       },
       "otwarcie": {
@@ -34762,7 +34762,7 @@ const MISJE = [
         "en": "Advise your younger cousin"
       },
       "cel": {
-        "pl": "Kuzyn nie wie, jakie studia wybrać: zapytaj, co lubi, doradź bez narzucania i uspokój, że ma czas — w 반말 z 너/네.",
+        "pl": "Zapytaj kuzyna, co lubi, doradź bez narzucania i uspokój, że ma czas — w 반말 z 너/네.",
         "en": "Your cousin can’t choose a degree: ask what he likes, advise without imposing, and reassure him there is time — in 반말 with 너/네."
       },
       "otwarcie": {
@@ -39035,6 +39035,34 @@ function mowaZLekcji(lesson){
         (typeof readerLookupForms === 'function') ? readerLookupForms(b) : [b]), []));
       for(const w of slowa){ if(formy.has(w)){ kandydaci.push({ bloki: z.blocks.slice(), pl: z.pl, pattern: null, subtype: 'mowa', level: z.level }); return; } }
     });
+  }
+
+  /* ZDANIE PRZYKŁADOWE ZE SŁOWA. Gdy w puli układania zdań nie ma nic z tej
+     lekcji, sięgamy po pole `ex` jej własnych słów - pełne zdanie z gotowym
+     tłumaczeniem (`exPl`/`exEn`), 1509 słów je ma.
+
+     Do .502 krok mówienia znał tylko `SENTENCE_BUILDER_ITEMS` i przez to
+     pomijał 36 lekcji słownikowych - z czego 32 miały zdanie w swoich własnych
+     słowach. Dane były, droga do nich nie prowadziła; ta sama rodzina co
+     `unlockedLevel` (.483) i poziom rozmowy (.496).
+
+     Kolejność jest ważna: pula PRZED `ex`. Zdanie z puli ma klocki dobrane pod
+     układanie i sprawdzony poziom; `ex` to zdanie słownikowe, dobre, ale
+     pisane pod hasło, nie pod ćwiczenie. */
+  if(!kandydaci.length && lesson.type === 'vocab'){
+    const zeSlow = [];
+    try{
+      resolveLessonWords(lesson).forEach(w => {
+        if(!w.ex) return;
+        const ko = String(w.ex).replace(/[.!?！？]+$/, '').trim();
+        const bloki = ko.split(/\s+/).filter(Boolean);
+        if(bloki.length < 2 || bloki.length > 7) return;
+        const pl = (uiLang === 'en' ? w.exEn : w.exPl) || w.exPl || '';
+        if(!pl) return;
+        zeSlow.push({ bloki, pl, pattern: null, subtype: 'mowa', level: w.level || 1 });
+      });
+    }catch(e){ /* brak słów lekcji nie może wywrócić lekcji */ }
+    kandydaci.push(...zeSlow);
   }
 
   if(!kandydaci.length) return [];
