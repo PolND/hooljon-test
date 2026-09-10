@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.494
-  Zbudowane na: 11dae51a9b6898ec719131c49000440c (.493)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.501
+  Zbudowane na: bade2af29b7460b85ecf5da26b6d5bfe (.500)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -5615,6 +5615,38 @@
     border:1px solid var(--bad); border-radius:var(--radius);
     font:600 12.5px var(--font-ui); color:var(--bad); line-height:1.45;
   }
+  /* Pasek tematu rozmowy - ten sam ciężar wizualny co drill-info, bo pełni
+     tę samą rolę: mówi, o czym jest ta konkretna sesja. */
+  #rozmowaTematInfo{
+    background:var(--card-hi); border:1px solid var(--border); border-radius:var(--radius);
+    padding:12px 14px; margin-bottom:10px;
+  }
+  #rozmowaTematInfo .rt-tytul{ font:600 14px var(--font-ui); color:var(--ink); margin-bottom:8px; }
+  #rozmowaTematInfo .rt-slowa{ display:flex; flex-wrap:wrap; gap:6px; }
+  #rozmowaTematInfo .rt-slowo{
+    font-family:var(--font-ko); font-size:14px; padding:6px 10px; cursor:pointer;
+    background:var(--surface-2); color:var(--ink); -webkit-appearance:none; appearance:none;
+    border:1px solid var(--border); border-radius:var(--radius);
+  }
+  #rozmowaTematInfo .rt-wzorce{ font:400 12px var(--font-ui); color:var(--ink-dim); margin-top:8px; line-height:1.4; }
+  /* MISJE */
+  /* Zrobiona scena zostaje na liście, ale przestaje się dopominać o uwagę:
+     przygaszona i na końcu. Nie znika, bo powtórzenie tej samej sceny po
+     tygodniu jest sensownym ćwiczeniem. */
+  .home-card.misja-zrobiona{ opacity:.62; }
+  #misjaPasek{ background:var(--card-hi); border:1px solid var(--border); border-radius:var(--radius); padding:10px 12px; margin:10px 0; }
+  #misjaPasek .mi-cel{ font:600 13.5px var(--font-ui); color:var(--ink); line-height:1.4; }
+  #misjaPasek .mi-tury{ display:flex; align-items:center; gap:6px; margin-top:8px; }
+  #misjaPasek .mi-kropka{ width:9px; height:9px; border-radius:50%; border:1px solid var(--border); background:var(--surface-2); }
+  #misjaPasek .mi-kropka.pelna{ background:var(--hwang); border-color:var(--hwang); }
+  #misjaPasek .mi-licznik{ font:400 12px var(--font-ui); color:var(--ink-dim); margin-left:4px; }
+  #misjaWynik .mi-naglowek{ font:600 15px var(--font-ui); margin-bottom:8px; }
+  #misjaWynik .mi-werdykt{ font:700 16px var(--font-ui); margin-bottom:6px; }
+  #misjaWynik .mi-werdykt.osiagniety{ color:var(--good); }
+  #misjaWynik .mi-werdykt.nieosiagniety{ color:var(--bad); }
+  #misjaWynik .mi-werdykt.czesciowo{ color:var(--hwang); }
+  #misjaWynik ul{ margin:6px 0 10px; padding-left:18px; line-height:1.5; }
+  #misjaWynik .mi-next{ margin-top:8px; }
   .tr-cel{
     font:600 19px var(--font-ui); color:var(--ink);
     margin:10px 0 8px; line-height:1.4; text-wrap:pretty;
@@ -7784,6 +7816,25 @@
 
     <div id="aiChatBody">
       <div id="drillInfo" class="drill-info"></div>
+      <!-- Temat rozmowy po ukończonym rozdziale: słowa do dotknięcia (wymowa)
+           i wzorce, których uczeń się właśnie nauczył. Widoczny tylko wtedy,
+           gdy rozmowa zaczyna się z ekranu wyniku lekcji. -->
+      <div id="rozmowaTematInfo" style="display:none;"></div>
+
+      <!-- MISJE SĄ DRZWIAMI. Wolna rozmowa głosowa zostaje pod spodem i dostaje
+           uczciwą etykietę - nie znika, bo to jedyne miejsce, w którym uczeń
+           może powiedzieć coś, czego nie przewidzieliśmy. -->
+      <div id="misjeSekcja">
+        <div class="achv-section-title" style="margin:0 0 2px;" data-i18n="misjeTytul">Misje — zamknięte sceny z oceną</div>
+        <div class="hint-note" style="text-align:left; margin:0;" data-i18n="misjeOpis">
+          Trzy albo cztery wymiany, jeden cel, ocena rejestru na końcu.
+        </div>
+        <div id="misjeFiltr" class="category-chips" style="margin:10px 0 0;"></div>
+        <div id="misjeLista"></div>
+      </div>
+      <div id="wolnaRozmowaBlok">
+      <div class="achv-section-title" style="margin:18px 0 2px;" data-i18n="wolnaTytul">Wolna rozmowa — bez celu i bez oceny</div>
+
       <div class="chat-head">
         <span class="chat-avatar" aria-hidden="true">학</span>
         <span style="flex:1; min-width:0;">
@@ -7897,6 +7948,8 @@
         Rozmowa odbywa się na głos, w czasie rzeczywistym — mów naturalnie, bot odpowie od razu.
       </div>
 
+      </div><!-- /wolnaRozmowaBlok -->
+
       <!-- Stara wersja (tekst + Web Speech API) - UKRYTA, nie usunięta. Cały kod JS
            zostaje w pełni sprawny, gdyby trzeba było do tego wrócić (np. gdyby Gemini
            Live okazało się niewystarczające po dłuższym teście). Żeby przywrócić
@@ -7905,6 +7958,7 @@
         <span class="ai-usage-badge ai-calls-badge" id="aiUsageBadge" style="display:none;"></span>
         <div id="aiChatTargetBanner" class="ai-chat-target-banner" style="display:none;"></div>
         <div class="ai-chat-status" id="aiChatStatus" data-i18n="aiChatStatusDefault">Kliknij „Rozpocznij rozmowę” — bot przywita się pierwszy.</div>
+        <div id="misjaPasek" style="display:none;"></div>
         <div class="ai-chat-transcript chat-log" id="aiChatTranscript"></div>
 
         <div class="ai-chat-controls">
@@ -7913,6 +7967,8 @@
           <button class="tool-btn" id="aiChatAnalyzeBtn" style="display:none;"><span data-i18n="analyzeSessionBtn">Przeanalizuj sesję</span></button>
           <button class="tool-btn" id="aiChatResetBtn" style="display:none;"><span data-i18n="restartBtn2">Od nowa</span></button>
         </div>
+
+        <div id="misjaWynik" style="display:none; margin-top:14px; padding:14px; border-radius:14px; background:var(--card-hi); border:1px solid var(--border);"></div>
 
         <div id="aiChatSessionReport" style="display:none; margin-top:14px; padding:14px; border-radius:14px; background:var(--card-hi); border:1px solid var(--border);">
           <div id="aiChatSessionReportBody"></div>
@@ -7945,9 +8001,11 @@
        próby), „Posłuchaj wzoru" w trybie B pojawia się dopiero po próbie,
        a sesja dziesięciu zadań ma koniec i podsumowanie.
 
-       ⚠️ TRYB C NIEUKOŃCZONY: ma „akceptowane krótkie zwroty", a takiej listy
-       nikt jeszcze nie napisał - dziś C to B z krótszym paskiem. Do napisania
-       przez Fable, nie do wymyślenia w kodzie.
+       TRYB C (od .501): sesja losuje scenariusz nunchi, Haksa MÓWI zdanie
+       (nie pokazuje go - to ćwiczenie ze słuchu), a uczeń ma trzy sekundy na
+       krótką reakcję. Ocena patrzy nie na czas, tylko na to, czy reakcja pasuje
+       DO TEJ OSOBY: 응 do kolegi tak, do dyrektora nie. Lista 40 reakcji
+       (REAKCJE) od Fable; pole `uwaga` niesie konkretną zamianę.
 
        Rozpoznawanie mowy zależy od przeglądarki: w Brave jest domyślnie
        zablokowane (od .491 apka mówi o tym wprost), w Chrome działa.
@@ -7957,8 +8015,8 @@
     <button class="back-btn" data-back="aiChat" data-i18n="backChat">Rozmowa</button>
 
     <div class="wip-baner" data-i18n="wipBaner">
-      Tryby A i B są gotowe. Tryb C (krótkie reakcje) jeszcze nie — czeka na listę
-      akceptowanych zwrotów. Wymaga rozpoznawania mowy: działa w Chrome, Brave
+      Trzy tryby: A z klockami, B bez nich, C — trzy sekundy na krótką reakcję
+      pasującą do rozmówcy. Wymaga rozpoznawania mowy: działa w Chrome, Brave
       blokuje je domyślnie.
     </div>
 
@@ -8501,6 +8559,21 @@
       <div class="sb-bank" id="storyOrderBank"></div>
       <div class="row" style="margin-top:10px;">
         <button class="primary" id="storyOrderCheckBtn" style="flex:1;" data-i18n="checkBtn">Sprawdź</button>
+      </div>
+    </div>
+
+    <!-- KROK MÓWIENIA. Ten sam silnik co trening odruchu (ocenMowe/nasluchMowy),
+         własna, mała warstwa widoku - bo dwa ekrany nie mogą dzielić id-ków. -->
+    <div id="storyMowaWrap" style="display:none; margin-top:16px;">
+      <div class="hint-note" id="storyMowaWskazowka" style="text-align:center;"></div>
+      <div class="tr-klocki" id="storyMowaKlocki"></div>
+      <button type="button" class="tool-btn" id="storyMowaPodpowiedzBtn" style="display:none;">Pokaż klocki</button>
+      <button type="button" class="tr-mik" id="storyMowaMik" aria-label="Mów">🎙️</button>
+      <div class="tr-podpis" id="storyMowaPodpis" style="text-align:center;"></div>
+      <div class="tr-wynik" id="storyMowaWynik" style="text-align:center;"></div>
+      <div class="row" style="margin-top:10px;">
+        <button class="tool-btn" id="storyMowaSluchajBtn" style="flex:1;">Posłuchaj wzoru</button>
+        <button class="tool-btn" id="storyMowaPominBtn" style="flex:1;">Przeczytałem na głos</button>
       </div>
     </div>
 
@@ -9841,7 +9914,20 @@ let geminiProcessorNode = null;
 let geminiSetupComplete = false;
 let geminiIsListening = false;
 let geminiPlaybackQueueTime = 0;
-let geminiSelectedLevel = 1; // domyślnie podstawowy
+/* POZIOM ROZMOWY. Do .495 stała jedynka i chipy do ręcznego klikania - a to
+   właśnie ten parametr przekaźnik dostaje w URL-u i na nim buduje personę.
+   Uczeń po zdanym teście na średnim rozmawiał z Haksą jak początkujący, o ile
+   sam nie zauważył chipów. Ta sama rodzina co unlockedLevel (.483) i próg
+   biegłości (.493): poziom policzony, ale nie doprowadzony tam, gdzie działa.
+
+   `geminiPoziomRecznie` zapamiętuje, że uczeń wybrał sam - od tego momentu
+   jego wybór wygrywa z wyliczeniem, bo to decyzja, a nie domysł. */
+let geminiSelectedLevel = 1;
+let geminiPoziomRecznie = false;
+function geminiOdswiezPoziom(){
+  if(geminiPoziomRecznie) return;
+  try{ geminiSelectedLevel = poziomUcznia(); }catch(e){ /* poziom jeszcze niepoliczony */ }
+}
 /* Wersja przekaźnika, przysyłana osobną ramką zaraz po setupComplete.
    Do 2026-09-09 jedynym sposobem sprawdzenia, co jest wgrane, był test
    rozmowy albo domysł - i dwa razy z rzędu domysł był zły. */
@@ -9869,6 +9955,7 @@ function renderGeminiLevelSelector(){
   wrap.querySelectorAll('.category-chip').forEach(chip=>{
     chip.addEventListener('click', ()=>{
       geminiSelectedLevel = parseInt(chip.dataset.level, 10);
+      geminiPoziomRecznie = true;   // od teraz nie nadpisujemy wyborem automatycznym
       renderGeminiLevelSelector();
     });
   });
@@ -10041,6 +10128,13 @@ async function connectGeminiRelay(isRetry){
      objaw nieodróżnialny od zepsutego wdrożenia. */
   const promptLangParam = '&promptLang=' + (uiLang === 'en' ? 'en' : 'pl');
 
+  /* CZEGO TU NIE MA: parametru z TEMATEM rozmowy. Przekaźnik czyta dziś
+     level, target*, mode+words, scenariusz, register i promptLang - tematu nie
+     zna, a klient nie wysyła niczego spoza kontraktu (kontrola 8 walidatora
+     pilnuje tego w obie strony). Rozmowa o rozdziale działa więc dziś tak:
+     właściwy poziom, właściwy rejestr, słowa rozdziału na ekranie ucznia -
+     ale Haksa nie wie, że rozmawiacie o Jedzeniu. Po stronie przekaźnika
+     brakuje `temat` i `slowa`; wpis do relay-contract.json czeka w notatce. */
   const wsUrl = SUPABASE_URL.replace(/^https:/, 'wss:') + `/functions/v1/gemini-relay?token=${session.access_token}&level=${geminiSelectedLevel}${targetParams}${drillParams}${scenariuszParam}${registerParam}${promptLangParam}`;
   console.log('[Gemini Live] Łączenie z:', wsUrl.replace(session.access_token, '<token>'));
   geminiSocket = new WebSocket(wsUrl);
@@ -10736,8 +10830,11 @@ document.getElementById('conjRefPracticeBtn').addEventListener('click', () => se
 /* Nunchi - scenariusz przed rozmową. */
 document.getElementById('nuInnyBtn').addEventListener('click', () => { nunchiLosuj(); renderNunchiScreen(); });
 document.getElementById('nuStartBtn').addEventListener('click', () => {
-  /* Scenariusz zostaje w nunchiAktywny - przekaźnik dostanie go przy połączeniu,
-     a lustro po rozmowie porówna rejestr z regułą. */
+  /* Scenariusz z misją zaczyna ZAMKNIĘTĄ SCENĘ: cel, 3-4 wymiany, werdykt.
+     Scenariusz bez misji działa jak dotąd - zostaje w nunchiAktywny,
+     przekaźnik dostanie go przy połączeniu, a lustro porówna rejestr z regułą. */
+  const m = nunchiAktywny ? misjaDlaScenariusza(nunchiAktywny.id) : null;
+  if(m){ startMisja(m.id); return; }
   setScreen('aiChat');
 });
 
@@ -26926,7 +27023,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-10.494';
+const APP_VERSION = '2026-09-10.501';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -27230,7 +27327,7 @@ function setScreen(screen){
   if(screen === 'vocabStudy') renderVocabStudyList();
   if(screen === 'conjCategory') renderConjPosCards();
   if(screen === 'conjugation') conjNewRound();
-  if(screen === 'aiChat'){ applyPremiumUI(); renderAiChatTargetBanner(); renderGeminiTargetBanner(); renderGeminiLevelSelector(); }
+  if(screen === 'aiChat'){ geminiOdswiezPoziom(); przyjmijTematRozmowy(); try{ if(!misjaAktywna) misjaWidokSceny(false); renderMisjeFiltr(); renderMisjeLista(); }catch(e){} applyPremiumUI(); renderAiChatTargetBanner(); renderGeminiTargetBanner(); renderGeminiLevelSelector(); }
   if(screen !== 'aiChat') stopAiChatMic(); // opuszczenie ekranu ucina mikrofon i mowę bota, żeby nic nie działało w tle
   if(screen === 'aiChat'){
     const un = document.getElementById('aiChatUnsupported');
@@ -27827,7 +27924,10 @@ const I18N = {
   trSluchaj: { pl: 'Posłuchaj wzoru', en: 'Hear the model' },
   trDalej: { pl: 'Dalej', en: 'Next' },
   backChat: { pl: 'Rozmowa', en: 'Conversation' },
-  wipBaner: { pl: 'Tryby A i B są gotowe. Tryb C (krótkie reakcje) jeszcze nie — czeka na listę akceptowanych zwrotów. Wymaga rozpoznawania mowy: działa w Chrome, Brave blokuje je domyślnie.', en: 'Modes A and B are ready. Mode C (short reactions) is not — it is waiting for its list of accepted phrases. Needs speech recognition: works in Chrome, Brave blocks it by default.' },
+  misjeTytul: { pl: 'Misje — zamknięte sceny z oceną', en: 'Missions — closed scenes with a verdict' },
+  misjeOpis: { pl: 'Trzy albo cztery wymiany, jeden cel, ocena rejestru na końcu.', en: 'Three or four exchanges, one goal, a register verdict at the end.' },
+  wolnaTytul: { pl: 'Wolna rozmowa — bez celu i bez oceny', en: 'Free talk — no goal, no grade' },
+  wipBaner: { pl: 'Trzy tryby: A z klockami, B bez nich, C — trzy sekundy na krótką reakcję pasującą do rozmówcy. Wymaga rozpoznawania mowy: działa w Chrome, Brave blokuje je domyślnie.', en: 'Three modes: A with blocks, B without, C — three seconds for a short reaction that fits the person. Needs speech recognition: works in Chrome, Brave blocks it by default.' },
   addModePhoto: { pl: 'Ze zdjęcia', en: 'From photo' },
   lvPodpowiedzi: { pl: 'Scenariusz i przydatne zwroty', en: 'Scenario and useful phrases' },
   haksaDrillTitle: { pl: 'Haksa odpytuje', en: 'Haksa quizzes you' },
@@ -32996,7 +33096,1826 @@ const KOLA_RATUNKOWE = {
 };
 
 /* ═══ NUNCHI — EKRAN SCENARIUSZA ══════════════════════════════════════════ */
+/* ═══ KRÓTKIE REAKCJE (TRYB C TRENINGU ODRUCHU) ════════════════════════════
+   Napisane przez Fable. Pole `rozmowcy` używa tych samych wartości co
+   NUNCHI_SCENARIUSZE (starszy/przelozony/rowny/mlodszy/nieznajomy), więc
+   reakcje da się przefiltrować pod konkretną scenę.
+
+   Najważniejsze jest pole `uwaga`: mówi, do KOGO dana reakcja nie pasuje
+   i czym ją zastąpić („응 nigdy do starszego ani przełożonego - tam 네").
+   Bez niego byłaby to lista dopuszczalnych odpowiedzi; z nim jest to
+   materiał, z którego da się nauczyć REJESTRU odruchowego. */
+const REAKCJE = [
+    {
+      "ko": "그렇구나.",
+      "pl": "Aha, rozumiem.",
+      "en": "I see.",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "zrozumienie",
+      "kiedy": "gdy ktoś bliski tłumaczy, jak coś jest; przyjęcie informacji bez oceny",
+      "uwaga": "Do starszego / szefa brzmi jak 반말 — tam 그렇군요 albo 아, 네."
+    },
+    {
+      "ko": "그렇군요.",
+      "pl": "Ach, rozumiem.",
+      "en": "I see.",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "przelozony",
+        "nieznajomy",
+        "rowny"
+      ],
+      "funkcja": "zrozumienie",
+      "kiedy": "uprzejme przyjęcie nowej informacji; działa niemal wszędzie",
+      "uwaga": "Trochę „z lektury\" w rozmowie z bliskim — tam 그렇구나."
+    },
+    {
+      "ko": "아, 네.",
+      "pl": "A, tak.",
+      "en": "Ah, right.",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "przelozony",
+        "rowny",
+        "mlodszy",
+        "nieznajomy"
+      ],
+      "funkcja": "zrozumienie",
+      "kiedy": "najbezpieczniejsza reakcja w 해요체 — pokazuje, że słuchasz",
+      "uwaga": "Wobec bliskiego przyjaciela w 반말 zabrzmi chłodno — tam 아, 응 / 어."
+    },
+    {
+      "ko": "아, 네네.",
+      "pl": "Tak, tak.",
+      "en": "Yes, yes.",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "przelozony",
+        "nieznajomy",
+        "rowny"
+      ],
+      "funkcja": "potwierdzenie",
+      "kiedy": "gdy rozmówca tłumaczy coś dłużej i chcesz pokazać, że nadążasz",
+      "uwaga": "Zbyt szybkie 네네 przy poleceniu szefa brzmi jak zbywanie — jedno 네 wystarczy."
+    },
+    {
+      "ko": "네, 알겠습니다.",
+      "pl": "Tak, rozumiem.",
+      "en": "Yes, understood.",
+      "rejestr": "formal",
+      "rozmowcy": [
+        "przelozony",
+        "starszy",
+        "nieznajomy"
+      ],
+      "funkcja": "potwierdzenie",
+      "kiedy": "po poleceniu albo instrukcji — przyjęcie do wykonania",
+      "uwaga": "W 해요체: 네, 알겠어요. Wobec kolegi w 반말: 알았어."
+    },
+    {
+      "ko": "알았어.",
+      "pl": "Jasne.",
+      "en": "Got it.",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "potwierdzenie",
+      "kiedy": "przyjęcie prośby lub informacji od bliskiej osoby",
+      "uwaga": "알았어요 wobec szefa brzmi zniecierpliwie — tam 알겠습니다."
+    },
+    {
+      "ko": "응.",
+      "pl": "Mhm.",
+      "en": "Uh-huh.",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "potwierdzenie",
+      "kiedy": "potakiwanie w 반말 podczas słuchania",
+      "uwaga": "Nigdy do starszego ani przełożonego — tam 네."
+    },
+    {
+      "ko": "어.",
+      "pl": "No.",
+      "en": "Yeah.",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "potwierdzenie",
+      "kiedy": "jak 응, ale bardziej męskie / luźne; też jako „o!\" zaskoczenia",
+      "uwaga": "Wobec nieznajomego brzmi jak zaczepka."
+    },
+    {
+      "ko": "진짜요?",
+      "pl": "Serio?",
+      "en": "Really?",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "rowny",
+        "starszy",
+        "nieznajomy"
+      ],
+      "funkcja": "zaskoczenie",
+      "kiedy": "lekkie zdziwienie w 해요체; też jako podtrzymanie rozmowy",
+      "uwaga": "Wobec przełożonego w sytuacji służbowej lepiej 정말요? albo 그래요?; w 합니다체 nie ma dobrego odpowiednika — wtedy 아, 그렇습니까?"
+    },
+    {
+      "ko": "진짜?",
+      "pl": "Serio?",
+      "en": "Really?",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "zaskoczenie",
+      "kiedy": "to samo w 반말",
+      "uwaga": ""
+    },
+    {
+      "ko": "정말요?",
+      "pl": "Naprawdę?",
+      "en": "Really?",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "przelozony",
+        "rowny",
+        "mlodszy",
+        "nieznajomy"
+      ],
+      "funkcja": "zaskoczenie",
+      "kiedy": "zdziwienie odrobinę grzeczniejsze niż 진짜요? — pasuje też do starszych",
+      "uwaga": ""
+    },
+    {
+      "ko": "아, 그래요?",
+      "pl": "A, tak?",
+      "en": "Oh, is that so?",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "przelozony",
+        "nieznajomy",
+        "rowny"
+      ],
+      "funkcja": "zaskoczenie",
+      "kiedy": "zainteresowanie bez wielkiego zdziwienia; podtrzymuje rozmowę z każdym starszym",
+      "uwaga": "W 반말: 아, 그래?"
+    },
+    {
+      "ko": "아, 그래?",
+      "pl": "A, tak?",
+      "en": "Oh, really?",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "zaskoczenie",
+      "kiedy": "to samo w 반말",
+      "uwaga": ""
+    },
+    {
+      "ko": "헐.",
+      "pl": "O matko.",
+      "en": "Whoa.",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "zaskoczenie",
+      "kiedy": "szok / niedowierzanie między rówieśnikami",
+      "uwaga": "Slang — nigdy do starszych, szefa ani obsługi; po 30. roku życia brzmi młodzieżowo."
+    },
+    {
+      "ko": "대박.",
+      "pl": "Mega.",
+      "en": "No way.",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "uznanie",
+      "kiedy": "coś świetnego albo niesamowitego, między bliskimi",
+      "uwaga": "Jak 헐 — tylko 반말 i tylko rówieśnicy."
+    },
+    {
+      "ko": "세상에.",
+      "pl": "O Boże.",
+      "en": "Good heavens.",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "rowny",
+        "nieznajomy"
+      ],
+      "funkcja": "zaskoczenie",
+      "kiedy": "zdziwienie „dorosłe\", pasuje też do starszych osób",
+      "uwaga": "Bardziej kobiece w odbiorze; mężczyźni częściej 아이고 / 이런."
+    },
+    {
+      "ko": "그러게요.",
+      "pl": "No właśnie.",
+      "en": "Exactly.",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "rowny",
+        "nieznajomy"
+      ],
+      "funkcja": "zgoda",
+      "kiedy": "przyznanie racji w 해요체, często z lekkim westchnieniem (pogoda, ceny, zmęczenie)",
+      "uwaga": "Wobec szefa w sprawach służbowych brzmi za miękko — tam 네, 맞습니다."
+    },
+    {
+      "ko": "그러게.",
+      "pl": "No właśnie.",
+      "en": "Right?",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "zgoda",
+      "kiedy": "to samo w 반말",
+      "uwaga": ""
+    },
+    {
+      "ko": "맞아요.",
+      "pl": "Zgadza się.",
+      "en": "That’s right.",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "przelozony",
+        "rowny",
+        "mlodszy",
+        "nieznajomy"
+      ],
+      "funkcja": "zgoda",
+      "kiedy": "potwierdzenie faktu albo opinii; bezpieczne wszędzie poza pełnym 합니다체",
+      "uwaga": "W 합니다체: 맞습니다. W 반말: 맞아."
+    },
+    {
+      "ko": "맞아.",
+      "pl": "No.",
+      "en": "Right.",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "zgoda",
+      "kiedy": "to samo w 반말",
+      "uwaga": ""
+    },
+    {
+      "ko": "맞습니다.",
+      "pl": "Zgadza się.",
+      "en": "That is correct.",
+      "rejestr": "formal",
+      "rozmowcy": [
+        "przelozony",
+        "nieznajomy"
+      ],
+      "funkcja": "zgoda",
+      "kiedy": "potwierdzenie w sytuacji oficjalnej (zebranie, rozmowa kwalifikacyjna, infolinia)",
+      "uwaga": ""
+    },
+    {
+      "ko": "좋아요.",
+      "pl": "Dobrze. / Może być.",
+      "en": "Sounds good.",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "rowny",
+        "starszy",
+        "nieznajomy"
+      ],
+      "funkcja": "zgoda",
+      "kiedy": "zgoda na propozycję (termin, miejsce)",
+      "uwaga": "Do szefa: 네, 좋습니다 albo 네, 그렇게 하겠습니다. W 반말: 좋아."
+    },
+    {
+      "ko": "그럼요.",
+      "pl": "Jasne, oczywiście.",
+      "en": "Of course.",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "rowny",
+        "nieznajomy"
+      ],
+      "funkcja": "zgoda",
+      "kiedy": "odpowiedź na prośbę lub pytanie o możliwość — chętna zgoda",
+      "uwaga": "Wobec przełożonego zbyt swobodne — tam 네, 물론입니다."
+    },
+    {
+      "ko": "당연하지.",
+      "pl": "No jasne.",
+      "en": "Obviously.",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "zgoda",
+      "kiedy": "chętna zgoda w 반말",
+      "uwaga": ""
+    },
+    {
+      "ko": "아이고.",
+      "pl": "Ojej.",
+      "en": "Oh dear.",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "przelozony",
+        "rowny",
+        "mlodszy",
+        "nieznajomy"
+      ],
+      "funkcja": "wspolczucie",
+      "kiedy": "reakcja na kłopot, ból, zmęczenie — swoje lub cudze; pasuje do każdego",
+      "uwaga": "Uniwersalne; starsi używają częściej. Nie w 합니다체 na zebraniu."
+    },
+    {
+      "ko": "어떡해요.",
+      "pl": "I co teraz… / Ojej.",
+      "en": "Oh no.",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "rowny",
+        "starszy",
+        "nieznajomy"
+      ],
+      "funkcja": "wspolczucie",
+      "kiedy": "ktoś opowiada o złej sytuacji — współczucie bez rady",
+      "uwaga": "W 반말: 어떡해. Nie do szefa — tam 괜찮으세요?"
+    },
+    {
+      "ko": "어떡해.",
+      "pl": "O nie.",
+      "en": "Oh no.",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "wspolczucie",
+      "kiedy": "to samo w 반말",
+      "uwaga": ""
+    },
+    {
+      "ko": "힘드시겠어요.",
+      "pl": "To musi być ciężkie.",
+      "en": "That must be hard.",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "przelozony",
+        "nieznajomy"
+      ],
+      "funkcja": "wspolczucie",
+      "kiedy": "współczucie z -시- wobec osoby starszej / wyżej — po tym, jak opowie o trudnościach",
+      "uwaga": "Do rówieśnika: 힘들겠어요 / 힘들겠다."
+    },
+    {
+      "ko": "힘들겠다.",
+      "pl": "Ciężko ci.",
+      "en": "That sounds rough.",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "wspolczucie",
+      "kiedy": "współczucie w 반말; -다 wykrzyknikowe jest tu naturalne",
+      "uwaga": ""
+    },
+    {
+      "ko": "괜찮아요?",
+      "pl": "Wszystko w porządku?",
+      "en": "Are you okay?",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "rowny",
+        "nieznajomy",
+        "mlodszy"
+      ],
+      "funkcja": "wspolczucie",
+      "kiedy": "szybkie pytanie o stan po złej wiadomości",
+      "uwaga": "Do starszego / szefa: 괜찮으세요? (z -시-)."
+    },
+    {
+      "ko": "괜찮으세요?",
+      "pl": "Czy wszystko w porządku?",
+      "en": "Are you all right?",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "przelozony"
+      ],
+      "funkcja": "wspolczucie",
+      "kiedy": "to samo z honoryfikatywem",
+      "uwaga": ""
+    },
+    {
+      "ko": "글쎄요.",
+      "pl": "Hm, sam nie wiem.",
+      "en": "Well, I’m not sure.",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "rowny",
+        "nieznajomy"
+      ],
+      "funkcja": "wahanie",
+      "kiedy": "brak pewności albo delikatne „nie\" bez mówienia nie",
+      "uwaga": "Wobec szefa przy pytaniu o termin brzmi jak unik — tam 확인해 보겠습니다."
+    },
+    {
+      "ko": "글쎄.",
+      "pl": "No nie wiem.",
+      "en": "Hmm, dunno.",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "wahanie",
+      "kiedy": "to samo w 반말",
+      "uwaga": ""
+    },
+    {
+      "ko": "음…",
+      "pl": "Hmm…",
+      "en": "Hmm…",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "rowny",
+        "mlodszy",
+        "nieznajomy"
+      ],
+      "funkcja": "wahanie",
+      "kiedy": "kupowanie sekundy do namysłu; neutralne",
+      "uwaga": "Nie na rozmowie kwalifikacyjnej i nie w 합니다체 — tam cisza jest lepsza niż 음."
+    },
+    {
+      "ko": "그니까요.",
+      "pl": "No właśnie o to chodzi.",
+      "en": "That’s what I’m saying.",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "rowny",
+        "starszy"
+      ],
+      "funkcja": "zgoda",
+      "kiedy": "potwierdzenie, że rozmówca trafił w sedno; potoczne",
+      "uwaga": "Potoczna forma 그러니까요 — nie do szefa i nie na infolinii."
+    },
+    {
+      "ko": "아, 그렇습니까?",
+      "pl": "Ach, doprawdy?",
+      "en": "Oh, is that so?",
+      "rejestr": "formal",
+      "rozmowcy": [
+        "przelozony",
+        "nieznajomy"
+      ],
+      "funkcja": "zaskoczenie",
+      "kiedy": "jedyna reakcja zdziwienia, która pasuje do 합니다체 (zebranie, klient)",
+      "uwaga": "W codziennej rozmowie brzmi sztywno."
+    },
+    {
+      "ko": "네?",
+      "pl": "Słucham?",
+      "en": "Sorry?",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "przelozony",
+        "rowny",
+        "mlodszy",
+        "nieznajomy"
+      ],
+      "funkcja": "wahanie",
+      "kiedy": "nie dosłyszałeś albo nie dowierzasz; grzeczne „co?\"",
+      "uwaga": "뭐? tylko w 반말 do bliskich; 뭐라고요? brzmi już jak pretensja."
+    },
+    {
+      "ko": "뭐?",
+      "pl": "Co?",
+      "en": "What?",
+      "rejestr": "casual",
+      "rozmowcy": [
+        "rowny",
+        "mlodszy"
+      ],
+      "funkcja": "wahanie",
+      "kiedy": "nie dosłyszałeś / niedowierzanie — 반말",
+      "uwaga": "Do starszego zabrzmi agresywnie — 네?"
+    },
+    {
+      "ko": "아, 그러셨어요?",
+      "pl": "A, tak było?",
+      "en": "Oh, you did?",
+      "rejestr": "polite",
+      "rozmowcy": [
+        "starszy",
+        "przelozony"
+      ],
+      "funkcja": "zaskoczenie",
+      "kiedy": "reakcja z -시- na opowieść starszej osoby o tym, co zrobiła",
+      "uwaga": "Pokazuje, że uczeń trzyma honoryfikatyw także w odruchu."
+    },
+    {
+      "ko": "수고하셨습니다.",
+      "pl": "Dziękuję za pracę.",
+      "en": "Thank you for your hard work.",
+      "rejestr": "formal",
+      "rozmowcy": [
+        "przelozony",
+        "rowny",
+        "nieznajomy"
+      ],
+      "funkcja": "uznanie",
+      "kiedy": "odruch na koniec pracy / spotkania / po czyimś wysiłku",
+      "uwaga": "Do młodszego: 수고했어요 / 수고했어. Nie do dużo starszego przełożonego w sztywnych firmach — tam 고생 많으셨습니다."
+    }
+  ];
+
+/** Rejestry dopuszczalne przy danym rejestrze sceny. Uprzejme zamiast
+    formalnego brzmi lekko, ale nie jest błędem; 반말 poza sceną poufałą jest. */
+const REAKCJE_DOZWOLONE = { formal: ['formal', 'polite'], polite: ['polite', 'formal'], casual: ['casual'] };
+
+/** Reakcje pasujące do konkretnej sceny - po rozmówcy i po rejestrze. */
+function reakcjeDlaSceny(sc){
+  if(!sc) return REAKCJE.slice();
+  const ok = REAKCJE_DOZWOLONE[sc.rejestr] || ['polite'];
+  return REAKCJE.filter(r => r.rozmowcy.includes(sc.rozmowca) && ok.includes(r.rejestr));
+}
+
+/** Rozpoznanie tego, co uczeń powiedział. Zwraca `{ reakcja, pasuje }` albo
+    null. `pasuje: false` znaczy „znam ten zwrot, ale nie do TEJ osoby" -
+    i wtedy `reakcja.uwaga` mówi wprost, czym go zastąpić. */
+function rozpoznajReakcje(tekst, sc){
+  const czyste = String(tekst).replace(/[.,!?~…\s]/g, '');
+  if(!czyste) return null;
+  const pasujace = reakcjeDlaSceny(sc);
+  /* Najdłuższe dopasowanie wygrywa: „아, 네네" ma pierwszeństwo przed „네". */
+  const posortowane = REAKCJE.slice().sort((a, b) => b.ko.length - a.ko.length);
+  for(const r of posortowane){
+    const wzor = r.ko.replace(/[.,!?~…\s]/g, '');
+    if(wzor && czyste.includes(wzor)){
+      return { reakcja: r, pasuje: pasujace.indexOf(r) >= 0 };
+    }
+  }
+  return null;
+}
+
+/* ═══ MISJE — ZAMKNIĘTE SCENY ═════════════════════════════════════════════
+   Trzy albo cztery wymiany, jeden cel, ocena na końcu. Zamiast otwartego
+   mikrofonu, przy którym uczeń zużywa energię na wymyślanie tematu i ucieka
+   w konstrukcje, które i tak już zna.
+
+   Replika otwierająca jest NAPISANA, nie generowana: pierwsza sekunda sceny
+   ma być za każdym razem ta sama, żeby uczeń wchodził w znaną sytuację,
+   a nie w losową. To też jedno zapytanie do modelu mniej na każdą misję.
+
+   Trzy piloty na trzech rejestrach. Reszta scenariuszy (28) czeka na treść;
+   scenariusz bez misji działa jak dotąd. */
+const MISJE = [
+    {
+      "id": "taksowka-objazd",
+      "scenariusz": "taksowka",
+      "poziom": 2,
+      "tury": 3,
+      "ikona": "🚕",
+      "tytul": {
+        "pl": "Korek w taksówce",
+        "en": "Stuck in traffic"
+      },
+      "cel": {
+        "pl": "Dojedź mimo korka: zgódź się na objazd albo podaj inne miejsce — po 해요체.",
+        "en": "Get there despite the jam: accept a detour or name another spot — in 해요체."
+      },
+      "otwarcie": {
+        "ko": "손님, 이 시간엔 그쪽으로 못 가요. 삼십 분은 막혀요.",
+        "pl": "Proszę pana, o tej porze tamtędy nie przejedziemy. Ze trzydzieści minut stania.",
+        "en": "Sir, we can't get through that way at this hour. Thirty minutes of standing still."
+      },
+      "kryteria": {
+        "pl": [
+          "podjęta decyzja: objazd albo inne miejsce — nie samo „proszę jechać\"",
+          "dopytanie o czas albo cenę, zanim ruszycie",
+          "해요체 do starszego kierowcy, nawet jeśli on mówi 반말 — to asymetria, nie zaproszenie"
+        ],
+        "en": [
+          "a decision made: detour or a different drop-off — not just “please drive”",
+          "ask about time or fare before setting off",
+          "해요체 to an older driver even when he uses 반말 — that asymmetry is not an invitation"
+        ]
+      }
+    },
+    {
+      "id": "kawiarnia-zamowienie",
+      "scenariusz": "kawiarnia",
+      "poziom": 1,
+      "tury": 3,
+      "ikona": "☕",
+      "tytul": {
+        "pl": "Zamów kawę",
+        "en": "Order a coffee"
+      },
+      "cel": {
+        "pl": "Zdecyduj, czy czekasz dziesięć minut, i złóż zamówienie mimo kolejki.",
+        "en": "Decide whether you'll wait ten minutes, then order anyway."
+      },
+      "otwarcie": {
+        "ko": "어서 오세요! 아, 지금 주문이 밀려서 십 분 정도 걸리는데 괜찮으세요?",
+        "pl": "Witamy! Ale uprzedzam — zamówienia się piętrzą, będzie z dziesięć minut. Poczeka pan/pani?",
+        "en": "Welcome! Fair warning though — orders are backed up, it'll be about ten minutes. Is that all right?"
+      },
+      "kryteria": {
+        "pl": [
+          "odpowiedź na przeszkodę: zgoda na czekanie albo pytanie o coś szybszego",
+          "zamówienie z 주세요 albo 주시겠어요 — nigdy 반말",
+          "합니다체 przy kawie brzmi sztywno — 해요체 jest tu właściwe"
+        ],
+        "en": [
+          "react to the obstacle: accept the wait or ask for something quicker",
+          "order with 주세요 or 주시겠어요 — never 반말",
+          "합니다체 sounds stiff over coffee — 해요체 is the fit here"
+        ]
+      }
+    },
+    {
+      "id": "szef-urlop-prosba",
+      "scenariusz": "szef-urlop",
+      "poziom": 2,
+      "tury": 4,
+      "ikona": "🗓️",
+      "tytul": {
+        "pl": "Poproś o urlop",
+        "en": "Ask for a day off"
+      },
+      "cel": {
+        "pl": "Uzyskaj zgodę na dzień urlopu: poproś pytaniem, podaj termin, powiedz, kto przejmie pilne sprawy.",
+        "en": "Get a day off approved: ask (don’t announce), give the date, say who covers the urgent work."
+      },
+      "otwarcie": {
+        "ko": "네, 무슨 일이에요? 아, 근데 저 오 분 뒤에 회의 있어요.",
+        "pl": "Tak, o co chodzi? Aha, tylko uprzedzam — za pięć minut mam spotkanie.",
+        "en": "Yes, what is it? Heads up though — I have a meeting in five minutes."
+      },
+      "kryteria": {
+        "pl": [
+          "prośba w formie PYTANIA (괜찮을까요?), nie oznajmienia",
+          "podany konkretny termin",
+          "powiedziane, kto przejmie pilne sprawy",
+          "합니다체 albo 해요체 — 반말 wobec przełożonego to koniec sceny"
+        ],
+        "en": [
+          "a QUESTION, not an announcement (괜찮을까요?)",
+          "a specific date given",
+          "said who will cover the urgent work",
+          "합니다체 or 해요체 — 반말 to a manager ends the scene"
+        ]
+      }
+    },
+    {
+      "id": "wspolokator-naczynia",
+      "scenariusz": "wspolokator",
+      "poziom": 2,
+      "tury": 4,
+      "ikona": "🍽️",
+      "tytul": {
+        "pl": "Naczynia współlokatora",
+        "en": "The flatmate’s dishes"
+      },
+      "cel": {
+        "pl": "Doprowadź do tego, żeby współlokator umył naczynia — po 반말, bez awantury.",
+        "en": "Get your flatmate to do the dishes — in 반말, without a fight."
+      },
+      "otwarcie": {
+        "ko": "어, 왔어? 나 오늘 진짜 피곤해서 아무것도 못 하겠어.",
+        "pl": "O, jesteś? Jestem dziś tak zmęczony, że nic nie dam rady.",
+        "en": "Oh, you’re back? I’m so tired today I can’t do a thing."
+      },
+      "kryteria": {
+        "pl": [
+          "반말 od początku do końca — 해요체 zabrzmi jak ironia albo złość",
+          "powołanie się na konkretne ustalenie (kto gotuje, kto zmywa)",
+          "zakończenie umową na KIEDY, nie samą pretensją"
+        ],
+        "en": [
+          "반말 throughout — 해요체 here reads as sarcasm or anger",
+          "point to the actual arrangement (who cooks, who washes)",
+          "end with a WHEN, not just a complaint"
+        ]
+      }
+    },
+    {
+      "id": "taksowka-cel",
+      "scenariusz": "taksowka",
+      "poziom": 1,
+      "tury": 3,
+      "ikona": "🚕",
+      "tytul": {
+        "pl": "Powiedz, dokąd jechać",
+        "en": "Tell the driver where to go"
+      },
+      "cel": {
+        "pl": "Podaj kierowcy cel, a gdy dopyta — powiedz, gdzie dokładnie ma się zatrzymać.",
+        "en": "Give the driver your destination and, when asked, say exactly where to stop."
+      },
+      "otwarcie": {
+        "ko": "어서 오세요. 어디로 모실까요?",
+        "pl": "Dzień dobry. Dokąd jedziemy?",
+        "en": "Hello. Where to?"
+      },
+      "kryteria": {
+        "pl": [
+          "cel podany z 가 주세요 albo 으로 가 주세요 — nie samą nazwą miejsca",
+          "na dopytanie o miejsce zatrzymania: konkretne miejsce (출구, 앞, 건너편) z 세워 주세요 / 세워 주시면 돼요",
+          "기사님 przynajmniej raz — 아저씨 brzmi poufale, 야/저기 wobec starszego kierowcy to błąd",
+          "kierowca może mówić 반말 do młodego pasażera — uczeń mimo to zostaje przy 해요체"
+        ],
+        "en": [
+          "destination given with 가 주세요 / 으로 가 주세요 — not just the place name",
+          "when asked where to stop: a concrete spot (exit, in front of, across) with 세워 주세요 / 세워 주시면 돼요",
+          "기사님 at least once — 아저씨 sounds over-familiar, 야/저기 to an older driver is a mistake",
+          "the driver may use 반말 with a young passenger — the learner still stays in 해요체"
+        ]
+      }
+    },
+    {
+      "id": "urzad-zaswiadczenie",
+      "scenariusz": "urzad",
+      "poziom": 2,
+      "tury": 4,
+      "ikona": "🏢",
+      "tytul": {
+        "pl": "Odbierz zaświadczenie",
+        "en": "Get a certificate"
+      },
+      "cel": {
+        "pl": "Załatw wydanie zaświadczenia: powiedz, po co przyszedłeś, podaj dokument, odpowiedz, ile kopii i do czego.",
+        "en": "Get a certificate issued: say what you came for, hand over ID, answer how many copies and what for."
+      },
+      "otwarcie": {
+        "ko": "네, 다음 분. 어떤 일로 오셨어요?",
+        "pl": "Następna osoba proszę. W jakiej sprawie?",
+        "en": "Next, please. What can I help you with?"
+      },
+      "kryteria": {
+        "pl": [
+          "sprawa otwarta przez -(으)려고 하는데요 albo -고 싶은데요 — nie 주세요 od pierwszego słowa",
+          "zaświadczenie nazwane po koreańsku (등본, 증명서), nie 이거 / 그거 z pokazywaniem",
+          "odpowiedź na dopytanie o liczbę kopii (한 통 / 두 통) i cel (회사 제출용 itp.)",
+          "해요체 albo 합니다체 — w urzędzie 합니다체 jest jak najbardziej na miejscu; 반말 wykluczone"
+        ],
+        "en": [
+          "the matter opened with -(으)려고 하는데요 or -고 싶은데요 — not 주세요 as the first word",
+          "the certificate named in Korean (등본, 증명서), not 이거 / 그거 with pointing",
+          "answer to the follow-up on number of copies (한 통 / 두 통) and purpose (for work etc.)",
+          "해요체 or 합니다체 — at a public office 합니다체 fits perfectly; 반말 is out"
+        ]
+      }
+    },
+    {
+      "id": "sklep-reklamacja-buty",
+      "scenariusz": "sklep-reklamacja",
+      "poziom": 2,
+      "tury": 4,
+      "ikona": "👟",
+      "tytul": {
+        "pl": "Zwróć uszkodzone buty",
+        "en": "Return damaged shoes"
+      },
+      "cel": {
+        "pl": "Doprowadź do wymiany albo zwrotu: opisz wadę, powiedz, kiedy kupiłeś, zapytaj o możliwość — i nie daj się odesłać do producenta.",
+        "en": "Get an exchange or refund: describe the defect, say when you bought them, ask what is possible — and don’t get sent to the manufacturer."
+      },
+      "otwarcie": {
+        "ko": "네, 고객님. 무슨 문제 있으세요?",
+        "pl": "Tak, słucham. Jakiś problem z zakupem?",
+        "en": "Yes, how can I help you?"
+      },
+      "kryteria": {
+        "pl": [
+          "wada opisana jako fakt z -는데요 / -어 있는데요 (뒤축이 찢어져 있는데요), nie jako oskarżenie",
+          "podany moment zakupu (산 지 이틀밖에 안 됐어요) i paragon lub jego brak",
+          "pytanie o możliwość (교환 가능할까요? / 환불 될까요?), nie żądanie (환불해 줘요 / 바꿔 주세요 bez pytania)",
+          "gdy sprzedawca odsyła do producenta — grzeczna odmowa z powodem, bez 뭐예요 이게 i podnoszenia tonu"
+        ],
+        "en": [
+          "the defect stated as a fact with -는데요 / -어 있는데요, not as an accusation",
+          "time of purchase given (bought only two days ago) and receipt or lack of it",
+          "a question about what is possible (교환 가능할까요? / 환불 될까요?), not a demand",
+          "when the clerk tries the manufacturer line — polite refusal with a reason, no 뭐예요 이게, no raised voice"
+        ]
+      }
+    },
+    {
+      "id": "droga-starsza-pani",
+      "scenariusz": "pytanie-o-droge-starszy",
+      "poziom": 1,
+      "tury": 3,
+      "ikona": "💊",
+      "tytul": {
+        "pl": "Zapytaj o drogę do apteki",
+        "en": "Ask an older lady the way"
+      },
+      "cel": {
+        "pl": "Dowiedz się od starszej pani, jak dojść do apteki, i podziękuj tak, żeby nie zabrzmiało jak do rówieśnika.",
+        "en": "Find out from an older lady how to get to the pharmacy and thank her in a way that fits her age."
+      },
+      "otwarcie": {
+        "ko": "응? 뭐라고? 나한테 물어본 거야?",
+        "pl": "Hm? Co? To do mnie?",
+        "en": "Hm? What? Are you asking me?"
+      },
+      "kryteria": {
+        "pl": [
+          "zaczepka przez 저기 / 실례합니다 — nie 야, nie 저기요 rzucone w plecy",
+          "pytanie z -시-: 아세요 / 어디인지 아세요? — 알아요 wobec starszej pani to zgrzyt",
+          "pani mówi 반말 — uczeń zostaje przy 해요체; 합니다체 też przejdzie",
+          "na końcu 감사합니다 albo 고맙습니다 — 고마워요 wobec starszej osoby brzmi za lekko"
+        ],
+        "en": [
+          "opening with 저기 / 실례합니다 — not 야, not 저기요 shouted from behind",
+          "the question with -시-: 아세요 / 어디인지 아세요? — 알아요 to an older lady grates",
+          "she speaks 반말 — the learner stays in 해요체; 합니다체 also passes",
+          "closing with 감사합니다 or 고맙습니다 — 고마워요 sounds too light for an elder"
+        ]
+      }
+    },
+    {
+      "id": "droga-nastolatek",
+      "scenariusz": "pytanie-o-droge-mlody",
+      "poziom": 1,
+      "tury": 3,
+      "ikona": "🚌",
+      "tytul": {
+        "pl": "Zapytaj nastolatka o autobus",
+        "en": "Ask a teenager about the bus"
+      },
+      "cel": {
+        "pl": "Ustal u nastolatka na przystanku, czy ten autobus jedzie na dworzec i ile przystanków to zajmie.",
+        "en": "Find out from a teenager at the stop whether this bus goes to the station and how many stops it takes."
+      },
+      "otwarcie": {
+        "ko": "…네? 저요?",
+        "pl": "…Tak? Ja?",
+        "en": "…Sorry? Me?"
+      },
+      "kryteria": {
+        "pl": [
+          "pytanie krótkie, w 해요체 (이 버스 서울역 가요?) — nieznajomy to 해요체 niezależnie od wieku",
+          "반말 wobec nieznajomego nastolatka — Koreańczyk czasem tak zrobi, obcokrajowiec brzmi arogancko",
+          "합니다체 do nastolatka na przystanku brzmi jak przesłuchanie — lekko sztywno",
+          "dopytanie o liczbę przystanków albo czas (몇 정거장 / 얼마나 걸려요?)"
+        ],
+        "en": [
+          "a short question in 해요체 — a stranger gets 해요체 whatever their age",
+          "반말 to an unknown teenager — a Korean might, a foreigner sounds arrogant",
+          "합니다체 to a teenager at a bus stop sounds like an interrogation — a touch stiff",
+          "a follow-up on number of stops or time (몇 정거장 / 얼마나 걸려요?)"
+        ]
+      }
+    },
+    {
+      "id": "lekarz-objawy",
+      "scenariusz": "lekarz-wizyta",
+      "poziom": 2,
+      "tury": 4,
+      "ikona": "🩺",
+      "tytul": {
+        "pl": "Opisz objawy lekarzowi",
+        "en": "Describe your symptoms"
+      },
+      "cel": {
+        "pl": "Opisz lekarzowi, co ci dolega, od kiedy, i odpowiedz na pytanie o leki, które bierzesz.",
+        "en": "Tell the doctor what is wrong, since when, and answer the question about medication you take."
+      },
+      "otwarcie": {
+        "ko": "안녕하세요. 어디가 불편해서 오셨어요?",
+        "pl": "Dzień dobry. Co dolega?",
+        "en": "Hello. What brings you in today?"
+      },
+      "kryteria": {
+        "pl": [
+          "objawy nazwane konkretnie (목이 아프다, 열이 있다, 기침), nie samo 아파요",
+          "podane od kiedy (사흘 전부터, 어제부터)",
+          "honoryfikatyw wobec siebie (제가 아프세요, 제가 드세요) to błąd — -시- należy się lekarzowi, nie pacjentowi",
+          "해요체 wystarcza, 합니다체 też przejdzie; 아파 bez 요 wobec lekarza — nie"
+        ],
+        "en": [
+          "symptoms named concretely (sore throat, fever, cough), not just 아파요",
+          "since when stated (three days ago, since yesterday)",
+          "honorific on yourself (제가 아프세요, 제가 드세요) is a mistake — -시- belongs to the doctor, not the patient",
+          "해요체 is enough, 합니다체 also passes; 아파 without 요 to a doctor — no"
+        ]
+      }
+    },
+    {
+      "id": "infolinia-zamowienie",
+      "scenariusz": "telefon-do-firmy",
+      "poziom": 2,
+      "tury": 4,
+      "ikona": "📞",
+      "tytul": {
+        "pl": "Zapytaj o status zamówienia",
+        "en": "Ask about your order status"
+      },
+      "cel": {
+        "pl": "Dowiedz się, co z twoim zamówieniem: przedstaw sprawę, podaj numer zamówienia, ustal, kiedy dotrze.",
+        "en": "Find out what happened to your order: state your business, give the order number, establish when it will arrive."
+      },
+      "otwarcie": {
+        "ko": "네, 고객센터입니다. 무엇을 도와드릴까요?",
+        "pl": "Biuro obsługi klienta, w czym mogę pomóc?",
+        "en": "Customer service, how may I help you?"
+      },
+      "kryteria": {
+        "pl": [
+          "sprawa przedstawiona w pierwszej wypowiedzi (주문한 건으로 문의드립니다 / 문의드리려고요) — nie samo 여보세요",
+          "podany numer zamówienia albo dane do identyfikacji, gdy konsultant o nie poprosi",
+          "czasownik z 드리다 wobec firmy (문의드리다, 말씀드리다) — to sygnał, że uczeń wie, gdzie dzwoni",
+          "합니다체 pasuje do infolinii; 해요체 tolerowane; 반말 i 뭐 / 그냥 — nie"
+        ],
+        "en": [
+          "business stated in the first turn (calling about an order) — not just 여보세요",
+          "order number or identifying details given when the agent asks",
+          "a verb with 드리다 toward the company (문의드리다, 말씀드리다) — shows the learner knows where they are calling",
+          "합니다체 fits a hotline; 해요체 tolerated; 반말 and 뭐 / 그냥 — no"
+        ]
+      }
+    },
+    {
+      "id": "impreza-poznanie",
+      "scenariusz": "rowiesnik-impreza",
+      "poziom": 1,
+      "tury": 4,
+      "ikona": "🎉",
+      "tytul": {
+        "pl": "Poznaj kogoś na imprezie",
+        "en": "Meet someone at a party"
+      },
+      "cel": {
+        "pl": "Przedstaw się, dowiedz się, ile ta osoba ma lat, i przejdź z nią na 반말 — ale dopiero po propozycji.",
+        "en": "Introduce yourself, find out the person’s age, and switch to 반말 with them — but only after the offer."
+      },
+      "otwarcie": {
+        "ko": "어, 안녕하세요! 처음 뵙는 것 같은데… 누구 친구예요?",
+        "pl": "O, cześć! Chyba się nie znamy… Czyjś znajomy?",
+        "en": "Oh, hi! I don’t think we’ve met… whose friend are you?"
+      },
+      "kryteria": {
+        "pl": [
+          "przedstawienie się w 해요체 (저 {imie}이에요) — 합니다체 na imprezie brzmi dziwnie",
+          "pytanie o wiek (몇 살이에요?) — tu to nie nietakt, tylko sposób ustalenia rejestru",
+          "반말 od pierwszego zdania — za szybko; 반말 dopiero po 말 놓을까요? / 말 놓자",
+          "po propozycji przejście na 반말 faktycznie następuje (야, -아/어 bez 요) — zostanie przy 해요체 to też błąd"
+        ],
+        "en": [
+          "introduction in 해요체 — 합니다체 at a party sounds odd",
+          "asking the age (몇 살이에요?) — here it is not rude, it is how you settle the register",
+          "반말 from the first sentence — too fast; 반말 only after 말 놓을까요? / 말 놓자",
+          "after the offer the switch to 반말 actually happens (야, -아/어 without 요) — staying in 해요체 is also a miss"
+        ]
+      }
+    },
+    {
+      "id": "sasiad-winda",
+      "scenariusz": "sasiad-starszy",
+      "poziom": 1,
+      "tury": 3,
+      "ikona": "🛗",
+      "tytul": {
+        "pl": "Pogadaj z sąsiadem w windzie",
+        "en": "Small talk in the lift"
+      },
+      "cel": {
+        "pl": "Odpowiedz starszemu sąsiadowi na pytanie o zdrowie i sam zapytaj o jego — i pożegnaj się, zanim otworzą się drzwi.",
+        "en": "Answer the older neighbour’s question about how you are, ask about his health — and say goodbye before the doors open."
+      },
+      "otwarcie": {
+        "ko": "아이고, 오랜만이네. 요즘 통 안 보이더니 바빴나?",
+        "pl": "O, dawno cię nie widziałem. Zajęty byłeś?",
+        "en": "Well, long time no see. Been busy lately?"
+      },
+      "kryteria": {
+        "pl": [
+          "powitanie z 안녕하세요 (nie 안녕) i zwrot 어르신 albo 할아버지 — nie 아저씨",
+          "pytanie o zdrowie z -시-: 괜찮으세요 / 건강하세요 — 괜찮아요? wobec 70-latka to brak -시-",
+          "sąsiad mówi 반말 — to normalne; uczeń nie odpowiada 반말",
+          "pożegnanie: 들어가세요 / 조심히 가세요 — nie 안녕히 계세요 w windzie"
+        ],
+        "en": [
+          "greeting with 안녕하세요 (not 안녕) and 어르신 or 할아버지 — not 아저씨",
+          "health question with -시-: 괜찮으세요 / 건강하세요 — 괜찮아요? to a 70-year-old lacks the honorific",
+          "the neighbour speaks 반말 — that is normal; the learner does not reply in 반말",
+          "farewell: 들어가세요 / 조심히 가세요 — not 안녕히 계세요 in a lift"
+        ]
+      }
+    },
+    {
+      "id": "szef-blad-raport",
+      "scenariusz": "szef-blad",
+      "poziom": 3,
+      "tury": 4,
+      "ikona": "📄",
+      "tytul": {
+        "pl": "Przyznaj się do błędu",
+        "en": "Own up to a mistake"
+      },
+      "cel": {
+        "pl": "Powiedz dyrektorowi o błędzie w raporcie, który poszedł do klienta: przeproś, podaj fakt, powiedz, co robisz — bez wymówki.",
+        "en": "Tell the director about the error in a report already sent to the client: apologise, state the fact, say what you are doing — no excuses."
+      },
+      "otwarcie": {
+        "ko": "네, 들어오세요. 무슨 일입니까?",
+        "pl": "Tak, proszę wejść. O co chodzi?",
+        "en": "Yes, come in. What is it?"
+      },
+      "kryteria": {
+        "pl": [
+          "죄송합니다 na początku, zanim padnie wyjaśnienie",
+          "błąd nazwany konkretnie (która strona, jaka liczba), nie 조금 문제가 있어요",
+          "działanie naprawcze z 겠습니다 (수정본을 바로 보내겠습니다) — obietnica, nie 할 것 같아요",
+          "wymówka (제가 바빠서요, 그런데…) obniża wiarygodność; 반말 wykluczone; 해요체 tolerowane, ale 합니다체 tu wygrywa"
+        ],
+        "en": [
+          "죄송합니다 first, before any explanation",
+          "the error named precisely (which page, which figure), not 조금 문제가 있어요",
+          "corrective action with 겠습니다 (I will send the corrected version right away) — a commitment, not 할 것 같아요",
+          "an excuse (I was busy, but…) undercuts credibility; 반말 is out; 해요체 tolerated, but 합니다체 wins here"
+        ]
+      }
+    },
+    {
+      "id": "rekrutacja-slabe-strony",
+      "scenariusz": "rozmowa-kwalifikacyjna",
+      "poziom": 3,
+      "tury": 3,
+      "ikona": "💼",
+      "tytul": {
+        "pl": "Opowiedz o słabej stronie",
+        "en": "Talk about a weakness"
+      },
+      "cel": {
+        "pl": "Odpowiedz rekruterowi na pytanie o słabą stronę: nazwij ją, podaj przykład i powiedz, co z nią robisz.",
+        "en": "Answer the recruiter’s question about a weakness: name it, give an example, and say what you are doing about it."
+      },
+      "otwarcie": {
+        "ko": "자기소개 잘 들었습니다. 그럼 본인의 단점은 무엇이라고 생각하십니까?",
+        "pl": "Dziękuję za prezentację. A jaka jest pana / pani słaba strona?",
+        "en": "Thank you for the introduction. Now, what would you say is your weakness?"
+      },
+      "kryteria": {
+        "pl": [
+          "słaba strona nazwana wprost (경향이 있다 / 부족하다), nie 없습니다 i nie żart",
+          "przykład albo sytuacja, w której się ujawniła",
+          "co uczeń z tym robi — 노력하고 있습니다 / 개선하고 있습니다",
+          "합니다체 przez całą rozmowę; wypełniacze 음 / 그니까 / 뭐 / 그냥 tu obniżają ocenę — naturalność ustępuje formalności"
+        ],
+        "en": [
+          "the weakness named directly (경향이 있다 / 부족하다), not 없습니다 and not a joke",
+          "an example or situation where it showed",
+          "what the learner is doing about it — 노력하고 있습니다 / 개선하고 있습니다",
+          "합니다체 throughout; fillers 음 / 그니까 / 뭐 / 그냥 count against you here — naturalness yields to formality"
+        ]
+      }
+    },
+    {
+      "id": "klient-pierwsze-spotkanie",
+      "scenariusz": "klient-korporacyjny",
+      "poziom": 3,
+      "tury": 3,
+      "ikona": "🤝",
+      "tytul": {
+        "pl": "Otwórz spotkanie z klientem",
+        "en": "Open a client meeting"
+      },
+      "cel": {
+        "pl": "Przedstaw się klientowi z większej firmy, podziękuj za czas i zaproponuj, od czego zacząć.",
+        "en": "Introduce yourself to a client from a bigger company, thank them for their time, and propose where to start."
+      },
+      "otwarcie": {
+        "ko": "아, 오셨군요. 앉으시죠. 오늘 일정이 좀 빠듯해서 바로 시작하시죠.",
+        "pl": "A, już jest. Proszę usiąść. Mam dziś napięty grafik, zacznijmy od razu.",
+        "en": "Ah, you’re here. Please sit. My schedule is tight today, let’s start right away."
+      },
+      "kryteria": {
+        "pl": [
+          "처음 뵙겠습니다 + firma + imię z -입니다 — pełna formuła, nie 안녕하세요, {imie}이에요",
+          "바쁘신데 시간 내 주셔서 감사합니다 albo równoważne podziękowanie za czas",
+          "propozycja porządku spotkania w formie pytania (먼저 …부터 말씀드려도 될까요?)",
+          "합니다체 bez wyjątku — 해요체 przy pierwszym spotkaniu B2B brzmi lekceważąco"
+        ],
+        "en": [
+          "처음 뵙겠습니다 + company + name with -입니다 — the full formula, not 안녕하세요, {imie}이에요",
+          "바쁘신데 시간 내 주셔서 감사합니다 or an equivalent thanks for their time",
+          "proposed agenda phrased as a question (may I start with…?)",
+          "합니다체 without exception — 해요체 at a first B2B meeting sounds dismissive"
+        ]
+      }
+    },
+    {
+      "id": "hoesik-hobby",
+      "scenariusz": "szef-po-godzinach",
+      "poziom": 2,
+      "tury": 3,
+      "ikona": "🍻",
+      "tytul": {
+        "pl": "Pogadaj z szefem na firmowej kolacji",
+        "en": "Chat with the boss at a work dinner"
+      },
+      "cel": {
+        "pl": "Opowiedz szefowi o swoim hobby i zapytaj o jego — luźno, ale bez 반말, nawet gdy powie 편하게 해.",
+        "en": "Tell the boss about your hobby and ask about his — relaxed, but no 반말, even when he says 편하게 해."
+      },
+      "otwarcie": {
+        "ko": "야, 여기 앉아. 회사 얘기는 그만하고… 너 주말에 뭐 해? 편하게 말해.",
+        "pl": "Ej, siadaj tu. Dość o firmie… co robisz w weekendy? Mów swobodnie.",
+        "en": "Hey, sit here. Enough about work… what do you do on weekends? Speak freely."
+      },
+      "kryteria": {
+        "pl": [
+          "hobby opowiedziane w 해요체, konkretnie (등산을 자주 가요), z jednym szczegółem",
+          "pytanie zwrotne do szefa z -시- (부장님도 … 좋아하세요?)",
+          "편하게 해 znaczy 해요체 bez 합니다 — NIE 반말; przejście na 반말 po tej zachęcie to pułapka sceny",
+          "합니다체 przy 회식 brzmi jak ciąg dalszy zebrania — szef drugi raz powie 편하게 해"
+        ],
+        "en": [
+          "the hobby told in 해요체, concretely (I often go hiking), with one detail",
+          "a return question to the boss with -시- (부장님도 … 좋아하세요?)",
+          "편하게 해 means 해요체 without 합니다 — NOT 반말; switching to 반말 after that nudge is the trap of this scene",
+          "합니다체 at a 회식 sounds like the meeting continuing — the boss will say 편하게 해 a second time"
+        ]
+      }
+    },
+    {
+      "id": "szef-odmowa-dzis",
+      "scenariusz": "szef-odmowa-nadgodzin",
+      "poziom": 2,
+      "tury": 4,
+      "ikona": "⏰",
+      "tytul": {
+        "pl": "Odmów zostania po godzinach",
+        "en": "Decline staying late"
+      },
+      "cel": {
+        "pl": "Odmów szefowi zostania dziś po godzinach: podaj powód, zmiękcz odmowę i zaproponuj, kiedy dokończysz — także gdy naciśnie drugi raz.",
+        "en": "Decline staying late today: give the reason, soften the refusal, and offer when you will finish — even when he pushes a second time."
+      },
+      "otwarcie": {
+        "ko": "{imie} 씨, 미안한데 오늘 좀 남아서 이거 마무리해 줄 수 있어요? 내일 아침까지 나가야 돼서요.",
+        "pl": "Panie Marku, przepraszam, ale mógłby pan dziś zostać i to dokończyć? Musi wyjść do jutra rana.",
+        "en": "Marek, sorry, but could you stay today and finish this? It has to go out by tomorrow morning."
+      },
+      "kryteria": {
+        "pl": [
+          "powód podany przed odmową (집에 급한 일이 있어서)",
+          "odmowa zmiękczona: 좀 어려울 것 같습니다 / 어려울 것 같은데요 — nie 싫어요, 안 돼요, 못 해요 wprost",
+          "alternatywa z konkretem (내일 아침 일찍 나와서 마무리하겠습니다)",
+          "przy drugim nacisku — ta sama linia, spokojnie; 합니다체 albo 해요체, 반말 wykluczone"
+        ],
+        "en": [
+          "the reason given before the refusal (an urgent matter at home)",
+          "the refusal softened: 좀 어려울 것 같습니다 / 어려울 것 같은데요 — not a blunt 싫어요, 안 돼요, 못 해요",
+          "an alternative with a specific (I will come in early tomorrow and finish)",
+          "on the second push — same line, calmly; 합니다체 or 해요체, 반말 is out"
+        ]
+      }
+    },
+    {
+      "id": "profesor-pytanie",
+      "scenariusz": "profesor-konsultacje",
+      "poziom": 2,
+      "tury": 3,
+      "ikona": "🎓",
+      "tytul": {
+        "pl": "Zadaj pytanie profesorowi",
+        "en": "Ask the professor a question"
+      },
+      "cel": {
+        "pl": "Na konsultacjach zapytaj profesora o jedną konkretną rzecz z zadania i potwierdź, co masz poprawić.",
+        "en": "At office hours ask the professor one specific thing about the assignment and confirm what you need to fix."
+      },
+      "otwarcie": {
+        "ko": "들어오세요. 무슨 질문이 있어서 왔죠?",
+        "pl": "Proszę wejść. Z jakim pytaniem?",
+        "en": "Come in. What question brings you here?"
+      },
+      "kryteria": {
+        "pl": [
+          "zwrot 교수님 przynajmniej raz — brak tytułu to poważny błąd",
+          "여쭤보다 / 여쭤볼 게 있는데요 zamiast 물어보다 wobec profesora",
+          "pytanie konkretne (która część zadania, co niejasne) — nie 잘 모르겠어요 ogólnie",
+          "합니다체 albo 해요체 — oba w porządku; 반말 kończy scenę"
+        ],
+        "en": [
+          "교수님 at least once — no title is a serious mistake",
+          "여쭤보다 / 여쭤볼 게 있는데요 instead of 물어보다 toward a professor",
+          "a specific question (which part, what is unclear) — not a general 잘 모르겠어요",
+          "합니다체 or 해요체 — both fine; 반말 ends the scene"
+        ]
+      }
+    },
+    {
+      "id": "nowy-kolega-biurko",
+      "scenariusz": "kolega-z-pracy-nowy",
+      "poziom": 1,
+      "tury": 3,
+      "ikona": "🖨️",
+      "tytul": {
+        "pl": "Przedstaw się koledze z biurka",
+        "en": "Introduce yourself to a desk-mate"
+      },
+      "cel": {
+        "pl": "Pierwszy dzień: przedstaw się koledze z biurka obok, poproś o pomoc w jednej sprawie i zakończ formułą na dobry początek.",
+        "en": "First day: introduce yourself to the colleague at the next desk, ask for help with one thing, and close with the right opening-day formula."
+      },
+      "otwarcie": {
+        "ko": "아, 오늘 새로 오신 분이죠? 저는 옆자리 박지훈이에요. 뭐 필요한 거 있으면 말씀하세요.",
+        "pl": "A, to pan / pani jest nowy? Jestem Park Jihun, siedzę obok. Jak coś trzeba, proszę mówić.",
+        "en": "Ah, you’re the new person, right? I’m Park Jihun, next desk. Let me know if you need anything."
+      },
+      "kryteria": {
+        "pl": [
+          "przedstawienie w 해요체 z imieniem ({imie}이에요 / {imie}이라고 해요)",
+          "잘 부탁드려요 albo 잘 부탁드립니다 — formuła bez polskiego odpowiednika, tu obowiązkowa",
+          "jedna konkretna prośba o pomoc (프린터 어디 있어요? / 어떻게 해요?)",
+          "반말 pierwszego dnia — za wcześnie, nawet przy równym wieku; 합니다체 pierwszego dnia ok, ale 해요체 lepiej"
+        ],
+        "en": [
+          "introduction in 해요체 with your name ({imie}이에요 / {imie}이라고 해요)",
+          "잘 부탁드려요 or 잘 부탁드립니다 — a formula with no Polish equivalent, mandatory here",
+          "one concrete request for help (where is the printer? / how does this work?)",
+          "반말 on day one — too early even at the same age; 합니다체 on day one is ok, 해요체 is better"
+        ]
+      }
+    },
+    {
+      "id": "kolega-prezentacja",
+      "scenariusz": "kolega-z-pracy-znajomy",
+      "poziom": 2,
+      "tury": 4,
+      "ikona": "📊",
+      "tytul": {
+        "pl": "Odpowiedz na prośbę o pomoc",
+        "en": "Answer a request for help"
+      },
+      "cel": {
+        "pl": "Kolega prosi o pomoc przy prezentacji, a ty jesteś zajęty: odpowiedz warunkowym „tak” z konkretną godziną, nie „nie”.",
+        "en": "A colleague asks for help with a presentation while you are busy: answer with a conditional yes and a concrete time, not a no."
+      },
+      "otwarcie": {
+        "ko": "{imie} 씨, 지금 잠깐 시간 돼요? 내일 발표 자료 좀 봐 줬으면 하는데…",
+        "pl": "Panie Marku, ma pan chwilę? Mógłby pan zerknąć na moją prezentację na jutro…",
+        "en": "Marek, got a moment? I was hoping you could look at my slides for tomorrow…"
+      },
+      "kryteria": {
+        "pl": [
+          "warunkowe tak: 지금은 좀 바쁜데 + godzina (세 시쯤 괜찮아요?) — nie 지금 안 돼요 i nie 네 bez zastrzeżeń, gdy jesteś zajęty",
+          "pytanie, o co konkretnie chodzi (어느 부분 / 뭘 봐 드릴까요?)",
+          "해요체 — po pół roku 합니다체 brzmi jak celowy dystans",
+          "반말 bez wcześniejszego 말 놓을까요? — przeskok; jeśli uczeń zaproponuje 말 놓기, kolega się zgodzi i wtedy 반말 jest ok"
+        ],
+        "en": [
+          "a conditional yes: 지금은 좀 바쁜데 + a time (세 시쯤 괜찮아요?) — not 지금 안 돼요, and not an unconditional 네 while busy",
+          "asking what exactly is needed (which part / what should I look at?)",
+          "해요체 — after six months 합니다체 sounds like deliberate distance",
+          "반말 without a prior 말 놓을까요? — a jump; if the learner proposes it, the colleague agrees and 반말 becomes fine"
+        ]
+      }
+    },
+    {
+      "id": "mlodszy-system",
+      "scenariusz": "mlodszy-kolega-praca",
+      "poziom": 2,
+      "tury": 3,
+      "ikona": "💻",
+      "tytul": {
+        "pl": "Wytłumacz system nowemu",
+        "en": "Explain the system to a junior"
+      },
+      "cel": {
+        "pl": "Wytłumacz młodszemu koledze, jak zgłosić zadanie w systemie, i upewnij się, że wie, gdzie pytać dalej.",
+        "en": "Explain to a junior colleague how to log a task in the system and make sure he knows where to ask next."
+      },
+      "otwarcie": {
+        "ko": "선배님, 죄송한데요… 시스템에 업무 등록하는 거 아직 잘 모르겠어서요. 어떻게 하는 거예요?",
+        "pl": "Przepraszam… nadal nie wiem, jak zgłosić zadanie w systemie. Jak to się robi?",
+        "en": "Sorry… I still don’t get how to log a task in the system. How does it work?"
+      },
+      "kryteria": {
+        "pl": [
+          "instrukcja krok po kroku z -(으)면 돼요 (여기 누르면 돼요) — nie sam opis, co system robi",
+          "sprawdzenie zrozumienia (알겠어요? / 해 볼래요?)",
+          "zaproszenie do pytań (모르는 거 있으면 언제든 물어보세요)",
+          "해요체 wobec młodszego jest bezpieczne; 반말 po miesiącu tolerowane w luźnych firmach — lustro tylko zaznacza; 합니다체 sztywne, ale nie błędne"
+        ],
+        "en": [
+          "step-by-step instruction with -(으)면 돼요 (press here and it works) — not just a description of what the system does",
+          "a comprehension check (알겠어요? / want to try?)",
+          "an invitation to ask (ask me anytime if something is unclear)",
+          "해요체 toward a junior is safe; 반말 after a month is tolerated in relaxed firms — the mirror only notes it; 합니다체 stiff but not wrong"
+        ]
+      }
+    },
+    {
+      "id": "kandydat-rozmowa",
+      "scenariusz": "mlodszy-sluzbowo-formalnie",
+      "poziom": 3,
+      "tury": 3,
+      "ikona": "🪑",
+      "tytul": {
+        "pl": "Poprowadź rozmowę z kandydatem",
+        "en": "Interview a candidate"
+      },
+      "cel": {
+        "pl": "Otwórz rozmowę kwalifikacyjną z młodszym kandydatem: rozluźnij go, poproś o przedstawienie się i zadaj jedno pytanie o doświadczenie.",
+        "en": "Open an interview with a younger candidate: put him at ease, ask for a self-introduction, and ask one question about his experience."
+      },
+      "otwarcie": {
+        "ko": "안녕하십니까. 오늘 면접 보러 온 김민재라고 합니다. 잘 부탁드립니다.",
+        "pl": "Dzień dobry. Nazywam się Kim Minjae, przyszedłem na rozmowę. Dziękuję za możliwość.",
+        "en": "Good morning. I am Kim Minjae, here for the interview. Thank you for having me."
+      },
+      "kryteria": {
+        "pl": [
+          "rozluźnienie na start (편하게 앉으세요 / 긴장 안 하셔도 돼요)",
+          "prośba o przedstawienie się z 부탁드립니다 / 해 주세요, nie rozkaz (해 봐)",
+          "jedno pytanie o doświadczenie, konkretne (어떤 프로젝트 / 어떤 역할)",
+          "합니다체 przez cały czas — wiek nie daje prawa do 반말 w sytuacji oficjalnej; 해요체 tolerowane"
+        ],
+        "en": [
+          "putting him at ease first (편하게 앉으세요 / no need to be nervous)",
+          "the self-introduction requested with 부탁드립니다 / 해 주세요, not ordered (해 봐)",
+          "one specific question about experience (which project / which role)",
+          "합니다체 throughout — age gives no right to 반말 in an official setting; 해요체 tolerated"
+        ]
+      }
+    },
+    {
+      "id": "ciotka-kolacja",
+      "scenariusz": "ciotka-kolezanki",
+      "poziom": 2,
+      "tury": 4,
+      "ikona": "🍲",
+      "tytul": {
+        "pl": "Kolacja u ciotki koleżanki",
+        "en": "Dinner at a friend’s aunt’s"
+      },
+      "cel": {
+        "pl": "Podziękuj za kolację, odpowiedz na pytanie o pracę i pochwal potrawę — trzymając 해요체 z -시-, choć ciotka przejdzie na 반말.",
+        "en": "Thank her for dinner, answer the question about your work, and praise the dish — keeping 해요체 with -시- even as the aunt slips into 반말."
+      },
+      "otwarcie": {
+        "ko": "어서 와요, 많이 먹어요. 그래, 요즘 무슨 일 해요?",
+        "pl": "Wchodź, jedz dużo. No i co teraz robisz zawodowo?",
+        "en": "Come in, eat plenty. So, what do you do these days?"
+      },
+      "kryteria": {
+        "pl": [
+          "podziękowanie za jedzenie: 잘 먹겠습니다 / 잘 먹었습니다",
+          "zwrot 이모님 albo pytanie z -시- (직접 만드셨어요?) — 먹어요 zamiast 드세요 wobec gospodyni to zgrzyt",
+          "odpowiedź o pracy w 해요체, jedno–dwa zdania, bez 합니다체 (to nie rozmowa kwalifikacyjna)",
+          "gdy ciotka w drugiej połowie przejdzie na 반말 — uczeń NIE przechodzi; asymetria jest tu normą"
+        ],
+        "en": [
+          "thanks for the food: 잘 먹겠습니다 / 잘 먹었습니다",
+          "이모님 as address or a question with -시- (did you make it yourself?) — 먹어요 instead of 드세요 to the host grates",
+          "the work answer in 해요체, one or two sentences, no 합니다체 (this is not a job interview)",
+          "when the aunt switches to 반말 in the second half — the learner does NOT follow; asymmetry is the norm here"
+        ]
+      }
+    },
+    {
+      "id": "tesciowa-po-obiedzie",
+      "scenariusz": "tesciowa-obiad",
+      "poziom": 2,
+      "tury": 3,
+      "ikona": "🥘",
+      "tytul": {
+        "pl": "Podziękuj przyszłej teściowej",
+        "en": "Thank your future mother-in-law"
+      },
+      "cel": {
+        "pl": "Po obiedzie podziękuj mamie partnera, pochwal konkretną potrawę i poproś o przepis — z 어머님 i bez imienia partnera na luzie.",
+        "en": "After dinner thank your partner’s mother, praise one specific dish, and ask for the recipe — with 어머님 and no casual use of your partner’s name."
+      },
+      "otwarcie": {
+        "ko": "입에 맞았는지 모르겠네요. 우리 애가 하도 얘기를 많이 해서 신경 좀 썼어요.",
+        "pl": "Nie wiem, czy smakowało. Nasze dziecko tyle o tobie mówiła, że się postarałam.",
+        "en": "I hope it was to your taste. Our child talked about you so much that I made an effort."
+      },
+      "kryteria": {
+        "pl": [
+          "zwrot 어머님 (nie 어머니, nie 아주머니) przynajmniej raz",
+          "pochwała konkretnej potrawy (김치찌개 정말 맛있었어요), nie ogólne 다 맛있어요",
+          "prośba o przepis z 좀 … 가르쳐 주세요 / 알려 주시겠어요",
+          "해요체 z honoryfikatywami; 합니다체 = dystans, jakby uczeń nie chciał się zbliżyć; imię partnera z 씨 albo tak, jak mówi o nim mama — nie 너/걔"
+        ],
+        "en": [
+          "어머님 (not 어머니, not 아주머니) at least once",
+          "praise for one specific dish (the kimchi stew was really delicious), not a generic 다 맛있어요",
+          "the recipe requested with 좀 … 가르쳐 주세요 / 알려 주시겠어요",
+          "해요체 with honorifics; 합니다체 = distance, as if you did not want to get closer; the partner named with 씨 or the way mum refers to them — not 너/걔"
+        ]
+      }
+    },
+    {
+      "id": "babcia-niedziela",
+      "scenariusz": "babcia-telefon",
+      "poziom": 1,
+      "tury": 3,
+      "ikona": "📱",
+      "tytul": {
+        "pl": "Zadzwoń do babci",
+        "en": "Call your grandmother"
+      },
+      "cel": {
+        "pl": "Zadzwoń do babci: powiedz, kto mówi, zapytaj, czy jadła, i uspokój ją, że jesz i się nie przeziębiasz.",
+        "en": "Call your grandmother: say who is calling, ask if she has eaten, and reassure her that you eat well and are not catching cold."
+      },
+      "otwarcie": {
+        "ko": "여보세요? 아이고, 우리 강아지! 밥은 먹었어? 거기 안 추워?",
+        "pl": "Halo? Ojej, mój skarbie! Jadłeś? Nie zimno ci tam?",
+        "en": "Hello? Oh, my sweetheart! Have you eaten? Isn’t it cold there?"
+      },
+      "kryteria": {
+        "pl": [
+          "przedstawienie się (할머니, 저예요) i pytanie o posiłek z 드셨어요 / 진지 드셨어요 — 밥 먹었어? bez -시- to błąd",
+          "uspokojenie: 잘 먹고 있어요 / 감기 안 걸렸어요 — odpowiedź na jej troskę, nie tylko własne wieści",
+          "rodzinne 반말 + honoryfikatyw (드셨어?) jest akceptowalne; 합니다체 brzmi obco — babcia zapyta, czy coś się stało",
+          "życzenie na koniec z -세요 (감기 조심하세요 / 건강하세요)"
+        ],
+        "en": [
+          "identify yourself (할머니, 저예요) and ask about her meal with 드셨어요 / 진지 드셨어요 — 밥 먹었어? without -시- is a mistake",
+          "reassurance: I eat well / no cold — answering her worry, not just your own news",
+          "family 반말 + honorific verb (드셨어?) is acceptable; 합니다체 sounds foreign — grandma will ask what happened",
+          "a closing wish with -세요 (take care of your health)"
+        ]
+      }
+    },
+    {
+      "id": "ojciec-kolegi-ulica",
+      "scenariusz": "ojciec-kolegi",
+      "poziom": 1,
+      "tury": 3,
+      "ikona": "🧢",
+      "tytul": {
+        "pl": "Przedstaw się ojcu kolegi",
+        "en": "Meet a friend’s father"
+      },
+      "cel": {
+        "pl": "Kolega przedstawia cię ojcu na ulicy: przywitaj się, przedstaw pełną formułą i odpowiedz na jedno krótkie pytanie.",
+        "en": "Your friend introduces you to his father on the street: greet him, introduce yourself with the full formula, and answer one short question."
+      },
+      "otwarcie": {
+        "ko": "아, 민수 친구야? 그래. 어디서 왔나?",
+        "pl": "A, kolega Minsu? Aha. Skąd jesteś?",
+        "en": "Ah, Minsu’s friend? Right. Where are you from?"
+      },
+      "kryteria": {
+        "pl": [
+          "안녕하세요 + imię z -이라고 합니다 / -입니다 — nie 안녕, nie samo imię",
+          "말씀 많이 들었어요 albo inna formuła szacunku (말씀 zamiast 말)",
+          "odpowiedź krótka i w 해요체 lub 합니다체 — ojciec mówi 반말, uczeń nie",
+          "합니다체 przy pierwszym spotkaniu ze starszym jest w porządku; 반말 kończy scenę"
+        ],
+        "en": [
+          "안녕하세요 + name with -이라고 합니다 / -입니다 — not 안녕, not the bare name",
+          "말씀 많이 들었어요 or another formula of respect (말씀 instead of 말)",
+          "a short answer in 해요체 or 합니다체 — the father speaks 반말, the learner does not",
+          "합니다체 at a first meeting with an elder is fine; 반말 ends the scene"
+        ]
+      }
+    },
+    {
+      "id": "kolezanka-mamy-telefon",
+      "scenariusz": "kolezanka-matki",
+      "poziom": 1,
+      "tury": 3,
+      "ikona": "☎️",
+      "tytul": {
+        "pl": "Odbierz telefon do mamy",
+        "en": "Answer a call for your mum"
+      },
+      "cel": {
+        "pl": "Odbierz telefon od koleżanki mamy: powiedz, że mamy nie ma, kiedy wróci, i obiecaj przekazać wiadomość.",
+        "en": "Answer a call from your mum’s friend: say she is out, when she will be back, and promise to pass on the message."
+      },
+      "otwarcie": {
+        "ko": "여보세요? 아, 정희네 집이지? 엄마 계시니?",
+        "pl": "Halo? A, to dom Jeonghee, tak? Mama jest?",
+        "en": "Hello? Oh, this is Jeonghee’s place, right? Is your mum in?"
+      },
+      "kryteria": {
+        "pl": [
+          "o własnej matce wobec obcej osoby z -시-: 안 계세요, 들어오시면 — 엄마 없어요 to brak honoryfikatywu wobec nieobecnej starszej",
+          "kiedy wróci — konkret (저녁에 / 한 시간쯤 후에)",
+          "obietnica przekazania: 전화 왔다고 말씀드릴게요 (말씀드리다, nie 말할게요)",
+          "해요체; 합니다체 brzmi jak call center; 반말 (엄마 없어) — nie do przyjęcia"
+        ],
+        "en": [
+          "about your own mother to an outsider with -시-: 안 계세요, 들어오시면 — 엄마 없어요 drops the honorific for an absent elder",
+          "when she will be back — a specific (this evening / in about an hour)",
+          "the promise to pass it on: 전화 왔다고 말씀드릴게요 (말씀드리다, not 말할게요)",
+          "해요체; 합니다체 sounds like a call centre; 반말 (엄마 없어) — unacceptable"
+        ]
+      }
+    },
+    {
+      "id": "sunbae-projekt",
+      "scenariusz": "kolega-ze-studiow",
+      "poziom": 2,
+      "tury": 3,
+      "ikona": "📚",
+      "tytul": {
+        "pl": "Zgódź się na projekt ze starszym kolegą",
+        "en": "Join a senior’s project"
+      },
+      "cel": {
+        "pl": "Odpowiedz 선배 na propozycję wspólnego projektu: zgódź się, dopytaj o jedną rzecz i umów termin — w 해요체, choć on mówi 반말.",
+        "en": "Answer a 선배’s offer of a joint project: agree, ask about one thing, and set a time — in 해요체, even though he uses 반말."
+      },
+      "otwarcie": {
+        "ko": "야, 너 이번 학기 프로젝트 팀 정했어? 나랑 같이 할래? 주제는 내가 생각해 둔 게 있어.",
+        "pl": "Ej, masz już zespół na projekt w tym semestrze? Robisz ze mną? Mam pomysł na temat.",
+        "en": "Hey, got a team for this semester’s project yet? Want to do it with me? I’ve got a topic in mind."
+      },
+      "kryteria": {
+        "pl": [
+          "zwrot 선배 przynajmniej raz — nie imię, nie 형/언니 bez zgody",
+          "해요체 mimo że 선배 mówi 반말 — asymetria przy roku różnicy jest normą; 반말 bez jego zgody to przeskok",
+          "dopytanie o temat albo podział pracy (주제가 뭐예요? / 뭘 하면 돼요?)",
+          "umówienie terminu (언제 한번 같이 얘기해요 / 목요일에 봐요); 합니다체 — 선배 się roześmieje"
+        ],
+        "en": [
+          "선배 as address at least once — not the name, not 형/언니 without permission",
+          "해요체 although the 선배 speaks 반말 — asymmetry at one year’s difference is the norm; 반말 without his consent is a jump",
+          "a follow-up on the topic or division of work (what is the topic? / what should I do?)",
+          "a time agreed (let’s talk sometime / see you Thursday); 합니다체 — the 선배 will laugh"
+        ]
+      }
+    },
+    {
+      "id": "przyjaciel-po-klotni",
+      "scenariusz": "przyjaciel-blisko",
+      "poziom": 2,
+      "tury": 4,
+      "ikona": "🌙",
+      "tytul": {
+        "pl": "Wysłuchaj przyjaciela",
+        "en": "Be there for a friend"
+      },
+      "cel": {
+        "pl": "Przyjaciel dzwoni po kłótni z dziewczyną: dowiedz się, co się stało, nie oceniaj od razu i zaproponuj spotkanie — w 반말 od pierwszego słowa.",
+        "en": "A friend calls after a fight with his girlfriend: find out what happened, don’t judge right away, and offer to meet — in 반말 from the first word."
+      },
+      "otwarcie": {
+        "ko": "야… 자냐? 나 지금 좀 그래. 걔랑 또 싸웠어.",
+        "pl": "Ej… śpisz? Kiepsko ze mną. Znowu się z nią pokłóciłem.",
+        "en": "Hey… you asleep? I’m in a bad way. Had another fight with her."
+      },
+      "kryteria": {
+        "pl": [
+          "반말 od początku do końca — 야, -야, -아/어 bez 요; 해요체 wobec bliskiego przyjaciela brzmi, jakbyś się na niego gniewał",
+          "pytanie, co się stało (무슨 일이야? / 천천히 말해 봐), zanim padnie rada",
+          "zero oceniania w pierwszych dwóch wymianach (네가 잘못했네 — nie)",
+          "propozycja: spotkanie albo „mów dalej” (지금 어디야? 내가 갈게 / 나와)"
+        ],
+        "en": [
+          "반말 from start to finish — 야, -야, -아/어 without 요; 해요체 to a close friend sounds as if you were angry at him",
+          "asking what happened (무슨 일이야? / take it slow) before any advice",
+          "no judging in the first two exchanges (you were wrong — no)",
+          "an offer: meet up or keep talking (where are you? I’ll come over / come out)"
+        ]
+      }
+    },
+    {
+      "id": "dziecko-rysunek",
+      "scenariusz": "dziecko-znajomych",
+      "poziom": 1,
+      "tury": 3,
+      "ikona": "🖍️",
+      "tytul": {
+        "pl": "Pochwal rysunek dziecka",
+        "en": "Praise a child’s drawing"
+      },
+      "cel": {
+        "pl": "Ośmiolatek pokazuje ci rysunek: pochwal, zapytaj, co przedstawia, i zaproponuj, żeby narysował coś jeszcze — w 반말.",
+        "en": "An eight-year-old shows you a drawing: praise it, ask what it shows, and suggest he draw one more thing — in 반말."
+      },
+      "otwarcie": {
+        "ko": "이거 봐! 내가 그렸어! 여기 이거 뭔지 알아?",
+        "pl": "Patrz! Ja to narysowałem! Wiesz, co to jest?",
+        "en": "Look! I drew this! Do you know what this is?"
+      },
+      "kryteria": {
+        "pl": [
+          "반말 (네가 그린 거야? 잘 그렸다!) — 해요체 do małego dziecka brzmi jak z podręcznika, 합니다체 komicznie",
+          "wykrzyknik z -다 (잘 그렸다! / 멋지다!) — to naturalne 반말, nie błąd",
+          "pytanie o rysunek (이건 뭐야? / 이건 누구야?)",
+          "zachęta do dalszego rysowania (하나 더 그려 줄래? / 이번엔 … 그려 봐)"
+        ],
+        "en": [
+          "반말 (did you draw this? nicely done!) — 해요체 to a small child sounds like a textbook, 합니다체 is comic",
+          "an exclamation in -다 (잘 그렸다! / 멋지다!) — natural 반말, not an error",
+          "a question about the drawing (what is this? / who is this?)",
+          "encouragement to draw more (will you draw one more? / this time try drawing…)"
+        ]
+      }
+    },
+    {
+      "id": "kuzyn-studia",
+      "scenariusz": "kuzyn-mlodszy",
+      "poziom": 2,
+      "tury": 4,
+      "ikona": "🎒",
+      "tytul": {
+        "pl": "Doradź młodszemu kuzynowi",
+        "en": "Advise your younger cousin"
+      },
+      "cel": {
+        "pl": "Kuzyn nie wie, jakie studia wybrać: zapytaj, co lubi, doradź bez narzucania i uspokój, że ma czas — w 반말 z 너/네.",
+        "en": "Your cousin can’t choose a degree: ask what he likes, advise without imposing, and reassure him there is time — in 반말 with 너/네."
+      },
+      "otwarcie": {
+        "ko": "있잖아, 나 진짜 모르겠어. 엄마는 경영학 가래는데 난 별로야. 어떻게 해?",
+        "pl": "Słuchaj, ja naprawdę nie wiem. Mama każe iść na zarządzanie, a ja nie chcę. Co mam zrobić?",
+        "en": "I really don’t know. Mum says business school, but I’m not into it. What do I do?"
+      },
+      "kryteria": {
+        "pl": [
+          "반말 z 너/네 — 해요체 wobec młodszego kuzyna brzmi jak do obcego; 너 tu jest właściwe",
+          "pytanie, co lubi / co go interesuje, zanim padnie rada",
+          "rada bez rozkazu: -는 게 어때? / -아/어 봐 zamiast -아/어야 돼 albo 가",
+          "uspokojenie (급하게 정하지 마 / 시간 있어) zamiast opowiedzenia się po stronie mamy"
+        ],
+        "en": [
+          "반말 with 너/네 — 해요체 to a younger cousin sounds like a stranger; 너 is right here",
+          "asking what he likes / is interested in before any advice",
+          "advice without an order: -는 게 어때? / -아/어 봐 instead of -아/어야 돼 or 가",
+          "reassurance (don’t decide in a hurry / there is time) rather than siding with his mum"
+        ]
+      }
+    }
+  ];
+
+function misjaDlaScenariusza(id){ return MISJE.find(m => m.scenariusz === id) || null; }
+
+/* ═══ UKOŃCZONE SCENY ══════════════════════════════════════════════════════
+   Werdykt i tak powstaje - szkoda go wyrzucać. Zapis trzyma sam wynik celu
+   ('osiagniety' / 'czesciowo' / 'nieosiagniety') i datę; to wystarczy, żeby
+   lista pokazała, co uczeń ma już za sobą, i żeby zrobione sceny zeszły na
+   dół zamiast zajmować pierwszy ekran.
+
+   localStorage, nie serwer: to nie jest postęp, od którego coś zależy, tylko
+   porządek na liście. Utrata przy zmianie urządzenia nie kosztuje ucznia nic
+   poza kolejnością kart. */
+const MISJE_ZROBIONE_KEY = 'hooljon_misje_zrobione';
+function misjeZrobione(){
+  try{ return JSON.parse(localStorage.getItem(MISJE_ZROBIONE_KEY) || '{}') || {}; }catch(e){ return {}; }
+}
+function zapiszMisjeZrobiona(id, cel){
+  try{
+    const m = misjeZrobione();
+    m[id] = { cel: cel || 'czesciowo', kiedy: Date.now() };
+    localStorage.setItem(MISJE_ZROBIONE_KEY, JSON.stringify(m));
+  }catch(e){ /* porządek na liście nie może przerwać sceny */ }
+}
+
+/* IMIĘ UCZNIA W SCENIE. Cztery repliki otwierające zwracają się do ucznia po
+   imieniu (szef, kolega z pracy) - i to jest dobrze, bo tak brzmi biuro.
+   Apka jednak imienia NIE ZNA: tabela `profiles` trzyma motyw, język, dźwięk
+   i obrazki, nic więcej. Do czasu, aż pole na imię powstanie, zostaje
+   `마렉` - to samo imię, którego używają przykłady w scenariuszach nunchi.
+   Placeholder `{imie}` sprawia, że tamtego dnia zmienia się jedna linijka,
+   a nie cztery repliki i osiem kryteriów. */
+function imieUcznia(){
+  return '마렉';
+}
+function zImieniem(tekst){
+  return String(tekst || '').split('{imie}').join(imieUcznia());
+}
+
+let misjaAktywna = null;   // obiekt z MISJE albo null
+let misjaTura = 0;         // ile wymian ucznia już padło
+let misjaZamknieta = false;
+
 let nunchiAktywny = null;
+
+/* ═══ ROZMOWA O ROZDZIALE ══════════════════════════════════════════════════
+   Wejście z ekranu wyniku ostatniej lekcji rozdziału. Temat żyje jedną
+   rozmowę: `swiezy` gaśnie przy pierwszym wejściu na ekran, więc rozmowa
+   otwarta później z menu jest znowu zwykłą rozmową, a nie o rozdziale sprzed
+   tygodnia. */
+let rozmowaTemat = null;
+let rozmowaTematSwiezy = false;
+
+/** Temat z rozdziału: tytuł, słowa i wzorce, których uczeń się właśnie nauczył.
+    Słów bierzemy najwyżej dwanaście - dłuższa lista przestaje być podpowiedzią,
+    a staje się ścianą tekstu w momencie, gdy uczeń i tak ma mówić. */
+function tematZRozdzialu(idx){
+  const ch = (typeof STORY_CHAPTERS !== 'undefined') ? STORY_CHAPTERS[idx] : null;
+  if(!ch) return null;
+  const poId = new Map(STORY_LESSONS.map(l => [l.id, l]));
+  /* SŁOWA NA TEMAT, nie wszystkie z rozdziału. Rozdziały mają wplecione lekcje
+     „Słownictwo ogólne" (402, 405, 408...) - biorą się z częstości, nie z tematu.
+     Pierwsza wersja tego paska pokazywała pod tytułem „Rozmawiacie o: Jedzenie"
+     słowa 머리, 손, 다리, 텔레비전. Zobaczyłem to na zrzucie, nie w teście: test
+     sprawdzał, że słów jest dwanaście, a nie że są o czymkolwiek.
+
+     Rozróżnienie jest w danych: lekcja tematyczna ma pole `sources` z kategorią,
+     wpleciona ma same `wordKos`. Bierzemy najpierw tematyczne, resztą
+     uzupełniamy dopiero, gdy jest ich za mało na sensowną podpowiedź. */
+  const tematyczne = [], pozostale = [], wzorce = [];
+  ch.lessonIds.forEach(id => {
+    const l = poId.get(id);
+    if(!l) return;
+    const kubel = (l.sources && l.sources.length) ? tematyczne : pozostale;
+    (l.wordKos || []).forEach(w => { if(tematyczne.indexOf(w) < 0 && pozostale.indexOf(w) < 0) kubel.push(w); });
+    (l.patterns || []).forEach(p => { if(wzorce.indexOf(p) < 0) wzorce.push(p); });
+  });
+  const slowa = shuffle(tematyczne).slice(0, 12);
+  if(slowa.length < 6) slowa.push(...shuffle(pozostale).slice(0, 12 - slowa.length));
+  return {
+    idx,
+    tytul: (uiLang === 'en' ? ch.title.en : ch.title.pl),
+    ikona: ch.icon || '📘',
+    slowa,
+    wzorce: wzorce.slice(0, 4),
+  };
+}
+
+/** Wejście w rozmowę o rozdziale. Scenariusz losujemy TERAZ, bo `nunchiLosuj`
+    filtruje po poziomie ucznia - a poziom mógł się właśnie zmienić razem
+    z ukończeniem rozdziału. */
+function rozmowaZRozdzialu(idx){
+  if(!isPremiumPro){
+    /* Bramka Pro: każda tura kosztuje AI. Zamiast martwego przycisku -
+       panel, w którym widać, co się dostaje. */
+    document.getElementById('premiumPanel').classList.add('open');
+    try{ applyPremiumUI(); }catch(e){}
+    return;
+  }
+  rozmowaTemat = tematZRozdzialu(idx);
+  rozmowaTematSwiezy = true;
+  try{ nunchiLosuj(); }catch(e){ /* brak scenariusza = zwykła rozmowa */ }
+  setScreen('aiChat');
+}
+
+/** Wywoływane przy KAŻDYM wejściu na ekran rozmowy. Temat przetrwa tylko to
+    jedno wejście - inaczej rozmowa otwarta z menu tydzień później dalej
+    byłaby „o Jedzeniu". */
+function przyjmijTematRozmowy(){
+  if(!rozmowaTematSwiezy) rozmowaTemat = null;
+  rozmowaTematSwiezy = false;
+  try{ renderTematRozmowy(); }catch(e){ /* pasek tematu nie może blokować ekranu */ }
+}
+
+function renderTematRozmowy(){
+  const box = document.getElementById('rozmowaTematInfo');
+  if(!box) return;
+  if(!rozmowaTemat){ box.style.display = 'none'; box.innerHTML = ''; return; }
+  const en = uiLang === 'en';
+  box.style.display = 'block';
+  box.innerHTML =
+    `<div class="rt-tytul">${escapeHtml(rozmowaTemat.ikona + ' ' + (en ? 'Talking about: ' : 'Rozmawiacie o: ') + rozmowaTemat.tytul)}</div>`
+    + `<div class="rt-slowa">${rozmowaTemat.slowa.map(w =>
+        `<button type="button" class="rt-slowo" data-rt="${escapeHtml(w)}">${escapeHtml(w)}</button>`).join('')}</div>`
+    + (rozmowaTemat.wzorce.length
+        ? `<div class="rt-wzorce">${escapeHtml((en ? 'Patterns: ' : 'Wzorce: ') + rozmowaTemat.wzorce.join(' · '))}</div>`
+        : '');
+  box.querySelectorAll('[data-rt]').forEach(b => {
+    b.addEventListener('click', () => { try{ speakKorean(b.dataset.rt); }catch(e){} });
+  });
+}
 
 const NU_ETYKIETY = {
   rozmowca: { starszy:['osoba starsza','older person'], rowny:['rówieśnik','peer'],
@@ -33197,6 +35116,64 @@ let trOcenaTimer = null;
 
 /* Pula z SENTENCE_BUILDER_ITEMS - zdania mają już klocki, tłumaczenie
    i poziom, więc nie trzeba osobnych danych. */
+/* ═══ SILNIK MOWY — WSPÓLNY DLA TRENINGU ODRUCHU I KROKU W LEKCJI ═══════
+   Dwa ekrany, jedna ocena i jeden nasłuch. Kopia znaczyłaby, że poprawka
+   szyku z .494 żyje w jednym miejscu, a błąd w drugim. */
+
+/** Czy uczeń powiedział wszystkie człony I w kolejności.
+    Kolejność sprawdzamy kursorem: każdy człon szukany od miejsca, w którym
+    skończył się poprzedni. Powtórzony człon nie psuje wyniku, bo kursor idzie
+    tylko do przodu. */
+function ocenMowe(tekst, bloki){
+  const czyste = String(tekst).replace(/[.,!?\s]/g, '');
+  const b = (bloki || []).map(x => String(x).replace(/\s/g, ''));
+  const trafione = b.filter(x => czyste.includes(x)).length;
+  let kursor = 0, wSzyku = true;
+  b.forEach(x => {
+    const p = czyste.indexOf(x, kursor);
+    if(p < 0) wSzyku = false; else kursor = p + x.length;
+  });
+  return { trafione, razem: b.length, wSzyku, pelne: b.length > 0 && trafione === b.length && wSzyku };
+}
+
+/** Nasłuch ciągły z progiem ciszy. Zwraca uchwyt `{ stop, przerwij }`
+    albo null, gdy przeglądarka nie ma Web Speech (wtedy wołający MUSI podać
+    drogę bez mikrofonu - patrz krok mówienia w lekcji).
+
+    Ciągły, bo pauza w połowie zdania to nie koniec wypowiedzi, tylko dokładnie
+    ten moment, dla którego trening odruchu powstał. */
+function nasluchMowy(opcje){
+  const o = opcje || {};
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) return null;
+  const r = new SR();
+  r.lang = o.lang || 'ko-KR';
+  r.interimResults = true;
+  r.continuous = true;
+  let tekst = '', timer = null, zywy = true;
+  const zakoncz = () => {
+    if(!zywy) return;
+    zywy = false;
+    if(timer){ clearTimeout(timer); timer = null; }
+    try{ r.stop(); }catch(e){}
+    if(o.onKoniec) o.onKoniec(tekst);
+  };
+  r.onresult = (e) => {
+    tekst = Array.from(e.results).map(x => x[0].transcript).join(' ');
+    if(o.onCzesciowy) o.onCzesciowy(tekst);
+    if(timer) clearTimeout(timer);
+    timer = setTimeout(zakoncz, o.cisza || 1500);
+  };
+  r.onerror = (e) => {
+    zywy = false;
+    if(timer){ clearTimeout(timer); timer = null; }
+    if(o.onBlad) o.onBlad((e && e.error) || 'error');
+  };
+  r.onend = () => { if(zywy) zakoncz(); };
+  try{ r.start(); }catch(e){ return null; }
+  return { stop: zakoncz, przerwij(){ zywy = false; if(timer) clearTimeout(timer); try{ r.abort(); }catch(e){} } };
+}
+
 /* ═══ KOLEJNOŚĆ OD ŁATWIEJSZYCH ══════════════════════════════════════════
    Trudność liczona z DANYCH: poziom (waży najmocniej) i liczba klocków.
    Dłuższe zdanie jest trudniejsze i do ułożenia, i do powtórzenia z pamięci,
@@ -33237,6 +35214,9 @@ function stopniowanaProbka(zrodlo, lvl, ile){
 function trPrzygotujPule(){
   const lvl = poziomUcznia();
   trTryb = lvl >= 3 ? 'C' : lvl === 2 ? 'B' : 'A';
+  /* Tryb C potrzebuje rozmówcy, nie samego zdania. */
+  trScena = null;
+  if(trTryb === 'C'){ try{ trScena = nunchiLosuj(); }catch(e){ trScena = null; } }
   const zrodlo = (typeof SENTENCE_BUILDER_ITEMS !== 'undefined') ? SENTENCE_BUILDER_ITEMS : [];
   trPula = stopniowanaProbka(zrodlo, lvl, 10);
   trIndeks = 0;
@@ -33275,6 +35255,12 @@ function trUstawSluchaj(){
   if(b) b.style.display = (trTryb === 'A' || trProbaByla) ? '' : 'none';
 }
 
+/* Scena sesji trybu C: uczeń musi wiedzieć, Z KIM rozmawia, zanim zacznie
+   reagować - inaczej „응" i „네" są nierozróżnialne. Losujemy raz na sesję,
+   przez `nunchiLosuj()`, które filtruje scenariusze po poziomie ucznia. */
+let trScena = null;
+let trOstatniaReakcja = null;
+
 function trRundaNowa(){
   if(!trPula.length) trPrzygotujPule();
   /* Sesja ma DZIESIĘĆ zadań i ma się kończyć. Wcześniej `trIndeks % 10`
@@ -33293,7 +35279,16 @@ function trRundaNowa(){
   document.getElementById('trDalejBtn').textContent = en ? 'Next' : 'Dalej';
   document.getElementById('trWzorzec').textContent =
     (en ? 'Mode ' : 'Tryb ') + trTryb + ' · ' + (en ? 'task ' : 'zadanie ') + (trIndeks + 1) + '/' + trPula.length;
-  document.getElementById('trCel').textContent = en ? (trZadanie.en || trZadanie.pl) : trZadanie.pl;
+  /* TRYB C: uczeń ma REAGOWAĆ na to, co usłyszał, więc zdanie nie stoi na
+     ekranie po polsku - stoi kontekst sceny i jedno polecenie. Zdanie po
+     koreańsku leci z lektora przy starcie rundy. */
+  if(trTryb === 'C' && trScena){
+    document.getElementById('trCel').textContent = en
+      ? (trScena.kontekstEn || trScena.kontekst)
+      : trScena.kontekst;
+  } else {
+    document.getElementById('trCel').textContent = en ? (trZadanie.en || trZadanie.pl) : trZadanie.pl;
+  }
   document.getElementById('trWynik').textContent = '';
   document.getElementById('trWynik').className = 'tr-wynik';
 
@@ -33308,6 +35303,25 @@ function trRundaNowa(){
      żeby nie musiał myśleć. Notatka o rejestrze (jest przy zdaniach
      z mieszanym rejestrem) dochodzi w obu trybach - to ona jest tam
      najciekawsza. */
+  if(trTryb === 'C'){
+    /* Podpowiedź nie zdradza odpowiedzi - mówi tylko, czego scena wymaga.
+       Trzy propozycje pojawiają się dopiero PO nietrafionej próbie. */
+    document.getElementById('trWzorzec').textContent =
+      (en ? 'React in three seconds' : 'Zareaguj w trzy sekundy') + ' · ' + (trIndeks + 1) + '/' + trPula.length;
+    document.getElementById('trWskazowka').textContent = en
+      ? 'Listen and answer with a short reaction that fits this person.'
+      : 'Posłuchaj i odpowiedz krótką reakcją pasującą do TEJ osoby.';
+    trPokazKlocki(null, false);
+    document.getElementById('trPodpis').textContent = en
+      ? 'Tap the mic, then listen.' : 'Dotknij mikrofonu i słuchaj.';
+    const rytmC = document.getElementById('trRytm');
+    rytmC.style.display = 'block';
+    rytmC.classList.remove('tr-plynie');
+    rytmC.style.setProperty('--tr-czas', '3000ms');
+    trUstawSluchaj();
+    return;
+  }
+
   const ile = trZadanie.blocks.length;
   const notka = (en ? trZadanie.noteEn : trZadanie.note) || '';
   const bazowa = (trTryb === 'A')
@@ -33336,9 +35350,13 @@ function trPodsumowanie(){
   document.getElementById('trWzorzec').textContent = en ? 'Session over' : 'Koniec sesji';
   document.getElementById('trCel').textContent = trTrafienia + '/' + razem +
     (en ? ' said in full and in order' : ' powiedziane w całości i w szyku');
-  document.getElementById('trWskazowka').textContent = en
-    ? `${trSzykBledny} with the right parts in the wrong order · ${trPudla} incomplete`
-    : `${trSzykBledny} z dobrymi członami w złej kolejności · ${trPudla} niepełne`;
+  document.getElementById('trWskazowka').textContent = (trTryb === 'C')
+    ? (en
+        ? `${trSzykBledny} right phrase, wrong person · ${trPudla} not recognised`
+        : `${trSzykBledny} dobra reakcja, zła osoba · ${trPudla} nierozpoznane`)
+    : (en
+        ? `${trSzykBledny} with the right parts in the wrong order · ${trPudla} incomplete`
+        : `${trSzykBledny} z dobrymi członami w złej kolejności · ${trPudla} niepełne`);
   trPokazKlocki(null, false);
   document.getElementById('trRytm').style.display = 'none';
   document.getElementById('trMikBtn').style.display = 'none';
@@ -33366,97 +35384,135 @@ function trStart(){
     rytm.classList.add('tr-plynie');
   }
 
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR){
+  try{ if(trRozp && trRozp.przerwij) trRozp.przerwij(); }catch(e){}
+  trRozp = nasluchMowy({
+    onCzesciowy: () => {
+      /* Pierwszy wynik częściowy zatrzymuje pasek - liczy się MOMENT
+         rozpoczęcia mowy, nie jej dokończenie. */
+      document.getElementById('trRytm').classList.remove('tr-plynie');
+    },
+    onKoniec: (tekst) => {
+      trSluchaTeraz = false;
+      przycisk.classList.remove('tr-slucha');
+      if(String(tekst).trim()) trOcen(tekst);
+    },
+    onBlad: () => {
+      trSluchaTeraz = false;
+      przycisk.classList.remove('tr-slucha');
+      wynik.textContent = uiLang === 'en' ? 'Could not hear you.' : 'Nie udało się rozpoznać.';
+      wynik.className = 'tr-wynik zle';
+    },
+  });
+  if(!trRozp){
     wynik.textContent = uiLang === 'en'
       ? 'Speech recognition unavailable in this browser.'
       : 'Rozpoznawanie mowy niedostępne w tej przeglądarce.';
     wynik.className = 'tr-wynik zle';
     return;
   }
-
-  try{ if(trRozp) trRozp.abort(); }catch(e){}
-  trRozp = new SR();
-  trRozp.lang = 'ko-KR';
-  trRozp.interimResults = true;
-  /* NASŁUCH CIĄGŁY. Do .493 było `continuous = false`: rozpoznawanie kończyło
-     się na pierwszej pauzie i oceniało uczenia za jego pierwszy fragment.
-     W treningu ODRUCHU pauza w połowie zdania to nie koniec wypowiedzi, tylko
-     dokładnie ten moment, dla którego ten tryb powstał. Teraz kończy dopiero
-     półtorej sekundy ciszy albo ponowne dotknięcie mikrofonu. */
-  trRozp.continuous = true;
   trSluchaTeraz = true;
-  trUslyszane = '';
   przycisk.classList.add('tr-slucha');
+  /* W trybie C zdanie jest BODŹCEM: najpierw je słychać, dopiero potem rusza
+     pasek trzech sekund. Wcześniejsze puszczenie paska mierzyłoby czas
+     czytania, nie czas reakcji. */
+  if(trTryb === 'C' && trZadanie){
+    try{ speakKorean(trZadanie.blocks.join(' ')); }catch(e){}
+  }
   document.getElementById('trPodpis').textContent = uiLang === 'en'
     ? 'Listening — tap again when you are done.'
     : 'Słucham — dotknij ponownie, gdy skończysz.';
-
-  trRozp.onresult = (e) => {
-    /* Pierwszy wynik częściowy zatrzymuje pasek - liczy się MOMENT
-       rozpoczęcia mowy, nie jej dokończenie. */
-    const rytm = document.getElementById('trRytm');
-    rytm.classList.remove('tr-plynie');
-    trUslyszane = Array.from(e.results).map(r => r[0].transcript).join(' ');
-    if(trOcenaTimer) clearTimeout(trOcenaTimer);
-    trOcenaTimer = setTimeout(trZakonczNaslu, 1500);
-  };
-  trRozp.onerror = () => {
-    trSluchaTeraz = false;
-    if(trOcenaTimer){ clearTimeout(trOcenaTimer); trOcenaTimer = null; }
-    przycisk.classList.remove('tr-slucha');
-    wynik.textContent = uiLang === 'en' ? 'Could not hear you.' : 'Nie udało się rozpoznać.';
-    wynik.className = 'tr-wynik zle';
-  };
-  trRozp.onend = () => { if(trSluchaTeraz) trZakonczNaslu(); else przycisk.classList.remove('tr-slucha'); };
-  try{ trRozp.start(); }catch(e){}
 }
 
-/** Koniec nasłuchu: cisza, ponowne dotknięcie mikrofonu albo koniec od
-    przeglądarki. Jedno miejsce, żeby te trzy drogi nie rozjechały się przy
-    pierwszej zmianie. */
+/** Koniec nasłuchu z zewnątrz (ponowne dotknięcie mikrofonu). */
 function trZakonczNaslu(){
-  if(trOcenaTimer){ clearTimeout(trOcenaTimer); trOcenaTimer = null; }
-  trSluchaTeraz = false;
-  try{ if(trRozp) trRozp.stop(); }catch(e){}
-  const przycisk = document.getElementById('trMikBtn');
-  if(przycisk) przycisk.classList.remove('tr-slucha');
-  if(String(trUslyszane).trim()) trOcen(trUslyszane);
+  if(trRozp && trRozp.stop) trRozp.stop();
 }
 
 /* Ocena po SŁOWACH KLUCZOWYCH, nie po dosłownym dopasowaniu. Chodzi o to,
    czy uczeń użył właściwych elementów i czy orzeczenie wylądowało na końcu -
    nie o laboratoryjną intonację. */
-function trOcen(tekst){
+/** Ocena w trybie C: nie liczymy członów, tylko trafność reakcji WOBEC TEJ
+    OSOBY. Czas jest presją, nie kryterium - ktoś, kto po dwóch sekundach
+    namysłu powiedział rzecz właściwą, nie robi błędu, a odruchowe 응 do
+    dyrektora jest błędem nawet powiedziane natychmiast. */
+function trOcenReakcje(tekst){
   const wynik = document.getElementById('trWynik');
-  const czyste = String(tekst).replace(/[.,!?\s]/g, '');
-  const bloki = trZadanie.blocks.map(b => b.replace(/\s/g, ''));
-  const trafione = bloki.filter(b => czyste.includes(b)).length;
   const en = uiLang === 'en';
+  const traf = rozpoznajReakcje(tekst, trScena);
+  trProbaByla = true;
+  trUstawSluchaj();
+  trOstatniaReakcja = traf;
 
-  /* SZYK. Do .493 ocena liczyła same trafienia, bez kolejności - te same człony
-     powiedziane OD TYŁU dostawały „✓ Wszystko na miejscu" (zmierzone sondą,
-     nie przypuszczone). Moduł istnieje po to, żeby uczyć szyku SOV, więc
-     kontrola, która szyku nie widzi, mierzy nie to, czego uczy.
+  const FUNKCJE = {
+    zrozumienie: en ? 'understanding' : 'zrozumienie',
+    potwierdzenie: en ? 'acknowledgement' : 'potwierdzenie',
+    zaskoczenie: en ? 'surprise' : 'zaskoczenie',
+    uznanie: en ? 'appreciation' : 'uznanie',
+    zgoda: en ? 'agreement' : 'zgoda',
+    wspolczucie: en ? 'sympathy' : 'współczucie',
+    wahanie: en ? 'hesitation' : 'wahanie',
+  };
 
-     Sposób: szukamy członów JEDEN PO DRUGIM, każdego od miejsca, w którym
-     skończył się poprzedni. Powtórzony człon nie zaburza wyniku, bo kursor
-     idzie tylko do przodu. */
-  let kursor = 0, wSzyku = true;
-  bloki.forEach(b => {
-    const p = czyste.indexOf(b, kursor);
-    if(p < 0) wSzyku = false; else kursor = p + b.length;
+  if(traf && traf.pasuje){
+    trTrafienia += 1;
+    wynik.textContent = '✓ ' + traf.reakcja.ko + ' — ' + (FUNKCJE[traf.reakcja.funkcja] || traf.reakcja.funkcja);
+    wynik.className = 'tr-wynik ok';
+    try{ playRealSound('correct'); }catch(e){}
+    return;
+  }
+
+  if(traf){
+    /* Znam ten zwrot, ale nie do TEJ osoby - i mam gotowe zdanie Fable o tym,
+       czym go zastąpić. To jest cała wartość tego trybu. */
+    trSzykBledny += 1;
+    wynik.textContent = traf.reakcja.ko + ' — ' +
+      (traf.reakcja.uwaga || (en ? 'does not fit this person.' : 'nie pasuje do tej osoby.'));
+    wynik.className = 'tr-wynik szyk';
+    trPodpowiedzReakcje();
+    return;
+  }
+
+  trPudla += 1;
+  wynik.textContent = (en ? 'Heard: ' : 'Usłyszałem: ') + tekst;
+  wynik.className = 'tr-wynik zle';
+  trPodpowiedzReakcje();
+}
+
+/** Trzy propozycje pasujące do TEJ sceny - pokazywane dopiero po próbie.
+    Dotknięcie wypowiada; pod spodem po co się tego używa. */
+function trPodpowiedzReakcje(){
+  const en = uiLang === 'en';
+  const pasujace = shuffle(reakcjeDlaSceny(trScena)).slice(0, 3);
+  const kl = document.getElementById('trKlocki');
+  if(!kl) return;
+  kl.innerHTML = pasujace.map(r =>
+    `<button type="button" class="tr-klocek tr-klocek-kolejnosc" data-tr-klocek="${escapeHtml(r.ko)}" title="${escapeHtml(en ? r.en : r.pl)}">${escapeHtml(r.ko)}</button>`).join('');
+  kl.querySelectorAll('[data-tr-klocek]').forEach(b => {
+    b.addEventListener('click', () => { try{ speakKorean(b.dataset.trKlocek); }catch(e){} });
   });
+  document.getElementById('trWskazowka').textContent = pasujace
+    .map(r => r.ko + ' — ' + (en ? r.en : r.pl)).join(' · ');
+}
+
+function trOcen(tekst){
+  if(trTryb === 'C'){ trOcenReakcje(tekst); return; }
+  const wynik = document.getElementById('trWynik');
+  const en = uiLang === 'en';
+  /* Ocena (trafienia + SZYK) siedzi w `ocenMowe` - tym samym, którego używa
+     krok mówienia w lekcji. Do .494 była tutaj i istniała w jednym egzemplarzu
+     tylko dlatego, że drugiego ekranu jeszcze nie było. */
+  const o = ocenMowe(tekst, trZadanie.blocks);
+  const trafione = o.trafione, bloki = { length: o.razem };
 
   trProbaByla = true;
   trUstawSluchaj();
 
-  if(trafione === bloki.length && wSzyku){
+  if(o.pelne){
     trTrafienia += 1;
     wynik.textContent = en ? '✓ Complete and in order' : '✓ Wszystko na miejscu';
     wynik.className = 'tr-wynik ok';
     try{ playRealSound('correct'); }catch(e){}
-  } else if(trafione === bloki.length){
+  } else if(trafione === o.razem){
     /* Wszystkie człony są. To NIE jest ten sam błąd co „nic nie pasuje" -
        uczeń zna słowa, przestawił kolejność, i to jest dokładnie ta jedna
        rzecz, której ten moduł uczy. Osobny kubełek, osobny kolor, wzorzec
@@ -36933,6 +38989,60 @@ function zrodloTekstuLekcji(lesson){
            pytania: Array.isArray(c.quiz) ? c.quiz : (c.quiz ? [c.quiz] : []) };
 }
 
+/* ═══ KROK MÓWIENIA W LEKCJI ═══════════════════════════════════════════════
+   Materiał bierze się Z TEJ LEKCJI, nie z globalnej puli - to jest cała
+   obietnica tego kroku. Zmierzone przed napisaniem (sonda-rozdzialy.js):
+
+     • lekcje gramatyczne: 92, z czego 90 ma własne zdania wzorcowe z polem
+       `full` i `pattern` - zdanie pokazujące dokładnie ten wzorzec, który
+       przed chwilą wszedł. Nic nie trzeba dobierać;
+     • lekcje słownikowe: 133, z czego 20 NIE MA w puli ani jednego zdania
+       ze swoimi słowami. Tam kroku mówienia nie ma. Podstawienie zdania
+       niezwiązanego z lekcją złamałoby jedyną rzecz, którą ten krok obiecuje;
+     • czytanki i ciekawostki: bez kroku - mają własne pytania do tekstu.
+
+   Najwyżej DWA zdania na lekcję. Trzy byłyby już ćwiczeniem, a to ma być
+   moment, w którym uczeń pierwszy raz mówi to, czego się właśnie nauczył. */
+function mowaZLekcji(lesson){
+  if(!lesson) return [];
+  const lvl = (typeof poziomUcznia === 'function') ? poziomUcznia() : 1;
+  const kandydaci = [];
+
+  if(lesson.type === 'grammar'){
+    let items = [];
+    try{ items = resolveLessonGrammarItems(lesson) || []; }catch(e){ items = []; }
+    items.forEach(it => {
+      const ko = String(it.full || '').replace(/[.!?！？]+$/, '').trim();
+      const bloki = ko.split(/\s+/).filter(Boolean);
+      /* Jednoczłonowe nie uczy szyku, a dziesięcioczłonowe nie da się
+         powtórzyć z pamięci - i jedno, i drugie mierzy co innego. */
+      if(bloki.length >= 2 && bloki.length <= 7){
+        kandydaci.push({ bloki, pl: tr(it), pattern: it.pattern || null, subtype: 'grammar' });
+      }
+    });
+  } else if(lesson.type === 'vocab'){
+    let slowa = new Set((lesson.wordKos || []));
+    try{ resolveLessonWords(lesson).forEach(w => slowa.add(w.ko)); }catch(e){}
+    if(!slowa.size) return [];
+    const zrodlo = (typeof SENTENCE_BUILDER_ITEMS !== 'undefined') ? SENTENCE_BUILDER_ITEMS : [];
+    zrodlo.forEach(z => {
+      if((z.level || 1) > lvl) return;
+      if(!z.blocks || z.blocks.length < 2 || z.blocks.length > 7) return;
+      /* Formy odmienione: `readerLookupForms` zdejmuje partykuły, więc
+         „커피를" trafia na „커피". Czasowników nie odmienia - dlatego szukamy
+         słowa lekcji GDZIEKOLWIEK w zdaniu, nie żądamy pokrycia całości. */
+      const formy = new Set(z.blocks.reduce((a, b) => a.concat(
+        (typeof readerLookupForms === 'function') ? readerLookupForms(b) : [b]), []));
+      for(const w of slowa){ if(formy.has(w)){ kandydaci.push({ bloki: z.blocks.slice(), pl: z.pl, pattern: null, subtype: 'mowa', level: z.level }); return; } }
+    });
+  }
+
+  if(!kandydaci.length) return [];
+  /* Od najkrótszego: pierwsze zdanie, jakie uczeń mówi po lekcji, ma być tym,
+     które da się powiedzieć. Ta sama zasada co w .492. */
+  return kandydaci.sort((a, b) => a.bloki.length - b.bloki.length).slice(0, 2);
+}
+
 function startStoryLesson(){
   const lesson = STORY_LESSONS[storyCurrentLessonIndex];
   storyQueue = [];
@@ -36955,11 +39065,23 @@ function startStoryLesson(){
   const subtype = lesson.type === 'vocab' ? 'vocab' : 'grammar';
   const items = tekst ? [] : (lesson.type === 'vocab' ? resolveLessonWords(lesson) : resolveLessonGrammarItems(lesson));
 
+  /* Kroki mówienia idą na SAM KONIEC kolejki - po tym, jak materiał został
+     nauczony i sprawdzony. Wcześniej uczeń nie miałby czego powiedzieć.
+     Dopisujemy je po zbudowaniu reszty kolejki, na dole tej funkcji. */
+
   // Uczymy małymi partiami (STORY_BATCH_SIZE), a po każdej partii testujemy ją WYMIESZANĄ
   // z losową próbką wcześniej nauczonych elementów — to jest prawdziwa powtórka ("po nauczeniu
   // kilku słówek sprawdź, czy pamiętasz też te sprzed chwili"), nie tylko odpytanie z tego,
   // co właśnie zobaczyłeś. Rozmiar próbki wcześniejszych elementów jest ograniczony
   // (STORY_MAX_TEST_SIZE), żeby dłuższe lekcje nie rosły w nieskończoność.
+  const dopiszMowe = () => {
+    mowaZLekcji(lesson).forEach(m => storyQueue.push({
+      kind: 'test', subtype: m.subtype, format: 'mowa',
+      bloki: m.bloki, prompt: m.pl, pattern: m.pattern,
+      ko: m.bloki.join(' '),
+    }));
+  };
+
   const taughtSoFar = [];
   for(let i = 0; i < items.length; i += STORY_BATCH_SIZE){
     const batch = items.slice(i, i + STORY_BATCH_SIZE);
@@ -36980,6 +39102,11 @@ function startStoryLesson(){
     ]);
     roundItems.forEach(({item, isReview}) => storyQueue.push(buildStoryTestItem(subtype, item, isReview)));
   }
+
+  /* Mówienie na SAM KONIEC kolejki: po tym, jak materiał został nauczony
+     i sprawdzony. Wcześniej uczeń nie miałby czego powiedzieć. Kroków jest
+     najwyżej dwa, a przy lekcjach bez pasującego materiału - zero. */
+  dopiszMowe();
 
 storyQIndex = 0;
   storyCorrectCount = 0;
@@ -37396,7 +39523,7 @@ function showStoryQuestion(){
   // Wcześniej ukrywanie było w gałęzi pytań, a karta "nowe słówko" wychodzi z funkcji
   // wcześniej przez return - więc po wpisanej odpowiedzi zostawała ona widoczna pod
   // kartą kolejnego słowa. Zgłoszone przez testera 2026-09-02 (할머니 po "syn").
-  ['storyTypedWrap', 'storyOrderWrap', 'storyChoiceGrid'].forEach(id => {
+  ['storyTypedWrap', 'storyOrderWrap', 'storyMowaWrap', 'storyChoiceGrid'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = 'none';
   });
@@ -37511,6 +39638,7 @@ const aiLoad = document.getElementById('storyTypedAiLoading');
   document.getElementById('storyChoiceGrid').style.display = 'none';
   document.getElementById('storyTypedWrap').style.display = 'none';
   document.getElementById('storyOrderWrap').style.display = 'none';
+  document.getElementById('storyMowaWrap').style.display = 'none';
 
   const reviewPrefix = q.isReview ? `🔁 ${uiLang === 'en' ? 'REVIEW' : 'POWTÓRKA'} · ` : '';
 
@@ -37523,6 +39651,11 @@ const aiLoad = document.getElementById('storyTypedAiLoading');
     input.placeholder = uiLang === 'en' ? 'Type in English…' : 'Wpisz po polsku…';
     input.disabled = false;
     setTimeout(()=> input.focus(), 50);
+    return;
+  }
+
+  if(q.format === 'mowa'){
+    pokazKrokMowy(q);
     return;
   }
 
@@ -37726,6 +39859,156 @@ document.getElementById('storyTypedInput').addEventListener('keydown', (e)=>{
 let storyOrderShuffled = [];
 let storyOrderPlaced = [];
 
+/* ═══ KROK MÓWIENIA — WIDOK I OCENA ═══════════════════════════════════════
+   Ocena i nasłuch są wspólne z treningiem odruchu (ocenMowe/nasluchMowy);
+   tutaj zostaje tylko to, co naprawdę różni te dwa miejsca: układ karty
+   i zamknięcie kroku w kolejce lekcji. */
+let mowaNasluch = null;
+let mowaProbaByla = false;
+
+function mowaKlocki(bloki, wKolejnosci){
+  const kl = document.getElementById('storyMowaKlocki');
+  if(!kl) return;
+  if(!bloki || !bloki.length){ kl.innerHTML = ''; return; }
+  kl.innerHTML = bloki.map((b, i) =>
+    `<button type="button" class="tr-klocek${wKolejnosci ? ' tr-klocek-kolejnosc' : ''}" data-mowa-klocek="${escapeHtml(b)}">` +
+    (wKolejnosci ? `<i>${i + 1}</i>` : '') + escapeHtml(b) + '</button>').join('');
+  kl.querySelectorAll('[data-mowa-klocek]').forEach(b => {
+    b.addEventListener('click', (e) => { e.stopPropagation(); try{ speakKorean(b.dataset.mowaKlocek); }catch(e2){} });
+  });
+}
+
+function pokazKrokMowy(q){
+  const en = uiLang === 'en';
+  mowaProbaByla = false;
+  if(mowaNasluch && mowaNasluch.przerwij) mowaNasluch.przerwij();
+  mowaNasluch = null;
+
+  document.getElementById('storyQuestionEyebrow').textContent =
+    (en ? 'SAY IT OUT LOUD' : 'POWIEDZ NA GŁOS') + (q.pattern ? ' · ' + q.pattern : '');
+  document.getElementById('storyQuestionMain').textContent = q.prompt;
+  document.getElementById('storyMowaWrap').style.display = 'block';
+  document.getElementById('storyMowaWynik').textContent = '';
+  document.getElementById('storyMowaWynik').className = 'tr-wynik';
+  document.getElementById('storyMowaPodpis').textContent = '';
+  document.getElementById('storyMowaSluchajBtn').textContent = en ? 'Listen to the model' : 'Posłuchaj wzoru';
+  document.getElementById('storyMowaPominBtn').textContent = en ? 'I read it aloud' : 'Przeczytałem na głos';
+
+  const ile = q.bloki.length;
+  document.getElementById('storyMowaWskazowka').textContent = en
+    ? `${ile} parts · the verb goes last · tap a block to hear it`
+    : `${trCzlony(ile)} · orzeczenie na końcu · dotknij klocka, żeby posłuchać`;
+
+  /* Klocki od razu tylko na poziomie 1. Wyżej uczeń ma najpierw spróbować
+     z głowy - ale podpowiedź jest o jedno dotknięcie, nie za ścianą. */
+  const odRazu = ((typeof poziomUcznia === 'function') ? poziomUcznia() : 1) <= 1;
+  const btnPodp = document.getElementById('storyMowaPodpowiedzBtn');
+  mowaKlocki(odRazu ? shuffle(q.bloki.slice()) : null, false);
+  btnPodp.style.display = odRazu ? 'none' : '';
+  btnPodp.textContent = en ? 'Show the blocks' : 'Pokaż klocki';
+  btnPodp.onclick = (e) => { e.stopPropagation(); mowaKlocki(shuffle(q.bloki.slice()), false); btnPodp.style.display = 'none'; };
+
+  /* Przeglądarka bez rozpoznawania mowy (albo Brave z domyślną tarczą):
+     mikrofon znika, zostaje droga „przeczytałem". */
+  const maMowe = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  document.getElementById('storyMowaMik').style.display = maMowe ? '' : 'none';
+  if(!maMowe){
+    document.getElementById('storyMowaPodpis').textContent = (typeof radaBrakMowy === 'function')
+      ? radaBrakMowy(en, 'brak-api')
+      : (en ? 'Speech recognition unavailable in this browser.' : 'Rozpoznawanie mowy niedostępne w tej przeglądarce.');
+    mowaKlocki(q.bloki.slice(), true);
+  }
+}
+
+function mowaStart(){
+  if(storyLocked) return;
+  const q = storyQueue[storyQIndex];
+  if(!q || q.format !== 'mowa') return;
+  const mik = document.getElementById('storyMowaMik');
+  const wynik = document.getElementById('storyMowaWynik');
+  const en = uiLang === 'en';
+
+  /* Drugie dotknięcie kończy nagranie. */
+  if(mowaNasluch){ mowaNasluch.stop(); return; }
+
+  mowaNasluch = nasluchMowy({
+    onKoniec: (tekst) => {
+      mowaNasluch = null;
+      mik.classList.remove('tr-slucha');
+      document.getElementById('storyMowaPodpis').textContent = '';
+      if(String(tekst).trim()) mowaOcen(tekst);
+      else { wynik.textContent = en ? 'I heard nothing.' : 'Nic nie usłyszałem.'; wynik.className = 'tr-wynik zle'; }
+    },
+    onBlad: (kod) => {
+      mowaNasluch = null;
+      mik.classList.remove('tr-slucha');
+      document.getElementById('storyMowaPodpis').textContent = '';
+      wynik.textContent = (kod === 'network' && typeof radaBrakMowy === 'function')
+        ? radaBrakMowy(en)
+        : (en ? 'Could not hear you.' : 'Nie udało się rozpoznać.');
+      wynik.className = 'tr-wynik zle';
+    },
+  });
+  if(!mowaNasluch){
+    wynik.textContent = en ? 'Speech recognition unavailable in this browser.'
+                           : 'Rozpoznawanie mowy niedostępne w tej przeglądarce.';
+    wynik.className = 'tr-wynik zle';
+    return;
+  }
+  mik.classList.add('tr-slucha');
+  document.getElementById('storyMowaPodpis').textContent = en
+    ? 'Listening — tap again when you are done.'
+    : 'Słucham — dotknij ponownie, gdy skończysz.';
+}
+
+function mowaOcen(tekst){
+  const q = storyQueue[storyQIndex];
+  const wynik = document.getElementById('storyMowaWynik');
+  const en = uiLang === 'en';
+  const o = ocenMowe(tekst, q.bloki);
+  mowaProbaByla = true;
+
+  if(o.pelne){
+    wynik.textContent = en ? '✓ Complete and in order' : '✓ Wszystko na miejscu';
+    wynik.className = 'tr-wynik ok';
+    finishStoryTestAnswer(true, q.ko);
+    return;
+  }
+
+  /* Nie zaliczone - ale zamykamy krok, bo lekcja nie może się zaciąć na
+     mikrofonie. Wzorzec zostaje na ekranie w kolejności i do posłuchania. */
+  wynik.textContent = (o.trafione === o.razem)
+    ? (en ? 'All the parts are there, but the order slipped — in Korean the verb comes last.'
+          : 'Wszystkie człony są, ale szyk się rozjechał — po koreańsku orzeczenie idzie na koniec.')
+    : (en ? `Heard: ${tekst} (${o.trafione}/${o.razem})` : `Usłyszałem: ${tekst} (${o.trafione}/${o.razem})`);
+  wynik.className = 'tr-wynik ' + (o.trafione === o.razem ? 'szyk' : '');
+  mowaKlocki(q.bloki.slice(), true);
+  try{ speakKorean(q.ko); }catch(e){}
+  finishStoryTestAnswer(false, q.ko);
+}
+
+/** „Przeczytałem na głos" - droga dla kogoś, kogo apka nie może usłyszeć
+    (Brave, brak zgody, cisza w sieci). Krok się zamyka, ale NIE liczy się
+    jako poprawna odpowiedź i nie rusza SRS-u: ćwiczenie, którego apka nie
+    słyszała, nie jest dowodem na nic. */
+function mowaPomin(){
+  if(storyLocked) return;
+  const q = storyQueue[storyQIndex];
+  if(!q || q.format !== 'mowa') return;
+  if(mowaNasluch && mowaNasluch.przerwij){ mowaNasluch.przerwij(); mowaNasluch = null; }
+  document.getElementById('storyMowaMik').classList.remove('tr-slucha');
+  storyLocked = true;
+  mowaKlocki(q.bloki.slice(), true);
+  try{ speakKorean(q.ko); }catch(e){}
+  const wynik = document.getElementById('storyMowaWynik');
+  wynik.textContent = uiLang === 'en' ? 'Not graded — the app did not hear it.' : 'Bez oceny — apka tego nie słyszała.';
+  wynik.className = 'tr-wynik';
+  document.getElementById('storyFeedback').innerHTML = `<span>${escapeHtml(q.ko)}</span>`;
+  document.getElementById('storyFeedback').className = 'feedback';
+  document.getElementById('storyNextRow').style.display = 'flex';
+  zapiszMiejsceWLekcji(storyQIndex + 1);
+}
+
 function renderStoryOrderBlocks(){
   const answerRow = document.getElementById('storyOrderAnswerRow');
   const bank = document.getElementById('storyOrderBank');
@@ -37757,6 +40040,14 @@ function renderStoryOrderBlocks(){
     });
   });
 }
+
+document.getElementById('storyMowaMik').addEventListener('click', (e)=>{ e.stopPropagation(); mowaStart(); });
+document.getElementById('storyMowaSluchajBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const q = storyQueue[storyQIndex];
+  if(q && q.ko){ try{ speakKorean(q.ko); }catch(err){} }
+});
+document.getElementById('storyMowaPominBtn').addEventListener('click', (e)=>{ e.stopPropagation(); mowaPomin(); });
 
 document.getElementById('storyOrderCheckBtn').addEventListener('click', ()=>{
   if(storyLocked) return;
@@ -37903,6 +40194,17 @@ function renderStoryLoopActions(lesson){
       🔁 ${en ? 'Review what is due' : 'Powtórz, co czeka'} (${due})</button>`);
   }
 
+  /* 4. ROZMOWA O ROZDZIALE - tylko wtedy, gdy TA lekcja domknęła rozdział.
+     Sprawdzamy stan faktyczny (wszystkie lekcje rozdziału ukończone), nie
+     pozycję na liście: ścieżkę da się przejść w innej kolejności, a wtedy
+     „ostatnia lekcja rozdziału" i „rozdział skończony" to co innego. */
+  const rozdzialIdx = STORY_CHAPTERS.findIndex(ch => ch.lessonIds.includes(lesson.id));
+  if(rozdzialIdx >= 0 && STORY_CHAPTERS[rozdzialIdx].lessonIds.every(id => isLessonDone(id))){
+    const nazwa = uiLang === 'en' ? STORY_CHAPTERS[rozdzialIdx].title.en : STORY_CHAPTERS[rozdzialIdx].title.pl;
+    rows.push(`<button type="button" class="tool-btn loop-btn" data-loop="rozmowa" style="width:100%; margin-top:8px;">
+      💬 ${en ? 'Talk to Haksa about' : 'Porozmawiaj z Haksą o rozdziale'} „${escapeHtml(nazwa)}"${isPremiumPro ? '' : ' · Pro'}</button>`);
+  }
+
   if(!rows.length){ wrap.innerHTML = ''; return; }
   wrap.innerHTML = `<div class="achv-section-title" style="margin:14px 0 4px;">${
     en ? '↻ Keep working with this material' : '↻ Pracuj dalej z tym materiałem'}</div>` + rows.join('');
@@ -37920,6 +40222,8 @@ function renderStoryLoopActions(lesson){
       } else if(kind === 'srs'){
         setLastMode('vocabStudy');
         setScreen('vocabStudy');
+      } else if(kind === 'rozmowa'){
+        rozmowaZRozdzialu(STORY_CHAPTERS.findIndex(ch => ch.lessonIds.includes(lesson.id)));
       }
     });
   });
@@ -39567,8 +41871,16 @@ let braveWykryty = false;
   }catch(e){ /* brak API = nie Brave */ }
 })();
 
-/** Zdanie, które faktycznie pomaga — zamiast „sprawdź internet". */
-function radaBrakMowy(en){
+/** Zdanie, które faktycznie pomaga — zamiast „sprawdź internet".
+    `powod === 'brak-api'` to przeglądarka, która nie ma Web Speech w ogóle;
+    bez tego rozróżnienia mówiliśmy komuś o VPN-ie i serwerach Google w sytuacji,
+    w której żadna sieć niczego nie zmieni. */
+function radaBrakMowy(en, powod){
+  if(powod === 'brak-api' && !braveWykryty){
+    return en
+      ? 'This browser has no speech recognition (Web Speech API) at all. Chrome on desktop or Android has it.'
+      : 'Ta przeglądarka w ogóle nie ma rozpoznawania mowy (Web Speech API). Ma je Chrome na komputerze i na Androidzie.';
+  }
   if(braveWykryty){
     return en
       ? 'Brave blocks Chrome speech recognition by default (it goes to Google servers). Open Hooljon in Chrome, or lower the Brave shield for this site.'
@@ -40330,13 +42642,45 @@ async function callAiChatAPI(userUtterance){
     ? `\n\nWAŻNE — cel tej sesji: staraj się naturalnie doprowadzić rozmowę do sytuacji, w której uczeń będzie miał okazję użyć wzorca gramatycznego "${aiChatTargetPattern.pattern}" (przykład: "${aiChatTargetPattern.full}" — ${aiChatTargetPattern.pl}). Zadawaj pytania lub twórz sytuacje zachęcające do użycia tej konkretnej konstrukcji. Jeśli w wypowiedzi ucznia rozpoznasz próbę jej użycia (poprawną lub z błędem), wyraźnie to zauważ i skomentuj w "bot_pl" — nie ograniczaj się tylko do zwykłej korekty.`
     : '';
 
+  /* PERSONA ZE SCENARIUSZA. Do .496 ten prompt nie widział `nunchiAktywny`
+     w ogóle - scenariusz szedł wyłącznie do przekaźnika Gemini jako parametr
+     URL-a. „Rozmowa z kontekstem" w trybie turowym nie miała więc kontekstu:
+     uczeń widział na ekranie ciotkę koleżanki, a rozmawiał z lektorką.
+     Ta sama rodzina co `register` i `promptLang`: dane były, droga nie
+     prowadziła. */
+  const sc = (typeof nunchiAktywny !== 'undefined') ? nunchiAktywny : null;
+  const personaInstruction = sc
+    ? `\n\nGRASZ POSTAĆ, nie lektora. Rola: ${sc.rola}. Sytuacja: ${sc.kontekst}\n`
+      + `Twój rejestr: ${sc.haksaRejestr}. Zostajesz w roli do końca sceny - nie tłumaczysz gramatyki w "bot_ko", nie wychodzisz z postaci.\n`
+      + `Uczeń ma mówić w rejestrze: ${sc.rejestr}. Jeśli uderzy w zupełnie inny, zareaguj tak, jak zareagowałaby TA postać (chłodniej, ze zdziwieniem, żartem) - nie poprawiaj go z boku; od korekty jest pole "errors" i ocena na końcu.`
+    : '';
+  /* OKAZJE, NIE PODPOWIEDZI. Zgłoszone przez Fable przy pierwszej partii:
+     „kryteria typu «gdy szef naciśnie drugi raz» zakładają, że model w roli
+     faktycznie naciśnie". Miała rację - kryteria szły WYŁĄCZNIE do werdyktu,
+     więc scena mogła nigdy nie wytworzyć sytuacji, którą potem oceniałem.
+     Ocena bez okazji do jej spełnienia to ta sama rodzina co pula zdań, do
+     której uczeń nie miał dostępu (.483): mierzyliśmy coś, czego droga nie
+     przepuszczała. */
+  const okazje = misjaAktywna
+    ? (misjaAktywna.kryteria.pl || []).slice(0, 3).map((k, i) => `${i + 1}. ${k}`).join('\n')
+    : '';
+  const misjaInstruction = misjaAktywna
+    ? `\n\nTO JEST SCENA ZAMKNIĘTA. Cel ucznia: ${misjaAktywna.cel.pl}\n`
+      + `Scena ma dać uczniowi OKAZJĘ pokazać poniższe rzeczy - jeśli któraś jeszcze nie padła, stwórz sytuację, w której będzie miała sens (dopytaj, naciśnij drugi raz, postaw warunek). NIE mów mu o nich wprost, nie wyliczaj ich i nie poprawiaj go - od korekty jest pole "errors" i ocena na końcu:\n${okazje}\n`
+      + `To wymiana ${misjaTura + 1} z ${misjaAktywna.tury}. `
+      + (misjaTura + 1 >= misjaAktywna.tury
+          ? 'To OSTATNIA wymiana - domknij scenę naturalnie (zgoda, odmowa, pożegnanie, podanie kawy), nie zadawaj nowego pytania.'
+          : 'Popychaj scenę do przodu i daj uczniowi konkretny powód, żeby powiedzieć jeszcze jedną rzecz. Nie kończ jej wcześniej.')
+      + ' Odpowiadaj krótko - jedno, najwyżej dwa zdania.'
+    : '';
+
   const historyText = aiChatHistory.map(t => `${t.speaker === 'bot' ? 'BOT' : 'UCZEŃ'}: ${t.ko}`).join('\n');
   const instruction = userUtterance
     ? `Jesteś cierpliwym partnerem do rozmowy po koreańsku dla ucznia posługującego się na co dzień językiem ${langName}, na poziomie podstawowym.\n\n` +
       'Dotychczasowa rozmowa:\n' + historyText + '\n\n' +
       `Uczeń właśnie powiedział: "${userUtterance}"\n\n` +
       'Sprawdź, czy ta wypowiedź jest poprawna gramatycznie i słownikowo, a następnie odpowiedz naturalnie po koreańsku, kontynuując rozmowę. ' +
-      'Jeśli wypowiedź ucznia jest poprawna gramatycznie i słownikowo, "errors" ma być pustą tablicą [] — NIE dodawaj wpisu do "errors", jeśli zdanie jest gramatycznie poprawne, nawet jeśli treść jest nietypowa, żartobliwa albo nie pasuje do kontekstu (np. uczeń twierdzi, że jest krajem albo przedmiotem) — to nie jest błąd językowy. Jeśli chcesz zareagować na taką nietypową treść, zrób to WYŁĄCZNIE w naturalnej odpowiedzi ("bot_ko"/"bot_pl"), nigdy w "errors". Nigdy nie dodawaj wpisu do "errors", w którym "wrong" i "correct" są identyczne.' + l1Instruction + targetInstruction +
+      'Jeśli wypowiedź ucznia jest poprawna gramatycznie i słownikowo, "errors" ma być pustą tablicą [] — NIE dodawaj wpisu do "errors", jeśli zdanie jest gramatycznie poprawne, nawet jeśli treść jest nietypowa, żartobliwa albo nie pasuje do kontekstu (np. uczeń twierdzi, że jest krajem albo przedmiotem) — to nie jest błąd językowy. Jeśli chcesz zareagować na taką nietypową treść, zrób to WYŁĄCZNIE w naturalnej odpowiedzi ("bot_ko"/"bot_pl"), nigdy w "errors". Nigdy nie dodawaj wpisu do "errors", w którym "wrong" i "correct" są identyczne.' + l1Instruction + targetInstruction + personaInstruction + misjaInstruction +
       ` Odpowiedz WYŁĄCZNIE czystym tekstem JSON, bez markdown, bez bloków kodu, w dokładnym formacie: {"user_pl":"... (tłumaczenie wypowiedzi ucznia na ${langName})","errors":[{"wrong":"...","correct":"..."}],"bot_ko":"...","bot_pl":"... (tłumaczenie w języku ${langName})"}. Nie pisz niczego poza tym JSON-em.`
     : aiChatTargetPattern
       // Sesja z konkretnym celem gramatycznym (uruchomiona z "Poćwicz to w rozmowie")
@@ -40369,11 +42713,298 @@ async function handleUserUtterance(userUtterance){
     aiChatHistory.push({ speaker:'bot', ko: result.bot_ko, pl: result.bot_pl, errors: [] });
     renderAiChatTranscript();
     speakKorean(result.bot_ko);
+    /* MISJA MA KONIEC. Po ostatniej wymianie mikrofon znika i wchodzi werdykt -
+       to jest cała różnica między sceną a pogaduszką. */
+    if(misjaAktywna){
+      misjaTura += 1;
+      renderMisjaPasek();
+      if(misjaTura >= misjaAktywna.tury){ zamknijMisje(); return; }
+    }
     setAiChatStatus('Twoja kolej — kliknij 🎤 i odpowiedz.');
   }catch(err){
     setAiChatStatus('⚠️ ' + (translateAiErrorMessage(err.message) || 'Wystąpił błąd.'));
   }
   micBtn.disabled = false;
+}
+
+/* ═══ MISJA: START, PASEK, ZAMKNIĘCIE, WERDYKT ════════════════════════════ */
+
+function startMisja(id){
+  const m = MISJE.find(x => x.id === id);
+  if(!m) return;
+  if(!isPremiumPro){
+    document.getElementById('premiumPanel').classList.add('open');
+    try{ applyPremiumUI(); }catch(e){}
+    return;
+  }
+  const sc = NUNCHI_SCENARIUSZE.find(s => s.id === m.scenariusz);
+  if(sc) nunchiAktywny = sc;   // persona idzie do promptu; ekran nunchi pokazuje tę samą scenę
+  misjaAktywna = m;
+  misjaTura = 0;
+  misjaZamknieta = false;
+
+  const en = uiLang === 'en';
+  /* Otwarcie NIE idzie do modelu - jest napisane. Scena zaczyna się tak samo
+     za każdym razem, a uczeń nie płaci zapytaniem za „dzień dobry". */
+  aiChatHistory = [{ speaker:'bot', ko: zImieniem(m.otwarcie.ko), pl: zImieniem(en ? m.otwarcie.en : m.otwarcie.pl), errors: [] }];
+  setScreen('aiChat');
+  /* Na czas sceny chowamy oba wejścia: listę misji i wolną rozmowę. Uczeń ma
+     przed sobą scenę, nie menu z rozmową w tle. */
+  misjaWidokSceny(true);
+  document.getElementById('aiChatOldTextMode').style.display = 'block';
+  document.getElementById('misjaWynik').style.display = 'none';
+  document.getElementById('aiChatSessionReport').style.display = 'none';
+  document.getElementById('aiChatStartBtn').style.display = 'none';
+  document.getElementById('aiChatAnalyzeBtn').style.display = 'none';
+  document.getElementById('aiChatMicBtn').style.display = '';
+  document.getElementById('aiChatMicBtn').disabled = false;
+  document.getElementById('aiChatResetBtn').style.display = '';
+  renderAiChatTranscript();
+  renderMisjaPasek();
+  setAiChatStatus(en ? 'Your turn — tap 🎤 and answer.' : 'Twoja kolej — kliknij 🎤 i odpowiedz.');
+  try{ speakKorean(zImieniem(m.otwarcie.ko)); }catch(e){}
+}
+
+/** Widok sceny vs. widok drzwi. Jedno miejsce, żeby te dwa stany nie
+    rozjechały się przy każdym nowym wyjściu z misji. */
+function misjaWidokSceny(wScenie){
+  const lista = document.getElementById('misjeSekcja');
+  const wolna = document.getElementById('wolnaRozmowaBlok');
+  if(lista) lista.style.display = wScenie ? 'none' : '';
+  if(wolna) wolna.style.display = wScenie ? 'none' : '';
+}
+
+function renderMisjaPasek(){
+  const el = document.getElementById('misjaPasek');
+  if(!el) return;
+  if(!misjaAktywna){ el.style.display = 'none'; el.innerHTML = ''; return; }
+  const en = uiLang === 'en';
+  const zrobione = Math.min(misjaTura, misjaAktywna.tury);
+  el.style.display = 'block';
+  el.innerHTML =
+    `<div class="mi-cel">${escapeHtml(misjaAktywna.ikona + ' ' + (en ? 'Goal: ' : 'Cel: ') + (en ? misjaAktywna.cel.en : misjaAktywna.cel.pl))}</div>`
+    + `<div class="mi-tury">${Array.from({length: misjaAktywna.tury}, (_, i) =>
+        `<span class="mi-kropka${i < zrobione ? ' pelna' : ''}"></span>`).join('')}`
+    + `<span class="mi-licznik">${zrobione}/${misjaAktywna.tury} ${en ? 'exchanges' : 'wymian'}</span></div>`;
+}
+
+/** Koniec sceny: mikrofon znika, wchodzi werdykt. */
+async function zamknijMisje(){
+  misjaZamknieta = true;
+  const en = uiLang === 'en';
+  document.getElementById('aiChatMicBtn').style.display = 'none';
+  setAiChatStatus(en ? 'Scene closed.' : 'Scena zamknięta.');
+  const box = document.getElementById('misjaWynik');
+  box.style.display = 'block';
+  box.innerHTML = `<p class="hint-note">${en ? '🤔 Grading the scene…' : '🤔 Oceniam scenę…'}</p>`;
+  try{
+    const raport = await ocenMisje();
+    renderMisjaWynik(raport);
+  }catch(err){
+    /* Werdykt to nie jest warunek ukończenia sceny. Gdy ocena nie dojdzie,
+       uczeń dalej dostaje to, co policzyliśmy u siebie. */
+    renderMisjaWynik(null, translateAiErrorMessage(err.message) || err.message);
+  }
+}
+
+/** Werdykt. Błędy per tura są JUŻ policzone w `aiChatHistory` - model
+    odpowiada wyłącznie na to, czego nie da się sprawdzić u siebie: czy cel
+    sceny został osiągnięty i jak zabrzmiał rejestr. */
+async function ocenMisje(){
+  const langName = uiLang === 'en' ? 'angielski' : 'polski';
+  const sc = nunchiAktywny;
+  const l1 = (typeof l1Aktywny === 'function') ? l1Aktywny() : 'pl';
+  const historia = aiChatHistory.map(t => `${t.speaker === 'bot' ? 'ROZMÓWCA' : 'UCZEŃ'}: ${t.ko}`).join('\n');
+  const kryteria = (uiLang === 'en' ? misjaAktywna.kryteria.en : misjaAktywna.kryteria.pl)
+    .map((k, i) => `${i + 1}. ${k}`).join('\n');
+
+  const instruction = `Oceń ZAMKNIĘTĄ SCENĘ językową ucznia (język ojczysty: ${langName}) prowadzoną po koreańsku.\n\n`
+    + `Cel sceny: ${misjaAktywna.cel.pl}\n`
+    + `Kryteria zaliczenia:\n${kryteria}\n\n`
+    + `Przebieg:\n${historia}\n\n`
+    + 'UWAGA: to transkrypcja MOWY - drobne przekręcenia mogą pochodzić z rozpoznawania, nie od ucznia.\n\n'
+    + `Odpowiedz WYŁĄCZNIE czystym tekstem JSON, bez markdown, w formacie: `
+    + `{"cel":"osiagniety"|"czesciowo"|"nieosiagniety","cel_uzasadnienie":"jedno zdanie w języku ${langName}",`
+    + `"kryteria":[{"opis":"treść kryterium","spelnione":true|false}],`
+    + `"nastepnym_razem":"jedna konkretna rzecz do zrobienia inaczej, w języku ${langName}"${mirrorSchemat(sc)}}. `
+    + 'Nie pisz niczego poza tym JSON-em.' + mirrorZasady_(sc, l1);
+
+  const response = await callAiProxy({ model: 'claude-sonnet-4-6', max_tokens: 900, messages: [{ role: 'user', content: instruction }] });
+  if(!response.ok) throw new Error('Błąd połączenia z AI (status ' + response.status + ').');
+  const data = await response.json();
+  const cleaned = (data.content || []).map(b => b.text || '').join('').replace(/```json/gi, '').replace(/```/g, '').trim();
+  return JSON.parse(cleaned);
+}
+
+function renderMisjaWynik(raport, blad){
+  const en = uiLang === 'en';
+  /* Scena doszła do końca - zapisujemy ją nawet wtedy, gdy werdykt nie
+     dojechał (uczeń przeszedł przez wszystkie wymiany, to się liczy). */
+  try{ zapiszMisjeZrobiona(misjaAktywna.id, raport && raport.cel); }catch(e){}
+  const box = document.getElementById('misjaWynik');
+  /* Liczone U SIEBIE, bez modelu: błędy zebrane przy każdej turze. */
+  const bledy = aiChatHistory.filter(t => t.speaker === 'user')
+    .flatMap(t => (t.errors || []).filter(e => e.wrong !== e.correct));
+
+  const IKONA = { osiagniety: '✅', czesciowo: '➖', nieosiagniety: '❌' };
+  const ETYKIETA = {
+    osiagniety: en ? 'Goal reached' : 'Cel osiągnięty',
+    czesciowo: en ? 'Partly' : 'Częściowo',
+    nieosiagniety: en ? 'Goal missed' : 'Cel nieosiągnięty',
+  };
+
+  let html = `<div class="mi-naglowek">${escapeHtml(misjaAktywna.ikona + ' ' + (en ? misjaAktywna.tytul.en : misjaAktywna.tytul.pl))}</div>`;
+  if(raport){
+    const stan = IKONA[raport.cel] ? raport.cel : 'czesciowo';
+    html += `<div class="mi-werdykt ${stan}">${IKONA[stan]} ${escapeHtml(ETYKIETA[stan])}</div>`;
+    if(raport.cel_uzasadnienie) html += `<p>${escapeHtml(raport.cel_uzasadnienie)}</p>`;
+    if((raport.kryteria || []).length){
+      html += '<ul class="mi-kryteria">' + raport.kryteria.map(k =>
+        `<li>${k.spelnione ? '✓' : '·'} ${escapeHtml(k.opis || '')}</li>`).join('') + '</ul>';
+    }
+    if(raport.mirror){
+      const WYMIARY = {
+        uprzejmosc: en ? 'politeness' : 'uprzejmość',
+        bezposrednosc: en ? 'directness' : 'bezpośredniość',
+        dystans: en ? 'distance' : 'dystans',
+        naturalnosc: en ? 'naturalness' : 'naturalność',
+      };
+      const wiersze = Object.keys(WYMIARY).map(k => {
+        const w = raport.mirror[k];
+        if(!w) return '';   // null przy sytuacji oficjalnej - celowo
+        const o = w.odchylenie || 0;
+        const strzalka = o === 0 ? '✓' : (o > 0 ? '↑'.repeat(Math.min(2, o)) : '↓'.repeat(Math.min(2, -o)));
+        return `<li><b>${escapeHtml(WYMIARY[k])}</b> ${strzalka}${w.komentarz ? ' — ' + escapeHtml(w.komentarz) : ''}</li>`;
+      }).filter(Boolean).join('');
+      if(wiersze) html += `<h4>${en ? '🪞 How it sounded' : '🪞 Jak to zabrzmiało'}</h4><ul class="mi-lustro">${wiersze}</ul>`;
+      if(raport.mirror.nota) html += `<p class="hint-note">${escapeHtml(raport.mirror.nota)}</p>`;
+    }
+    if(raport.nastepnym_razem) html += `<p class="mi-next"><b>${en ? 'Next time:' : 'Następnym razem:'}</b> ${escapeHtml(raport.nastepnym_razem)}</p>`;
+  } else {
+    html += `<p class="hint-note">${en ? 'The verdict could not be fetched' : 'Nie udało się pobrać oceny'}${blad ? ': ' + escapeHtml(blad) : '.'}</p>`;
+  }
+
+  html += bledy.length
+    ? `<h4>${en ? '✏️ Corrections' : '✏️ Poprawki'}</h4><ul class="mi-bledy">${bledy.map(e =>
+        `<li><span class="ai-error-wrong">${escapeHtml(e.wrong)}</span> → <span class="ai-error-correct">${escapeHtml(e.correct)}</span></li>`).join('')}</ul>`
+    : `<p class="hint-note">${en ? 'No language errors in this scene.' : 'W tej scenie bez błędów językowych.'}</p>`;
+
+  html += `<div class="row" style="margin-top:12px;">
+      <button class="tool-btn" id="misjaZostanBtn" style="flex:1;">${en ? 'Stay and keep talking' : 'Zostań i pogadaj'}</button>
+      <button class="primary" id="misjaInnaBtn" style="flex:1;">${en ? 'Another mission' : 'Inna misja'}</button>
+    </div>`;
+
+  box.innerHTML = html;
+  /* „Zostań i pogadaj" - wolna rozmowa ZA misją, nie na wejściu. Po czterech
+     turach w scenie uczeń ma temat, rolę i rozpęd; pusta kartka bierze się
+     z tego, że wolny mikrofon jest DRZWIAMI, nie z tego, że istnieje. */
+  document.getElementById('misjaZostanBtn').addEventListener('click', () => {
+    misjaAktywna = null;
+    renderMisjaPasek();
+    box.style.display = 'none';
+    document.getElementById('aiChatMicBtn').style.display = '';
+    document.getElementById('aiChatMicBtn').disabled = false;
+    document.getElementById('aiChatAnalyzeBtn').style.display = '';
+    setAiChatStatus(en ? 'Free talk — no goal, no grade.' : 'Wolna rozmowa — bez celu i bez oceny.');
+  });
+  document.getElementById('misjaInnaBtn').addEventListener('click', () => {
+    misjaAktywna = null;
+    misjaZamknieta = false;
+    box.style.display = 'none';
+    document.getElementById('aiChatOldTextMode').style.display = 'none';
+    misjaWidokSceny(false);
+    renderMisjaPasek();
+    renderMisjeFiltr();
+    renderMisjeLista();
+  });
+}
+
+/* Widoczny poziom listy: domyślnie poziom ucznia, ale uczeń może przełączyć.
+   `null` = wszystkie. Trzymane w pamięci sesji, nie zapisywane - to wybór na
+   teraz, nie ustawienie. */
+let misjeFiltrPoziom;
+let misjeIleWidocznych = 6;
+const MISJE_KROK = 6;
+
+/** Chipy poziomu + licznik. Poziom bierze się z tego samego `poziomUcznia()`,
+    które w .493 przestało wynikać z dziesięciu odpowiedzi w gramatyce. */
+function renderMisjeFiltr(){
+  const wrap = document.getElementById('misjeFiltr');
+  if(!wrap) return;
+  const en = uiLang === 'en';
+  if(misjeFiltrPoziom === undefined){
+    try{ misjeFiltrPoziom = poziomUcznia(); }catch(e){ misjeFiltrPoziom = 1; }
+  }
+  const ile = (p) => MISJE.filter(m => p === null || (m.poziom || 1) === p).length;
+  const opcje = [
+    { p: 1, lab: en ? 'Basic' : 'Podstawowy' },
+    { p: 2, lab: en ? 'Intermediate' : 'Średni' },
+    { p: 3, lab: en ? 'Upper' : 'Wyższy' },
+    { p: null, lab: en ? 'All' : 'Wszystkie' },
+  ];
+  wrap.innerHTML = opcje.map(o =>
+    `<button type="button" class="category-chip${o.p === misjeFiltrPoziom ? ' active' : ''}" data-poziom="${o.p === null ? 'all' : o.p}">${escapeHtml(o.lab)} (${ile(o.p)})</button>`
+  ).join('');
+  wrap.querySelectorAll('[data-poziom]').forEach(b => {
+    b.addEventListener('click', () => {
+      misjeFiltrPoziom = b.dataset.poziom === 'all' ? null : parseInt(b.dataset.poziom, 10);
+      misjeIleWidocznych = MISJE_KROK;
+      renderMisjeFiltr();
+      renderMisjeLista();
+    });
+  });
+}
+
+/** Lista misji na ekranie rozmowy - to ona jest teraz drzwiami.
+
+    Kolejność: NIEZROBIONE najpierw. Trzydzieści dwie równorzędne karty to
+    była ta sama pusta kartka co otwarty mikrofon, tylko w innym przebraniu -
+    zmierzone: 4061 px listy przy ekranie 900 px. */
+function renderMisjeLista(){
+  const wrap = document.getElementById('misjeLista');
+  if(!wrap) return;
+  const en = uiLang === 'en';
+  if(misjeFiltrPoziom === undefined){
+    try{ misjeFiltrPoziom = poziomUcznia(); }catch(e){ misjeFiltrPoziom = 1; }
+  }
+  const zrobione = misjeZrobione();
+  const widoczne = MISJE
+    .filter(m => misjeFiltrPoziom === null || (m.poziom || 1) === misjeFiltrPoziom)
+    .sort((a, b) => (zrobione[a.id] ? 1 : 0) - (zrobione[b.id] ? 1 : 0));
+  const doPokazania = widoczne.slice(0, misjeIleWidocznych);
+
+  wrap.innerHTML = doPokazania.map(m => {
+    const sc = NUNCHI_SCENARIUSZE.find(s => s.id === m.scenariusz);
+    const meta = (typeof REGISTER_META !== 'undefined' && sc) ? REGISTER_META.find(r => r.key === sc.rejestr) : null;
+    const rejestr = meta ? (en ? (meta.labelEn || meta.label) : meta.label) : '';
+    /* Ta sama budowa co istniejące wiersze na tym ekranie (ikona + <span>
+       z <div class="title"> i <div class="desc">). Pierwsza wersja użyła
+       samych <span>-ów i tytuł skleił się z opisem w jedną linijkę - widać to
+       było dopiero na zrzucie, nie w teście. */
+    const z = zrobione[m.id];
+    const ZNAK = { osiagniety: '✅', czesciowo: '➖', nieosiagniety: '↻' };
+    return `<button type="button" class="home-card variant-row${z ? ' misja-zrobiona' : ''}" data-misja="${escapeHtml(m.id)}" style="margin-top:10px;">
+      <span class="icon">${z ? (ZNAK[z.cel] || '✅') : m.ikona}</span>
+      <span>
+        <div class="title">${escapeHtml(en ? m.tytul.en : m.tytul.pl)}</div>
+        <div class="desc">${escapeHtml((en ? m.cel.en : m.cel.pl))}</div>
+        <div class="desc">${escapeHtml(`${m.tury} ${en ? 'exchanges' : 'wymiany'}${rejestr ? ' · ' + rejestr : ''}`)}${isPremiumPro ? '' : ' · Pro'}</div>
+      </span>
+    </button>`;
+  }).join('');
+  if(!widoczne.length){
+    wrap.innerHTML = `<p class="hint-note" style="text-align:left;">${
+      en ? 'No missions at this level yet.' : 'Na tym poziomie nie ma jeszcze misji.'}</p>`;
+  }
+  if(widoczne.length > doPokazania.length){
+    wrap.innerHTML += `<button type="button" class="tool-btn" id="misjeWiecejBtn" style="width:100%; margin-top:10px;">${
+      en ? 'Show more' : 'Pokaż więcej'} (${widoczne.length - doPokazania.length})</button>`;
+  }
+  wrap.querySelectorAll('[data-misja]').forEach(b => {
+    b.addEventListener('click', () => startMisja(b.dataset.misja));
+  });
+  const wiecej = document.getElementById('misjeWiecejBtn');
+  if(wiecej) wiecej.addEventListener('click', () => { misjeIleWidocznych += MISJE_KROK; renderMisjeLista(); });
 }
 
 async function startAiChat(){
@@ -40423,12 +43054,56 @@ function resetAiChat(){
   stopAiChatMic();
   aiChatHistory = [];
   renderAiChatTranscript();
-  document.getElementById('aiChatStartBtn').style.display = '';
+  misjaAktywna = null;
+  misjaZamknieta = false;
+  try{ renderMisjaPasek(); misjaWidokSceny(false); renderMisjeFiltr(); renderMisjeLista(); }catch(e){}
+  document.getElementById('aiChatOldTextMode').style.display = 'none';
+  document.getElementById('misjaWynik').style.display = 'none';
+  document.getElementById('aiChatStartBtn').style.display = 'none';
   document.getElementById('aiChatMicBtn').style.display = 'none';
   document.getElementById('aiChatResetBtn').style.display = 'none';
   document.getElementById('aiChatAnalyzeBtn').style.display = 'none';
   document.getElementById('aiChatSessionReport').style.display = 'none';
   setAiChatStatus('Kliknij „Rozpocznij rozmowę” — bot przywita się pierwszy.');
+}
+
+/* ═══ LUSTRO: SCHEMAT I ZASADY OCENY PRAGMATYCZNEJ ════════════════════════
+   Jedno miejsce dla obu ocen: rozmowy głosowej i werdyktu misji. Wcześniej
+   siedziało w środku `analyzeGeminiSession`, bo drugiego odbiorcy nie było.
+   Trzy poprawki lektorki (zgłoszone PRZED budową, 2026-09-06) muszą żyć
+   w jednym egzemplarzu — dwie kopie rozjadą się przy pierwszej zmianie:
+
+     1. KIERUNEK honoryfikatywu. Uczeń mówiący o SOBIE z -시- (제가 아프세요)
+        popełnia błąd GRAMATYCZNY, nie nadmiar grzeczności.
+     2. NATURALNOŚĆ w sytuacji oficjalnej. Wypełniacze (음, 그니까) są
+        w rozmowie kwalifikacyjnej BŁĘDEM - przy scenariuszu oficjalnym ten
+        wymiar zwraca null.
+     3. BEZPOŚREDNIOŚĆ zależy od dystansu I od języka ojczystego ucznia. */
+function mirrorSchemat(sc){
+  if(!sc) return '';
+  const oficjalna = sc.sytuacja === 'oficjalna';
+  return ',"mirror":{'
+    + '"uprzejmosc":{"odchylenie":-2..2,"komentarz":"tylko gdy odchylenie != 0"},'
+    + '"bezposrednosc":{"odchylenie":-2..2,"komentarz":"tylko gdy odchylenie != 0"},'
+    + '"dystans":{"odchylenie":-2..2,"komentarz":"tylko gdy odchylenie != 0"},'
+    + '"naturalnosc":' + (oficjalna ? 'null' : '{"odchylenie":-2..2,"komentarz":"tylko gdy odchylenie != 0"}')
+    + ',"nota":"jedno zdanie o tym, jak rozmowa zabrzmiała jako całość"}';
+}
+function mirrorZasady_(sc, l1){
+  if(!sc) return '';
+  const oficjalna = sc.sytuacja === 'oficjalna';
+  return '\n\nOCENA PRAGMATYCZNA (pole "mirror"):\n'
+    + `Scenariusz: rozmówca=${sc.rozmowca}, sytuacja=${sc.sytuacja}, dystans=${sc.dystans}, oczekiwany rejestr=${sc.rejestr}.\n`
+    + 'Skala odchylenia: 0 = trafione, wartości ujemne = ZA MAŁO, dodatnie = ZA DUŻO. To NIE jest punktacja - '
+    + 'i za mało, i za dużo jest błędem.\n'
+    + '- uprzejmosc: czy rejestr i formy honoryfikatywne pasują do rozmówcy. UWAGA: -시-/께서/드리다 wobec ROZMÓWCY to poprawne; '
+    + 'wobec SIEBIE („제가 아프세요") to BŁĄD GRAMATYCZNY, nie nadmiar uprzejmości - zgłoś go w recurring_patterns, nie jako odchylenie dodatnie.\n'
+    + `- bezposrednosc: czy uczeń łagodził odmowy i niezgodę. Przy dystans=bliski bezpośredniość jest POPRAWNA, nie karz jej. Język ojczysty ucznia: ${l1}.\n`
+    + '- dystans: czy uczeń nie skrócił dystansu za wcześnie (너, imię bez -씨, przejście na 반말 bez zaproszenia).\n'
+    + (oficjalna
+        ? '- naturalnosc: POMIŃ, zwróć null - w sytuacji oficjalnej wypełniacze są błędem, nie naturalnością.\n'
+        : '- naturalnosc: czy wypowiedzi brzmią jak rozmowa, czy jak podręcznik. Wypełniacze (음, 글쎄요, 그니까) podnoszą naturalność.\n')
+    + 'Komentarz podawaj TYLKO przy wymiarze z odchyleniem różnym od zera, po polsku, jedno zdanie.';
 }
 
 /* ═══ OCENA ROZMOWY GŁOSOWEJ ═══════════════════════════════════════════════
@@ -40478,30 +43153,8 @@ async function ocenGeminiSesje(){
        Wszystkie trzy zgłoszone przez lektorkę PRZED budową. 2026-09-06. */
     const sc = (typeof nunchiAktywny !== 'undefined') ? nunchiAktywny : null;
     const l1 = (typeof l1Aktywny === 'function') ? l1Aktywny() : 'pl';
-    const oficjalna = sc && sc.sytuacja === 'oficjalna';
-    const mirrorSchema = sc ? (
-      ',"mirror":{'
-      + '"uprzejmosc":{"odchylenie":-2..2,"komentarz":"tylko gdy odchylenie != 0"},'
-      + '"bezposrednosc":{"odchylenie":-2..2,"komentarz":"tylko gdy odchylenie != 0"},'
-      + '"dystans":{"odchylenie":-2..2,"komentarz":"tylko gdy odchylenie != 0"},'
-      + '"naturalnosc":' + (oficjalna ? 'null' : '{"odchylenie":-2..2,"komentarz":"tylko gdy odchylenie != 0"}')
-      + ',"nota":"jedno zdanie o tym, jak rozmowa zabrzmiała jako całość"}'
-    ) : '';
-    const mirrorZasady = sc ? (
-      '\n\nOCENA PRAGMATYCZNA (pole "mirror"):\n'
-      + `Scenariusz: rozmówca=${sc.rozmowca}, sytuacja=${sc.sytuacja}, dystans=${sc.dystans}, oczekiwany rejestr=${sc.rejestr}.\n`
-      + 'Skala odchylenia: 0 = trafione, wartości ujemne = ZA MAŁO, dodatnie = ZA DUŻO. To NIE jest punktacja - '
-      + 'i za mało, i za dużo jest błędem.\n'
-      + '- uprzejmosc: czy rejestr i formy honoryfikatywne pasują do rozmówcy. UWAGA: -시-/께서/드리다 wobec ROZMÓWCY to poprawne; '
-      + 'wobec SIEBIE („제가 아프세요") to BŁĄD GRAMATYCZNY, nie nadmiar uprzejmości - zgłoś go w recurring_patterns, nie jako odchylenie dodatnie.\n'
-      + `- bezposrednosc: czy uczeń łagodził odmowy i niezgodę. Przy dystans=bliski bezpośredniość jest POPRAWNA, nie karz jej. Język ojczysty ucznia: ${l1}.\n`
-      + '- dystans: czy uczeń nie skrócił dystansu za wcześnie (너, imię bez -씨, przejście na 반말 bez zaproszenia).\n'
-      + (oficjalna
-          ? '- naturalnosc: POMIŃ, zwróć null - w sytuacji oficjalnej wypełniacze są błędem, nie naturalnością.\n'
-          : '- naturalnosc: czy wypowiedzi brzmią jak rozmowa, czy jak podręcznik. Wypełniacze (음, 글쎄요, 그니까) podnoszą naturalność.\n')
-      + 'Komentarz podawaj TYLKO przy wymiarze z odchyleniem różnym od zera, po polsku, jedno zdanie.'
-    ) : '';
-
+    const mirrorSchema = mirrorSchemat(sc);
+    const mirrorZasady = mirrorZasady_(sc, l1);
     const instruction = `Przeanalizuj CAŁĄ poniższą rozmowę GŁOSOWĄ ucznia (posługującego się na co dzień językiem ${langName}) prowadzoną po koreańsku - to podsumowanie na koniec sesji nauki.\n\n`
       + 'Historia rozmowy:\n' + historyText + '\n\n'
       + 'UWAGA: to transkrypcja MOWY, więc drobne przekręcenia mogą pochodzić z rozpoznawania, nie od ucznia. Nie wytykaj błędów, które wyglądają na pomyłki transkrypcji.\n\n'
