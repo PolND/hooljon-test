@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.489
-  Zbudowane na: 7d26e1feb71b4b4c96b59554e0ef981c (.488)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.490
+  Zbudowane na: 3cb3dfd3252f934ec36b0221fdeea339 (.489)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -51,6 +51,29 @@
        razem z wariantem monochromatycznym dla Androida 13+.
        Dodane 2026-09-06. -->
   <link rel="manifest" href='data:application/manifest+json,{"name":"Hooljon — nauka koreańskiego","short_name":"Hooljon","description":"Koreański od podstaw: słownictwo, gramatyka, hanja i rozmowa z lektorem AI.","start_url":".","scope":".","display":"standalone","orientation":"portrait","background_color":"%23F6F3EE","theme_color":"%23C1512F","lang":"pl","dir":"ltr","categories":["education","productivity"]}'>
+
+  <script>
+  /* ═══ INSTALACJA I TRYB OFFLINE ═════════════════════════════════════════
+     Apka zostaje JEDNYM PLIKIEM. Obok stoją dwa pliki pomocnicze; jeśli ich
+     nie ma (otwarcie z dysku, kopia wysłana mailem), wszystko działa jak dotąd
+     — poniżej nic nie rzuca wyjątkiem i nic nie blokuje startu.
+
+     Manifest `data:` w nagłówku nie ma ikon i mieć ich nie może (byłyby to
+     setki kilobajtów w adresie URL). Na http(s) podmieniamy go na plik, który
+     ikony ma — bez nich Android nie proponuje „Dodaj do ekranu głównego". */
+  (function(){
+    var http = location.protocol === 'http:' || location.protocol === 'https:';
+    if(!http) return;                      // z dysku: zostaje manifest data:
+    try{
+      var link = document.querySelector('link[rel="manifest"]');
+      if(link) link.href = 'manifest.webmanifest';
+    }catch(e){}
+    if(!('serviceWorker' in navigator)) return;
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(){ /* brak pliku obok - trudno */ });
+    });
+  })();
+</script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26880,7 +26903,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-10.489';
+const APP_VERSION = '2026-09-10.490';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
