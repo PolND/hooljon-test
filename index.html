@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.490
-  Zbudowane na: 3cb3dfd3252f934ec36b0221fdeea339 (.489)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.492
+  Zbudowane na: 4618ddd25aa446ed4fc8ec66e7931c3e (.491)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -26903,7 +26903,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-10.490';
+const APP_VERSION = '2026-09-10.492';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -33163,11 +33163,48 @@ let trTimer = null;
 
 /* Pula z SENTENCE_BUILDER_ITEMS - zdania mają już klocki, tłumaczenie
    i poziom, więc nie trzeba osobnych danych. */
+/* ═══ KOLEJNOŚĆ OD ŁATWIEJSZYCH ══════════════════════════════════════════
+   Trudność liczona z DANYCH: poziom (waży najmocniej) i liczba klocków.
+   Dłuższe zdanie jest trudniejsze i do ułożenia, i do powtórzenia z pamięci,
+   bo trzeba utrzymać w głowie więcej członów naraz. */
+function trudnoscZdania(x){
+  return (x.level || 1) * 100 + ((x.blocks && x.blocks.length) || 0);
+}
+
+/** Pula od najłatwiejszej do najtrudniejszej, z tasowaniem WEWNĄTRZ jednakowej
+    trudności — żeby rosła trudność, a nie powtarzalność. */
+function stopniuj(zrodlo, lvl){
+  const grupy = new Map();
+  (zrodlo || []).forEach(x => {
+    if((x.level || 1) > lvl) return;
+    const k = trudnoscZdania(x);
+    if(!grupy.has(k)) grupy.set(k, []);
+    grupy.get(k).push(x);
+  });
+  return [...grupy.keys()].sort((a, b) => a - b).reduce((acc, k) => acc.concat(shuffle(grupy.get(k))), []);
+}
+
+/** Krótka sesja (trening odruchu): `ile` zadań ROZŁOŻONYCH po całym zakresie
+    trudności, po jednym z każdego przedziału. Uczeń zaczyna od najłatwiejszego,
+    kończy przy swoim suficie, i za każdym razem dostaje inne zdania. */
+function stopniowanaProbka(zrodlo, lvl, ile){
+  const posortowane = stopniuj(zrodlo, lvl);
+  if(posortowane.length <= ile) return posortowane;
+  const out = [];
+  const krok = posortowane.length / ile;
+  for(let i = 0; i < ile; i++){
+    const od = Math.floor(i * krok);
+    const do_ = Math.max(od + 1, Math.floor((i + 1) * krok));
+    out.push(posortowane[od + Math.floor(Math.random() * (do_ - od))]);
+  }
+  return out;
+}
+
 function trPrzygotujPule(){
   const lvl = poziomUcznia();
   trTryb = lvl >= 3 ? 'C' : lvl === 2 ? 'B' : 'A';
   const zrodlo = (typeof SENTENCE_BUILDER_ITEMS !== 'undefined') ? SENTENCE_BUILDER_ITEMS : [];
-  trPula = shuffle(zrodlo.filter(x => (x.level || 1) <= lvl)).slice(0, 10);
+  trPula = stopniowanaProbka(zrodlo, lvl, 10);
   trIndeks = 0;
 }
 
@@ -37753,8 +37790,10 @@ let sbItem = null;   // zdanie aktualnie na ekranie - patrz showSentenceBuilderI
 
 function startSentenceBuilder(){
   const lvl = poziomUcznia();
-  sbPula = shuffle(SENTENCE_BUILDER_ITEMS.filter(x => (x.level || 1) <= lvl));
-  if(sbPula.length < 5) sbPula = shuffle(SENTENCE_BUILDER_ITEMS.slice());
+  /* Kolejność rosnąca — ta sama funkcja co w treningu odruchu. Wcześniej
+     obie pule budował `shuffle` i obie zaczynały od przypadkowej trudności. */
+  sbPula = stopniuj(SENTENCE_BUILDER_ITEMS, lvl);
+  if(sbPula.length < 5) sbPula = stopniuj(SENTENCE_BUILDER_ITEMS, 3);
   sbIndex = 0;
   showSentenceBuilderItem();
 }
@@ -39278,6 +39317,36 @@ async function czytajPrzezMost(){
   catch(e){ return { blad:'blad', kod:'most' }; }
 }
 
+/* ═══ PRZEGLĄDARKA, KTÓRA BLOKUJE ROZPOZNAWANIE MOWY ══════════════════════
+   Web Speech API w Chrome wysyła dźwięk na serwery Google. Brave blokuje to
+   domyślnie — API istnieje, `new SpeechRecognition()` się udaje, a dopiero
+   przy starcie leci błąd 'network'. Z punktu widzenia kodu wygląda to
+   identycznie jak brak internetu, i dlatego komunikat mówił o internecie.
+
+   `navigator.brave.isBrave()` to oficjalne API Brave'a, nie odcisk palca.
+   Wynik zapamiętujemy raz; przy każdej innej przeglądarce zostaje false
+   i nic się nie zmienia. */
+let braveWykryty = false;
+(async function(){
+  try{
+    if(navigator.brave && typeof navigator.brave.isBrave === 'function'){
+      braveWykryty = await navigator.brave.isBrave();
+    }
+  }catch(e){ /* brak API = nie Brave */ }
+})();
+
+/** Zdanie, które faktycznie pomaga — zamiast „sprawdź internet". */
+function radaBrakMowy(en){
+  if(braveWykryty){
+    return en
+      ? 'Brave blocks Chrome speech recognition by default (it goes to Google servers). Open Hooljon in Chrome, or lower the Brave shield for this site.'
+      : 'Brave domyślnie blokuje rozpoznawanie mowy (idzie ono na serwery Google). Otwórz Hooljon w Chrome albo opuść tarczę Brave dla tej strony.';
+  }
+  return en
+    ? 'The speech recognition service could not be reached. It needs Google servers — a VPN, a company network or a privacy blocker can cut it off. Chrome without a VPN is the safest bet.'
+    : 'Nie udało się połączyć z usługą rozpoznawania mowy. Wymaga ona serwerów Google — odciąć ją może VPN, sieć firmowa albo blokada prywatności. Najpewniej zadziała w Chrome bez VPN-a.';
+}
+
 function initReadingRecognition(){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SR) return null;
@@ -39325,6 +39394,12 @@ document.getElementById('readingMicBtn').addEventListener('click', ()=>{
     return;
   }
 
+  /* Uprzedzenie ZANIM user kliknie. Dotąd dowiadywał się dopiero po
+     nagraniu całej czytanki, że nic z tego nie będzie. */
+  if(braveWykryty){
+    const ramka = document.getElementById('readingUnsupported');
+    if(ramka){ ramka.style.display = 'block'; ramka.textContent = radaBrakMowy(uiLang === 'en'); }
+  }
   if(!readingRecognition){
     readingRecognition = initReadingRecognition();
     if(!readingRecognition){
@@ -39375,13 +39450,13 @@ document.getElementById('readingMicBtn').addEventListener('click', ()=>{
         'service-not-allowed': '⚠️ Microphone access blocked by the browser or operating system.',
         'no-speech': 'No speech detected — try again and speak clearly into the microphone.',
         'audio-capture': '⚠️ No microphone found. Connect a microphone and try again.',
-        'network': '⚠️ Network problem reaching the speech recognition service. Check your internet connection (or try disabling any VPN) and try again.',
+        'network': '⚠️ ' + radaBrakMowy(true),
       } : {
         'not-allowed': '⚠️ Odmówiono dostępu do mikrofonu. Sprawdź uprawnienia strony w ustawieniach przeglądarki i spróbuj ponownie.',
         'service-not-allowed': '⚠️ Dostęp do mikrofonu zablokowany przez przeglądarkę lub system operacyjny.',
         'no-speech': 'Nie wykryto mowy — spróbuj ponownie i mów wyraźnie do mikrofonu.',
         'audio-capture': '⚠️ Nie znaleziono mikrofonu. Podłącz mikrofon i spróbuj ponownie.',
-        'network': '⚠️ Problem z połączeniem do serwisu rozpoznawania mowy. Sprawdź internet (albo spróbuj wyłączyć VPN, jeśli używasz) i spróbuj ponownie.',
+        'network': '⚠️ ' + radaBrakMowy(false),
       };
       const komunikat = messages[e.error] || (uiLang === 'en' ? `⚠️ Speech recognition failed (${e.error}).` : `⚠️ Nie udało się rozpoznać mowy (${e.error}).`);
         document.getElementById('readingStatus').textContent = komunikat;
