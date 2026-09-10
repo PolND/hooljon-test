@@ -26325,7 +26325,7 @@ const HanjaKreski = (function(){
       const dt = Math.min(0.05, (ts - ostatni)/1000) * o.tempo;
       ostatni = ts;
       ph += dt;
-      if(faza === 'ready'){ if(ph >= READY){ faza = 'draw'; ph = 0; } }
+      if(faza === 'ready'){ if(ph >= READY){ faza = 'draw'; ph = 0; pedzel(k); } }
       else if(faza === 'draw'){
         p = Math.min(1, ph/dur[k]);
         if(p >= 1){ faza = 'rest'; ph = 0; if(o.onKreska) o.onKreska(k, n); }
@@ -26335,6 +26335,31 @@ const HanjaKreski = (function(){
       }
       rysuj();
       if(biegnie) raf = requestAnimationFrame(tick);
+    }
+
+    /* PĘDZEL. Wołany w chwili, gdy kreska ZACZYNA się rysować, nie z góry:
+       tempo można zmienić w locie, a uczeń może iść krok po kroku, więc
+       harmonogram taki jak przy hangulu (zagrajKreski) tu nie ma sensu.
+
+       Profil głośności = profil prędkości czubka, liczony z sAt — czyli
+       z dokładnie tej samej funkcji, która ustawia maskę na ekranie. Gdyby
+       liczyć go osobno, obie ścieżki rozjechałyby się po cichu przy pierwszej
+       zmianie rytmu. */
+    function pedzel(i){
+      if(typeof uderz !== 'function') return;
+      const KROKI = 16, prof = [];
+      for(let j = 0; j < KROKI; j++){
+        const t = j/(KROKI-1), d = 0.5/(KROKI-1);
+        const a = Math.max(0, t-d), b = Math.min(1, t+d);
+        prof.push((sAt(i, b) - sAt(i, a)) / ((b - a) || 1));
+      }
+      const mx = Math.max.apply(null, prof) || 1;
+      const sek = dur[i] / Math.max(0.2, o.tempo || 1);   // realny czas kreski
+      uderz('papier', {
+        dlugosc: Math.max(0.08, Math.min(2.2, sek)),
+        glosnosc: 0.85,
+        profil: prof.map(v => Math.max(0.12, Math.min(1, v/mx)))
+      });
     }
 
     function kreska(i){
@@ -29046,15 +29071,32 @@ function uderz(material, opcje){
     /* Pędzel / kartka. Długość jest PARAMETREM, nie stałą - stąd kreska
        może brzmieć proporcjonalnie do swojej długości na ekranie. */
     const dl = o.dlugosc || 0.07;
-    const sz = zrodloSzumu(ctx, dl + 0.02);
+    const sz = zrodloSzumu(ctx, dl + 0.09);
     const hp = ctx.createBiquadFilter();
     hp.type = 'highpass'; hp.frequency.value = 1500;
     const bp = ctx.createBiquadFilter();
     bp.type = 'bandpass'; bp.frequency.value = 3200; bp.Q.value = 1.2;
     const g = ctx.createGain();
-    g.gain.setValueAtTime(0.0001, t0);
-    g.gain.linearRampToValueAtTime(0.05 * gl, t0 + Math.min(0.03, dl * 0.35));
-    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dl);
+    if(o.profil && o.profil.length > 1){
+      /* PROFIL — pędzel, który jedzie, a nie stuka. Obwiednia perkusyjna jest
+         dobra dla krótkiej kreski hangul (0,04-0,26 s), ale kreska hanja trwa
+         medianowo 0,53 s, a co dziesiąta ponad 1,1 s; wykładniczy zanik na
+         takim dystansie schodzi do -27 dB w połowie drogi, czyli cichnie, gdy
+         pędzel jeszcze jedzie. Z profilem głośność idzie za PRĘDKOŚCIĄ czubka:
+         narasta przy opuszczeniu, siada na wyhamowaniu w załamaniu, odbija
+         przy haku. Ten sam rytm steruje obrazem i dźwiękiem. */
+      const P = o.profil, ost = P.length - 1;
+      const amp = v => Math.max(0.0002, 0.05 * gl * v);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.linearRampToValueAtTime(amp(P[0]), t0 + Math.min(0.03, dl * 0.20));
+      for(let i = 1; i <= ost; i++)
+        g.gain.linearRampToValueAtTime(amp(P[i]), t0 + dl * (i / ost));
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dl + 0.06);   // oderwanie pędzla
+    } else {
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.linearRampToValueAtTime(0.05 * gl, t0 + Math.min(0.03, dl * 0.35));
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dl);
+    }
     sz.connect(hp); hp.connect(bp); bp.connect(g); g.connect(wyjscieCtx);
     sz.start(t0); sz.stop(t0 + dl + 0.05);
     return;
