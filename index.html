@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.477
-  Zbudowane na: d52d5502c19068b790f13e65f2bae3ee (.476)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-10.478
+  Zbudowane na: 779d20138a3cbec9485734e3d567f8ef (.477)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -4526,6 +4526,21 @@
     cursor:pointer;
     transition:transform .1s ease, border-color .15s ease;
   }
+  /* ETYKIETA REJESTRU. Zdania mieszające rejestry zostają w jednym zestawie
+     celowo - etykieta mówi uczniowi, że asymetria jest zamierzona i coś znaczy,
+     a nie jest usterką redakcyjną. */
+  .sb-rejestr{
+    display:inline-block;
+    margin:0 0 10px;
+    padding:5px 11px;
+    border:1px solid var(--hwang);
+    border-radius:var(--radius-pill, 999px);
+    background:transparent;
+    color:var(--hwang);
+    font-size:12px;
+    letter-spacing:.02em;
+  }
+
   .sb-chip:hover{border-color:var(--hwang);}
   .sb-chip:active{transform:scale(0.94);}
   .sb-chip.sb-placed{background:var(--hwang); color:var(--on-accent); border-color:var(--hwang);}
@@ -8136,6 +8151,7 @@
   <div id="sentenceBuilderScreen" style="display:none;">
     <button class="back-btn" data-back="grammarLevel" data-i18n="backVocabLevel">Wybór poziomu</button>
     <div class="ai-chat-status" id="sbProgress"></div>
+    <div class="sb-rejestr" id="sbRejestr" style="display:none;"></div>
     <p class="hint-note" style="text-align:left;" id="sbHint" data-i18n="sbHint">Ułóż słowa w poprawnej kolejności, dotykając ich po kolei.</p>
 
     <div class="sb-answer-row" id="sbAnswerRow"></div>
@@ -26948,7 +26964,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-10.477';
+const APP_VERSION = '2026-09-10.478';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -37643,6 +37659,7 @@ let sbLocked = false;
    Pula kumulatywna: poziom 2 dostaje też zdania z 1, bo prostsze zdanie nadal jest
    dobrym ćwiczeniem szyku. Rozszerzone 2026-09-06. */
 let sbPula = [];
+let sbItem = null;   // zdanie aktualnie na ekranie - patrz showSentenceBuilderItem()
 
 function startSentenceBuilder(){
   const lvl = (typeof unlockedLevel !== 'undefined' ? unlockedLevel : 1);
@@ -37654,8 +37671,17 @@ function startSentenceBuilder(){
 
 function showSentenceBuilderItem(){
   sbLocked = false;
+  /* JEDNO źródło aktualnego zdania. Wcześniej „Sprawdź" sięgał po
+     SENTENCE_BUILDER_ITEMS[sbIndex] — czyli po zdanie z nieprzetasowanej
+     tablicy źródłowej pod tym samym indeksem, a więc po INNE zdanie niż to
+     na ekranie. Przy różnej liczbie klocków uczeń nie mógł przejść dalej. */
   const item = sbPula[sbIndex] || SENTENCE_BUILDER_ITEMS[sbIndex];
+  sbItem = item;
   document.getElementById('sbProgress').textContent = `${sbIndex + 1} / ${(sbPula.length || (sbPula.length || SENTENCE_BUILDER_ITEMS.length))}`;
+  const rej = document.getElementById('sbRejestr');
+  const opis = (uiLang === 'en' ? item.noteEn : item.note) || item.note || '';
+  rej.textContent = opis;
+  rej.style.display = opis ? 'inline-block' : 'none';
   document.getElementById('sbHint').textContent = tr(item);
   document.getElementById('sbFeedback').innerHTML = '';
   document.getElementById('sbFeedback').className = 'feedback';
@@ -37702,8 +37728,9 @@ function renderSentenceBuilder(){
 
 document.getElementById('sbCheckBtn').addEventListener('click', ()=>{
   if(sbLocked) return;
-  const item = SENTENCE_BUILDER_ITEMS[sbIndex];
+  const item = sbItem;
   const feedback = document.getElementById('sbFeedback');
+  if(!item) return;
 
   if(sbPlaced.length !== item.blocks.length){
     feedback.innerHTML = `<span>${uiLang === 'en' ? 'Place all the blocks first.' : 'Najpierw ułóż wszystkie klocki.'}</span>`;
