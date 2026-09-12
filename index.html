@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.555
-  Zbudowane na: c564c5a6e665227542ab159a62de7416 (.554)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.557
+  Zbudowane na: 82ebe8d9e35bcc49ef51629a209bd185 (.556)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -503,6 +503,29 @@
   /* Kafelki Przekaźnika. Trzy w kolumnie na telefonie — obok siebie nie
      mieszczą się czytelnie przy zdaniu koreańskim i dosłownym tłumaczeniu,
      a to one są treścią, nie układ. */
+  /* KOMPAS. Kafelki idą w jedną kolumnę na telefonie i zawijają się w dwie
+     dopiero od 520px — etykieta relacji to całe zdanie („Sklep, kawiarnia,
+     obsługa"), a nie jedno słowo, więc dwie kolumny na 390px dają łamanie
+     po każdym wyrazie. */
+  .pk-kompas{ margin-top:12px; }
+  .pk-krok{ margin-top:14px; }
+  .pk-krok-tytul{ display:block; margin-bottom:7px; font-size:11px; letter-spacing:.04em;
+    text-transform:uppercase; color:var(--ink-dim); }
+  .pk-kafle{ display:flex; flex-wrap:wrap; gap:8px; }
+  .pk-kafel{ flex:1 1 100%; text-align:left; padding:11px 13px; cursor:pointer;
+    border:1px solid var(--border); border-radius:14px;
+    background:var(--surface); color:var(--ink); font:14.5px var(--font-ui); }
+  .pk-kafel:hover{ background:var(--card-hi); }
+  .pk-kafel[aria-pressed="true"]{ border-color:var(--accent, #6b8afd); background:var(--card-hi); font-weight:600; }
+  .pk-wybrane{ display:flex; flex-wrap:wrap; align-items:baseline; gap:6px;
+    margin-top:12px; font-size:13.5px; color:var(--ink-dim); }
+  .pk-wybrane b{ color:var(--ink); font-weight:600; }
+  .pk-zmien{ border:0; background:none; padding:0 2px; cursor:pointer;
+    font:inherit; color:var(--accent, #6b8afd); text-decoration:underline; }
+  .pk-podglad{ margin-top:10px; padding:10px 12px; border-radius:12px;
+    background:var(--card-hi); color:var(--ink-dim); font-size:13.5px; line-height:1.45; }
+  .pk-podtytul{ margin-top:2px; font-size:13px; color:var(--ink-dim); }
+  @media (min-width:520px){ .pk-kafel{ flex:1 1 calc(50% - 8px); } }
   .pk-input, .pk-select{ width:100%; margin-top:10px; padding:11px 12px;
     border:1px solid var(--border); border-radius:var(--radius-pill);
     background:var(--surface); color:var(--ink); font:14.5px var(--font-ui); }
@@ -7291,13 +7314,6 @@
         <div class="desc" data-i18n="homeGrammarHubDesc">Koniugacja i wzorce zdaniowe.</div>
       </span>
     </button>
-    <button class="home-card variant-row" data-target="hanja">
-      <span class="icon">漢</span>
-      <span>
-        <div class="title" data-i18n="homeHanjaTitle">Hanja</div>
-        <div class="desc" data-i18n="homeHanjaDesc">Chińskie znaki-rdzenie za słowami, które już znasz.</div>
-      </span>
-    </button>
     <button class="home-card variant-row" data-target="culture">
       <span class="icon">문</span>
       <span>
@@ -7322,18 +7338,6 @@
         <div class="desc" data-i18n="homeChatDesc">Rozmawiaj z botem po koreańsku.</div>
       </span>
     </button>
-    <!-- PRZEKAŹNIK REJESTRÓW jako pełnoprawny tryb. Do `.547` wejście było
-         tylko wewnątrz ekranu „Rozmowa z AI", czyli za bramką Premium i pod
-         listą misji — moduł działał, ale praktycznie nie dawało się go
-         znaleźć. `SCREEN_IDS` ma `przekaznik` od `.541`, więc `data-target`
-         wystarcza; niczego nowego w routingu nie trzeba. -->
-    <button class="home-card variant-row" data-target="przekaznik">
-      <span class="icon">전</span>
-      <span>
-        <div class="title" data-i18n="homePkTitle">Przekaźnik rejestrów</div>
-        <div class="desc" data-i18n="homePkDesc">Jedna intencja, trzy sposoby powiedzenia jej.</div>
-      </span>
-    </button>
     <button class="home-card variant-row" data-target="reading">
       <span class="icon">읽</span>
       <span>
@@ -7348,6 +7352,36 @@
         <div class="desc" data-i18n="homeScenarioDesc">Generuj karty do rozmówek na zajęcia.</div>
       </span>
     </button>
+    <!-- ═══ NARZĘDZIA ══════════════════════════════════════════════════════
+         Sekcja referencyjna: rzeczy, do których się WRACA, a nie przez które
+         się przechodzi. Kompas Nunchi trafia tu z Praktyki, bo nie jest
+         ćwiczeniem z wynikiem — jest sprawdzeniem „jak to powiedzieć do tej
+         osoby", tak samo jak słownik jest sprawdzeniem „co znaczy to słowo".
+         Hanja i Słownik dochodzą z Nauki i z Szybkiego dostępu, żeby wszystkie
+         trzy odpowiedniki leżały w jednym miejscu. -->
+    <div class="achv-section-title" data-i18n="homeSectionTools">Narzędzia</div>
+    <button class="home-card variant-row" data-target="przekaznik">
+      <span class="icon">나</span>
+      <span>
+        <div class="title" data-i18n="homePkTitle">Kompas Nunchi</div>
+        <div class="desc" data-i18n="homePkDesc">Dopasuj rejestr i formy szacunku do relacji.</div>
+      </span>
+    </button>
+    <button class="home-card" data-target="dictBrowse">
+      <span class="icon">사</span>
+      <span>
+        <div class="title" data-i18n="dictBrowseTitle">Przeglądaj pełny słownik</div>
+        <div class="desc" data-i18n="dictBrowseDesc">27 działów, ponad 51 000 słów z oficjalnego słownika.</div>
+      </span>
+    </button>
+    <button class="home-card variant-row" data-target="hanja">
+      <span class="icon">漢</span>
+      <span>
+        <div class="title" data-i18n="homeHanjaTitle">Hanja</div>
+        <div class="desc" data-i18n="homeHanjaDesc">Chińskie znaki-rdzenie za słowami, które już znasz.</div>
+      </span>
+    </button>
+
     <div class="home-hint" data-i18n="homeHint">Wybierz tryb nauki — możesz przełączać się między nimi w każdej chwili.</div>
   </div>
 
@@ -7413,13 +7447,6 @@
         <span>
           <div class="title"><span data-i18n="myWordsModeTitle">Moje słówka</span> <span class="level-badge ready" id="vocabMyWordsBadge">0</span></div>
           <div class="desc" data-i18n="myWordsModeDesc">Tylko słowa, które sam dodałeś — bez wybierania działu i poziomu.</div>
-        </span>
-      </button>
-      <button class="home-card" data-target="dictBrowse">
-        <span class="icon">사</span>
-        <span>
-          <div class="title" data-i18n="dictBrowseTitle">Przeglądaj pełny słownik</div>
-          <div class="desc" data-i18n="dictBrowseDesc">27 działów, ponad 51 000 słów z oficjalnego słownika.</div>
         </span>
       </button>
       <!-- Odpytywanie głosem - wejście stąd, bo to wariant nauki słówek.
@@ -8195,13 +8222,17 @@
     <button class="back-btn" data-back="home" data-i18n="backHome">Menu główne</button>
 
     <div class="center-card" style="max-width:460px; margin:0 auto;">
-      <div class="eyebrow" data-i18n="pkEyebrow">Przekaźnik rejestrów</div>
+      <div class="eyebrow" data-i18n="pkEyebrow">Kompas Nunchi</div>
+      <div class="pk-podtytul" data-i18n="pkPodtytul">Dopasuj rejestr i formy szacunku do relacji</div>
       <input id="pkCzynnosc" class="pk-input" maxlength="120"
              data-i18n-placeholder="pkCzynnoscPh"
              placeholder="Co chcesz powiedzieć? np. poprosić o pomoc">
       <div id="pkWsadUwaga" class="pk-wsad-uwaga" hidden></div>
-      <label class="pk-label" for="pkRegula" data-i18n="pkZKim">Z kim rozmawiasz</label>
-      <select id="pkRegula" class="pk-select"></select>
+      <!-- Kroki są budowane w całości przez `pkWypelnijReguly()` z
+           `NUNCHI_TABELA`. Żadnej listy w HTML: druga lista rozjechałaby się
+           z tabelą przy pierwszej poprawce reguły. -->
+      <div id="pkKompas" class="pk-kompas"></div>
+      <div id="pkPodglad" class="pk-podglad" hidden></div>
       <button class="primary" id="pkPytajBtn" data-i18n="pkPytaj">Pokaż trzy sposoby</button>
     </div>
 
@@ -13135,7 +13166,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.555';
+const APP_VERSION = '2026-09-11.557';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -14272,8 +14303,8 @@ const I18N = {
      bo test sprawdzający FUNKCJE nigdy nie ogląda widoku w drugim języku. */
   pkCzynnoscPh: { pl: 'Co chcesz powiedzieć? np. poprosić o pomoc',
     en: 'What do you want to say? e.g. ask for help' },
-  homePkTitle: { pl: 'Przekaźnik rejestrów', en: 'Register relay' },
-  homePkDesc: { pl: 'Jedna intencja, trzy sposoby powiedzenia jej.', en: 'One intention, three ways to say it.' },
+  homePkTitle: { pl: 'Kompas Nunchi', en: 'Nunchi Compass' },
+  homePkDesc: { pl: 'Dopasuj rejestr i formy szacunku do relacji.', en: 'Match register and respect forms to the relationship.' },
   /* Te trzy klucze stoją WYŁĄCZNIE w bloku wewnątrz „Rozmowy z AI" — ekran
      samodzielny ma własny `pkEyebrow`. Dlatego mogą mówić o tym, po co jest
      skrót W TRAKCIE rozmowy, a nie powtarzać opisu narzędzia z menu.
@@ -14284,7 +14315,15 @@ const I18N = {
   pkOpis: { pl: 'Utknąłeś na tym, jak coś powiedzieć w tej rozmowie? Wpisz intencję i zobacz trzy warianty, każdy z regułą nunchi.',
     en: 'Stuck on how to say something in this conversation? Type the intention and see three versions, each with its nunchi rule.' },
   pkWejscie: { pl: 'Sprawdź w Przekaźniku', en: 'Check in the relay' },
-  pkEyebrow: { pl: 'Przekaźnik rejestrów', en: 'Register relay' },
+  pkEyebrow: { pl: 'Kompas Nunchi', en: 'Nunchi Compass' },
+  pkPodtytul: { pl: 'Dopasuj rejestr i formy szacunku do relacji', en: 'Match register and respect forms to the relationship' },
+  /* Nagłówki trzech kroków wyboru. Krok 3 pojawia się tylko tam, gdzie tabela
+     rozbija relację — dziś w jednej gałęzi na siedemnaście. */
+  pkKrokKto: { pl: 'Z kim rozmawiasz', en: 'Who are you talking to' },
+  pkKrokSytuacja: { pl: 'W jakiej sytuacji', en: 'In what situation' },
+  pkKrokDystans: { pl: 'Jak blisko się znacie', en: 'How well do you know each other' },
+  pkZmien: { pl: 'zmień', en: 'change' },
+  homeSectionTools: { pl: 'Narzędzia', en: 'Tools' },
   pkZKim: { pl: 'Z kim rozmawiasz', en: 'Who are you talking to' },
   pkPytaj: { pl: 'Pokaż trzy sposoby', en: 'Show three ways' },
   homeChatTitle: { pl: 'Rozmowa z Haksa (AI)', en: 'Talk to Haksa (AI)' },
@@ -14520,6 +14559,13 @@ function applyUiLangUI(){
   if(btn) btn.textContent = uiLang === 'en' ? 'EN' : 'PL';
 
   applyI18n();
+
+  /* Kafelki kompasu są budowane w JS PO starcie, więc `applyI18n` po nich nie
+     przechodzi — bez tego wywołania przełączenie na EN zostawiało polskie
+     etykiety relacji na ekranie. To dokładnie klasa usterki z `.548`: test
+     chodzący po funkcjach nie zobaczy widoku, a już na pewno nie w drugim
+     języku. Przerysowanie zachowuje wybór, bo stan siedzi w `pkWybor`. */
+  if(typeof pkWypelnijReguly === 'function' && document.getElementById('pkKompas')) pkWypelnijReguly();
 
   // etykiety trybów kierunku odzwierciedlają aktualny język tłumaczeń (KO→PL / KO→EN)
   const nativeCode = uiLang === 'en' ? 'EN' : 'PL';
@@ -19280,7 +19326,17 @@ const PK_R1_SILGEYO = /(실게요|실게)(?![가-힣])/;
    `말씀` świadomie POZA listą rzeczowników: `제 말씀은`, `드릴 말씀이` są
    poprawne, bo tam `말씀` jest pokorą wobec słuchacza, nie wywyższeniem siebie. */
 const PK_RZECZ_HONOR = ['성함', '연세', '생신', '진지', '댁'];
-const PK_SUPLETYWNE = ['계시', '계세', '주무시', '주무세', '드시', '드세', '드셨', '잡수시', '잡수세'];
+/* Formy PRZESZŁE. Do `.555` lista miała je tylko dla `드시다` (`드셨`), bo
+   `드셨` weszło przypadkiem przy serii 02. Kontrola przeciwna przy serii 03
+   wstrzyknęła `제가 진지 잡수셨어?` — wzorcowe R2c — i filtr NIE ZAPALIŁ.
+   Nie dlatego, że reguła go nie obejmuje, tylko dlatego, że w liście zamkniętej
+   brakowało trzech pozycji. Dziura w takiej liście nie daje o sobie znać
+   niczym: nie ma wyjątku ani ostrzeżenia, jest cisza nieodróżnialna od zdania
+   poprawnego.
+
+   `편찮으셨` i `돌아가셨` świadomie POZA listą — pytanie, czy mówienie tak
+   o sobie samym w ogóle jest kształtem autohonoryfikacji, poszło do Fable. */
+const PK_SUPLETYWNE = ['계시', '계세', '계셨', '주무시', '주무세', '주무셨', '드시', '드세', '드셨', '잡수시', '잡수세', '잡수셨'];
 
 /* Predykaty OCENIAJĄCE — tylko przy nich `-기` nominalizuje PODMIOT, więc tylko
    tam honoryfikatyw za `-기` mówi o czynności mówiącego. Przy `원하다`,
@@ -19340,6 +19396,33 @@ function przekaznikAutohonoryfikacja(ko){
      - zdanie bez sygnału DZIEDZICZY rejestr poprzedniego zdania tej samej tury
        (urwane `-아/어서` rejestru nie zmienia, tylko go nie sygnalizuje);
      - zdanie podniesione o JEDEN stopień jest ok, o ile jest aktem mowy. */
+/* WOŁACZ. `할머니,` jest odcinane przecinkiem jako osobny człon i kończy się
+   na `니` — końcówce 반말. Do `.555` detektor dawał mu `casual`, więc przy
+   regule `starszy.prywatna.bliski` kryterium „반말 bez honoryfikatywu" zapalało
+   NA SAMYM ZWROCIE DO BABCI. To rodzina błędu `아` z `.551`: człon bez
+   orzeczenia udający orzeczenie.
+
+   Warunek celowo WĄSKI, bo filtr zbyt szeroki uczy, że poprawna konstrukcja
+   jest błędem: jeden token bez spacji, i albo hasło o części mowy
+   rzeczownikowej (albo bez pola `pos` — takich jest około jednej trzeciej),
+   albo rozbiór na szwie `님`. `할머니` przechodzi jako hasło, `선생님` jako
+   szew, a jednotokenowy czasownik `갔어` NIE przechodzi i dalej daje sygnał —
+   bo `갔어` jest zdaniem, a `할머니` nie jest. */
+const PK_POS_NIE_WOLACZ = ['verb', 'adjective', 'adverb', 'determiner', 'interjection', 'idiom', 'phrase', 'proverb'];
+function pkWolacz(czlon){
+  if(!czlon || typeof czlon !== 'string') return false;
+  const goly = czlon.replace(/[.!?…,\s]+$/, '');
+  if(!goly || goly.indexOf(' ') !== -1) return false;
+  let a;
+  try { a = przekaznikAnalizaLeksykalna(goly)[0]; } catch(e){ return false; }
+  if(!a) return false;
+  if(a.stan === 'rozbior' && a.szew === '님') return true;
+  if(a.stan !== 'slownik') return false;
+  const sensy = slownikSensy(a.cel, allWords);
+  if(!sensy.length) return false;
+  return sensy.some(s => !s.pos || PK_POS_NIE_WOLACZ.indexOf(s.pos) === -1);
+}
+
 function przekaznikRejestrWypowiedzi(ko, regula){
   const pusto = { rejestr: null, ocena: 'nieznany', zdania: [] };
   if(!ko || typeof ko !== 'string') return pusto;
@@ -19355,9 +19438,13 @@ function przekaznikRejestrWypowiedzi(ko, regula){
   const zdania = kawalki.map(z => {
     const bez = z.replace(/[.!?…\s]+$/, '');
     const formula = PK_FORMULY.some(f => bez.endsWith(f));
+    /* Wołacz NIE jest oznaczany jako formuła — formuły mają zostać niewidzialne
+       i nie dziedziczą, a wołacz ma dziedziczyć rejestr sąsiada jak każdy inny
+       człon bez orzeczenia, żeby ślad w dzienniku został czytelny. */
+    const wolacz = !formula && pkWolacz(z);
     return {
       zdanie: z,
-      rejestr: formula ? null : przekaznikRejestrZdania(z),
+      rejestr: (formula || wolacz) ? null : przekaznikRejestrZdania(z),
       formula: formula,
       akt: PK_AKT_MOWY.some(m => z.indexOf(m) !== -1),
       odziedziczony: false,
@@ -19916,18 +20003,212 @@ let pkOstatniWynik = null;
 
 function pkTekst(pl, en){ return uiLang === 'en' ? en : pl; }
 
-/* Lista reguł do wyboru. Bierzemy je z NUNCHI_TABELA, bo to jedyne miejsce,
-   w którym mieszka wiedza „kto z kim i jak" — druga lista rozjechałaby się
-   z nią przy pierwszej poprawce. */
+/* ETYKIETY KOMPASU — PROWIZORYCZNE, DO PODMIANY PRZEZ FABLE.
+   Jeden obiekt danych, celowo oddzielony od logiki poniżej: podmienia się go
+   w całości, nie dotykając budowy kroków. Napisałem je sam, żeby ekran
+   działał; treść należy do Fable, zwłaszcza `podglad`.
+
+   Zakaz żargonu obowiązuje we wszystkim, co widzi uczeń: żadnego 해요체,
+   합니다체, 말 놓을까요? ani „infiksu". Pole `uwaga` z `NUNCHI_TABELA` niosło
+   dokładnie ten żargon i dlatego NIE trafia już na ekran wyboru — zostaje
+   polem diagnostycznym.
+
+   `sytuacja` jest kluczowana parą `rola.sytuacja`, nie samą sytuacją. Powód:
+   wartość `'*'` znaczy „ta reguła nie rozróżnia sytuacji", co dla ucznia nie
+   znaczy nic — a i tak w obu takich gałęziach chodzi o pierwsze poznanie
+   i trzeba to napisać wprost. */
+const PK_KOMPAS_ETYKIETY = {
+  rola: {
+    przelozony: { pl: 'Szef, przełożony', en: 'Boss, manager' },
+    starszy:    { pl: 'Ktoś starszy od Ciebie', en: 'Someone older than you' },
+    rowny:      { pl: 'Rówieśnik', en: 'Someone your age' },
+    mlodszy:    { pl: 'Ktoś młodszy od Ciebie', en: 'Someone younger than you' },
+    nieznajomy: { pl: 'Ktoś obcy', en: 'A stranger' },
+  },
+  sytuacja: {
+    'przelozony.sluzbowa':  { pl: 'Codziennie w pracy', en: 'Everyday at work' },
+    'przelozony.oficjalna': { pl: 'Rozmowa o pracę, klient, prezentacja', en: 'Job interview, client, presentation' },
+    'przelozony.prywatna':  { pl: 'Poza pracą — wyjście, kolacja firmowa', en: 'Outside work — a night out, a company dinner' },
+    'starszy.*':            { pl: 'Pierwsze poznanie', en: 'Meeting for the first time' },
+    'starszy.prywatna':     { pl: 'Prywatnie', en: 'In private' },
+    'starszy.oficjalna':    { pl: 'Oficjalnie — wykładowca, urząd, uroczystość', en: 'Formally — lecturer, office, ceremony' },
+    'rowny.*':              { pl: 'Pierwsze poznanie', en: 'Meeting for the first time' },
+    'rowny.sluzbowa':       { pl: 'W pracy albo na studiach', en: 'At work or at university' },
+    'rowny.prywatna':       { pl: 'Prywatnie', en: 'In private' },
+    'mlodszy.prywatna':     { pl: 'Prywatnie — rodzeństwo, kuzyn, dziecko', en: 'In private — sibling, cousin, child' },
+    'mlodszy.sluzbowa':     { pl: 'Codziennie w pracy', en: 'Everyday at work' },
+    'mlodszy.oficjalna':    { pl: 'Sytuacja oficjalna', en: 'A formal situation' },
+    'nieznajomy.uslugowa':  { pl: 'Sklep, kawiarnia, obsługa', en: 'Shop, cafe, service' },
+    'nieznajomy.prywatna':  { pl: 'Na ulicy, przypadkiem', en: 'On the street, by chance' },
+    'nieznajomy.sluzbowa':  { pl: 'Telefon albo e-mail do firmy', en: 'Phone call or email to a company' },
+    'nieznajomy.oficjalna': { pl: 'Urząd, sprawa oficjalna', en: 'Government office, official matter' },
+  },
+  dystans: {
+    pierwszy_raz: { pl: 'Pierwszy raz', en: 'First time' },
+    znajomy:      { pl: 'Znamy się', en: 'We know each other' },
+    bliski:       { pl: 'Bardzo bliska osoba', en: 'Someone very close' },
+    '*':          { pl: 'Niezależnie od zażyłości', en: 'Regardless of closeness' },
+  },
+  /* PODGLĄD KULTUROWY — jedno zdanie pod wyborem. To jest ta część, którą
+     najbardziej chcę dostać od Fable: moja wersja jest poprawna, ale płaska. */
+  podglad: {
+    'starszy.any.pierwszy_raz':        { pl: 'Przy pierwszym poznaniu kogoś starszego trzymaj pełną uprzejmość — cieplej zrobi się później i to on da sygnał.', en: 'When first meeting someone older, stay fully polite — warmth comes later, and they give the signal.' },
+    'starszy.prywatna.znajomy':        { pl: 'Znacie się, więc sztywność brzmi już chłodno — ale szacunek dla starszeństwa zostaje w każdym zdaniu.', en: 'You know each other, so stiffness now reads as cold — but respect for age stays in every sentence.' },
+    'starszy.prywatna.bliski':         { pl: 'W rodzinie ton jest swobodny, a mimo to formy szacunku zostają. To połączenie jest tu regułą, nie wyjątkiem.', en: 'In the family the tone is relaxed, yet respect forms remain. That combination is the rule here, not the exception.' },
+    'starszy.oficjalna.any':           { pl: 'Wykładowca, urząd, uroczystość — tu liczy się dystans, nie sympatia.', en: 'A lecturer, an office, a ceremony — here distance matters, not warmth.' },
+    'przelozony.sluzbowa.any':         { pl: 'W codziennej pracy ton bywa lżejszy niż myślisz, ale poufałość wobec szefa nie wchodzi w grę.', en: 'Everyday work can be lighter than you expect, but familiarity with a boss is off the table.' },
+    'przelozony.oficjalna.any':        { pl: 'Rozmowa o pracę albo klient z zewnątrz — najostrzejsza sytuacja w całej tabeli. Nic nie schodzi niżej.', en: 'A job interview or an outside client — the strictest situation in the whole table. Nothing drops lower.' },
+    'przelozony.prywatna.znajomy':     { pl: 'Kolacja firmowa rozluźnia ton, ale nie znosi hierarchii — nawet jeśli szef sam powie, żebyś się rozluźnił.', en: 'A company dinner loosens the tone but does not cancel hierarchy — even if the boss tells you to relax.' },
+    'rowny.any.pierwszy_raz':          { pl: 'Rówieśnik, ale nieznajomy: uprzejmie aż do chwili, gdy wspólnie ustalicie inaczej.', en: 'Your age, but a stranger: polite until the two of you agree otherwise.' },
+    'rowny.sluzbowa.znajomy':          { pl: 'Kolega z pracy albo ze studiów — swobodniej z czasem, ale kto jest starszy stażem, ten nadal ma pierwszeństwo.', en: 'A colleague from work or studies — easier over time, but seniority still comes first.' },
+    'rowny.prywatna.bliski':           { pl: 'Z bliskim przyjacielem uprzejma forma zabrzmi jak obraza albo ironia. Tu swoboda jest normą.', en: 'With a close friend a polite form sounds like an insult or irony. Here informality is the norm.' },
+    'mlodszy.prywatna.bliski':         { pl: 'Młodsze rodzeństwo, kuzyn, dziecko — swobodnie i bez form szacunku.', en: 'A younger sibling, cousin or child — relaxed, with no respect forms.' },
+    'mlodszy.sluzbowa.any':            { pl: 'Młodszy współpracownik: uprzejmie jest zawsze bezpieczne, swoboda dopiero z czasem i nie od razu.', en: 'A junior colleague: polite is always safe, informality only with time and not right away.' },
+    'mlodszy.oficjalna.any':           { pl: 'Wiek nie daje przewagi, gdy sytuacja jest oficjalna — młodszemu też mówi się formalnie.', en: 'Age gives no advantage in a formal setting — you address a younger person formally too.' },
+    'nieznajomy.uslugowa.pierwszy_raz':{ pl: 'Wobec obsługi uprzejmość jest obowiązkowa; jej brak czyta się jako arogancję, nie jako bezpośredniość.', en: 'Politeness to service staff is mandatory; its absence reads as arrogance, not directness.' },
+    'nieznajomy.prywatna.pierwszy_raz':{ pl: 'Przypadkowa rozmowa na ulicy — uprzejmie, niezależnie od tego, ile rozmówca ma lat.', en: 'A chance conversation on the street — polite, no matter how old the other person looks.' },
+    'nieznajomy.sluzbowa.pierwszy_raz':{ pl: 'Telefon albo e-mail do obcej firmy: pełna forma od pierwszego zdania.', en: 'A phone call or email to an unfamiliar company: full formality from the first sentence.' },
+    'nieznajomy.oficjalna.pierwszy_raz':{ pl: 'Urząd i sprawa oficjalna — ton bezosobowy i pełna forma.', en: 'A government office and an official matter — impersonal tone and full formality.' },
+  },
+};
+
+/* Nagłówki kroków trzymam w tym samym obiekcie co resztę etykiet, żeby
+   Fable miała JEDNO miejsce do podmiany, ale ich źródłem prawdy jest słownik
+   i18n (kontrola 17 pilnuje, że klucz ma wpis) — stąd odczyt przez `I18N`. */
+PK_KOMPAS_ETYKIETY.naglowek = {
+  pkKrokKto: { pl: 'Z kim rozmawiasz', en: 'Who are you talking to' },
+  pkKrokSytuacja: { pl: 'W jakiej sytuacji', en: 'In what situation' },
+  pkKrokDystans: { pl: 'Jak blisko się znacie', en: 'How well do you know each other' },
+};
+
+function pkEt(grupa, klucz){
+  const e = (PK_KOMPAS_ETYKIETY[grupa] || {})[klucz];
+  return e ? pkTekst(e.pl, e.en) : klucz;
+}
+
+/* Stan kompasu. Trzymam WARTOŚCI Z TABELI (`starszy`, `prywatna`, `bliski`),
+   nie indeksy kafelków — indeks przestaje znaczyć to samo, gdy tabela urośnie. */
+let pkWybor = { rozmowca: null, sytuacja: null, dystans: null };
+
+/* Budowa kroków WPROST Z TABELI. Nie ma mapy „kafelek → reguła": adres kafelka
+   to te same trzy pola, z których sklejone jest `id`, więc bijekcja jest
+   z konstrukcji. Krok 3 pojawia się tylko wtedy, gdy po wyborze sytuacji
+   zostaje więcej niż jeden dystans — to jest POLICZONE, nie zapisane ręcznie,
+   więc gdy dojdzie reguła rozbijająca inną gałąź, krok pojawi się tam sam. */
 function pkWypelnijReguly(){
-  const sel = document.getElementById('pkRegula');
-  if(!sel) return;
-  sel.innerHTML = NUNCHI_TABELA.filter(r => r.id).map(r => {
-    const opis = r.uwaga || (r.rozmowca + ' · ' + r.sytuacja + ' · ' + r.dystans);
-    return '<option value="' + escapeHtml(r.id) + '">' + escapeHtml(opis) + '</option>';
-  }).join('');
-  pkRegulaId = sel.value || null;
-  sel.addEventListener('change', () => { pkRegulaId = sel.value; });
+  const host = document.getElementById('pkKompas');
+  if(!host) return;
+  const tab = NUNCHI_TABELA.filter(r => r.id);
+
+  const role = [];
+  tab.forEach(r => { if(role.indexOf(r.rozmowca) === -1) role.push(r.rozmowca); });
+  if(pkWybor.rozmowca && role.indexOf(pkWybor.rozmowca) === -1) pkWybor = { rozmowca: null, sytuacja: null, dystans: null };
+
+  const poRoli = pkWybor.rozmowca ? tab.filter(r => r.rozmowca === pkWybor.rozmowca) : [];
+  const sytuacje = [];
+  poRoli.forEach(r => { if(sytuacje.indexOf(r.sytuacja) === -1) sytuacje.push(r.sytuacja); });
+  if(pkWybor.sytuacja && sytuacje.indexOf(pkWybor.sytuacja) === -1){ pkWybor.sytuacja = null; pkWybor.dystans = null; }
+
+  const poSytuacji = pkWybor.sytuacja ? poRoli.filter(r => r.sytuacja === pkWybor.sytuacja) : [];
+  const dystanse = [];
+  poSytuacji.forEach(r => { if(dystanse.indexOf(r.dystans) === -1) dystanse.push(r.dystans); });
+  /* JEDEN dystans = nie ma czego wybierać. Wtedy krok 3 się nie pokazuje,
+     a wartość wchodzi sama — inaczej uczeń klikałby w listę jednoelementową. */
+  if(dystanse.length === 1) pkWybor.dystans = dystanse[0];
+  else if(pkWybor.dystans && dystanse.indexOf(pkWybor.dystans) === -1) pkWybor.dystans = null;
+
+  const kafle = (grupa, wartosci, wybrana, atrybut) => wartosci.map(w =>
+    '<button type="button" class="pk-kafel" data-pk-' + atrybut + '="' + escapeHtml(w) + '"'
+    + ' aria-pressed="' + (w === wybrana ? 'true' : 'false') + '">'
+    + escapeHtml(pkEt(grupa, grupa === 'sytuacja' ? pkWybor.rozmowca + '.' + w : w)) + '</button>').join('');
+
+  /* Atrybut i18n MUSI stać w źródle jako gotowy literał. Pierwsza wersja
+     sklejała jego wartość ze zmiennej i kontrola 17 zgłosiła to jako klucz bez
+     wpisu w słowniku — słusznie, bo literału nie było, więc nic nie dało się
+     sprawdzić. Stąd trzy gotowe otwarcia zamiast sklejania.
+
+     UWAGA: kontrola 17 czyta plik jako tekst i nie odróżnia kodu od
+     komentarza, więc opisanie tu tamtego wzorca DOSŁOWNIE zapala ją ponownie.
+     Zgłoszone Damianowi jako ograniczenie, nie obchodzone po cichu. */
+  const NAGLOWKI = {
+    pkKrokKto: '<span class="pk-krok-tytul" data-i18n="pkKrokKto">',
+    pkKrokSytuacja: '<span class="pk-krok-tytul" data-i18n="pkKrokSytuacja">',
+    pkKrokDystans: '<span class="pk-krok-tytul" data-i18n="pkKrokDystans">',
+  };
+  const krok = (klucz, tresc) =>
+    '<div class="pk-krok">' + NAGLOWKI[klucz]
+    + escapeHtml(pkEt('naglowek', klucz)) + '</span><div class="pk-kafle">' + tresc + '</div></div>';
+
+  let html = '';
+  if(!pkWybor.rozmowca){
+    html += krok('pkKrokKto', kafle('rola', role, null, 'rola'));
+  } else if(!pkWybor.sytuacja){
+    html += pkPasekWyboru();
+    html += krok('pkKrokSytuacja', kafle('sytuacja', sytuacje, null, 'sytuacja'));
+  } else if(!pkWybor.dystans){
+    html += pkPasekWyboru();
+    html += krok('pkKrokDystans', kafle('dystans', dystanse, null, 'dystans'));
+  } else {
+    html += pkPasekWyboru();
+  }
+  host.innerHTML = html;
+  /* Nagłówki kroków idą przez `data-i18n`, ale są wstawiane po starcie, więc
+     `applyI18n` już po nich nie przejdzie — dlatego tekst wstawiam od razu
+     przez `pkTekst`, a atrybut zostaje dla kontroli 17 i dla przełączenia
+     języka, które przerysowuje ten ekran. */
+  host.querySelectorAll('[data-pk-rola]').forEach(b => b.addEventListener('click', () => {
+    pkWybor = { rozmowca: b.getAttribute('data-pk-rola'), sytuacja: null, dystans: null }; pkWypelnijReguly();
+  }));
+  host.querySelectorAll('[data-pk-sytuacja]').forEach(b => b.addEventListener('click', () => {
+    pkWybor.sytuacja = b.getAttribute('data-pk-sytuacja'); pkWybor.dystans = null; pkWypelnijReguly();
+  }));
+  host.querySelectorAll('[data-pk-dystans]').forEach(b => b.addEventListener('click', () => {
+    pkWybor.dystans = b.getAttribute('data-pk-dystans'); pkWypelnijReguly();
+  }));
+  host.querySelectorAll('[data-pk-cofnij]').forEach(b => b.addEventListener('click', () => {
+    const co = b.getAttribute('data-pk-cofnij');
+    if(co === 'rola') pkWybor = { rozmowca: null, sytuacja: null, dystans: null };
+    else if(co === 'sytuacja'){ pkWybor.sytuacja = null; pkWybor.dystans = null; }
+    else pkWybor.dystans = null;
+    pkWypelnijReguly();
+  }));
+
+  pkUstawRegule(tab);
+}
+
+/* Pasek „wybrane" z możliwością cofnięcia każdego kroku osobno. Bez niego
+   jedyną drogą do zmiany roli byłoby wyjście z ekranu. */
+function pkPasekWyboru(){
+  const czesc = (co, grupa, wartosc) => wartosc
+    ? '<b>' + escapeHtml(pkEt(grupa, grupa === 'sytuacja' ? pkWybor.rozmowca + '.' + wartosc : wartosc)) + '</b>'
+      + '<button type="button" class="pk-zmien" data-pk-cofnij="' + co + '">'
+      + escapeHtml(pkTekst('zmień', 'change')) + '</button>'
+    : '';
+  return '<div class="pk-wybrane">' + czesc('rola', 'rola', pkWybor.rozmowca)
+    + czesc('sytuacja', 'sytuacja', pkWybor.sytuacja) + '</div>';
+}
+
+/* Zamiana wyboru na `id` reguły. Szukam DOKŁADNEGO trójpola — jeśli tabela
+   kiedykolwiek przestanie być jednoznaczna, chcę o tym wiedzieć tutaj,
+   a nie dowiedzieć się z dziwnego zdania na wyjściu. */
+function pkUstawRegule(tab){
+  const podglad = document.getElementById('pkPodglad');
+  if(!pkWybor.rozmowca || !pkWybor.sytuacja || !pkWybor.dystans){
+    pkRegulaId = null;
+    if(podglad) podglad.hidden = true;
+    return;
+  }
+  const trafione = (tab || NUNCHI_TABELA.filter(r => r.id)).filter(r =>
+    r.rozmowca === pkWybor.rozmowca && r.sytuacja === pkWybor.sytuacja && r.dystans === pkWybor.dystans);
+  pkRegulaId = trafione.length === 1 ? trafione[0].id : null;
+  if(trafione.length > 1 && typeof console !== 'undefined'){
+    console.warn('[kompas] adres niejednoznaczny:', pkWybor, trafione.map(r => r.id));
+  }
+  if(podglad){
+    const t = pkRegulaId ? (PK_KOMPAS_ETYKIETY.podglad || {})[pkRegulaId] : null;
+    podglad.hidden = !t;
+    podglad.textContent = t ? pkTekst(t.pl, t.en) : '';
+  }
 }
 
 /* Jeden kafelek. Sklejanie napisów, nie literał szablonowy w literale —
