@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.560
-  Zbudowane na: 2b0635af30189685f00dcadd702995f8 (.559)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.561
+  Zbudowane na: 3fa7199addf919ccfb27a061f954821e (.560)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -13172,7 +13172,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.560';
+const APP_VERSION = '2026-09-11.561';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -20434,51 +20434,70 @@ function pkPodejrzanyWsad(czynnosc){
   return false;
 }
 
+/* BLOK STATYCZNY PROMPTU KOMPASU — zamrożony, identyczny BAJT W BAJT przy
+   każdym wywołaniu. To jest warunek konieczny, żeby cache promptu Anthropic
+   w ogóle trafiał: jeden zmieniony bajt na początku unieważnia całość.
+
+   Do `.560` prompt był PRZEPLATANY — intencja i relacja stały w trzecim
+   akapicie, `uwaga` w środku, `regulaId` w sekcji JSON. Każde wywołanie
+   miało więc inny bajt na pozycji ~200 i cache nie trafiał nigdy.
+
+   `Object.freeze` nie chroni treści stałej (to i tak `const`), ale dokumentuje
+   intencję dla następnej sesji: TEGO CIĄGU NIE WOLNO SKLEJAĆ Z NICZYM
+   ZMIENNYM. Jeśli kiedyś trzeba tu wstawić wartość — nie wstawiaj, dopisz ją
+   do bloku danych na końcu. */
+const PK_PROMPT_STATYCZNY = [
+  'Rola: jesteś modułem socjolingwistycznym w aplikacji Hooljon. Przekształcasz intencję',
+  'użytkownika na trzy odrębne czynności mowy w języku koreańskim — nie na trzy tłumaczenia',
+  'tego samego zdania — ściśle dopasowane do zadanego wektora pragmatycznego.',
+  '',
+  'Ograniczenia merytoryczne:',
+  '- używaj wyłącznie naturalnego języka mówionego (구어체);',
+  '- warianty muszą realizować RÓŻNE strategie komunikacyjne, nie różne grzeczności:',
+  '  bezposrednia — standardowa realizacja intencji w zadanym rejestrze;',
+  '  standardowa — ta sama czynność mowy, złagodzona WYŁĄCZNIE środkami modalnymi',
+  '    wewnątrz wymaganego rejestru. Końcówka orzeczenia musi zostać w rejestrze z reguły —',
+  '    nie wolno przejść ani na wyższy, ani na niższy styl. Łagodź przez: pytanie',
+  '    ostrożnościowe (-(으)시겠-, -(으)ㄹ 수 있-), operator przypuszczenia (-(으)ㄹ 것 같-),',
+  '    formułę dystansującą (혹시, 괜찮으시다면, 시간 되면), partykułę łagodzącą (좀).',
+  '    Zmiana stylu orzeczenia w celu "bycia uprzejmiejszym" jest BŁĘDEM: przy relacjach',
+  '    bliskich wyższy styl czyta się jako gniew lub ironia, nie jako uprzejmość;',
+  '  nunchi_dyplomatyczna — ZMIANA CZYNNOŚCI MOWY: zbadanie nastroju, zaoferowanie',
+  '    przysługi albo uniknięcie bezpośredniego narzucenia intencji.',
+  '- bezwzględnie przestrzegaj reguły z wiersza NUNCHI_TABELA: końcówki orzeczeń',
+  '  i leksyka honoryfikatywna.',
+  '',
+  'Sprawdź przed zwróceniem: wszystkie trzy zdanie_ko mają końcówkę orzeczenia w TYM SAMYM',
+  'stylu — tym z reguły. Różnią się środkami modalnymi i doborem czynności mowy, nie stylem.',
+  '',
+  'Zwróć WYŁĄCZNIE czysty obiekt JSON, bez komentarza i bez bloku kodu:',
+  '{"warianty":[{"id_strategii":"bezposrednia","etykieta_czynnosci":"...","zdanie_ko":"...","doslowne_pl":"...","ref_regula_id":"<ID REGUŁY Z SEKCJI DANE WYWOŁANIA>"}]}',
+  'Dokładnie trzy warianty, po jednym na każde id_strategii: bezposrednia, standardowa,',
+  'nunchi_dyplomatyczna. etykieta_czynnosci i doslowne_pl po polsku, zdanie_ko po koreańsku.',
+  'ref_regula_id ma być dokładnie tym identyfikatorem, który stoi niżej w sekcji',
+  '"Dane wywołania" jako regula_id — przepisz go znak w znak.',
+].join('\n');
+Object.freeze(PK_PROMPT_STATYCZNY);
+
 async function przekaznikZapytaj(czynnosc, regulaId){
   const regula = przekaznikRegula(regulaId);
   if(!regula) return { ok: false, powod: 'nie wybrano reguły', warianty: [] };
+  /* DANE WYWOŁANIA NA KOŃCU — wszystko, co zmienne, w jednym bloku za
+     zamrożonym prefiksem. `PK_KONCOWKI_W_PROMPCIE` też tu trafia, choć jest
+     „prawie statyczne": ma trzy warianty (casual/polite/formal), więc zostawione
+     w prefiksie rozbiłoby cache na trzy zamiast jednego. Akapit o końcówkach
+     jest autorstwa Fable i stoi teraz PO danych, nie przed — to jedyna zmiana
+     merytoryczna w tym prompcie i dlatego seria 03 wymaga powtórzenia. */
   const polecenie = [
-    'Rola: jesteś modułem socjolingwistycznym w aplikacji Hooljon. Przekształcasz intencję',
-    'użytkownika na trzy odrębne czynności mowy w języku koreańskim — nie na trzy tłumaczenia',
-    'tego samego zdania — ściśle dopasowane do zadanego wektora pragmatycznego.',
+    PK_PROMPT_STATYCZNY,
     '',
+    '=== Dane wywołania ===',
+    'regula_id: ' + regulaId,
     'Intencja użytkownika: "' + czynnosc + '".',
     'Relacja: rozmówca=' + regula.rozmowca + ', sytuacja=' + regula.sytuacja + ', dystans=' + regula.dystans + '.',
     'Reguła nunchi: rejestr=' + regula.rejestr + ', honoryfikatyw=' + (regula.honorific ? 'wymagany' : 'niewymagany') + '.',
-    /* Sama NAZWA rejestru nie wystarcza. Pierwsza seria na żywym proxy: przy
-       `przelozony.prywatna.znajomy` (reguła: polite) model dał 합니다체 we
-       wszystkich trzech wariantach, DWA RAZY NA DWA — a przy `rowny.prywatna.bliski`
-       trafił trzy na trzy. Czyli nie losuje: pod presją sytuacji „odmowa
-       przełożonemu" przegrzewa szacunek, bo bezpieczniej mu przesadzić niż
-       spoufalić się. Naprawa polega na podaniu KOŃCÓWEK, nie nazwy stylu.
-       Akapit dla `polite` jest autorstwa Fable, słowo w słowo. */
     PK_KONCOWKI_W_PROMPCIE[regula.rejestr] || '',
     (regula.uwaga ? 'Uwaga do relacji: ' + regula.uwaga : ''),
-    '',
-    'Ograniczenia merytoryczne:',
-    '- używaj wyłącznie naturalnego języka mówionego (구어체);',
-    '- warianty muszą realizować RÓŻNE strategie komunikacyjne, nie różne grzeczności:',
-    '  bezposrednia — standardowa realizacja intencji w zadanym rejestrze;',
-    '  standardowa — ta sama czynność mowy, złagodzona WYŁĄCZNIE środkami modalnymi',
-    '    wewnątrz wymaganego rejestru. Końcówka orzeczenia musi zostać w rejestrze z reguły —',
-    '    nie wolno przejść ani na wyższy, ani na niższy styl. Łagodź przez: pytanie',
-    '    ostrożnościowe (-(으)시겠-, -(으)ㄹ 수 있-), operator przypuszczenia (-(으)ㄹ 것 같-),',
-    '    formułę dystansującą (혹시, 괜찮으시다면, 시간 되면), partykułę łagodzącą (좀).',
-    '    Zmiana stylu orzeczenia w celu "bycia uprzejmiejszym" jest BŁĘDEM: przy relacjach',
-    '    bliskich wyższy styl czyta się jako gniew lub ironia, nie jako uprzejmość;',
-    '  nunchi_dyplomatyczna — ZMIANA CZYNNOŚCI MOWY: zbadanie nastroju, zaoferowanie',
-    '    przysługi albo uniknięcie bezpośredniego narzucenia intencji.',
-    '- bezwzględnie przestrzegaj reguły z wiersza NUNCHI_TABELA: końcówki orzeczeń',
-    '  i leksyka honoryfikatywna.',
-    '',
-    'Sprawdź przed zwróceniem: wszystkie trzy zdanie_ko mają końcówkę orzeczenia w TYM SAMYM',
-    'stylu — tym z reguły. Różnią się środkami modalnymi i doborem czynności mowy, nie stylem.',
-    '',
-    'Zwróć WYŁĄCZNIE czysty obiekt JSON, bez komentarza i bez bloku kodu:',
-    '{"warianty":[{"id_strategii":"bezposrednia","etykieta_czynnosci":"...","zdanie_ko":"...","doslowne_pl":"...","ref_regula_id":"' + regulaId + '"}]}',
-    'Dokładnie trzy warianty, po jednym na każde id_strategii: bezposrednia, standardowa,',
-    'nunchi_dyplomatyczna. etykieta_czynnosci i doslowne_pl po polsku, zdanie_ko po koreańsku.',
-    'ref_regula_id ma być dokładnie "' + regulaId + '".',
   ].join('\n');
   let surowe;
   try{
@@ -27676,8 +27695,11 @@ async function evaluateTypedAnswerAI(koreanWord, correctMeaning, userTyped){
     `Oceń, czy odpowiedź ucznia pokazuje prawidłowe zrozumienie znaczenia — zaakceptuj parafrazy, synonimy i inne poprawne sformułowania w języku ${langName}, nawet jeśli nie pasują dosłownie do oficjalnego tłumaczenia. Odrzuć tylko wtedy, gdy odpowiedź jest wyraźnie błędna lub niezwiązana ze znaczeniem. ` +
     'Odpowiedz WYŁĄCZNIE czystym tekstem JSON, bez markdown, bez bloków kodu, w dokładnym formacie: {"understood":true/false}. Nie pisz niczego poza tym JSON-em.';
 
+  /* HAIKU od `.561` (decyzja Damiana: operacja mechaniczna). Zadanie jest
+     binarne — „czy parafraza znaczy to samo" — i nie wymaga pragmatyki,
+     dla której trzymamy sonnet w Kompasie. */
   const response = await callAiProxy({
-    model: "claude-sonnet-4-6",
+    model: "claude-haiku-4-5-20251001",
     max_tokens: 60,
     messages: [{ role: "user", content: instruction }]
   });
@@ -30576,8 +30598,10 @@ async function generateScenarioCards(groupSize, situation, level, count){
     'Odpowiedz WYŁĄCZNIE czystym tekstem JSON, bez markdown, bez bloków kodu, w dokładnym formacie: ' +
     `{"cards":[{"title":"krótki tytuł karty (w języku ${langName})","roles":[{"role":"nazwa roli (w języku ${langName})","phrases":[{"ko":"zwrot po koreańsku","tr":"tłumaczenie (w języku ${langName})"}]}]}]}. Nie pisz niczego poza tym JSON-em.`;
 
+  /* HAIKU od `.561`. Karty do odgrywania ról to generowanie szablonu
+     o zadanej strukturze, nie dobór rejestru. */
   const response = await callAiProxy({
-    model: "claude-sonnet-4-6",
+    model: "claude-haiku-4-5-20251001",
     max_tokens: 1500,
     messages: [{ role: "user", content: instruction }]
   });
@@ -32658,8 +32682,9 @@ document.getElementById('aiAnalyzeBtn').addEventListener('click', async ()=>{
   analyzeBtn.disabled = true;
 
   try{
+    /* HAIKU od `.561`. OCR to ekstrakcja tekstu i sformatowanie go do JSON. */
     const response = await callAiProxy({
-      model: "claude-sonnet-4-6",
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 1000,
       messages: [{
         role: "user",
@@ -32895,8 +32920,10 @@ document.getElementById('aiFileAnalyzeBtn').addEventListener('click', async ()=>
   analyzeBtn.disabled = true;
 
   try{
+    /* HAIKU od `.561`. Ta sama klasa co OCR: wyciągnięcie par słowo-znaczenie
+       z surowego tekstu pliku. */
     const response = await callAiProxy({
-      model: "claude-sonnet-4-6",
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 1500,
       messages: [{
         role: "user",
