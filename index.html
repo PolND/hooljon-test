@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.547
-  Zbudowane na: 7ecf9872f3980b35ea54dec5dc4b40b4 (.546)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.550
+  Zbudowane na: 99c73b62bbc716b95137c215e4149b04 (.549)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -7322,6 +7322,18 @@
         <div class="desc" data-i18n="homeChatDesc">Rozmawiaj z botem po koreańsku.</div>
       </span>
     </button>
+    <!-- PRZEKAŹNIK REJESTRÓW jako pełnoprawny tryb. Do `.547` wejście było
+         tylko wewnątrz ekranu „Rozmowa z AI", czyli za bramką Premium i pod
+         listą misji — moduł działał, ale praktycznie nie dawało się go
+         znaleźć. `SCREEN_IDS` ma `przekaznik` od `.541`, więc `data-target`
+         wystarcza; niczego nowego w routingu nie trzeba. -->
+    <button class="home-card variant-row" data-target="przekaznik">
+      <span class="icon">전</span>
+      <span>
+        <div class="title" data-i18n="homePkTitle">Przekaźnik rejestrów</div>
+        <div class="desc" data-i18n="homePkDesc">Jedna intencja, trzy sposoby powiedzenia jej.</div>
+      </span>
+    </button>
     <button class="home-card variant-row" data-target="reading">
       <span class="icon">읽</span>
       <span>
@@ -7926,11 +7938,11 @@
            nie było wywoływane z niczego — dało się tam wejść tylko z konsoli,
            a mój test wołał je wprost, więc nic tego nie zgłosiło. -->
       <div id="przekaznikBlok">
-        <div class="achv-section-title" style="margin:18px 0 2px;" data-i18n="pkTytul">Przekaźnik rejestrów — jedna intencja, trzy sposoby</div>
+        <div class="achv-section-title" style="margin:18px 0 2px;" data-i18n="pkTytul">Sprawdź w Przekaźniku — ta sama myśl w innym rejestrze</div>
         <div class="hint-note" style="text-align:left; margin:0 0 10px;" data-i18n="pkOpis">
-          Napisz, co chcesz powiedzieć, i wybierz, z kim rozmawiasz. Dostaniesz trzy warianty z regułą nunchi przy każdym.
+          Utknąłeś na tym, jak coś powiedzieć w tej rozmowie? Wpisz intencję i zobacz trzy warianty, każdy z regułą nunchi.
         </div>
-        <div class="row"><button class="tool-btn" id="pkWejscieBtn" style="flex:1;" data-i18n="pkWejscie">Otwórz Przekaźnik</button></div>
+        <div class="row"><button class="tool-btn" id="pkWejscieBtn" style="flex:1;" data-i18n="pkWejscie">Sprawdź w Przekaźniku</button></div>
       </div>
 
       <div id="wolnaRozmowaBlok">
@@ -8185,6 +8197,7 @@
     <div class="center-card" style="max-width:460px; margin:0 auto;">
       <div class="eyebrow" data-i18n="pkEyebrow">Przekaźnik rejestrów</div>
       <input id="pkCzynnosc" class="pk-input" maxlength="120"
+             data-i18n-placeholder="pkCzynnoscPh"
              placeholder="Co chcesz powiedzieć? np. poprosić o pomoc">
       <div id="pkWsadUwaga" class="pk-wsad-uwaga" hidden></div>
       <label class="pk-label" for="pkRegula" data-i18n="pkZKim">Z kim rozmawiasz</label>
@@ -13122,7 +13135,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.547';
+const APP_VERSION = '2026-09-11.550';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -13500,6 +13513,7 @@ function setScreen(screen){
     }, 60);
   }
   if(screen === 'storyLesson') startStoryLesson();
+  if(screen === 'przekaznik' && typeof pkWejscieDoEkranu === 'function') pkWejscieDoEkranu();
 
   // Kluczowa naprawa: applyI18n() do tej pory było wołane TYLKO przy starcie apki i ręcznym
   // przełączeniu języka - nigdy przy zwykłej nawigacji. Każdy dynamicznie wygenerowany ekran
@@ -14052,6 +14066,22 @@ const I18N = {
   readerAloud: { pl: 'Na głos', en: 'Aloud' },
   studyRatePrompt: { pl: 'Jak dobrze pamiętasz?', en: 'How well do you remember?' },
   settingsTitle: { pl: 'Ustawienia', en: 'Settings' },
+  /* OSTATNIE OSIEM. Zgłoszone przez kontrolę 17 w `.548` i wtedy świadomie
+     nietknięte — to były klucze cudzych funkcji. Damian polecił je domknąć,
+     więc idą tu razem: wszystkie osiem to etykiety interfejsu, żadna nie niesie
+     treści dydaktycznej. `acctSettings` i `backSettings` biorą brzmienie
+     z `settingsTitle` wyżej, żeby ta sama rzecz nie nazywała się w apce
+     dwoma różnymi słowami. */
+  acctAppearance: { pl: 'Wygląd', en: 'Appearance' },
+  acctSettings: { pl: 'Ustawienia', en: 'Settings' },
+  backSettings: { pl: 'Ustawienia', en: 'Settings' },
+  dailyReadingTitle: { pl: 'Czytanka dnia', en: 'Reading of the day' },
+  dailyReadingProNote: { pl: 'Świeża czytanka co dzień, dopasowana do poziomu — funkcja Premium Pro.',
+    en: 'A fresh reading every day, matched to your level — a Premium Pro feature.' },
+  rewardedAdTitle: { pl: 'Zdobądź 3 dni Premium za darmo', en: 'Get 3 days of Premium for free' },
+  rewardedAdDesc: { pl: 'Obejrzyj reklamy w ciągu miesiąca, żeby odblokować 3 dni Premium bez opłat. Licznik resetuje się na początku każdego miesiąca.',
+    en: 'Watch ads during the month to unlock 3 days of Premium at no cost. The counter resets at the start of each month.' },
+  watchRewardedAdBtn: { pl: '▶️ Obejrzyj reklamę (placeholder)', en: '▶️ Watch an ad (placeholder)' },
   settingsSound: { pl: 'Dźwięki w aplikacji', en: 'App sounds' },
   settingsLang: { pl: 'Język tłumaczeń', en: 'Translation language' },
   settingsReport: { pl: 'Zgłoś błąd lub uwagę', en: 'Report a problem' },
@@ -14236,6 +14266,27 @@ const I18N = {
   homeVocabDesc: { pl: 'Słówka, działy tematyczne, powtórki.', en: 'Words, topics, and review.' },
   homeConjTitle: { pl: 'Koniugacja', en: 'Conjugation' },
   homeConjDesc: { pl: 'Odmiana przez czasy.', en: 'Verb and adjective tenses.' },
+  /* PRZEKAŹNIK REJESTRÓW. Tych kluczy nie było w słowniku od `.541` do `.547`:
+     markup miał `data-i18n`, pętla tłumacząca nie znajdowała wpisu i zostawiała
+     polski tekst także przy `uiLang='en'`. Znalazła to dopiero kontrola 17,
+     bo test sprawdzający FUNKCJE nigdy nie ogląda widoku w drugim języku. */
+  pkCzynnoscPh: { pl: 'Co chcesz powiedzieć? np. poprosić o pomoc',
+    en: 'What do you want to say? e.g. ask for help' },
+  homePkTitle: { pl: 'Przekaźnik rejestrów', en: 'Register relay' },
+  homePkDesc: { pl: 'Jedna intencja, trzy sposoby powiedzenia jej.', en: 'One intention, three ways to say it.' },
+  /* Te trzy klucze stoją WYŁĄCZNIE w bloku wewnątrz „Rozmowy z AI" — ekran
+     samodzielny ma własny `pkEyebrow`. Dlatego mogą mówić o tym, po co jest
+     skrót W TRAKCIE rozmowy, a nie powtarzać opisu narzędzia z menu.
+     Decyzja Damiana z `.548`: kafel w Praktyce to narzędzie laboratoryjne,
+     ten przycisk to asystent pragmatyczny do wypowiedzi w toku dialogu. */
+  pkTytul: { pl: 'Sprawdź w Przekaźniku — ta sama myśl w innym rejestrze',
+    en: 'Check in the relay — the same thought in another register' },
+  pkOpis: { pl: 'Utknąłeś na tym, jak coś powiedzieć w tej rozmowie? Wpisz intencję i zobacz trzy warianty, każdy z regułą nunchi.',
+    en: 'Stuck on how to say something in this conversation? Type the intention and see three versions, each with its nunchi rule.' },
+  pkWejscie: { pl: 'Sprawdź w Przekaźniku', en: 'Check in the relay' },
+  pkEyebrow: { pl: 'Przekaźnik rejestrów', en: 'Register relay' },
+  pkZKim: { pl: 'Z kim rozmawiasz', en: 'Who are you talking to' },
+  pkPytaj: { pl: 'Pokaż trzy sposoby', en: 'Show three ways' },
   homeChatTitle: { pl: 'Rozmowa z Haksa (AI)', en: 'Talk to Haksa (AI)' },
   homeChatDesc: { pl: 'Twój wirtualny mentor — rozmawiaj po koreańsku.', en: 'Your virtual mentor - talk in Korean.' },
   homeReadingTitle: { pl: 'Czytanie', en: 'Reading' },
@@ -19209,17 +19260,53 @@ function przekaznikRejestrWypowiedzi(ko, regula){
     };
   });
 
-  /* Dziedziczenie w przód: zdanie bez sygnału bierze rejestr poprzedniego.
-     Formuły dziedziczenia NIE dostają — one mają zostać niewidzialne. */
+  /* Dziedziczenie W OBIE STRONY. Najpierw wstecz — urwane `-아/어서` na końcu
+     tury bierze rejestr zdania, które je poprzedza. Potem w przód, dla członów,
+     przed którymi NIC NIE STOI: w `사과, 배, 포도를 샀어` człony `사과` i `배`
+     nie mają orzeczenia ani poprzednika, a należą do tej samej wypowiedzi co
+     `샀어`. Pułapkę wskazała Fable przy zatwierdzaniu cięcia na przecinku.
+
+     Werdyktu to nie zmienia, bo człon odziedziczony nie jest sądzony (patrz
+     niżej) — zmienia ŚLAD w dzienniku, czyli to, co widać przy diagnozie.
+     Formuły dziedziczenia nie dostają w żadną stronę: mają zostać niewidzialne. */
   let ostatni = null;
   zdania.forEach(z => {
     if(z.rejestr){ ostatni = z.rejestr; return; }
     if(z.formula) return;
     if(ostatni){ z.rejestr = ostatni; z.odziedziczony = true; }
   });
+  let nastepny = null;
+  for(let i = zdania.length - 1; i >= 0; i -= 1){
+    const z = zdania[i];
+    if(z.rejestr && !z.odziedziczony){ nastepny = z.rejestr; continue; }
+    if(z.formula || z.rejestr) continue;
+    if(nastepny){ z.rejestr = nastepny; z.odziedziczony = true; }
+  }
 
   const zSygnalem = zdania.filter(z => z.rejestr && !z.odziedziczony);
-  if(!zSygnalem.length) return pusto;
+  if(!zSygnalem.length){
+    /* WYPOWIEDŹ BEZ WŁASNEGO SYGNAŁU. Dwie różne sytuacje, które do `.549`
+       dostawały tę samą odpowiedź „nie umiem sprawdzić":
+
+         `감사합니다.`            — jest orzeczenie, tylko formuła go nie liczy
+         `아, 커피…`             — orzeczenia nie ma w ogóle
+
+       Rozstrzygnięcie Fable: pierwsza ma dostać werdykt, bo uczeń powiedział
+       rzecz poprawną i UNKNOWN wygląda mu na usterkę apki. Wobec `polite`
+       i `formal` formuła jest na miejscu; wobec `casual` z bliskim
+       `감사합니다` jest sygnałem DYSTANSU, nie grzeczności — stąd „sztywno"
+       i podpowiedź `고마워`. UNKNOWN zostaje tylko dla drugiej sytuacji. */
+    const sameFormuly = zdania.some(z => z.formula);
+    if(!sameFormuly) return pusto;
+    const cas = regula && regula.rejestr === 'casual';
+    return {
+      rejestr: null,
+      ocena: cas ? 'sztywno' : 'ok',
+      formulaSama: true,
+      podpowiedz: cas ? '고마워' : null,
+      zdania: zdania,
+    };
+  }
 
   /* Rejestr wypowiedzi = rejestr OSTATNIEGO zdania z własnym sygnałem.
      Tak samo jak przed `.547`, gdzie czytana była końcówka całości —
@@ -19535,8 +19622,19 @@ function walidujPrzekaznik(dane){
 
     const wypowiedz = przekaznikRejestrWypowiedzi(v.zdanie_ko, regula);
     const rejestr = wypowiedz.rejestr;
-    if(!rejestr){
+    /* Sterujemy OCENĄ, nie obecnością `rejestr`. Od `.550` wypowiedź złożona
+       z samej formuły ma werdykt, choć rejestru nie wykryliśmy — te dwie rzeczy
+       przestały być tym samym pytaniem i warunek `if(!rejestr)` dawałby tu
+       UNKNOWN mimo werdyktu wyliczonego wyżej. */
+    if(wypowiedz.ocena === 'nieznany'){
       ostrzezenia.push({ rodzaj: 'rejestr', code: 'REGISTER_UNKNOWN', tresc: 'nie rozpoznaję końcówki — nie umiem sprawdzić rejestru' });
+    }else if(wypowiedz.formulaSama){
+      if(wypowiedz.ocena === 'sztywno' && !strategia.wolnoSztywniej){
+        ostrzezenia.push({ rodzaj: 'rejestr', code: 'REGISTER_MISMATCH',
+          podpowiedz: wypowiedz.podpowiedz || null,
+          tresc: 'wobec bliskiej osoby ta formuła brzmi dystansująco' +
+            (wypowiedz.podpowiedz ? ' — naturalniej: ' + wypowiedz.podpowiedz : '') });
+      }
     }else{
       /* Ostrzeżenie nazywa ZDANIE, nie wypowiedź. Uczeń, który dostaje
          „zdanie jest sztywniejsze" pod czterozdaniową odmową, nie wie, co
@@ -19905,10 +20003,22 @@ async function przekaznikZapytaj(czynnosc, regulaId){
   return wynik;
 }
 
-function pkOtworz(){
+/* Przygotowanie ekranu ODDZIELONE od nawigacji. Do `.547` lista relacji
+   wypełniała się wyłącznie w `pkOtworz()`, bo to było jedyne wejście. Kafel
+   z ekranu głównego idzie zwykłą drogą `data-target` → `setScreen` i tamtędy
+   nikt niczego nie wypełniał — ekran otwierał się z PUSTYM selectem relacji,
+   czyli kafel prowadził do formularza, którego nie dało się wysłać.
+   Dlatego inicjalizacja wisi teraz na WEJŚCIU DO EKRANU, a nie na jednym
+   przycisku: każda kolejna droga dostanie ją za darmo. */
+function pkWejscieDoEkranu(){
   pkWypelnijReguly();
   const cel = document.getElementById('pkWynik');
   if(cel) cel.innerHTML = '';
+  const uwaga = document.getElementById('pkWsadUwaga');
+  if(uwaga) uwaga.hidden = true;
+}
+
+function pkOtworz(){
   setScreen('przekaznik');
 }
 
