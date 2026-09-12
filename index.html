@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.544
-  Zbudowane na: d72c6927503a236406dd7781f35c954a (.543)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.545
+  Zbudowane na: cd70d84555d7086725c3539ea2801831 (.544)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -7919,6 +7919,17 @@
         <div id="misjeFiltr" class="category-chips" style="margin:10px 0 0;"></div>
         <div id="misjeLista"></div>
       </div>
+      <!-- PRZEKAŹNIK REJESTRÓW. Ekran istniał od `.541`, ale `pkOtworz()`
+           nie było wywoływane z niczego — dało się tam wejść tylko z konsoli,
+           a mój test wołał je wprost, więc nic tego nie zgłosiło. -->
+      <div id="przekaznikBlok">
+        <div class="achv-section-title" style="margin:18px 0 2px;" data-i18n="pkTytul">Przekaźnik rejestrów — jedna intencja, trzy sposoby</div>
+        <div class="hint-note" style="text-align:left; margin:0 0 10px;" data-i18n="pkOpis">
+          Napisz, co chcesz powiedzieć, i wybierz, z kim rozmawiasz. Dostaniesz trzy warianty z regułą nunchi przy każdym.
+        </div>
+        <div class="row"><button class="tool-btn" id="pkWejscieBtn" style="flex:1;" data-i18n="pkWejscie">Otwórz Przekaźnik</button></div>
+      </div>
+
       <div id="wolnaRozmowaBlok">
       <div class="achv-section-title" style="margin:18px 0 2px;" data-i18n="wolnaTytul">Wolna rozmowa — bez celu i bez oceny</div>
 
@@ -13107,7 +13118,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.544';
+const APP_VERSION = '2026-09-11.545';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -19167,7 +19178,7 @@ const PK_KONCOWKI = [
   /* honoryfikatywne i przydawkowe */
   '시겠습니까', '시겠어요', '실래요', '시는', '실래', '십니다', '십니까', '세요', '실', '신',
   /* modalne */
-  '을래요', '을래', '래요', '래',
+  '을래요', '을래', '을게', '래요', '래', '게',
   /* nominalizacja */
   '기',
 ];
@@ -19199,6 +19210,27 @@ function przekaznikRozbior(t){
     if(PK_KONCOWKI.indexOf(ogon) === -1) continue;
     if(pkGlowaCzasownik(glowa)) return { szew: ogon, glowa: glowa, droga: 'koncowka' };
   }
+  /* A'. ZROŚNIĘTE `ㄹ`. W `할래`, `볼게`, `연락할게` nie ma napisu `을래`
+     ani `을게` — `ㄹ` siedzi jako jamo końcowe w sylabie przed końcówką,
+     dokładnie tak jak `ㅂ` w `갑니다`. Zdejmujemy je i pytamy o głowę.
+
+     To NIE JEST kosmetyka: bez tego `갈래` rozkładało się na `갈`+`래`,
+     a `갈다` istnieje („mleć"), więc token przechodził bramkę pokazując
+     uczniowi zły czasownik zamiast `가다`. Zdjęcie `ㄹ` daje `가` → `가다`
+     i dlatego ta próba stoi PRZED gałęzią B, a nie za nią. */
+  for(const ogon of ['래요', '래', '게요', '게', '까요', '까']){
+    /* Wystarczy JEDNA sylaba przed końcówką: `할래` to `할`+`래`, czyli
+       długość 2 przy końcówce długości 1. Pierwsza wersja miała tu
+       `<= ogon.length + 1` i odrzucała dokładnie te najkrótsze, najczęstsze
+       formy — 할래, 볼래, 할게, 볼게. */
+    if(t.length <= ogon.length || !t.endsWith(ogon)) continue;
+    const przedOgonem = t.slice(0, -ogon.length);
+    const ost = rozloz(przedOgonem.slice(-1));
+    if(!ost || JONG[ost.jong] !== 'ㄹ') continue;
+    const bezL = przedOgonem.slice(0, -1) + zloz(ost.cho, ost.jung, 0);
+    if(pkGlowaCzasownik(bezL)) return { szew: 'ㄹ' + ogon, glowa: bezL, droga: 'zrosniete-l' };
+  }
+
   /* B. posiłkowe 주다 przy głowie w formie ściągniętej. */
   for(const aux of PK_POSILKOWE){
     if(t.length <= aux.length || !t.endsWith(aux)) continue;
@@ -19552,18 +19584,33 @@ async function przekaznikZapytaj(czynnosc, regulaId){
       model: 'claude-sonnet-4-6', etap: 'transport', blad: blad });
     return { ok: false, code: 'SCHEMA_ERROR', powod: blad, warianty: [] };
   }
-  /* Odpowiedź modelu bywa opakowana w blok kodu mimo prośby. Zdejmujemy go
-     tutaj, a nie w walidatorze: walidator ma orzekać o KSZTAŁCIE danych,
-     nie sprzątać po transporcie. */
+  /* `callAiProxy` zwraca `{ ok, json: async () => data }` — obiekt udający
+     `Response`, NIE samą odpowiedź modelu. Wszystkie pozostałe wywołania w tym
+     pliku robią `await response.json()` i dopiero potem sięgają po `.content`.
+     Moje tego nie robiło: czytałem `.content` z opakowania, dostawałem
+     `undefined`, z tego pusty napis, a `JSON.parse('')` rzuca wyjątkiem —
+     stąd „odpowiedź nie jest poprawnym JSON-em" przy każdym wywołaniu.
+
+     Bloków `content` może być kilka i sklejamy WSZYSTKIE, tak jak reszta
+     pliku: wzięcie tylko `[0]` gubi treść, gdy model rozbije odpowiedź. */
   let tekst = '';
   try{
-    tekst = (surowe && surowe.content && surowe.content[0] && surowe.content[0].text) || '';
+    if(surowe && surowe.ok === false) throw new Error('przekaźnik odrzucił żądanie');
+    const dane = (surowe && typeof surowe.json === 'function') ? await surowe.json() : surowe;
+    tekst = ((dane && dane.content) || []).map(b => (b && b.text) || '').join('');
   }catch(e){ tekst = ''; }
   /* Surowy tekst zapamiętujemy PRZED zdjęciem bloku kodu: najczęstsza awaria
      transportu to właśnie opakowanie, a po sprzątnięciu nie widać już, co
      naprawdę przyszło. */
   const surowyTekst = String(tekst);
-  tekst = surowyTekst.replace(/^\s*```(?:json)?/i, '').replace(/```\s*$/, '').trim();
+  /* Ogrodzenia zdejmujemy GLOBALNIE, jak w pozostałych miejscach pliku, a nie
+     kotwicząc na początku i końcu: model lubi dopisać zdanie przed JSON-em
+     („Oczywiście, oto trzy warianty:") i wtedy kotwica nie łapie niczego.
+     Na koniec wycinamy od pierwszego `{` do ostatniego `}` — to jest jedyny
+     kawałek, o który nam chodzi, niezależnie od tego, co model dopisał obok. */
+  tekst = surowyTekst.replace(/```json/gi, '').replace(/```/g, '').trim();
+  const odKlamry = tekst.indexOf('{'), doKlamry = tekst.lastIndexOf('}');
+  if(odKlamry >= 0 && doKlamry > odKlamry) tekst = tekst.slice(odKlamry, doKlamry + 1);
   const wpis = { czas: new Date().toISOString(), czynnosc: czynnosc, regula: regulaId,
     model: 'claude-sonnet-4-6', etap: 'odpowiedz',
     surowy: surowyTekst.slice(0, PK_DZIENNIK_TNIJ),
@@ -19599,6 +19646,9 @@ function pkPodepnij(){
   /* Dziennik jest narzędziem diagnostycznym, nie funkcją dla ucznia: pokazuje
      surowy JSON do skopiowania i wysłania, bez upiększania. Upiększony log
      gubi dokładnie to, po co się go czyta. */
+  const wejscie = document.getElementById('pkWejscieBtn');
+  if(wejscie) wejscie.addEventListener('click', () => pkOtworz());
+
   const dz = document.getElementById('pkDziennikBtn');
   if(dz) dz.addEventListener('click', () => {
     const pre = document.getElementById('pkDziennik');
