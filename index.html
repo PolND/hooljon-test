@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.545
-  Zbudowane na: cd70d84555d7086725c3539ea2801831 (.544)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.546
+  Zbudowane na: 3c8215285d0e41642816b68e0f3ab062 (.545)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -13118,7 +13118,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.545';
+const APP_VERSION = '2026-09-11.546';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -19175,13 +19175,36 @@ const PANMAL_VERB_CONTRACTIONS = new Set([
 ]);
 
 const PK_KONCOWKI = [
-  /* honoryfikatywne i przydawkowe */
-  '시겠습니까', '시겠어요', '실래요', '시는', '실래', '십니다', '십니까', '세요', '실', '신',
+  /* Honoryfikatywne i przydawkowe. Warianty z `으` są osobnymi pozycjami, a nie
+     regułą fonetyczną: po rdzeniu zamkniętym `괜찮-` mamy `괜찮으실`, po otwartym
+     `하-` mamy `하실`. Rozbiór bierze NAJDŁUŻSZĄ głowę, więc obie postacie muszą
+     stać na liście — inaczej `괜찮으실` zatrzymuje się na `괜찮으`, a to nie jest
+     hasło. */
+  '으시겠습니까', '으시겠어요', '시겠습니까', '시겠어요',
+  '으실래요', '으실까요', '실래요', '실까요',
+  '으십니다', '으십니까', '십니다', '십니까',
+  '으시는', '시는', '으세요', '세요', '으실래', '실래', '으실', '실', '으신', '신',
   /* modalne */
   '을래요', '을래', '을게', '래요', '래', '게',
+  /* Dyskursywne. `-잖아(요)` (końcówka oczywistości) i `-거든(요)` (wyjaśniająca)
+     doklejają się wprost do rdzenia: `있잖아` = `있` + `잖아`. Po czasie przeszłym
+     idą przez gałąź P, bo tam między rdzeniem a końcówką siedzi zrośnięte `ㅆ`. */
+  '잖아요', '잖아', '거든요', '거든',
+  /* Spójnik tła `-(으)ㄴ/는데(요)` w postaci NIEZROŚNIĘTEJ. Postać zrośnięta
+     (`죄송한데요`) nie ma tu czego szukać — łapie ją gałąź A″. */
+  '는데요', '는데', '은데요', '은데',
   /* nominalizacja */
   '기',
 ];
+/* Końcówki, które mogą stać PO sufiksie czasu przeszłego. Osobna lista od
+   PK_KONCOWKI, bo tam pozycje doklejają się do rdzenia, a tu do `ㅆ`. */
+const PK_PO_PRZESZLYM = [
+  '잖아요', '잖아', '거든요', '거든', '는데요', '는데',
+  '습니다', '습니까', '어요', '네요', '지요', '어', '네', '지', '다',
+];
+/* Zrosty rzeczownikowe. Kolejność ma znaczenie: dłuższe przed krótszymi, żeby
+   `자리입니까` nie rozpadło się na `자리입니` + `까`. */
+const PK_NOMINALNE = ['입니다', '입니까', '이에요', '예요', '님', '엔'];
 const PK_POSILKOWE = [
   '주시겠습니까', '주시겠어요', '주실래요', '주십니다', '주십니까', '주세요',
   '주실', '주신', '주는', '주면', '주고', '줍니다', '줍니까', '줬어요', '줬다',
@@ -19199,6 +19222,15 @@ function pkGlowaSciagnieta(x){
   if(!x) return false;
   const bazy = bazyDlaFormy(x) || [];
   return bazy.some(b => slownikSensy(b, allWords).length > 0);
+}
+
+/* Czy `x` jest HASŁEM SAMO W SOBIE — czyli czy głowa zrostu to rzeczownik.
+   Osobno od `pkGlowaCzasownik`, bo tam pytamy o `x + 다`, a tu o samo `x`.
+   Rozróżnienie nie jest formalne: `알` jest i rzeczownikiem („jajko"), i rdzeniem
+   `알다`, i gałąź A‴ musi wybrać drugie znaczenie, a gałąź N pierwsze. */
+function pkGlowaRzeczownik(x){
+  if(!x) return false;
+  return slownikSensy(x, allWords).length > 0;
 }
 
 function przekaznikRozbior(t){
@@ -19231,6 +19263,68 @@ function przekaznikRozbior(t){
     if(pkGlowaCzasownik(bezL)) return { szew: 'ㄹ' + ogon, glowa: bezL, droga: 'zrosniete-l' };
   }
 
+  /* A″. ZROŚNIĘTE `ㄴ` w `-(으)ㄴ데(요)`. Dokładnie ta sama sytuacja co `ㄹ`
+     w `할래`: w `죄송한데요` nie ma napisu `ㄴ데` — `ㄴ` siedzi jako jamo
+     końcowe w `한`. Zdejmujemy je i pytamy o głowę `죄송하` → `죄송하다`.
+     Postać niezrośnięta (`좋은데요`) idzie gałęzią A, bo tam `은데요` jest
+     osobnym napisem i stoi na liście końcówek. */
+  for(const ogon of ['데요', '데']){
+    if(t.length <= ogon.length || !t.endsWith(ogon)) continue;
+    const przedOgonem = t.slice(0, -ogon.length);
+    const ost = rozloz(przedOgonem.slice(-1));
+    if(!ost || JONG[ost.jong] !== 'ㄴ') continue;
+    const bezN = przedOgonem.slice(0, -1) + zloz(ost.cho, ost.jung, 0);
+    if(pkGlowaCzasownik(bezN)) return { szew: 'ㄴ' + ogon, glowa: bezN, droga: 'zrosniete-n' };
+  }
+
+  /* A‴. `ㄹ-탈락` przed `ㅂ니다`/`ㅂ니까`. `알다` przed `-ㅂ니다` gubi `ㄹ`
+     i zostaje `압니다`. Po zdjęciu `ㅂ` mamy `아`, co JEST hasłem (wykrzyknik),
+     ale nie jest czasownikiem — dlatego pytamy o `x + 다` i próbujemy dwóch
+     kandydatów w ustalonej kolejności:
+
+       1. rdzeń goły  — `갑니다` → `가` → `가다`   (poprawnie, i tak ma zostać)
+       2. rdzeń z `ㄹ` — `압니다` → `알` → `알다`   (dopiero gdy pierwszy zawiódł)
+
+     Odwrócenie tej kolejności zepsułoby `갑니다`, bo `갈다` („mleć") też istnieje.
+     Formy na `습니다` (`먹습니다`) tu nie wchodzą — tam `습` jest osobną sylabą
+     i czytnik radzi sobie z nimi tablicą odmiany. */
+  for(const ogon of ['니다', '니까']){
+    /* `<= ogon.length`, NIE `+ 1`. `압니다` to trzy sylaby przy końcówce
+       dwusylabowej, czyli dokładnie ten przypadek, który `+ 1` odrzuca — i jest
+       to DRUGI raz, kiedy popełniam tu ten sam błąd: w `.545` zjadł mi
+       `할래`, `볼게`, `할게`. Warunek ma mówić „po zdjęciu końcówki ZOSTAJE
+       cokolwiek", a nie „zostaje co najmniej dwie sylaby". */
+    if(t.length <= ogon.length || !t.endsWith(ogon)) continue;
+    const przedOgonem = t.slice(0, -ogon.length);
+    const ost = rozloz(przedOgonem.slice(-1));
+    if(!ost || JONG[ost.jong] !== 'ㅂ') continue;
+    const rdzen = przedOgonem.slice(0, -1) + zloz(ost.cho, ost.jung, 0);
+    if(pkGlowaCzasownik(rdzen)) return { szew: 'ㅂ' + ogon, glowa: rdzen, droga: 'bnida' };
+    const zL = przedOgonem.slice(0, -1) + zloz(ost.cho, ost.jung, JONG.indexOf('ㄹ'));
+    if(pkGlowaCzasownik(zL)) return { szew: 'ㄹ-탈락+ㅂ' + ogon, glowa: zL, droga: 'l-talak' };
+  }
+
+  /* P. CZAS PRZESZŁY. `봤잖아` = `보` + `았` + `잖아`, ale zapisane jest to jako
+     `봤` + `잖아` — sufiks przeszły zrasta się z rdzeniem w jedną sylabę z `ㅆ`
+     na końcu. Zdejmujemy `ㅆ` i dostajemy formę ŚCIĄGNIĘTĄ (`봐`, `돼`, `놓쳐`),
+     a nie rdzeń — dlatego pytamy `pkGlowaSciagnieta` (czyli o bazę morfologiczną),
+     a nie `pkGlowaCzasownik` (czyli o hasło). `봐다` nie istnieje; `보다` tak.
+
+     Warunek `ㅆ` jest mocny i to on trzyma tę gałąź w ryzach: bez niego `어`
+     jako końcówka zjadałaby końcówki połowy zdań. */
+  for(const ogon of PK_PO_PRZESZLYM){
+    if(t.length <= ogon.length || !t.endsWith(ogon)) continue;
+    const przedOgonem = t.slice(0, -ogon.length);
+    const ost = rozloz(przedOgonem.slice(-1));
+    if(!ost || JONG[ost.jong] !== 'ㅆ') continue;
+    const sciagniete = przedOgonem.slice(0, -1) + zloz(ost.cho, ost.jung, 0);
+    if(pkGlowaSciagnieta(sciagniete)){
+      const bazy = bazyDlaFormy(sciagniete) || [];
+      const baza = bazy.find(b => slownikSensy(b, allWords).length > 0) || null;
+      return { szew: 'ㅆ' + ogon, glowa: baza ? baza.slice(0, -1) : sciagniete, droga: 'przeszly' };
+    }
+  }
+
   /* B. posiłkowe 주다 przy głowie w formie ściągniętej. */
   for(const aux of PK_POSILKOWE){
     if(t.length <= aux.length || !t.endsWith(aux)) continue;
@@ -19240,6 +19334,18 @@ function przekaznikRozbior(t){
   /* C. sam token jest formą 주다 — `주실`, `주실래요`. */
   for(const aux of PK_POSILKOWE){
     if(t !== aux && t.startsWith('주') && PK_KONCOWKI.indexOf(t.slice(1)) !== -1) return { szew: t.slice(1), glowa: '주', droga: 'juda' };
+  }
+
+  /* N. ZROSTY RZECZOWNIKOWE. Stoją NA KOŃCU, po wszystkich gałęziach
+     czasownikowych, bo czytanie czasownikowe ma pierwszeństwo: gdyby `N` szło
+     wcześniej, `알` z `압니다` wyszłoby jako „jajko".
+     Lista jest zamknięta i krótka — to nie jest odmiana rzeczownika (partykuły
+     zdejmuje czytnik), tylko te trzy zrosty, które wyszły z realnego użycia:
+     honoryfikatyw `님`, kopula `이다` w formie orzeczenia i ściągnięte `에는`. */
+  for(const ogon of PK_NOMINALNE){
+    if(t.length <= ogon.length || !t.endsWith(ogon)) continue;
+    const rdzen = t.slice(0, -ogon.length);
+    if(pkGlowaRzeczownik(rdzen)) return { szew: ogon, glowa: rdzen, droga: 'nominalny' };
   }
   return null;
 }
@@ -19269,8 +19375,18 @@ function przekaznikAnalizaLeksykalna(ko){
       }
     }
     if(cel){ wynik.push({ token: c, stan: 'slownik', cel: cel }); return; }
-    const r = przekaznikRozbior(c);
-    if(r){ wynik.push({ token: c, stan: 'rozbior', glowa: r.glowa, szew: r.szew, droga: r.droga }); return; }
+    /* Rozbiór po WSZYSTKICH formach czytnika, nie po samym `c`. Czytnik sam
+       zdejmuje partykuły: `참석하기가` → `['참석하기가', '참석하기']`. Dopóki
+       pytałem tylko o formę surową, `기` z listy końcówek nie miało szans zadziałać,
+       bo między nim a rdzeniem stała partykuła. Żadnej nowej końcówki to nie
+       wymaga — wymaga chodzenia tą samą drogą co czytnik, a nie połową tej drogi. */
+    let r = null, formaRozbioru = c;
+    for(const f of formy){
+      const proba = przekaznikRozbior(f);
+      if(proba){ r = proba; formaRozbioru = f; break; }
+    }
+    if(r){ wynik.push({ token: c, stan: 'rozbior', glowa: r.glowa, szew: r.szew, droga: r.droga,
+      forma: formaRozbioru !== c ? formaRozbioru : undefined }); return; }
     wynik.push({ token: c, stan: 'nieznany' });
   });
   return wynik;
@@ -19532,6 +19648,21 @@ function przekaznikWyczyscDziennik(){
   try{ localStorage.removeItem(STORAGE_KEYS.relayLog); }catch(e){}
 }
 
+/* Rejestr wyrażony końcówkami, nie nazwą. Patrz komentarz przy użyciu niżej. */
+const PK_KONCOWKI_W_PROMPCIE = {
+  formal: 'Rejestr formal (합니다체) realizuj końcówkami -(스)ㅂ니다 / -(스)ㅂ니까 ' +
+    'oraz -(으)십시오. Nie schodź na -아/어요 ani na formy bez końcówki grzecznościowej.',
+  polite: 'Rejestr polite (해요체). Wymagane końcówki bazowe: -아/어요, -(으)세요, ' +
+    '-(으)실래요?, -(으)ㄹ 것 같아요. ' +
+    'Jeśli reguła nakazuje styl polite (해요체), bezwzględnie zakazuje się końcówek ' +
+    '-(스)ㅂ니다 / -(스)ㅂ니까 — także wtedy, gdy rozmówca ma wysoki status. ' +
+    'Szacunek wyrażaj honoryfikatywnym infiksem -시- wklejonym ' +
+    'w 해요체 (np. 어려우실 것 같아요, 괜찮으실까요?), a nie ucieczką w styl gabinetowy.',
+  casual: 'Rejestr casual (반말) realizuj końcówkami -아/어, -지, -자, -(으)ㄹ래, -(으)ㄹ게, ' +
+    '-잖아, -거든. Nie doklejaj 요 ani -(스)ㅂ니다 — w relacji bliskiej wyższy styl czyta ' +
+    'się jako gniew albo ironia.',
+};
+
 async function przekaznikZapytaj(czynnosc, regulaId){
   const regula = przekaznikRegula(regulaId);
   if(!regula) return { ok: false, powod: 'nie wybrano reguły', warianty: [] };
@@ -19543,6 +19674,14 @@ async function przekaznikZapytaj(czynnosc, regulaId){
     'Intencja użytkownika: "' + czynnosc + '".',
     'Relacja: rozmówca=' + regula.rozmowca + ', sytuacja=' + regula.sytuacja + ', dystans=' + regula.dystans + '.',
     'Reguła nunchi: rejestr=' + regula.rejestr + ', honoryfikatyw=' + (regula.honorific ? 'wymagany' : 'niewymagany') + '.',
+    /* Sama NAZWA rejestru nie wystarcza. Pierwsza seria na żywym proxy: przy
+       `przelozony.prywatna.znajomy` (reguła: polite) model dał 합니다체 we
+       wszystkich trzech wariantach, DWA RAZY NA DWA — a przy `rowny.prywatna.bliski`
+       trafił trzy na trzy. Czyli nie losuje: pod presją sytuacji „odmowa
+       przełożonemu" przegrzewa szacunek, bo bezpieczniej mu przesadzić niż
+       spoufalić się. Naprawa polega na podaniu KOŃCÓWEK, nie nazwy stylu.
+       Akapit dla `polite` jest autorstwa Fable, słowo w słowo. */
+    PK_KONCOWKI_W_PROMPCIE[regula.rejestr] || '',
     (regula.uwaga ? 'Uwaga do relacji: ' + regula.uwaga : ''),
     '',
     'Ograniczenia merytoryczne:',
