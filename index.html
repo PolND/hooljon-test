@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.581
-  Zbudowane na: 021037e7ecd7347f7b2d1d95d0c5d9d5 (.580)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.582
+  Zbudowane na: 7bba01a4463ccd9de039c1fd20104f88 (.581)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -4815,31 +4815,45 @@
   .ref-tytul{ font:700 17px var(--font-ui); margin-bottom:6px; }
   .ref-tekst{ margin:0 0 14px; font-size:14px; line-height:1.5; color:var(--ink); }
   .ref-dalej{ width:100%; }
-  /* ── TRYB SAMOCHODOWY · WIRTUALNA BLOKADA OLED ─────────────────────
+  /* ── TRYB BEZ EKRANU · WIRTUALNA BLOKADA OLED ──────────────────────
      Czerń jest tu funkcją, nie stylem: na matrycy OLED piksel `#000000`
      jest zgaszony i nie bierze prądu, a telefon w uchwycie ma przed sobą
      całą drogę. `!important` przy tle, bo motyw nie ma prawa tego
      rozjaśnić — to jedyne miejsce w aplikacji, gdzie kolor nie należy do
-     motywu. */
-  .oled-lock-screen{ position:fixed; inset:0; background-color:#000 !important;
-    z-index:99999; display:flex; flex-direction:column;
-    justify-content:space-between; align-items:center; padding:3rem 1.5rem;
-    color:#8a8a8a; user-select:none; touch-action:none; }
-  .oled-lock-hidden{ display:none !important; }
-  .oled-burnin-wrapper{ margin:auto; display:flex; flex-direction:column;
-    align-items:center; gap:1.25rem; text-align:center; transition:transform 1.2s ease-out; }
-  .oled-pulse-disc{ width:72px; height:72px; border-radius:50%; background:#111;
-    border:1.5px solid #282828; transition:transform .4s ease, border-color .4s ease, box-shadow .4s ease; }
-  .oled-pulse-active{ border-color:#444; box-shadow:0 0 24px rgba(255,255,255,.08);
-    animation:carDiscBreathing 2.4s infinite ease-in-out; }
-  @keyframes carDiscBreathing{ 0%,100%{ transform:scale(1.05); opacity:.8; } 50%{ transform:scale(1.18); opacity:1; } }
-  .oled-prompt{ font-size:2.2rem; font-weight:700; color:#d1d1d1; margin:0; letter-spacing:.02em; }
-  .oled-hint{ font-size:.95rem; color:#555; margin:0; }
-  .oled-footer{ width:100%; display:flex; justify-content:center; }
-  .oled-lock-badge{ font-size:.85rem; padding:.75rem 1.25rem; border-radius:9999px;
-    background:#0d0d0d; border:1px solid #1f1f1f; color:#666; cursor:pointer;
-    transition:background .3s ease, border-color .3s ease, color .3s ease; }
-  .oled-lock-badge.oled-holding{ background:#221111; border-color:#552222; color:#e88; }
+     motywu.
+
+     .582: to jest STAN ISTNIEJĄCEGO PANELU, nie druga nakładka z własnym
+     hasłem i podpowiedzią. Dzięki temu w trybie bez ekranu zostają licznik,
+     pasek rytmu, znak werdyktu i „Nie umiałem" — nakładka z .577 ich nie
+     miała i musiała powtarzać hasło u siebie. */
+  #odpytywaniePanel.odp-oled{ background-color:#000 !important; }
+  #odpytywaniePanel.odp-oled .modal-card{ background-color:#000 !important;
+    border-color:#141414 !important; box-shadow:none !important; color:#8a8a8a; }
+  /* Dryf antywypaleniowy siedzi na KARCIE PYTANIA, nie na .modal-card:
+     panel animuje transformem swoją kartę przy otwieraniu (.panel .modal-card)
+     i dwa transformy na jednym elemencie znoszą się nawzajem. */
+  #odpytywaniePanel.odp-oled #odpytywanieKarta{ transition:transform 1.2s ease-out; }
+  #odpytywaniePanel.odp-oled .odp-pytanie{ color:#d1d1d1; }
+  #odpytywaniePanel.odp-oled .odp-odpowiedz{ color:#9a9a9a; }
+  #odpytywaniePanel.odp-oled .odp-licznik{ color:#4a4a4a; }
+  #odpytywaniePanel.odp-oled .odp-status{ color:#555; }
+  #odpytywaniePanel.odp-oled .odp-toggle{ color:#666; }
+  #odpytywaniePanel.odp-oled .odp-rytm{ background-color:#141414; }
+  #odpytywaniePanel.odp-oled .odp-rytm span{ background-color:#3a3a3a; }
+  #odpytywaniePanel.odp-oled .odp-linia{ background-color:#1f1f1f; }
+  #odpytywaniePanel.odp-oled .odp-linia.slucha{ background-color:#4a4a4a;
+    box-shadow:0 0 24px rgba(255,255,255,.08); animation:odpOddech 2.4s infinite ease-in-out; }
+  @keyframes odpOddech{ 0%,100%{ transform:scaleX(1); opacity:.75; } 50%{ transform:scaleX(1.3); opacity:1; } }
+  #odpytywaniePanel.odp-oled .odp-pudlo-btn{ background-color:#0d0d0d; border-color:#1f1f1f; color:#6a6a6a; }
+  #odpytywaniePanel.odp-oled .odp-stop{ background:#0d0d0d !important; border:1px solid #1f1f1f !important;
+    color:#666 !important; transition:background .3s ease, border-color .3s ease, color .3s ease; }
+  #odpytywaniePanel.odp-oled .odp-stop.odp-trzymam{ background:#221111 !important;
+    border-color:#552222 !important; color:#e88 !important; }
+  .odp-stop.odp-trzymam{ opacity:.85; }
+  @media (prefers-reduced-motion: reduce){
+    #odpytywaniePanel.odp-oled .odp-linia.slucha{ animation:none; }
+    #odpytywaniePanel.odp-oled #odpytywanieKarta{ transition:none; }
+  }
   .ob-dots{
     display:flex;
     justify-content:center;
@@ -7557,8 +7571,8 @@
       <button class="home-card" id="odpytywanieCard">
         <span class="icon">듣</span>
         <span class="hc-main">
-          <div class="title" data-i18n="odpTitle">Odpytywanie głosem</div>
-          <div class="desc" id="odpytywanieDesc">Bez patrzenia na ekran — w samochodzie, na spacerze, przy gotowaniu.</div>
+          <div class="title" data-i18n="odpTitle">Tryb bez ekranu</div>
+          <div class="desc" id="odpytywanieDesc">Głos, samochód, spacer — powtórki bez patrzenia na ekran.</div>
         </span>
       </button>
       
@@ -8857,13 +8871,11 @@
         <div class="desc" data-i18n="homeLeechDesc">Słówka, które sprawiają najwięcej trudności.</div>
       </span>
     </button>
-    <button class="home-card variant-row" id="carModeCard">
-      <span class="icon">차</span>
-      <span>
-        <div class="title" data-i18n="carModeTitle">Tryb samochodowy</div>
-        <div class="desc" data-i18n="carModeDesc">Powtórki samym głosem — ekran zgaszony, sterowanie z kierownicy.</div>
-      </span>
-    </button>
+    <!-- KAFEL TRYBU SAMOCHODOWEGO USUNIĘTY W .582. Stał obok „Odpytywania
+         głosem" z opisem mówiącym to samo („ekran zgaszony" / „bez patrzenia
+         na ekran") i prowadził do DRUGIEGO silnika: bez zapisu do SRS, bez
+         mostu natywnego, bez rozmytego dopasowania. Jedno wejście prowadzi
+         teraz do jednego automatu — patrz #odpytywanieCard. -->
     <button class="home-card variant-row" data-target="hangul" id="hangulSandboxCard">
       <span class="icon">한</span>
       <span>
@@ -9300,11 +9312,25 @@
              przycisku nie byłoby żadnego sposobu powiedzenia apce „nie umiałem".
              Duży cel, żeby dało się trafić bez patrzenia. -->
         <button type="button" class="odp-pudlo-btn" id="odpPudloBtn" data-i18n="odpNieUmiem">Nie umiałem</button>
+        <!-- DWA PRZEŁĄCZNIKI, BO TO DWIE RÓŻNE RZECZY. Do .581 mikrofon
+             chodził wyłącznie razem z oceną — a komendy głosowe („powtórz",
+             „nie wiem", „pauza") bez mikrofonu nie istnieją, więc domyślnie
+             wyłączona ocena zabierała sterowanie głosem całemu trybowi.
+             Słuchanie jest przesłanką tego trybu i stoi osobno; ocena
+             zostaje tym, czym była, i dalej startuje wyłączona. -->
+        <label class="vk-toggle-row odp-toggle">
+          <span class="switch"><input type="checkbox" id="odpMikToggle" checked><span class="track"><span class="knob"></span></span></span>
+          <span data-i18n="odpMik">Słuchaj mnie (komendy głosowe)</span>
+        </label>
         <label class="vk-toggle-row odp-toggle">
           <span class="switch"><input type="checkbox" id="odpOcenaToggle"><span class="track"><span class="knob"></span></span></span>
           <span data-i18n="odpOcena">Oceniaj moje odpowiedzi</span>
         </label>
-        <button class="primary odp-stop" id="odpytywanieStopBtn">■ <span data-i18n="odpStop">Zakończ</span></button>
+        <!-- PRZYTRZYMANIE, NIE DOTKNIĘCIE. Telefon jedzie w uchwycie albo
+             leży przy kuchence i dostaje przypadkowe dotknięcia; wyjście
+             w połowie trasy jest gorsze niż jedno przytrzymanie za dużo.
+             Jedno wyjście, nie dwa — plakietka z .577 byłaby dublowaniem. -->
+        <button class="primary odp-stop" id="odpytywanieStopBtn">■ <span data-i18n="odpStop">Przytrzymaj, aby zakończyć</span></button>
       </div>
     </div>
 
@@ -13360,7 +13386,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.581';
+const APP_VERSION = '2026-09-11.582';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -13624,8 +13650,8 @@ function setScreen(screen){
     if(d) d.textContent = isPremiumPro
       ? (uiLang === 'en' ? 'Haksa quizzes you and reacts to your answers. Counts toward your minutes.'
                          : 'Haksa odpytuje i reaguje na Twoje odpowiedzi. Liczy się w limit minut.')
-      : (uiLang === 'en' ? 'Hands-free — in the car, on a walk, while cooking.'
-                         : 'Bez patrzenia na ekran — w samochodzie, na spacerze, przy gotowaniu.');
+      : (uiLang === 'en' ? 'Voice, car, walk — revision without looking at the screen.'
+                         : 'Głos, samochód, spacer — powtórki bez patrzenia na ekran.');
   }
   if(screen === 'vocabMode' || screen === 'home'){
     const dueCount = getDueCount();
@@ -14370,9 +14396,10 @@ const I18N = {
   navLearn: { pl: 'Nauka', en: 'Learn' },
   grammarRefTitle: { pl: 'Kompendium gramatyki', en: 'Grammar reference' },
   particleTitle: { pl: 'Partykuły w mowie potocznej', en: 'Particles in casual speech' },
-  odpTitle: { pl: 'Odpytywanie głosem', en: 'Voice drill' },
-  odpDesc: { pl: 'Bez patrzenia na ekran — w samochodzie, na spacerze, przy gotowaniu.', en: 'Hands-free — in the car, on a walk, while cooking.' },
-  odpStop: { pl: 'Zakończ', en: 'Stop' },
+  odpTitle: { pl: 'Tryb bez ekranu', en: 'Hands-free mode' },
+  odpDesc: { pl: 'Głos, samochód, spacer — powtórki bez patrzenia na ekran.', en: 'Voice, car, walk — revision without looking at the screen.' },
+  odpStop: { pl: 'Przytrzymaj, aby zakończyć', en: 'Hold to stop' },
+  odpMik: { pl: 'Słuchaj mnie (komendy głosowe)', en: 'Listen to me (voice commands)' },
   odpOcena: { pl: 'Oceniaj moje odpowiedzi', en: 'Check my answers' },
   odpNieUmiem: { pl: 'Nie umiałem', en: "Didn't know it" },
   grammarTypedLabel: { pl: 'Wpisuj odpowiedź zamiast wybierać', en: 'Type the answer instead of choosing' },
@@ -14524,9 +14551,7 @@ const I18N = {
   ptDoneBtn: { pl: 'Przejdź do nauki', en: 'Go to learning' },
   obSkip: { pl: 'Pomiń', en: 'Skip' },
   obNext: { pl: 'Dalej ▶', en: 'Next ▶' },
-  carModeTitle: { pl: 'Tryb samochodowy', en: 'Car mode' },
-  carModeDesc: { pl: 'Powtórki samym głosem — ekran zgaszony, sterowanie z kierownicy.',
-                 en: 'Revision by voice alone — screen off, controls from the steering wheel.' },
+  /* carModeTitle / carModeDesc usunięte w .582 razem z kaflem. */
   replayOnboardingBtn: { pl: 'Jak korzystać z apki', en: 'How to use the app' },
   sbHint: { pl: 'Ułóż słowa w poprawnej kolejności, dotykając ich po kolei.', en: 'Arrange the words in the correct order by tapping them.' },
   sbReset: { pl: 'Wyczyść', en: 'Reset' },
@@ -15849,9 +15874,39 @@ let odpytywanieAktywne = false;
 let odpytywanieKolejka = [];
 let odpytywanieIdx = 0;
 let odpytywanieKierunek = 'ko-pl';   // 'ko-pl' | 'pl-ko' | 'mix'
-/* 6 sekund: tyle trwa przypomnienie sobie słowa i wypowiedzenie go na głos.
-   Cztery okazały się za krótkie w teście. */
-let odpytywaniePauza = 6000;
+/* ═══ KONIEC ODLICZANIA UCZNIA (.582) ════════════════════════════════════
+   Do .581 tura ucznia kończyła się zegarem `odpytywaniePauza = 6000` —
+   sześć sekund na przypomnienie sobie słowa, po czym apka i tak podawała
+   odpowiedź. To jest poganianie: zegar odpalał się na KAŻDYM uczniu, który
+   się zastanawiał, czyli na normalnej ścieżce.
+
+   Teraz tura kończy się ZDARZENIEM: rozpoznaną odpowiedzią, komendą głosową,
+   przyciskiem z kierownicy albo dotknięciem „Nie umiałem".
+
+   Zostają dwa zegary i ŻADEN nie mierzy myślenia — ta granica musi być
+   widoczna, żeby „usunęliśmy timer" nie znaczyło „pętla wisi na zawsze":
+
+     odpLimitCiszy        bezpiecznik ŻYWOTNOŚCI przy działającym nasłuchu,
+                          który nic nie zwraca (mikrofon zajęty przez inną
+                          aplikację, silnik rozpoznawania padł po cichu).
+                          25 s — długość dobrana tak, żeby NIE odpalała się
+                          na myślącym uczniu, tylko na martwym nasłuchu.
+
+     odpLimitBezNasluchu  jedyne wyjście, gdy nie ma CZYM słuchać. Bez
+                          rozpoznawania mowy nie istnieje zdarzenie, które
+                          mogłoby zakończyć turę — a pętla bez wyjścia to
+                          dokładnie ten „czarny ekran, który nigdy nie
+                          odpowie", którego ten moduł zakazuje. 9 s, czyli
+                          więcej niż dawne 6, bo tu zegar jest ostatecznością,
+                          a nie rytmem. Przycisk „Nie umiałem" skraca go
+                          w każdej chwili. */
+let odpLimitCiszy = 25000;
+let odpLimitBezNasluchu = 9000;
+/* Czy apka SŁUCHA. Osobno od `odpytywanieOcenia`, bo to dwie różne rzeczy:
+   słuchanie daje komendy głosowe (przesłanka trybu bez ekranu), ocena daje
+   werdykt i zapis do SRS. Do .581 jedno chodziło wyłącznie z drugim. */
+let odpMikrofon = true;
+let odpytywanieWstrzymane = false;
 let odpytywanieTimer = null;
 let odpytywanieWakeLock = null;
 
@@ -15984,6 +16039,33 @@ async function mow(tekst, jezyk, opcje){
 
 const czekaj = (ms) => new Promise(res => { odpytywanieTimer = setTimeout(res, ms); });
 
+/* ═══ WATCHDOG PILNUJE SYNTEZY, NIE CZŁOWIEKA ════════════════════════════
+   Przeniesiony z `CarVoiceQuiz.speak`. Cały automat przechodzi dalej
+   w `onend`; część przeglądarek mobilnych tego zdarzenia nie odpala —
+   a skoro zegarów na uczniu świadomie nie ma, pętla stanęłaby na zawsze
+   i nic by jej nie ruszyło. Zegar liczy się od ROZPOCZĘCIA WŁASNEJ
+   WYPOWIEDZI i daje jej z zapasem tyle, ile może trwać.
+
+   3500 + 60/znak, bo `mow()` czeka na DWIE rzeczy: `onend` syntezy ORAZ
+   żądanie sieciowe po lektora Premium — a w aucie zasięg bywa, jaki bywa. */
+let odpWatchdog = null;
+
+function odpMow(tekst, jezyk, opcje){
+  return new Promise((res) => {
+    let poszlo = false;
+    const dalej = () => {
+      if(poszlo) return;
+      poszlo = true;
+      if(odpWatchdog){ clearTimeout(odpWatchdog); odpWatchdog = null; }
+      res();
+    };
+    if(odpWatchdog) clearTimeout(odpWatchdog);
+    odpWatchdog = setTimeout(dalej, 3500 + String(tekst || '').length * 60);
+    try{ Promise.resolve(mow(tekst, jezyk, opcje)).then(dalej, dalej); }
+    catch(e){ dalej(); }
+  });
+}
+
 /* Kolejka z tej samej puli co ćwiczenia - respektuje wybrany dział i poziom.
    Priorytet mają słowa zaległe w SRS: jazda to dobry moment na powtórkę,
    a nie na poznawanie nowych słów, których nie widziało się na oczy. */
@@ -16085,6 +16167,25 @@ async function odpSluchajNatywnie(jezyk, ms){
   }
 }
 
+/* UCHWYT DO PRZERWANIA. Od .582 turę ucznia kończy zdarzenie, więc nasłuch
+   bywa PORZUCANY w połowie (uczeń nacisnął „Nie umiałem", przyszła komenda
+   z kierownicy). Bez tego uchwytu porzucony silnik chodził dalej i łapał
+   pierwsze słowa NASTĘPNEJ tury albo własne hasło aplikacji. */
+let odpRecBiezacy = null;
+
+function odpPrzerwijNasluch(){
+  if(!odpRecBiezacy) return;
+  const r = odpRecBiezacy;
+  odpRecBiezacy = null;
+  try{ r.abort(); }catch(e){ try{ r.stop(); }catch(e2){} }
+}
+
+/* Czy jest CZYM słuchać. Most natywny liczy się tak samo jak Web Speech —
+   w wersji z Google Play to on jest jedynym działającym silnikiem. */
+function odpRozpoznawanieDostepne(){
+  return !!(mostNatywny() || window.SpeechRecognition || window.webkitSpeechRecognition);
+}
+
 async function odpSluchaj(jezyk, ms){
   // Most natywny ma pierwszeństwo - działa tam, gdzie Web Speech zawodzi.
   const natywnie = await odpSluchajNatywnie(jezyk, ms);
@@ -16097,8 +16198,11 @@ async function odpSluchaj(jezyk, ms){
     if(!SR) return res({blad:'brak'});
     let rec;
     try{ rec = new SR(); }catch(e){ return res({blad:'brak'}); }
+    odpRecBiezacy = rec;
     let gotowe = false;
-    const koniec = (v) => { if(gotowe) return; gotowe = true; try{ rec.stop(); }catch(e){} res(v); };
+    const koniec = (v) => { if(gotowe) return; gotowe = true;
+      if(odpRecBiezacy === rec) odpRecBiezacy = null;
+      try{ rec.stop(); }catch(e){} res(v); };
     rec.lang = jezyk;
     rec.interimResults = false;
     rec.maxAlternatives = 3;
@@ -16188,6 +16292,100 @@ function odpReakcja(werdykt){
   return losuj(ODP_PUDLO);
 }
 
+/* ═══ KOMENDY GŁOSOWE ════════════════════════════════════════════════════
+   Przeniesione z `CarVoiceQuiz.COMMANDS_*`, z jedną poprawką: .577 szukał
+   komendy przez `indexOf` na całej wypowiedzi, więc ODPOWIEDŹ zawierająca
+   „dalej" była braną za komendę i uczeń tracił słowo, o którym wiedział.
+
+   Tutaj komenda musi być CAŁĄ wypowiedzią albo jej początkiem, a gdy
+   oczekiwana odpowiedź sama brzmi jak komenda — wygrywa odpowiedź. */
+const ODP_KOMENDY = Object.freeze({
+  dalej:   ['nie wiem', 'nie pamiętam', 'nie pamietam', 'następne', 'nastepne', 'dalej',
+            'pas', 'omiń', 'omin', 'i dont know', 'i do not know', 'next', 'skip'],
+  powtorz: ['powtórz', 'powtorz', 'jeszcze raz', 'repeat', 'again'],
+  pauza:   ['pauza', 'stop', 'czekaj', 'pause', 'wait'],
+});
+
+function odpKomenda(tekst, oczekiwane){
+  const t = odpNorm(tekst, false);
+  const o = odpNorm(oczekiwane, false);
+  if(!t) return null;
+  for(const nazwa of Object.keys(ODP_KOMENDY)){
+    for(const slowo of ODP_KOMENDY[nazwa]){
+      const k = odpNorm(slowo, false);
+      if(!k) continue;
+      /* ODPOWIEDŹ MA PIERWSZEŃSTWO NAD KOMENDĄ. Gdy uczeń ma powiedzieć
+         „dalej" jako tłumaczenie, komenda o tym samym brzmieniu nie może mu
+         tego słowa zabrać. */
+      if(o && k === o) continue;
+      if(t === k || t.indexOf(k) === 0) return nazwa;
+    }
+  }
+  return null;
+}
+
+/* ═══ KANAŁ ZDARZEŃ ══════════════════════════════════════════════════════
+   Jedna obietnica na turę. Rozstrzyga ją PIERWSZE zdarzenie, skądkolwiek
+   przyjdzie: rozpoznanie, komenda, kierownica, dotknięcie, bezpiecznik.
+   Zdarzenie ze STAREJ tury trafia w `null` i nic nie robi — dlatego
+   porzucony nasłuch nie psuje następnego słowa. */
+let odpZdarzenie = null;
+let odpZdarzenieTimer = null;
+
+function odpZglos(powod, dane){
+  if(!odpZdarzenie) return false;
+  const f = odpZdarzenie;
+  odpZdarzenie = null;
+  if(odpZdarzenieTimer){ clearTimeout(odpZdarzenieTimer); odpZdarzenieTimer = null; }
+  f({ powod: powod, dane: dane || null });
+  return true;
+}
+
+/* Sterowanie z zewnątrz automatu: kierownica, Media Session, przyciski. */
+function odpAkcja(co){
+  if(!odpytywanieAktywne) return false;
+  if(co === 'pauza'){
+    odpytywanieWstrzymane = true;
+    odpPrzerwijNasluch();
+    odpNasluch(false);
+    odpytywanieStatus(uiLang === 'en' ? 'Paused — Play on the wheel resumes'
+                                      : 'Pauza — wznów przyciskiem Play');
+    return odpZglos('pauza', null);
+  }
+  if(co === 'wznow'){
+    if(!odpytywanieWstrzymane) return false;
+    odpytywanieWstrzymane = false;
+    odpytywanieStatus('');
+    return odpZglos('wznow', null);
+  }
+  return odpZglos(co, null);
+}
+
+/* TURA UCZNIA. Kończy się zdarzeniem; zegar jest bezpiecznikiem, nie rytmem. */
+function odpTuraUcznia(jezykO){
+  const sluchamy = odpMikrofon && odpRozpoznawanieDostepne() && !odpytywanieWstrzymane;
+  const kanal = new Promise((res) => { odpZdarzenie = res; });
+  if(odpytywanieWstrzymane){
+    /* NA PAUZIE NIE MA ŻADNEGO ZEGARA. Pauza kończy się wyłącznie decyzją
+       człowieka — inaczej „pauza" znaczyłaby „chwila przerwy, po której i tak
+       polecimy dalej", czyli nie byłaby pauzą. */
+    return kanal;
+  }
+  odpZdarzenieTimer = setTimeout(
+    () => odpZglos(sluchamy ? 'cisza' : 'bezNasluchu', null),
+    sluchamy ? odpLimitCiszy : odpLimitBezNasluchu);
+  if(sluchamy){
+    odpNasluch(true);
+    odpSluchaj(jezykO, odpLimitCiszy).then((w) => {
+      odpNasluch(false);
+      odpZglos(w && w.alt ? 'mowa' : 'blad', w);
+    });
+  } else {
+    odpNasluch(true);
+  }
+  return kanal;
+}
+
 async function odpytywanieRunda(){
   if(!odpytywanieAktywne) return;
   const w = odpytywanieKolejka[odpytywanieIdx];
@@ -16204,38 +16402,73 @@ async function odpytywanieRunda(){
   odpytywaniePokazKarte(pytanie, '', odpytywanieIdx + 1);
   odpytywanieStatus('');
   odpNasluch(false);   // apka mówi - pytanie przygaszone
+
+  /* EKRAN BLOKADY I BLUETOOTH. Przeniesione z `CarVoiceQuiz.nextWord`:
+     bez tego na ekranie blokady i na wyświetlaczu w aucie stoi nazwa
+     aplikacji zamiast słowa, a przyciski z kierownicy nie mają czego
+     opisywać. Hanja liczona tak samo jak w usuniętym `carModeKolejka`. */
+  try{
+    const golyKo = (typeof bezNumeru === 'function') ? bezNumeru(String(w.ko || '')).trim() : String(w.ko || '');
+    const hanja = w.hanja || (typeof SINO_HANJA !== 'undefined' ? (SINO_HANJA[golyKo] || '') : '');
+    CarAudioSession.updateLockscreen(golyKo, (uiLang === 'en' ? w.en : w.pl) || '', hanja);
+  }catch(e){}
+
   /* Wstęp zawsze po polsku - to głos prowadzącego, nie materiał do nauki. */
   const wstep = odpWstep(kier);
-  if(wstep) await mow(wstep, uiLang === 'en' ? 'en-US' : 'pl-PL');
-  await mow(pytanie, jezykP, { shared: true });
+  if(wstep) await odpMow(wstep, uiLang === 'en' ? 'en-US' : 'pl-PL');
+  await odpMow(pytanie, jezykP, { shared: true });
   if(!odpytywanieAktywne) return;
 
-  /* Pauza na odpowiedź. Z oceną - nasłuchujemy; bez - po prostu czekamy. */
   let werdykt = null, uslyszane = '';
   odpytywanieRecznePudlo = false;
-  if(odpytywanieOcenia){
-    /* Odstęp po syntezie. Zdarzenie onend dla SpeechSynthesisUtterance potrafi
-       odpalić się ułamek sekundy PRZED faktycznym ucichnięciem głośnika -
-       uruchomienie mikrofonu w tym momencie łapie własny głos apki albo rzuca
-       błąd zajętego urządzenia. */
+
+  /* Odstęp po syntezie. Zdarzenie onend dla SpeechSynthesisUtterance potrafi
+     odpalić się ułamek sekundy PRZED faktycznym ucichnięciem głośnika -
+     uruchomienie mikrofonu w tym momencie łapie własny głos apki albo rzuca
+     błąd zajętego urządzenia. */
+  if(odpMikrofon && odpRozpoznawanieDostepne()){
     try{ window.speechSynthesis.cancel(); }catch(e){}
     await czekaj(350);
+  }
+  if(!odpytywanieAktywne) return;
+
+  /* ═══ TURA UCZNIA ══════════════════════════════════════════════════════
+     Pętla, bo „powtórz" i „pauza" NIE kończą tury — wracają do słuchania.
+     Wychodzi się z niej odpowiedzią, pominięciem albo bezpiecznikiem. */
+  while(odpytywanieAktywne){
+    const z = await odpTuraUcznia(jezykO);
     if(!odpytywanieAktywne) return;
-    /* Bez tekstu "Słucham" - stan niesie pytanie i linia pod nim. Tryb ma
-       działać bez patrzenia, a komunikat trzeba przeczytać. */
-    odpNasluch(true);
-    const wynik = await odpSluchaj(jezykO, odpytywaniePauza);
-    odpNasluch(false);
-    if(wynik && wynik.alt){
-      const kor = jezykO === 'ko-KR';
-      const wzor = odpNorm(odpowiedz, kor);
-      // Bierzemy NAJLEPSZĄ z alternatyw - silnik często ma dobrą na drugim miejscu.
-      const naj = Math.max(...wynik.alt.map(a => odpPodobne(odpNorm(a, kor), wzor)));
-      werdykt = naj >= 0.6;
-      uslyszane = wynik.alt[0] || '';
-      odpytywanieProb++;
-      if(werdykt) odpytywanieTrafien++;
-    } else if(wynik && wynik.blad){
+
+    if(z.powod === 'pauza'){ continue; }          // czeka na 'wznow', bez zegara
+    if(z.powod === 'wznow'){ await odpMow(pytanie, jezykP, { shared: true }); continue; }
+    if(z.powod === 'powtorz'){ await odpMow(pytanie, jezykP, { shared: true }); continue; }
+    if(z.powod === 'dalej'){ odpytywanieRecznePudlo = true; break; }
+    if(z.powod === 'przycisk'){ break; }          // „Nie umiałem" ustawia flagę u siebie
+
+    if(z.powod === 'mowa'){
+      const alt = (z.dane && z.dane.alt) || [];
+      const komenda = odpKomenda(alt[0] || '', odpowiedz);
+      if(komenda === 'powtorz'){ await odpMow(pytanie, jezykP, { shared: true }); continue; }
+      if(komenda === 'pauza'){ odpAkcja('pauza'); continue; }
+      if(komenda === 'dalej'){ odpytywanieRecznePudlo = true; break; }
+      /* OCENA JEST OSOBNA OD SŁUCHANIA. Przy wyłączonej ocenie wypowiedź
+         kończy turę (uczeń odpowiedział — nie ma na co czekać), ale nie
+         zapada żaden werdykt i nic nie idzie do SRS. */
+      if(odpytywanieOcenia){
+        const kor = jezykO === 'ko-KR';
+        const wzor = odpNorm(odpowiedz, kor);
+        // Bierzemy NAJLEPSZĄ z alternatyw - silnik często ma dobrą na drugim miejscu.
+        const naj = Math.max(...alt.map((a) => odpPodobne(odpNorm(a, kor), wzor)));
+        werdykt = naj >= 0.6;
+        uslyszane = alt[0] || '';
+        odpytywanieProb++;
+        if(werdykt) odpytywanieTrafien++;
+      }
+      break;
+    }
+
+    if(z.powod === 'blad'){
+      const wynik = z.dane || {};
       const en = uiLang === 'en';
       const kom = {
         brak:   en ? 'Speech recognition unavailable in this browser.' : 'Ta przeglądarka nie rozpoznaje mowy.',
@@ -16245,41 +16478,38 @@ async function odpytywanieRunda(){
                 + (wynik.kod ? ` (${wynik.kod})` : '')
                 + (wynik.kod === 'network' ? (en ? ' — needs internet' : ' — wymaga internetu') : ''),
       }[wynik.blad];
-      odpytywanieStatus(kom);
-      // Brak wsparcia albo odmowa - wyłączamy ocenę, żeby nie powtarzać komunikatu
-      // przy każdym słowie. User może włączyć ponownie po naprawieniu uprawnień.
-      /* Wyłączamy ocenę TYLKO przy trwałych przeszkodach. Błąd sieci czy
-         jednorazowa awaria nie powinny gasić funkcji na całą sesję. */
+      if(kom) odpytywanieStatus(kom);
       /* Błąd sieci przy rozpoznawaniu to zwykle NIE brak internetu, tylko
          zablokowany endpoint Google (Brave, blokada DNS, brak HTTPS). Mówimy
          to wprost i kierujemy na przycisk, który działa zawsze - inaczej user
-         zostaje z komunikatem, z którym nic nie może zrobić. */
-      if(wynik.blad === 'blad' && wynik.kod === 'network'){
-        odpytywanieOcenia = false;
-        const t = document.getElementById('odpOcenaToggle');
+         zostaje z komunikatem, z którym nic nie może zrobić.
+
+         .582: gasimy MIKROFON, nie ocenę. Ocena bez mikrofonu i tak nie ma
+         czego oceniać, a tryb zjeżdża na sterowanie przyciskiem — z własnym
+         bezpiecznikiem `odpLimitBezNasluchu` zamiast 25 s czekania na silnik,
+         o którym już wiemy, że nie odpowie. */
+      if(wynik.blad === 'brak' || wynik.blad === 'odmowa'
+         || (wynik.blad === 'blad' && wynik.kod === 'network')){
+        odpMikrofon = false;
+        const t = document.getElementById('odpMikToggle');
         if(t) t.checked = false;
-        odpytywanieStatus(uiLang === 'en'
-          ? 'Speech check blocked by the browser — use "Didn\'t know it" instead.'
-          : 'Przeglądarka blokuje rozpoznawanie — używaj przycisku „Nie umiałem".');
+        if(wynik.blad === 'blad'){
+          odpytywanieStatus(en
+            ? 'Speech check blocked by the browser — use "Didn\'t know it" instead.'
+            : 'Przeglądarka blokuje rozpoznawanie — używaj przycisku „Nie umiałem".');
+        }
       }
-      if(wynik.blad === 'brak' || wynik.blad === 'odmowa'){
-        odpytywanieOcenia = false;
-        const t = document.getElementById('odpOcenaToggle');
-        if(t) t.checked = false;
-      }
+      break;
     }
-  } else {
-    /* Bez oceny nie ma nasłuchu, ale tura usera jest ta sama - linia stoi. */
-    odpNasluch(true);
-    await czekaj(odpytywaniePauza);
-    odpNasluch(false);
+
+    break;   // 'cisza' / 'bezNasluchu' — bezpiecznik, idziemy dalej
   }
   if(!odpytywanieAktywne) return;
 
   /* Reakcja PRZED podaniem wzorca - jak znajomy, który najpierw powie „prawie",
      a dopiero potem poda właściwą odpowiedź. */
   const reakcja = odpReakcja(werdykt);
-  if(reakcja) await mow(reakcja, uiLang === 'en' ? 'en-US' : 'pl-PL');
+  if(reakcja) await odpMow(reakcja, uiLang === 'en' ? 'en-US' : 'pl-PL');
 
   odpytywaniePokazKarte(pytanie, odpowiedz, odpytywanieIdx + 1, werdykt);
   /* Pokazujemy, CO apka usłyszała. To jedyny sposób, żeby user ocenił, czy próg
@@ -16291,11 +16521,11 @@ async function odpytywanieRunda(){
     const lin = document.querySelector('#odpytywanieKarta .odp-linia');
     if(lin) lin.classList.remove('dobrze', 'zle');
   }, 600);
-  await mow(odpowiedz, jezykO, { shared: true });   // słowa ze słownika - wspólny bufor
+  await odpMow(odpowiedz, jezykO, { shared: true });   // słowa ze słownika - wspólny bufor
   if(!odpytywanieAktywne) return;
 
   // Koreański powtarzamy - to język uczony, warto usłyszeć dwa razy.
-  if(jezykO === 'ko-KR'){ await czekaj(500); await mow(odpowiedz, 'ko-KR', { shared: true }); }
+  if(jezykO === 'ko-KR'){ await czekaj(500); await odpMow(odpowiedz, 'ko-KR', { shared: true }); }
 
   /* WYNIK MA KONSEKWENCJE - inaczej zła odpowiedź znika bez śladu, a to przeczy
      temu, jak działa reszta apki. Dwie rzeczy naraz:
@@ -16308,16 +16538,16 @@ async function odpytywanieRunda(){
      Bez oceny (przełącznik wyłączony) nie zapisujemy NIC. Zgadywanie, czy user
      odpowiedział dobrze, byłoby gorsze niż brak danych - zafałszowałoby
      harmonogram powtórek, na którym opiera się cała nauka.
-     Zgłoszone przez Damiana 2026-09-05. */
-  /* Ręczne „Nie umiałem" ma PIERWSZEŃSTWO nad rozpoznaniem. User wie lepiej niż
-     silnik, czy trafił - a przy zablokowanym rozpoznawaniu to jedyne źródło prawdy. */
+
+     .582: „nie wiem" powiedziane GŁOSEM działa dokładnie tak samo jak
+     dotknięcie „Nie umiałem" — usunięty tryb samochodowy podawał wtedy
+     znaczenie i szedł dalej, nie zostawiając w powtórkach żadnego śladu po
+     całej jeździe. */
   if(odpytywanieRecznePudlo) werdykt = false;
 
   if(werdykt !== null){
     /* Zerujemy znacznik czasu PRZED zapisem. latencyFactor mierzy namysł, a tutaj
-       pauza jest STAŁA - czas nie niesie informacji o sile pamięci. Bez tego
-       pierwsza odpowiedź po wyjściu z quizu użyłaby znacznika sprzed sesji
-       i wydłużyła interwał na podstawie liczby bez znaczenia. */
+       pauza NIE JEST miarą siły pamięci - kończy ją zdarzenie, nie zegar. */
     questionShownAt = 0;
     try{ srsRate(w.ko, werdykt ? 2 : 0, kier); }catch(e){}
     if(!werdykt){
@@ -16365,22 +16595,42 @@ async function odpytywanieStart(){
   odpytywanieIdx = 0;
   odpSeria = 0;
   odpytywanieAktywne = true;
-  /* Ekran nie może gasnąć w trakcie - inaczej przeglądarka wstrzymuje syntezę.
-     Wake Lock bywa niedostępny (Safari, brak HTTPS); wtedy tryb nadal działa,
-     tylko user musi nie blokować telefonu. */
-  try{
-    if('wakeLock' in navigator) odpytywanieWakeLock = await navigator.wakeLock.request('screen');
-  }catch(e){}
+  odpytywanieWstrzymane = false;
+  /* Mikrofon wraca do stanu z przełącznika przy KAŻDYM starcie: wyłączenie
+     go po zablokowanym rozpoznawaniu dotyczy jednej sesji, nie na zawsze. */
+  const mik = document.getElementById('odpMikToggle');
+  odpMikrofon = mik ? !!mik.checked : true;
+
+  /* WARSTWA SPRZĘTOWA — wchodzi ZAWSZE, nie tylko „w samochodzie".
+     Kotwica audio trzyma kartę przy życiu i zostawia aplikację na ekranie
+     blokady; Media Session daje przyciski z kierownicy i ze słuchawek;
+     czerń OLED gasi piksele i blokuje przypadkowe dotknięcia. Spacer
+     z telefonem w kieszeni korzysta z tego dokładnie tak samo jak jazda. */
+  CarAudioSession.init();
+  await CarAudioSession.startAnchor();
+  await OledLockOverlay.enable();
+
   document.getElementById('odpytywaniePanel').classList.add('open');
   odpytywanieRunda();
 }
 
 function odpytywanieStop(koniec){
   odpytywanieAktywne = false;
+  odpytywanieWstrzymane = false;
   odpOstatniNr = null;
   clearTimeout(odpytywanieTimer);
+  if(odpWatchdog){ clearTimeout(odpWatchdog); odpWatchdog = null; }
+  /* Rozstrzygamy wiszącą turę, zanim zgasimy resztę — inaczej `await`
+     w `odpytywanieRunda` zostaje z obietnicą, której nikt nie spełni. */
+  odpZglos('koniec', null);
+  odpPrzerwijNasluch();
   try{ window.speechSynthesis.cancel(); }catch(e){}
-  try{ if(odpytywanieWakeLock){ odpytywanieWakeLock.release(); odpytywanieWakeLock = null; } }catch(e){}
+  /* LEKTOR PREMIUM TO OSOBNY STRUMIEŃ. `speechSynthesis.cancel()` go nie
+     dotyczy, więc do .581 po „Zakończ" potrafił dograć zdanie nad zamkniętym
+     panelem. Uchwyt istnieje od 2026-09-06, tylko nikt go tu nie wołał. */
+  ttsZatrzymaj();
+  CarAudioSession.stopAnchor();
+  OledLockOverlay.disable();
   if(!koniec) document.getElementById('odpytywaniePanel').classList.remove('open');
   else odpytywaniePokazKarte(uiLang === 'en' ? 'Done' : 'Koniec', '', odpytywanieIdx);
 }
@@ -19447,18 +19697,21 @@ function nastepnaNagroda(){
   if(czas) nagrodaTimer = setTimeout(zamknij, czas);
 }
 
-/* ═══ TRYB SAMOCHODOWY ════════════════════════════════════════════════════
+/* ═══ TRYB BEZ EKRANU — WARSTWA SPRZĘTOWA ═════════════════════════════════
    Powtórki prowadzone samym głosem, przy zgaszonym ekranie i telefonie
-   w uchwycie. Trzy moduły, każdy odpowiada za jedną rzecz, która potrafi
-   ten tryb zabić:
+   w uchwycie, w kieszeni albo na blacie w kuchni. Dwa moduły, każdy
+   odpowiada za jedną rzecz, która potrafi ten tryb zabić:
 
      CarAudioSession   — system nie może uśpić karty i uciszyć mikrofonu
      OledLockOverlay   — ekran nie może zgasnąć ani zareagować na przypadek
-     CarVoiceQuiz      — automat stanów, który CZEKA, zamiast poganiać
 
-   ZASADA NADRZĘDNA: nie ma odliczania. Kierowca myśli tyle, ile potrzebuje,
-   a jedyny zegar w całym module pilnuje WŁASNEJ WYPOWIEDZI APLIKACJI (patrz
-   `carWatchdog`), nigdy człowieka. */
+   Trzeciego modułu (`CarVoiceQuiz`) już nie ma: w .582 automat stanów jest
+   JEDEN i mieszka przy `odpytywanie*`, razem z mostem natywnym, rozmytym
+   dopasowaniem i zapisem do SRS, których tamten nie miał.
+
+   ZASADA NADRZĘDNA BEZ ZMIAN: nie ma odliczania. Uczeń myśli tyle, ile
+   potrzebuje, a zegary pilnują WŁASNEJ WYPOWIEDZI APLIKACJI i ŻYWOTNOŚCI
+   NASŁUCHU — nigdy człowieka. */
 
 const CarAudioSession = {
   anchorEl: null,
@@ -19482,10 +19735,10 @@ const CarAudioSession = {
     }
     if(!('mediaSession' in navigator) || this.podpiete) return;
     this.uchwyty = {
-      nexttrack:     () => CarVoiceQuiz.handleUserAction('skip'),
-      previoustrack: () => CarVoiceQuiz.handleUserAction('repeat'),
-      play:          () => { this.startAnchor(); CarVoiceQuiz.resume(); },
-      pause:         () => { this.stopAnchor(); CarVoiceQuiz.pause(); },
+      nexttrack:     () => odpAkcja('dalej'),
+      previoustrack: () => odpAkcja('powtorz'),
+      play:          () => { this.startAnchor(); odpAkcja('wznow'); },
+      pause:         () => { this.stopAnchor(); odpAkcja('pauza'); },
     };
     Object.keys(this.uchwyty).forEach(akcja => {
       try{ navigator.mediaSession.setActionHandler(akcja, this.uchwyty[akcja]); }
@@ -19506,45 +19759,36 @@ const CarAudioSession = {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: hanja ? (ko + ' (' + hanja + ')') : ko,
         artist: (uiLang === 'en' ? 'Polish: ' : 'Polski: ') + pl,
-        album: 'Hooljon · ' + (uiLang === 'en' ? 'Car mode' : 'Tryb samochodowy'),
+        album: 'Hooljon · ' + (uiLang === 'en' ? 'Hands-free' : 'Tryb bez ekranu'),
       });
     }catch(e){ /* metadane to wygoda, nie warunek działania */ }
   },
 };
 
+/* Czerń, dryf, blokada snu i wyjście przez przytrzymanie — NAŁOŻONE NA
+   ISTNIEJĄCY PANEL ODPYTYWANIA. Do .581 ten obiekt budował własny
+   `#carModeOledOverlay` z własnym hasłem i własną podpowiedzią, przez co
+   ta sama treść żyła w dwóch miejscach, a tryb samochodowy nie miał
+   licznika, paska rytmu, znaku werdyktu ani przycisku „Nie umiałem".
+
+   Teraz nie ma tu ŻADNEJ treści — tylko oprawa. Treść należy do
+   `odpytywaniePokazKarte` i `odpNasluch`, tak jak przedtem. */
 const OledLockOverlay = {
   wakeLockSentinel: null,
-  overlayEl: null,
+  panelEl: null,
   holdTimer: null,
   dryfTimer: null,
+  gestPodpiety: false,
 
   mount(){
-    if(document.getElementById('carModeOledOverlay')){
-      this.overlayEl = document.getElementById('carModeOledOverlay');
-      return;
-    }
-    const el = document.createElement('div');
-    el.id = 'carModeOledOverlay';
-    el.className = 'oled-lock-screen oled-lock-hidden';
-    const en = uiLang === 'en';
-    el.innerHTML =
-      '<div class="oled-burnin-wrapper" id="oledBurninContainer">'
-      + '<div class="oled-pulse-disc" id="oledDisc"></div>'
-      + '<p class="oled-prompt" id="oledPromptKo">…</p>'
-      + '<p class="oled-hint" id="oledHint"></p>'
-      + '</div>'
-      + '<div class="oled-footer"><div class="oled-lock-badge" id="oledUnlockTrigger">'
-      + '<span class="oled-lock-icon">🔒</span> '
-      + (en ? 'Hold 1.5s to exit' : 'Przytrzymaj 1,5 s, aby wyjść')
-      + '</div></div>';
-    document.body.appendChild(el);
-    this.overlayEl = el;
+    this.panelEl = document.getElementById('odpytywaniePanel');
     this.bindUnlockGesture();
+    return !!this.panelEl;
   },
 
   async enable(){
-    this.mount();
-    this.overlayEl.classList.remove('oled-lock-hidden');
+    if(!this.mount()) return;
+    this.panelEl.classList.add('odp-oled');
     this.startBurnInProtection();
     /* Wake Lock wymaga bezpiecznego kontekstu i zgody — odmowa NIE jest
        błędem trybu, tylko gorszym komfortem (ekran zgaśnie sam). */
@@ -19557,46 +19801,44 @@ const OledLockOverlay = {
   },
 
   disable(){
-    if(this.overlayEl) this.overlayEl.classList.add('oled-lock-hidden');
+    if(this.panelEl) this.panelEl.classList.remove('odp-oled');
     if(this.wakeLockSentinel){
       try{ this.wakeLockSentinel.release(); }catch(e){}
       this.wakeLockSentinel = null;
     }
     if(this.dryfTimer){ clearInterval(this.dryfTimer); this.dryfTimer = null; }
+    const k = document.getElementById('odpytywanieKarta');
+    if(k) k.style.transform = '';
+    if(this.holdTimer){ clearTimeout(this.holdTimer); this.holdTimer = null; }
+    const s = document.getElementById('odpytywanieStopBtn');
+    if(s) s.classList.remove('odp-trzymam');
   },
 
-  updateContent(ko, podpowiedz){
-    const k = document.getElementById('oledPromptKo');
-    const h = document.getElementById('oledHint');
-    if(k) k.textContent = ko;
-    if(h) h.textContent = podpowiedz || (uiLang === 'en' ? 'Listening…' : 'Słucham…');
-  },
-
-  setMicState(sluchamy){
-    const d = document.getElementById('oledDisc');
-    if(!d) return;
-    d.classList.toggle('oled-pulse-active', !!sluchamy);
-  },
-
+  /* 1,5 SEKUNDY, NIE DOTKNIĘCIE. Telefon jedzie w uchwycie albo w kieszeni
+     i dostaje przypadkowe dotknięcia na każdym progu zwalniającym. Wyjście
+     z trybu w połowie trasy jest gorsze niż jedno przytrzymanie za dużo.
+     Gest siedzi na JEDYNYM przycisku wyjścia — nie ma drugiego. */
   bindUnlockGesture(){
-    const trig = document.getElementById('oledUnlockTrigger');
+    if(this.gestPodpiety) return;
+    const trig = document.getElementById('odpytywanieStopBtn');
     if(!trig) return;
-    /* 1,5 SEKUNDY, NIE DOTKNIĘCIE. Telefon jedzie w uchwycie albo w kieszeni
-       i dostaje przypadkowe dotknięcia na każdym progu zwalniającym. Wyjście
-       z trybu w połowie trasy jest gorsze niż jedno przytrzymanie za dużo. */
     const startHold = (e) => {
       if(e && e.preventDefault) e.preventDefault();
-      trig.classList.add('oled-holding');
-      this.holdTimer = setTimeout(() => { CarVoiceQuiz.exitCarMode(); }, 1500);
+      trig.classList.add('odp-trzymam');
+      this.holdTimer = setTimeout(() => {
+        trig.classList.remove('odp-trzymam');
+        odpytywanieStop(false);
+      }, 1500);
     };
     const cancelHold = () => {
-      trig.classList.remove('oled-holding');
+      trig.classList.remove('odp-trzymam');
       if(this.holdTimer){ clearTimeout(this.holdTimer); this.holdTimer = null; }
     };
     trig.addEventListener('pointerdown', startHold);
     trig.addEventListener('pointerup', cancelHold);
     trig.addEventListener('pointercancel', cancelHold);
     trig.addEventListener('pointerleave', cancelHold);
+    this.gestPodpiety = true;
   },
 
   /* Wypalanie pikseli: ten sam jasny napis potrafi stać w jednym miejscu
@@ -19604,7 +19846,7 @@ const OledLockOverlay = {
   startBurnInProtection(){
     if(this.dryfTimer) return;
     this.dryfTimer = setInterval(() => {
-      const c = document.getElementById('oledBurninContainer');
+      const c = document.getElementById('odpytywanieKarta');
       if(!c) return;
       const dx = (Math.random() - 0.5) * 16, dy = (Math.random() - 0.5) * 16;
       c.style.transform = 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px)';
@@ -19612,181 +19854,21 @@ const OledLockOverlay = {
   },
 };
 
-const CarVoiceQuiz = {
-  queue: [],
-  currentWord: null,
-  recognition: null,
-  isPaused: false,
-  aktywny: false,
-  carWatchdog: null,
+/* CarVoiceQuiz USUNIĘTY W .582. Wszystko, co robił, robi teraz jeden
+   automat przy `odpytywanie*`:
 
-  COMMANDS_SKIP:   ['nie wiem', 'nie pamiętam', 'nie pamietam', 'następne', 'nastepne', 'dalej', 'pas', 'omiń', 'omin'],
-  COMMANDS_REPEAT: ['powtórz', 'powtorz', 'jeszcze raz'],
-  COMMANDS_PAUSE:  ['pauza', 'stop', 'czekaj'],
+     queue/nextWord/exitCarMode  → odpytywanieKolejka / odpytywanieRunda /
+                                   odpytywanieStop
+     COMMANDS_… + evaluateInput  → ODP_KOMENDY / odpKomenda / odpAkcja
+     speak + carWatchdog         → odpMow
+     setupSpeechRecognition      → odpSluchaj (most natywny + wznawianie
+                                   + taksonomia błędów, których tamten nie miał)
+     dopasowanie przez indexOf   → odpNorm + odpPodobne (próg 0.6)
+     BRAK zapisu do SRS          → srsRate, tak jak w odpytywaniu od 2026-09-05
 
-  /* Bez rozpoznawania mowy ten tryb nie ma sensu i NIE WOLNO go otworzyć:
-     czarny ekran, który nigdy nie odpowie, jest gorszy niż komunikat. */
-  dostepny(){
-    return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
-  },
-
-  init(queue){
-    this.queue = Array.isArray(queue) ? queue.slice() : [];
-    CarAudioSession.init();
-    this.setupSpeechRecognition();
-  },
-
-  async start(){
-    if(!this.dostepny()) return false;
-    if(!this.recognition) this.setupSpeechRecognition();
-    this.isPaused = false;
-    this.aktywny = true;
-    await CarAudioSession.startAnchor();
-    await OledLockOverlay.enable();
-    this.nextWord();
-    return true;
-  },
-
-  setupSpeechRecognition(){
-    const SpeechAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(!SpeechAPI) return;
-    this.recognition = new SpeechAPI();
-    this.recognition.lang = 'pl-PL';
-    this.recognition.continuous = false;
-    this.recognition.interimResults = false;
-
-    this.recognition.onstart = () => {
-      OledLockOverlay.setMicState(true);
-      if(this.currentWord) OledLockOverlay.updateContent(this.currentWord.ko,
-        uiLang === 'en' ? 'Listening for your answer…' : 'Słucham odpowiedzi…');
-    };
-    this.recognition.onresult = (evt) => {
-      const t = String(evt.results[0][0].transcript || '').trim().toLowerCase();
-      this.evaluateInput(t);
-    };
-    /* SZUM W AUCIE TO NIE BŁĄD UŻYTKOWNIKA. Silnik rozpoznawania kończy
-       się sam przy ciszy albo hałasie; wtedy po prostu wracamy do nasłuchu,
-       bez komunikatu i bez poganiania. */
-    this.recognition.onerror = () => {
-      if(this.aktywny && !this.isPaused && this.currentWord) setTimeout(() => this.listen(), 400);
-    };
-    this.recognition.onend = () => {
-      OledLockOverlay.setMicState(false);
-      if(this.aktywny && !this.isPaused && this.currentWord && !this.mowiTeraz){
-        setTimeout(() => this.listen(), 250);
-      }
-    };
-  },
-
-  listen(){
-    if(!this.aktywny || this.isPaused || !this.recognition) return;
-    try{ this.recognition.start(); }
-    catch(e){ /* silnik już nasłuchuje — druga próba nie szkodzi */ }
-  },
-
-  nextWord(){
-    if(!this.queue.length){ this.exitCarMode(); return; }
-    this.currentWord = this.queue.shift();
-    CarAudioSession.updateLockscreen(this.currentWord.ko, this.currentWord.pl, this.currentWord.hanja);
-    OledLockOverlay.updateContent(this.currentWord.ko,
-      uiLang === 'en' ? 'Saying the word…' : 'Wypowiadam hasło…');
-    this.speak(this.currentWord.ko, 'ko-KR', () => this.listen());
-  },
-
-  evaluateInput(tekst){
-    if(!this.currentWord) return;
-    if(this.COMMANDS_SKIP.some(c => tekst.indexOf(c) !== -1))   return this.handleUserAction('skip');
-    if(this.COMMANDS_REPEAT.some(c => tekst.indexOf(c) !== -1)) return this.handleUserAction('repeat');
-    if(this.COMMANDS_PAUSE.some(c => tekst.indexOf(c) !== -1))  return this.pause();
-
-    const cel = String(this.currentWord.pl || '').toLowerCase();
-    /* Dopasowanie w obie strony: uczeń powie „jabłko", a hasło może brzmieć
-       „jabłko, owoc jabłoni" — i odwrotnie, gdy rozpoznawanie doklei słowo. */
-    const trafione = !!tekst && (tekst.indexOf(cel) !== -1 || cel.indexOf(tekst) !== -1);
-    if(trafione){
-      OledLockOverlay.updateContent(this.currentWord.ko, '✓ ' + (uiLang === 'en' ? 'Correct' : 'Dobrze'));
-      this.speak(uiLang === 'en' ? 'Correct' : 'Dobrze', uiLang === 'en' ? 'en-US' : 'pl-PL', () => this.nextWord());
-    } else {
-      this.handleUserAction('skip');
-    }
-  },
-
-  handleUserAction(action){
-    if(!this.currentWord) return;
-    if(action === 'skip'){
-      const pl = this.currentWord.pl;
-      OledLockOverlay.updateContent(this.currentWord.ko, (uiLang === 'en' ? 'Meaning: ' : 'Znaczenie: ') + pl);
-      this.speak((uiLang === 'en' ? 'It means: ' : 'To znaczy: ') + pl,
-        uiLang === 'en' ? 'en-US' : 'pl-PL', () => this.nextWord());
-    } else if(action === 'repeat'){
-      this.speak(this.currentWord.ko, 'ko-KR', () => this.listen());
-    }
-  },
-
-  /* WATCHDOG PILNUJE SYNTEZY, NIE CZŁOWIEKA.
-     Cały automat przechodzi dalej w `utterance.onend`. Część przeglądarek
-     mobilnych tego zdarzenia nie odpala — a skoro timeoutów świadomie nie
-     ma, pętla stanęłaby na zawsze i nic by jej nie ruszyło. Zegar liczy się
-     więc od ROZPOCZĘCIA WŁASNEJ WYPOWIEDZI i daje jej z zapasem tyle, ile
-     może trwać (60 ms na znak + 1,8 s), po czym przechodzi dalej tak, jakby
-     `onend` przyszło. Czasu na myślenie ucznia NIE ogranicza nic. */
-  speak(text, lang, onEnd){
-    const dalej = () => {
-      if(this.carWatchdog){ clearTimeout(this.carWatchdog); this.carWatchdog = null; }
-      if(!this.mowiTeraz) return;      // już poszliśmy dalej
-      this.mowiTeraz = false;
-      if(onEnd) onEnd();
-    };
-    this.mowiTeraz = true;
-    /* TEN SAM LEKTOR CO W ODPYTYWANIU I NA FISZKACH.
-       `mow()` próbuje najpierw lektora Premium (ko-KR-Neural2, przez bufor
-       współdzielony), a gdy go nie ma — syntezy przeglądarki z NAJLEPSZYM
-       dostępnym głosem zamiast domyślnego. Do `.580` tryb samochodowy
-       budował własne `SpeechSynthesisUtterance` i przez to jako jedyne
-       miejsce w aplikacji mówił głosem systemowym z przypadku.
-
-       `shared: true`, bo w aucie lecą hasła ZE SŁOWNIKA — ta sama treść
-       wbudowana co na fiszkach, więc ten sam bufor. Bez tego każdy przejazd
-       generowałby te same słowa od nowa. */
-    if(this.carWatchdog) clearTimeout(this.carWatchdog);
-    /* ZAPAS WIĘKSZY NIŻ PRZY WŁASNEJ SYNTEZIE. Watchdog pilnuje teraz dwóch
-       rzeczy naraz: `onend`, którego część przeglądarek nie odpala, ORAZ
-       żądania sieciowego po lektora Premium — a w aucie zasięg bywa, jaki
-       bywa. Czekania na CZŁOWIEKA to dalej nie dotyczy. */
-    this.carWatchdog = setTimeout(dalej, 3500 + String(text).length * 60);
-    try{
-      const obietnica = (typeof mow === 'function')
-        ? mow(text, lang, { shared: true })
-        : Promise.resolve();
-      Promise.resolve(obietnica).then(dalej, dalej);
-    }catch(e){ dalej(); }
-  },
-
-  pause(){
-    this.isPaused = true;
-    if(this.recognition){ try{ this.recognition.abort(); }catch(e){} }
-    OledLockOverlay.setMicState(false);
-    OledLockOverlay.updateContent(uiLang === 'en' ? 'Paused' : 'Pauza',
-      uiLang === 'en' ? 'Resume with Play on the wheel' : 'Wznów przyciskiem Play na kierownicy');
-  },
-
-  resume(){
-    if(!this.aktywny) return;
-    this.isPaused = false;
-    if(this.currentWord) this.handleUserAction('repeat');
-  },
-
-  exitCarMode(){
-    this.aktywny = false;
-    this.isPaused = true;
-    this.mowiTeraz = false;
-    if(this.carWatchdog){ clearTimeout(this.carWatchdog); this.carWatchdog = null; }
-    if(this.recognition){ try{ this.recognition.abort(); }catch(e){} }
-    try{ window.speechSynthesis.cancel(); }catch(e){}
-    CarAudioSession.stopAnchor();
-    OledLockOverlay.disable();
-  },
-};
+   Zdolności, które tu były, a tam ich nie było — komendy głosowe, kotwica
+   audio, Media Session, czerń OLED, watchdog syntezy — zostały przeniesione,
+   nie skasowane. Każda ma własną asercję w `test-582.js`. */
 
 /* ═══ KOŁA RATUNKOWE ══════════════════════════════════════════════════════
    Wypełniacze pauzy pod przyciskiem mikrofonu. Kliknięcie WYPOWIADA zwrot -
@@ -21863,40 +21945,12 @@ function pkOtworz(){
   setScreen('przekaznik');
 }
 
-/* Kolejka bierze się STĄD SAMO, co Powtórki — tryb samochodowy nie jest
-   osobnym materiałem, tylko innym sposobem przerobienia tego samego. */
-function carModeKolejka(){
-  let due = [];
-  try{ due = (typeof getDueWords === 'function') ? (getDueWords() || []) : []; }catch(e){ due = []; }
-  return due.map(w => ({
-    ko: bezNumeru(String(w.ko || '')).trim(),
-    pl: String(w.pl || ''),
-    hanja: w.hanja || (typeof SINO_HANJA !== 'undefined' ? (SINO_HANJA[bezNumeru(String(w.ko||'')).trim()] || '') : ''),
-  })).filter(x => x.ko && x.pl);
-}
-
-function carModePodepnij(){
-  const karta = document.getElementById('carModeCard');
-  if(!karta) return;
-  karta.addEventListener('click', async () => {
-    const en = uiLang === 'en';
-    if(!CarVoiceQuiz.dostepny()){
-      /* KOMUNIKAT, NIE CZARNY EKRAN. Bez rozpoznawania mowy tryb nie ma jak
-         działać, a otwarcie go i tak byłoby pułapką bez wyjścia. */
-      alert(en ? 'Car mode needs speech recognition, which this browser does not offer.'
-               : 'Tryb samochodowy wymaga rozpoznawania mowy, którego ta przeglądarka nie udostępnia.');
-      return;
-    }
-    const kolejka = carModeKolejka();
-    if(!kolejka.length){
-      alert(en ? 'Nothing is due for revision right now.' : 'Nie ma teraz nic do powtórki.');
-      return;
-    }
-    CarVoiceQuiz.init(kolejka);
-    await CarVoiceQuiz.start();
-  });
-}
-carModePodepnij();
+/* carModeKolejka / carModePodepnij USUNIĘTE W .582 razem z kaflem
+   #carModeCard. Kolejka dla trybu bez ekranu bierze się z
+   `zbudujKolejkeOdpytywania()`, która jest bogatsza: respektuje wybrany
+   dział i poziom (`pickPool`), a zaległe z SRS stawia NA POCZĄTKU zamiast
+   brać wyłącznie je. Hanja na ekran blokady liczona jest w rundzie, tą samą
+   drogą co tutaj. */
 
 function pkPodepnij(){
   /* Dziennik jest narzędziem diagnostycznym, nie funkcją dla ucznia: pokazuje
@@ -34245,7 +34299,10 @@ document.getElementById('odpytywanieCard').addEventListener('click', ()=>{
   odpytywanieKierunek = (typeof direction !== 'undefined' && direction === 'pl-ko') ? 'pl-ko' : 'ko-pl';
   odpytywanieStart();
 });
-document.getElementById('odpytywanieStopBtn').addEventListener('click', ()=> odpytywanieStop(false));
+/* BEZ `click` NA WYJŚCIU. Gest przytrzymania podpina `OledLockOverlay`
+   przy pierwszym wejściu w tryb (patrz `bindUnlockGesture`) — zostawienie
+   tu kliknięcia znaczyłoby, że przypadkowe dotknięcie w uchwycie dalej
+   kończy sesję, czyli że gest niczego nie pilnuje. */
 
 /* „Nie umiałem" - jedyny sposób oznaczenia błędu, który NIE zależy od
    rozpoznawania mowy. Działa w każdej przeglądarce i bez internetu.
@@ -34258,6 +34315,23 @@ document.getElementById('odpPudloBtn').addEventListener('click', ()=>{
   b.classList.add('wcisniety');
   setTimeout(()=> b.classList.remove('wcisniety'), 400);
   odpytywanieStatus(uiLang === 'en' ? 'Marked — it will come back.' : 'Zaznaczone — wróci.');
+  /* .582: przycisk KOŃCZY TURĘ, a nie tylko ją znakuje. Przy zegarze 6 s
+     dokończenie pauzy było kwestią sekund; bez zegara uczeń, który właśnie
+     powiedział „nie umiem", czekałby na bezpiecznik. */
+  odpPrzerwijNasluch();
+  odpZglos('przycisk', null);
+});
+
+/* Mikrofon: przesłanka trybu bez ekranu, więc domyślnie WŁĄCZONY. Wyłączenie
+   zostawia tryb sprawny — kończy turę przycisk „Nie umiałem" albo bezpiecznik
+   `odpLimitBezNasluchu`, a sterowanie z kierownicy działa dalej, bo nie idzie
+   przez mikrofon. */
+document.getElementById('odpMikToggle').addEventListener('change', (e)=>{
+  odpMikrofon = e.target.checked;
+  if(!odpMikrofon){ odpPrzerwijNasluch(); odpNasluch(false); }
+  odpytywanieStatus(odpMikrofon
+    ? (uiLang === 'en' ? 'Listening on — from the next word' : 'Słucham — od następnego słowa')
+    : (uiLang === 'en' ? 'Listening off — use the button' : 'Nie słucham — używaj przycisku'));
 });
 
 /* Ocena domyślnie wyłączona: wymaga mikrofonu, a przy prowadzeniu i hałasie
