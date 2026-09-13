@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.575
-  Zbudowane na: 8c16bc0aafd76a37917e61c9fa723012 (.574)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.576
+  Zbudowane na: ea22f45701e01b584df26e4d9f8159bf (.575)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -4789,6 +4789,32 @@
   .sb-chip.sb-placed{background:var(--hwang); color:var(--on-accent); border-color:var(--hwang);}
 
   /* WPROWADZENIE DLA NOWYCH UŻYTKOWNIKÓW */
+  /* ── REFLEKTOR ─────────────────────────────────────────────────────
+     Tło ŁAPIE kliknięcia (`pointer-events:auto`) i je zjada — to jest
+     cała blokada. Dziura ma `pointer-events:none`, żeby nie przechwytywała
+     niczego sama, ale klik w jej obszarze i tak zatrzymuje się na
+     overlayu: w trakcie prowadzenia nawiguje wyłącznie „Dalej".
+     Uzasadnienie wyboru — w nagłówku `zloz-576.js`. */
+  #reflektorOverlay{ position:fixed; inset:0; z-index:10000; pointer-events:auto; }
+  #reflektorOverlay[hidden]{ display:none !important; }
+  #reflektorDziura{ position:absolute; pointer-events:none;
+    border-radius:var(--radius, 12px);
+    box-shadow:0 0 0 9999px rgba(0,0,0,.75);
+    outline:2px solid var(--hwang); outline-offset:2px;
+    transition:top .22s ease, left .22s ease, width .22s ease, height .22s ease; }
+  .ref-pomin{ position:absolute; top:14px; right:14px; z-index:2;
+    border:1px solid rgba(255,255,255,.35); background:rgba(0,0,0,.35);
+    color:#fff; font:600 13px var(--font-ui); padding:7px 13px;
+    border-radius:var(--radius-pill, 999px); cursor:pointer; }
+  .ref-dymek{ position:absolute; left:16px; right:16px; z-index:2;
+    background:var(--card); color:var(--ink); border:1px solid var(--border);
+    border-radius:var(--radius, 12px); padding:16px 16px 14px;
+    box-shadow:0 12px 32px rgba(0,0,0,.35); }
+  .ref-licznik{ font-size:11px; font-weight:600; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-dim); margin-bottom:6px; }
+  .ref-tytul{ font:700 17px var(--font-ui); margin-bottom:6px; }
+  .ref-tekst{ margin:0 0 14px; font-size:14px; line-height:1.5; color:var(--ink); }
+  .ref-dalej{ width:100%; }
   .ob-dots{
     display:flex;
     justify-content:center;
@@ -11330,35 +11356,6 @@ const ONBOARDING_STEPS = [
   "wybor": "l1"
  },
  {
-  "icon": "道",
-  "title": {
-   "pl": "Cztery sposoby nauki",
-   "en": "Four ways to learn"
-  },
-  "features": [
-   {
-    "icon": "📚",
-    "pl": "<b>Słówka</b> — buduj słownictwo i poznawaj wzorce gramatyczne",
-    "en": "<b>Vocabulary</b> — build words and learn grammar patterns"
-   },
-   {
-    "icon": "🔤",
-    "pl": "<b>Koniugacja</b> — ćwicz odmianę czasowników i przymiotników",
-    "en": "<b>Conjugation</b> — practice verb and adjective forms"
-   },
-   {
-    "icon": "🎙️",
-    "pl": "<b>Rozmowa z AI</b> — mów po koreańsku, dostawaj poprawki na żywo",
-    "en": "<b>AI Chat</b> — speak Korean, get live corrections"
-   },
-   {
-    "icon": "📖",
-    "pl": "<b>Czytanie</b> — trenuj wymowę, czytając na głos",
-    "en": "<b>Reading</b> — practice pronunciation by reading aloud"
-   }
-  ]
- },
- {
   "icon": "習",
   "title": {
    "pl": "Ucz się we właściwym tempie",
@@ -13325,7 +13322,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.575';
+const APP_VERSION = '2026-09-11.576';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -13696,6 +13693,15 @@ function setScreen(screen){
   if(screen === 'topikTest') startTopikTest();
   if(screen === 'sentenceBuilder') startSentenceBuilder();
   if(screen === 'onboarding'){ obIndex = 0; renderOnboardingStep(); }
+  /* Przewodnik zaczepiony o WEJŚCIE NA HUB, nie o koniec wprowadzenia:
+     na `modeSelect` trafia się kilkoma drogami (po wprowadzeniu, po
+     zalogowaniu, przyciskiem wstecz), a kafle istnieją tylko tutaj.
+     Jedno zaczepienie obsługuje wszystkie drogi. Opóźnienie daje ekranowi
+     dokończyć przejście — prostokąt mierzony w połowie animacji jest
+     nieprawdziwy. */
+  if(screen === 'modeSelect' && typeof reflektorStart === 'function' && !reflektorZrobiony()){
+    setTimeout(() => { if(!reflektorZrobiony()) reflektorStart(false); }, 420);
+  }
   if(screen === 'numberSystem') renderNumberSystemScreen();
   if(screen === 'placementTest') startPlacementTest();
   if(screen === 'storyMap'){
@@ -15386,6 +15392,15 @@ function renderAccountScreen(){
     { label: uiLang === 'en' ? '🏆 My achievements' : '🏆 Moje osiągnięcia', go:()=>setScreen('achievements') },
     { label: uiLang === 'en' ? '⚙️ Sound, language, report a bug' : '⚙️ Dźwięk, język, zgłoszenia', go:()=>setScreen('settings') },
     { label: uiLang === 'en' ? '⭐ Subscription' : '⭐ Subskrypcja', go:()=>document.getElementById('premiumPanel').classList.add('open') },
+    /* DWA OSOBNE WEJŚCIA, bo to dwie różne rzeczy. „Przewodnik" to nowy
+       reflektor po triadzie. „Jak korzystać z apki" zostaje przy starym
+       wprowadzeniu, bo tamten ekran niesie JEDYNY w całej aplikacji wybór
+       języka ojczystego (`wybor: 'l1'` → `l1Ustaw`); przepięcie tego
+       przycisku na reflektor odcięłoby użytkownika od tego ustawienia. */
+    { label: uiLang === 'en' ? '🧭 App guide' : '🧭 Przewodnik po aplikacji',
+      go:()=>{ document.getElementById('accountPanel').classList.remove('open');
+               setScreen('modeSelect');
+               setTimeout(() => reflektorStart(true), 420); } },
     { label: uiLang === 'en' ? '❓ How to use the app' : '❓ Jak korzystać z apki', go:()=>{ const b=document.getElementById('replayOnboardingBtn'); if(b) b.click(); } },
     { label: uiLang === 'en' ? '📳 Vibration on answers' : '📳 Wibracje przy odpowiedziach', toggle:true },
   ];
@@ -29567,6 +29582,166 @@ function markOnboardingSeen(){
   try{ localStorage.setItem(ONBOARDING_SEEN_KEY, '1'); }catch(e){}
 }
 
+/* ══ PRZEWODNIK PO TRIADZIE ════════════════════════════════════════════
+   Trzy kroki, po jednym na kafel: Scenariusze, Symulator, Akademia.
+
+   Dlaczego reflektor, a nie kolejny ekran z listą: lista opisuje aplikację
+   OBOK aplikacji i uczy nazw, nie miejsc. Reflektor pokazuje TEN kafel,
+   w który za chwilę trzeba będzie kliknąć, na jego prawdziwym miejscu na
+   ekranie — po przewodniku uczeń wie, gdzie coś jest, a nie tylko że jest.
+
+   Cele są identyfikatorami, nie pozycjami w liście kafli: kolejność na
+   `modeSelect` może się zmienić i przewodnik ma to przeżyć. */
+const REFLEKTOR_KLUCZ = 'onboarding_triada_done';
+
+/* Odmiana liczebnika. Bez tego interpolacja dawałaby „372 lekcji", a przy
+   375 — „375 lekcje". Liczba idzie z `STORY_LESSONS.length`, więc forma
+   musi się liczyć, nie być wpisana. */
+function reflektorOdmiana(n, formy){
+  const n10 = n % 10, n100 = n % 100;
+  if(n === 1) return formy[0];
+  if(n10 >= 2 && n10 <= 4 && !(n100 >= 12 && n100 <= 14)) return formy[1];
+  return formy[2];
+}
+
+const REFLEKTOR_KROKI = [
+  { cel: '#modeSelectStoryBtn',
+    tytul: { pl: 'Scenariusze', en: 'Scenarios' },
+    tekst: {
+      pl: () => 'Prowadzony kurs krok po kroku: ' + STORY_LESSONS.length + ' '
+        + reflektorOdmiana(STORY_LESSONS.length, ['lekcja fabularna', 'lekcje fabularne', 'lekcji fabularnych'])
+        + ', misje z oceną oraz Warsztat do szlifowania gramatyki i leksyki.',
+      en: () => 'A guided course, step by step: ' + STORY_LESSONS.length
+        + ' story lessons, graded missions and the Workshop for drilling grammar and vocabulary.',
+    } },
+  { cel: '#modeSelectSandboxBtn',
+    tytul: { pl: 'Symulator', en: 'Simulator' },
+    tekst: {
+      pl: () => 'Interaktywny poligon AI: Kompas relacji społecznych, praca nad rejestrem i wolna rozmowa z natychmiastową informacją zwrotną.',
+      en: () => 'An interactive AI range: the compass of social relations, work on register, and free conversation with immediate feedback.',
+    } },
+  { cel: '#modeSelectAcademyBtn',
+    tytul: { pl: 'Akademia', en: 'Academy' },
+    tekst: {
+      pl: () => 'Głęboki kontekst: Kodeks Etykiety, moduły branżowe oraz kaligrafia i etymologia znaków hanja.',
+      en: () => 'Deeper context: the Etiquette Codex, industry modules, plus calligraphy and hanja etymology.',
+    } },
+];
+
+let reflektorKrok = 0;
+let reflektorAktywny = false;
+
+function reflektorZrobiony(){
+  try{ return localStorage.getItem(REFLEKTOR_KLUCZ) === '1'; }
+  catch(e){ return true; }   // brak dostępu do pamięci nie może zapętlić przewodnika
+}
+function reflektorOznacz(){
+  try{ localStorage.setItem(REFLEKTOR_KLUCZ, '1'); }catch(e){}
+}
+
+/* Ustawia dziurę na prostokącie celu i dokleja dymek tam, gdzie jest
+   miejsce. Liczone z `getBoundingClientRect()` przy każdym kroku, bo
+   wysokość kafli zależy od motywu i od długości napisów. */
+function reflektorUstawGeometrie(){
+  const krok = REFLEKTOR_KROKI[reflektorKrok];
+  const cel = krok && document.querySelector(krok.cel);
+  const dziura = document.getElementById('reflektorDziura');
+  const dymek = document.getElementById('reflektorDymek');
+  if(!cel || !dziura || !dymek) return false;
+  const r = cel.getBoundingClientRect();
+  const luz = 6;
+  dziura.style.left = (r.left - luz) + 'px';
+  dziura.style.top = (r.top - luz) + 'px';
+  dziura.style.width = (r.width + luz * 2) + 'px';
+  dziura.style.height = (r.height + luz * 2) + 'px';
+  /* Dymek pod kafelkiem, a jeśli się nie mieści — nad nim. Mierzę jego
+     realną wysokość po wstawieniu treści, zamiast zakładać stałą. */
+  const wys = dymek.offsetHeight || 150;
+  const podSpodem = r.bottom + 14;
+  dymek.style.top = (podSpodem + wys < window.innerHeight - 10)
+    ? podSpodem + 'px'
+    : Math.max(10, r.top - wys - 14) + 'px';
+  return true;
+}
+
+function reflektorPokazKrok(){
+  const krok = REFLEKTOR_KROKI[reflektorKrok];
+  if(!krok) return reflektorZamknij();
+  const en = uiLang === 'en';
+  const ov = document.getElementById('reflektorOverlay');
+  ov.querySelector('.ref-licznik').textContent = (reflektorKrok + 1) + ' / ' + REFLEKTOR_KROKI.length;
+  ov.querySelector('.ref-tytul').textContent = en ? krok.tytul.en : krok.tytul.pl;
+  /* Teksty są FUNKCJAMI, żeby liczba lekcji policzyła się przy pokazywaniu,
+     a nie przy wczytaniu skryptu — dane mogą dojść później. */
+  ov.querySelector('.ref-tekst').textContent = (en ? krok.tekst.en : krok.tekst.pl)();
+  document.getElementById('reflektorDalej').textContent = (reflektorKrok === REFLEKTOR_KROKI.length - 1)
+    ? (en ? 'Got it' : 'Rozumiem')
+    : (en ? 'Next ▶' : 'Dalej ▶');
+  document.getElementById('reflektorPomin').textContent = en ? 'Skip guide' : 'Pomiń przewodnik';
+  /* Kafel musi być W POLU WIDZENIA, zanim zmierzę jego prostokąt — inaczej
+     reflektor świeci poza ekranem i uczeń widzi samo przyciemnienie. */
+  const cel = document.querySelector(krok.cel);
+  if(cel && cel.scrollIntoView) { try{ cel.scrollIntoView({ block: 'center' }); }catch(e){} }
+  reflektorUstawGeometrie();
+}
+
+function reflektorStart(recznie){
+  if(!recznie && reflektorZrobiony()) return;
+  reflektorPodepnij();
+  const ov = document.getElementById('reflektorOverlay');
+  if(!ov) return;
+  /* Bez celów nie ma czego podświetlać — lepiej nie pokazać nic niż
+     przyciemnić ekran i świecić w punkt (0,0). */
+  if(!REFLEKTOR_KROKI.some(k => document.querySelector(k.cel))) return;
+  reflektorKrok = 0;
+  reflektorAktywny = true;
+  ov.hidden = false;
+  reflektorPokazKrok();
+  window.addEventListener('resize', reflektorUstawGeometrie);
+}
+
+function reflektorZamknij(){
+  const ov = document.getElementById('reflektorOverlay');
+  if(ov) ov.hidden = true;
+  reflektorAktywny = false;
+  reflektorOznacz();
+  window.removeEventListener('resize', reflektorUstawGeometrie);
+}
+
+/* PODPIĘCIE LENIWE, BO ZNACZNIKI STOJĄ NIŻEJ NIŻ TEN SKRYPT.
+   Pierwsza wersja wołała `reflektorPodepnij()` od razu przy wczytaniu
+   bloku `<script>` — a overlay jest wstawiony tuż przed `</body>`, czyli
+   PO tym bloku. `getElementById` zwracał null, żaden nasłuch się nie
+   zakładał i przewodnik otwierał się poprawnie, ale „Dalej" nic nie robiło:
+   licznik stał na „1 / 3", a reflektor nie ruszał się z pierwszego kafla.
+   Nic nie rzucało wyjątku, bo wszystkie przypisania były pod `if(el)`.
+   Teraz podpięcie jest idempotentne i woła się też ze `reflektorStart`,
+   czyli w momencie, gdy znaczniki na pewno istnieją. */
+let reflektorPodpiety = false;
+function reflektorPodepnij(){
+  if(reflektorPodpiety) return;
+  const dalej = document.getElementById('reflektorDalej');
+  const pomin = document.getElementById('reflektorPomin');
+  const ov = document.getElementById('reflektorOverlay');
+  if(dalej) dalej.addEventListener('click', () => {
+    reflektorKrok += 1;
+    if(reflektorKrok >= REFLEKTOR_KROKI.length) return reflektorZamknij();
+    reflektorPokazKrok();
+  });
+  if(pomin) pomin.addEventListener('click', reflektorZamknij);
+  /* ZJADANIE KLIKNIĘĆ. Overlay przykrywa cały ekran i zatrzymuje wszystko,
+     co nie trafiło w jego własne przyciski. To jest „blokada kliknięć poza
+     aktywnym celem" ze specyfikacji — zrobiona przez ŁAPANIE zdarzeń,
+     nie przez `pointer-events:none`, które przepuszczałoby je do kafli. */
+  if(ov) ov.addEventListener('click', (e) => {
+    if(e.target === dalej || e.target === pomin) return;
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  if(dalej && pomin && ov) reflektorPodpiety = true;
+}
+reflektorPodepnij();   // zadziała, jeśli znaczniki już są; jeśli nie — ze `reflektorStart`
+
 let obIndex = 0;
 
 function renderOnboardingStep(){
@@ -34470,5 +34645,24 @@ sb.auth.onAuthStateChange(async (event, session)=>{
   }
 })();
 </script>
+<!-- ═══ PRZEWODNIK PO TRIADZIE — REFLEKTOR ══════════════════════════════
+     Warstwa nad aplikacją: przyciemnia wszystko poza jednym kafelkiem
+     i opowiada, czym ten kafelek jest. Overlay stoi POZA ekranami
+     (`SCREEN_IDS`), bo nie jest ekranem — nie ma go w nawigacji, nie
+     wraca przyciskiem wstecz i nie może zostać „ostatnim trybem".
+
+     Dziura jest jednym pustym elementem: przyciemnienie robi
+     `box-shadow` o promieniu większym niż ekran, więc nie trzeba maski
+     SVG ani czterech paneli dookoła. -->
+<div id="reflektorOverlay" hidden>
+  <div id="reflektorDziura"></div>
+  <button type="button" id="reflektorPomin" class="ref-pomin"></button>
+  <div id="reflektorDymek" class="ref-dymek">
+    <div class="ref-licznik"></div>
+    <div class="ref-tytul"></div>
+    <p class="ref-tekst"></p>
+    <button type="button" id="reflektorDalej" class="primary ref-dalej"></button>
+  </div>
+</div>
 </body>
 </html>
