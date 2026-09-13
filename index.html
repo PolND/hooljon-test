@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.567
-  Zbudowane na: 1bba4153bbe773de279a8487a381b04b (.566)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.568
+  Zbudowane na: 4c82c1437c5641f2373bd0f2c1c514f3 (.567)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -7237,7 +7237,7 @@
       </span>
     </button>
     <button class="home-card" id="modeSelectSandboxBtn">
-      <span class="icon">🗺️</span>
+      <span class="icon">🧭</span>
       <span>
         <div class="title" data-i18n="modeSelectSandboxTitle">Tryb Sandbox</div>
         <div class="desc" data-i18n="modeSelectSandboxDesc">Pełne menu, swobodna nawigacja — dla obytych z apką.</div>
@@ -7278,6 +7278,20 @@
         <div class="desc" data-i18n="kodeksCardDesc">Siedemnaście relacji: jaki styl, czy honoryfikatyw, ile tolerancji, gdzie kończy się slang.</div>
       </span>
     </button>
+    <button class="home-card variant-row" data-target="industryModule">
+      <span class="icon">업</span>
+      <span>
+        <div class="title" data-i18n="homeIndustryTitle">Moduły branżowe</div>
+        <div class="desc" data-i18n="homeIndustryDesc">K-beauty, wojskowość, IT, prawo, K-pop i więcej.</div>
+      </span>
+    </button>
+    <button class="home-card variant-row" data-target="hanja">
+      <span class="icon">漢</span>
+      <span>
+        <div class="title" data-i18n="homeHanjaTitle">Hanja</div>
+        <div class="desc" data-i18n="homeHanjaDesc">Chińskie znaki-rdzenie za słowami, które już znasz.</div>
+      </span>
+    </button>
     <div class="domain-grid" id="academyDomainGrid"></div>
   </div>
 
@@ -7286,7 +7300,7 @@
 
     <div class="home-head">
       <div class="hh-brand"><svg class="hh-mark hj-logo" viewBox="93 150 828 828" aria-hidden="true"><use href="#hj-logo"/></svg>Hooljon</div>
-      <div class="hh-title"><b data-i18n="navLearn">Nauka</b></div>
+      <div class="hh-title"><b data-i18n="symTytulEkranu">Symulator</b></div>
       <div class="home-today">
         <div><span class="ht-lab" data-i18n="homeStatStreak">Seria</span><span class="ht-val" id="homeStreakVal">0</span></div>
         <div class="ht-right"><span class="ht-lab" data-i18n="homeStatToday">Dziś</span><span class="ht-val" id="homeTodayVal">0<small>/30</small></span></div>
@@ -7296,89 +7310,20 @@
 
     <div class="daily-value-summary" style="display:none; text-align:center; font-size:14.5px; color:var(--ink-dim); background:var(--card-hi); border-radius:12px; padding:10px 14px; margin-bottom:12px;"></div>
 
-    <div class="achv-section-title" style="margin-top:4px;" data-i18n="homeSectionQuick">Szybki dostęp</div>
-    <button class="home-card variant-hero" id="vocabReviewCardHome" data-vocab-flow="review">
-      <span class="icon">복</span>
-      <!-- Liczba zaległych wyjęta z tytułu na PRAWĄ stronę wiersza (v6 §6.1) -
-           ma być największym elementem ekranu, a wewnątrz tytułu nie mogła nim
-           być. Blok tekstu dostaje flex:1, liczba flex:none. -->
-      <span class="vh-main">
-        <div class="title" data-i18n="reviewModeTitle">Powtórki</div>
-        <div class="desc" data-i18n="homeReviewDesc">Słówka gotowe do powtórki, bez wybierania działu.</div>
-      </span>
-      <span class="level-badge ready" id="vocabDueBadgeHome">0</span>
-    </button>
-    <button class="home-card variant-row" id="vocabLeechCardHome" data-vocab-flow="leeches" style="display:none;">
-      <span class="icon">열</span>
-      <span>
-        <div class="title"><span data-i18n="leechModeTitle">Trudne słowa</span> <span class="level-badge ready" id="vocabLeechBadgeHome">0</span></div>
-        <div class="desc" data-i18n="homeLeechDesc">Słówka, które sprawiają najwięcej trudności.</div>
-      </span>
-    </button>
 
       <!-- Nagłówek „Nauka" WEWNĄTRZ kontenera (v6 §4). W Jadeicie i Kobalcie
            zajmuje obie kolumny dzięki grid-column:1/-1; w pozostałych czterech
            motywach kontener ma display:contents, więc nagłówek jest po prostu
            śródtytułem w toku - dokładnie tak jak wcześniej. -->
       <div class="home-section-learn">
-        <div class="achv-section-title" style="margin-top:4px;" data-i18n="homeSectionLearn">Nauka</div>
-    <button class="home-card variant-row" data-target="hangul" id="hangulSandboxCard">
-      <span class="icon">한</span>
-      <span>
-        <div class="title" data-i18n="homeHangulTitle">Alfabet hangul</div>
-        <div class="desc" data-i18n="homeHangulDesc">Podstawy czytania — spółgłoski, samogłoski, sylaby.</div>
-      </span>
-    </button>
-    <button class="home-card variant-row" data-target="vocabMode">
-      <span class="icon">어</span>
-      <span>
-        <div class="title" data-i18n="homeVocabTitle">Słówka</div>
-        <div class="desc" data-i18n="homeVocabDesc">Słówka, działy tematyczne, powtórki.</div>
-      </span>
-    </button>
-    <button class="home-card variant-row" data-target="grammarHub">
-      <span class="icon">법</span>
-      <span>
-        <div class="title" data-i18n="homeGrammarHubTitle">Gramatyka</div>
-        <div class="desc" data-i18n="homeGrammarHubDesc">Koniugacja i wzorce zdaniowe.</div>
-      </span>
-    </button>
-    <button class="home-card variant-row" data-target="culture">
-      <span class="icon">문</span>
-      <span>
-        <div class="title" data-i18n="homeCultureTitle">Historia i kultura</div>
-        <div class="desc" data-i18n="homeCultureDesc">Szamanizm, tradycje, święta — kontekst za językiem.</div>
-      </span>
-    </button>
-    <button class="home-card variant-row" data-target="industryModule">
-      <span class="icon">업</span>
-      <span>
-        <div class="title" data-i18n="homeIndustryTitle">Moduły branżowe</div>
-        <div class="desc" data-i18n="homeIndustryDesc">K-beauty, wojskowość, IT, prawo, K-pop i więcej.</div>
-      </span>
-    </button>
 
       </div>
-    <div class="achv-section-title" data-i18n="homeSectionPractice">Praktyka</div>
+    <div class="achv-section-title" data-i18n="symSectionRozmowa">Rozmowa</div>
     <button class="home-card variant-row" data-target="aiChat">
       <span class="icon">화</span>
       <span>
         <div class="title" data-i18n="homeChatTitle">Rozmowa z AI</div>
         <div class="desc" data-i18n="homeChatDesc">Rozmawiaj z botem po koreańsku.</div>
-      </span>
-    </button>
-    <button class="home-card variant-row" data-target="reading">
-      <span class="icon">읽</span>
-      <span>
-        <div class="title" data-i18n="homeReadingTitle">Czytanie</div>
-        <div class="desc" data-i18n="homeReadingDesc">Czytaj na głos, w stylu karaoke.</div>
-      </span>
-    </button>
-    <button class="home-card variant-row" data-target="scenarioGen">
-      <span class="icon">상</span>
-      <span>
-        <div class="title" data-i18n="homeScenarioTitle">Scenariusze dla grup</div>
-        <div class="desc" data-i18n="homeScenarioDesc">Generuj karty do rozmówek na zajęcia.</div>
       </span>
     </button>
     <!-- ═══ NARZĘDZIA ══════════════════════════════════════════════════════
@@ -7388,7 +7333,7 @@
          osoby", tak samo jak słownik jest sprawdzeniem „co znaczy to słowo".
          Hanja i Słownik dochodzą z Nauki i z Szybkiego dostępu, żeby wszystkie
          trzy odpowiedniki leżały w jednym miejscu. -->
-    <div class="achv-section-title" data-i18n="homeSectionTools">Narzędzia</div>
+    <div class="achv-section-title" data-i18n="symSectionPoligon">Poligon</div>
     <button class="home-card variant-row" data-target="przekaznik">
       <span class="icon">나</span>
       <span>
@@ -7403,15 +7348,8 @@
         <div class="desc" data-i18n="dictBrowseDesc">27 działów, ponad 51 000 słów z oficjalnego słownika.</div>
       </span>
     </button>
-    <button class="home-card variant-row" data-target="hanja">
-      <span class="icon">漢</span>
-      <span>
-        <div class="title" data-i18n="homeHanjaTitle">Hanja</div>
-        <div class="desc" data-i18n="homeHanjaDesc">Chińskie znaki-rdzenie za słowami, które już znasz.</div>
-      </span>
-    </button>
 
-    <div class="home-hint" data-i18n="homeHint">Wybierz tryb nauki — możesz przełączać się między nimi w każdej chwili.</div>
+    <div class="home-hint" data-i18n="symHint">Tu nic nie jest oceniane. Ustaw relację, zobacz trzy strategie, sprawdź słowo.</div>
   </div>
 
   <div id="grammarHubScreen" style="display:none;">
@@ -8726,7 +8664,7 @@
 
   <div id="storyMapScreen" style="display:none;">
     <button class="back-btn" data-back="modeSelect" data-i18n="backModeSelect">Wybór trybu</button>
-    <h3 style="text-align:center; margin-bottom:4px;">🗺️ <span data-i18n="storyModeTitle">Tryb opowieści</span></h3>
+    <h3 style="text-align:center; margin-bottom:4px;">📖 <span data-i18n="storyModeTitle">Scenariusze</span></h3>
     <p class="hint-note" style="text-align:center;" id="storyMapProgress"></p>
     <div id="passaBaner" style="display:none;"></div>
     <div id="storySyncWarning" style="display:none; margin:0 0 12px; padding:10px 12px; border-radius:10px; background:var(--card-hi); border:1px solid var(--bad); font-size:13px; line-height:1.5; color:var(--ink);"></div>
@@ -8735,6 +8673,75 @@
     <div class="story-next-card" id="storyNextCard"></div>
 
     <div class="story-lesson-list" id="storyLessonList"></div>
+    <div class="achv-section-title" style="margin-top:22px;" data-i18n="scnSectionWarsztat">Warsztat</div>
+    <button class="home-card variant-hero" id="vocabReviewCardHome" data-vocab-flow="review">
+      <span class="icon">복</span>
+      <!-- Liczba zaległych wyjęta z tytułu na PRAWĄ stronę wiersza (v6 §6.1) -
+           ma być największym elementem ekranu, a wewnątrz tytułu nie mogła nim
+           być. Blok tekstu dostaje flex:1, liczba flex:none. -->
+      <span class="vh-main">
+        <div class="title" data-i18n="reviewModeTitle">Powtórki</div>
+        <div class="desc" data-i18n="homeReviewDesc">Słówka gotowe do powtórki, bez wybierania działu.</div>
+      </span>
+      <span class="level-badge ready" id="vocabDueBadgeHome">0</span>
+    </button>
+    <button class="home-card variant-row" id="vocabLeechCardHome" data-vocab-flow="leeches" style="display:none;">
+      <span class="icon">열</span>
+      <span>
+        <div class="title"><span data-i18n="leechModeTitle">Trudne słowa</span> <span class="level-badge ready" id="vocabLeechBadgeHome">0</span></div>
+        <div class="desc" data-i18n="homeLeechDesc">Słówka, które sprawiają najwięcej trudności.</div>
+      </span>
+    </button>
+    <button class="home-card variant-row" data-target="hangul" id="hangulSandboxCard">
+      <span class="icon">한</span>
+      <span>
+        <div class="title" data-i18n="homeHangulTitle">Alfabet hangul</div>
+        <div class="desc" data-i18n="homeHangulDesc">Podstawy czytania — spółgłoski, samogłoski, sylaby.</div>
+      </span>
+    </button>
+    <button class="home-card variant-row" data-target="vocabMode">
+      <span class="icon">어</span>
+      <span>
+        <div class="title" data-i18n="homeVocabTitle">Słówka</div>
+        <div class="desc" data-i18n="homeVocabDesc">Słówka, działy tematyczne, powtórki.</div>
+      </span>
+    </button>
+    <button class="home-card variant-row" data-target="grammarHub">
+      <span class="icon">법</span>
+      <span>
+        <div class="title" data-i18n="homeGrammarHubTitle">Gramatyka</div>
+        <div class="desc" data-i18n="homeGrammarHubDesc">Koniugacja i wzorce zdaniowe.</div>
+      </span>
+    </button>
+    <button class="home-card variant-row" data-target="reading">
+      <span class="icon">읽</span>
+      <span>
+        <div class="title" data-i18n="homeReadingTitle">Czytanie</div>
+        <div class="desc" data-i18n="homeReadingDesc">Czytaj na głos, w stylu karaoke.</div>
+      </span>
+    </button>
+    <button class="home-card variant-row" data-target="culture">
+      <span class="icon">문</span>
+      <span>
+        <div class="title" data-i18n="homeCultureTitle">Historia i kultura</div>
+        <div class="desc" data-i18n="homeCultureDesc">Szamanizm, tradycje, święta — kontekst za językiem.</div>
+      </span>
+    </button>
+    <div class="achv-section-title" style="margin-top:18px;" data-i18n="scnSectionSceny">Sceny z oceną</div>
+    <button class="home-card variant-row" data-target="aiChat" id="scnMisjeCard">
+      <span class="icon">임</span>
+      <span>
+        <div class="title" data-i18n="scnMisjeTitle">Misje</div>
+        <div class="desc" data-i18n="scnMisjeDesc">Zamknięte sceny z oceną doboru rejestru i intencji.</div>
+      </span>
+    </button>
+    <button class="home-card variant-row" data-target="scenarioGen">
+      <span class="icon">상</span>
+      <span>
+        <div class="title" data-i18n="homeScenarioTitle">Scenariusze dla grup</div>
+        <div class="desc" data-i18n="homeScenarioDesc">Generuj karty do rozmówek na zajęcia.</div>
+      </span>
+    </button>
   </div>
 
   <div id="storyLessonScreen" style="display:none;">
@@ -13205,7 +13212,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.567';
+const APP_VERSION = '2026-09-11.568';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -13234,7 +13241,12 @@ const SCREEN_IDS = {
   train: 'trainScreen',
   reading:'readingScreen',
   grammarLevel:'grammarLevelScreen', grammarChapter:'grammarChapterScreen', grammarQuiz:'grammarQuizScreen',
-  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', kodeks:'kodeksScreen', myWords:'myWordsScreen', folderEdit:'folderEditScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen', reports:'reportsScreen', account:'accountScreen'
+  achievements:'achievementsScreen', register:'registerScreen', topikTest:'topikTestScreen', sentenceBuilder:'sentenceBuilderScreen', onboarding:'onboardingScreen', numberSystem:'numberSystemScreen', placementTest:'placementTestScreen', storyMap:'storyMapScreen', storyLesson:'storyLessonScreen', scenarioGen:'scenarioGenScreen', hanja:'hanjaScreen', modeSelect:'modeSelectScreen', culture:'cultureScreen', hangulGate:'hangulGateScreen', hangul:'hangulScreen', dictBrowse:'dictBrowseScreen', dictLevel:'dictLevelScreen', dictWordList:'dictWordListScreen', industryModule:'industryModuleScreen', academy:'academyScreen', kodeks:'kodeksScreen',
+  /* ALIASY TRIADY. Docelowe nazwy trzech trybów. Wewnętrzne klucze
+     `storyMap` i `home` zostają, bo `setLastMode` zapisuje je w pamięci
+     ucznia — przemianowanie wartości zepsułoby powrót każdemu, kto ma
+     zapisaną starą. Migracja odczytu to osobna wersja. */
+  scenariusze:'storyMapScreen', symulator:'homeScreen', myWords:'myWordsScreen', folderEdit:'folderEditScreen', grammarHub:'grammarHubScreen', grammarPractice:'grammarPracticeScreen', settings:'settingsScreen', reports:'reportsScreen', account:'accountScreen'
 };
 
 /* ── DOLNA NAWIGACJA — logika (redesign, krok 3) ──────────────────────────
@@ -13443,7 +13455,7 @@ function setScreen(screen){
     // po zakończeniu animacji: ukryj wszystko poza aktualnym ekranem i posprzątaj klasy
     Object.entries(SCREEN_IDS).forEach(([key, id])=>{
       const el = document.getElementById(id);
-      if(key !== screen){
+      if(el !== targetEl){
         el.style.display = 'none';
         el.classList.remove('screen-anim', 'screen-visible');
       }
@@ -13704,6 +13716,11 @@ function kodeksAdres(r){
   const rola = (E.rola[r.rozmowca] || {})[L] || r.rozmowca;
   const syt = (E.sytuacja[r.rozmowca + '.' + r.sytuacja] || {})[L] || r.sytuacja;
   const dys = (E.dystans[r.dystans] || {})[L] || r.dystans;
+  /* Przy `sytuacja === '*'` etykieta sytuacji jest już stwierdzeniem
+     o dystansie (Pierwsze spotkanie), wiec segment dystansu odpada.
+     Warunek jest strukturalny, nie tekstowy — nie zgaduję podobieństwa
+     napisów, tylko czytam pole. Dotyczy 2 z 17 reguł. */
+  if(r.sytuacja === '*') return { rola, syt, dys: null };
   return { rola, syt, dys };
 }
 
@@ -13723,7 +13740,7 @@ function renderKodeks(){
     return `
     <div class="kx-row" data-regula="${escapeHtml(r.id)}">
       <div class="kx-adres">${escapeHtml(ad.rola)}</div>
-      <div class="kx-kontekst">${escapeHtml(ad.syt)} · ${escapeHtml(ad.dys)}</div>
+      <div class="kx-kontekst">${escapeHtml(ad.dys ? ad.syt + ' · ' + ad.dys : ad.syt)}</div>
       <div class="kx-linia"><span class="kx-lab">${escapeHtml(S.rejestr)}</span><span class="kx-rejestr">${escapeHtml(nazwaStylu + termin)}</span></div>
       <div class="kx-linia"><span class="kx-lab">${escapeHtml(S.honor)}</span><span class="kx-honor">${escapeHtml(r.honorific ? S.tak : S.nie)}</span></div>
       <div class="kx-linia"><span class="kx-lab">${escapeHtml(S.tolerancja)}</span><span class="kx-tolerancja">${escapeHtml(tol)}</span></div>
@@ -14127,6 +14144,14 @@ const I18N = {
   backConjPractice: { pl: 'Ćwiczenie', en: 'Practice' },
   geminiConnectBtn: { pl: 'Połącz', en: 'Connect' },
   geminiDisconnectBtn: { pl: 'Rozłącz', en: 'Disconnect' },
+  symTytulEkranu: { pl: 'Symulator', en: 'Simulator' },
+  symSectionRozmowa: { pl: 'Rozmowa', en: 'Conversation' },
+  symSectionPoligon: { pl: 'Poligon', en: 'The range' },
+  symHint: { pl: 'Tu nic nie jest oceniane. Ustaw relację, zobacz trzy strategie, sprawdź słowo.', en: 'Nothing is graded here. Set the relation, see three strategies, look a word up.' },
+  scnSectionWarsztat: { pl: 'Warsztat', en: 'Workshop' },
+  scnSectionSceny: { pl: 'Sceny z oceną', en: 'Graded scenes' },
+  scnMisjeTitle: { pl: 'Misje', en: 'Missions' },
+  scnMisjeDesc: { pl: 'Zamknięte sceny z oceną doboru rejestru i intencji.', en: 'Closed scenes graded on register and intent.' },
   kodeksTitle: { pl: 'Kodeks etykiety', en: 'Etiquette codex' },
   kodeksSubtitle: { pl: 'Siedemnaście relacji, każda z wymaganym stylem, honoryfikatywem i granicą slangu.', en: 'Seventeen relations, each with its required style, honorific and slang boundary.' },
   kodeksNote: { pl: 'Tabela generowana z silnika — pokazuje to, co model naprawdę zrobi.', en: 'Table generated from the engine — it shows what the model will actually do.' },
@@ -14134,9 +14159,9 @@ const I18N = {
   kodeksCardDesc: { pl: 'Siedemnaście relacji: jaki styl, czy honoryfikatyw, ile tolerancji, gdzie kończy się slang.', en: 'Seventeen relations: which style, whether honorific, how much tolerance, where slang ends.' },
   backAcademy: { pl: 'Akademia', en: 'Academy' },
   modeSelectAcademyTitle: { pl: 'Akademia', en: 'Academy' },
-  modeSelectAcademyDesc: { pl: 'Słownictwo specjalistyczne z dziedzin akademickich — dla poziomu średnio zaawansowanego i wyżej.', en: 'Specialized vocabulary from academic fields — for intermediate level and above.' },
+  modeSelectAcademyDesc: { pl: 'Kanon wiedzy, etymologia hanja, żargon domenowy i kodeks relacji.', en: 'The canon, hanja etymology, domain jargon and the codex of relations.' },
   academyTitle: { pl: 'Akademia', en: 'Academy' },
-  academySubtitle: { pl: 'Słownictwo specjalistyczne z 12 dziedzin akademickich — historia, nauki ścisłe, humanistyka.', en: 'Specialized vocabulary from 12 academic fields — history, sciences, humanities.' },
+  academySubtitle: { pl: 'Kanon wiedzy, etymologia hanja, żargon domenowy i kodeks relacji.', en: 'The canon, hanja etymology, domain jargon and the codex of relations.' },
   academyLevelNote: { pl: 'Poziom średnio zaawansowany +', en: 'Intermediate level +' },
   backModeSelect: { pl: 'Wybór trybu', en: 'Choose mode' },
   analyzeSessionBtn: { pl: 'Przeanalizuj sesję', en: 'Analyze session' },
@@ -14291,16 +14316,16 @@ const I18N = {
   hapticsToggleLabel: { pl: 'Wibracje przy odpowiedziach', en: 'Vibration on answers' },
   modeSelectTitle: { pl: 'Jak dziś się uczysz?', en: 'How are you learning today?' },
   modeSelectHint: { pl: 'Możesz przełączać się między trybami w każdej chwili.', en: 'You can switch between modes at any time.' },
-  modeSelectStoryTitle: { pl: 'Tryb opowieści', en: 'Story mode' },
-  modeSelectStoryDesc: { pl: 'Prowadzeni krok po kroku — lekcja po lekcji, bez zgadywania co wybrać.', en: 'Guided step by step - lesson by lesson, no guessing what to pick.' },
-  modeSelectSandboxTitle: { pl: 'Tryb Sandbox', en: 'Sandbox mode' },
-  modeSelectSandboxDesc: { pl: 'Pełne menu, swobodna nawigacja — dla obytych z apką.', en: 'Full menu, free navigation - for those already familiar with the app.' },
+  modeSelectStoryTitle: { pl: 'Scenariusze', en: 'Scenarios' },
+  modeSelectStoryDesc: { pl: 'Systematyczny trening z fabułą, misjami i ćwiczeniami utrwalającymi.', en: 'Systematic training with a storyline, missions and consolidating drills.' },
+  modeSelectSandboxTitle: { pl: 'Symulator', en: 'Simulator' },
+  modeSelectSandboxDesc: { pl: 'Otwarty poligon pragmatyki. Dobieraj rozmówcę, testuj intencje i reakcje otoczenia.', en: 'An open pragmatics range. Pick your interlocutor, test intentions and reactions.' },
   hanjaNotesLabel: { pl: 'Notatki kontekstowe', en: 'Context notes' },
   hanjaMoreWordsLabel: { pl: 'Więcej słów z tym znakiem', en: 'More words with this character' },
   hanjaQuizLabel: { pl: 'Szybki quiz', en: 'Quick quiz' },
   homeHanjaTitle: { pl: 'Hanja', en: 'Hanja' },
   homeHanjaDesc: { pl: 'Chińskie znaki-rdzenie za słowami, które już znasz.', en: 'The Chinese-character roots behind words you already know.' },
-  homeScenarioTitle: { pl: 'Scenariusze dla grup', en: 'Group Scenarios' },
+  homeScenarioTitle: { pl: 'Praktyka grupowa', en: 'Group practice' },
   homeScenarioDesc: { pl: 'Generuj karty do rozmówek na zajęcia.', en: 'Generate role-play cards for class.' },
   scenarioGateMsg: { pl: 'Generator scenariuszy to funkcja Premium — twórz gotowe karty do rozmówek dla swoich uczniów.', en: 'The scenario generator is a Premium feature - create ready-made role-play cards for your students.' },
   scenarioHint: { pl: 'Opisz sytuację, a AI przygotuje gotowe karty do odgrywania ról dla Twoich uczniów.', en: 'Describe the situation, and AI will prepare ready-made role-play cards for your students.' },
@@ -14315,7 +14340,7 @@ const I18N = {
   retellSubmit: { pl: 'Sprawdź', en: 'Check' },
   retellLoading: { pl: 'AI czyta Twoją odpowiedź…', en: 'AI is reading your answer…' },
   checkComprehension: { pl: 'Sprawdź zrozumienie', en: 'Check comprehension' },
-  storyModeTitle: { pl: 'Tryb opowieści', en: 'Story mode' },
+  storyModeTitle: { pl: 'Scenariusze', en: 'Scenarios' },
   storyBackMap: { pl: 'Mapa programu', en: 'Lesson map' },
   storyContinueBtn: { pl: 'Kontynuuj', en: 'Continue' },
   tapToHear: { pl: 'Dotknij, żeby usłyszeć', en: 'Tap to hear' },
@@ -14454,7 +14479,7 @@ const I18N = {
   homeSectionTools: { pl: 'Narzędzia', en: 'Tools' },
   pkZKim: { pl: 'Z kim rozmawiasz', en: 'Who are you talking to' },
   pkPytaj: { pl: 'Pokaż trzy sposoby', en: 'Show three ways' },
-  homeChatTitle: { pl: 'Rozmowa z Haksa (AI)', en: 'Talk to Haksa (AI)' },
+  homeChatTitle: { pl: 'Wolna rozmowa', en: 'Free conversation' },
   homeChatDesc: { pl: 'Twój wirtualny mentor — rozmawiaj po koreańsku.', en: 'Your virtual mentor - talk in Korean.' },
   homeReadingTitle: { pl: 'Czytanie', en: 'Reading' },
   homeReadingDesc: { pl: 'Czytaj na głos, w stylu karaoke.', en: 'Read aloud, karaoke-style.' },
@@ -20299,7 +20324,7 @@ const PK_OPIS = {
 const PK_REJESTR_OPIS = {
   casual: { pl: 'Styl nieformalny', en: 'Informal style', term: '반말' },
   polite: { pl: 'Styl uprzejmy codzienny', en: 'Everyday polite style', term: '해요체' },
-  formal: { pl: 'Styl oficjalny formalny', en: 'Formal style', term: '합니다체' },
+  formal: { pl: 'Styl oficjalny formalny', en: 'Formal style', term: '하십시오체' },
 };
 const PK_FORMULA_OPIS = { pl: 'Formuła grzecznościowa', en: 'Set polite phrase',
   dopisek: { pl: 'stały zwrot oficjalny', en: 'fixed formal expression' } };
