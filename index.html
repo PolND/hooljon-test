@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.572
-  Zbudowane na: c2fe17d83e8b7a706ff7d52d07ddd7cc (.571)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.575
+  Zbudowane na: 8c16bc0aafd76a37917e61c9fa723012 (.574)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -641,8 +641,14 @@
     text-transform:uppercase; color:var(--ink-dim); margin:22px 0 10px; }
 
   .theme-picker{ display:flex; gap:8px; }
-  /* Próbka pokazuje TŁO motywu, nie akcent - user wybiera "jasny czy ciemny",
-     zanim wybierze "jaki akcent" (§6). */
+  /* Próbka pokazuje OBA tokeny motywu: tło i akcent, przekątną 50/50 — ten
+     sam gradient, którego od początku używa panel motywu (`renderThemePanel`).
+     Do `.575` ekran konta brał sam `sw[0]` i przez to Kobalt (#FFFFFF/#3355E8)
+     był białym prostokątem, a Jadeit (#0D100F/#46B79A) czarnym — motywy
+     traciły na liście dokładnie to, po czym się je poznaje. Wcześniejsza
+     zasada („najpierw jasny czy ciemny, potem akcent") zakładała, że akcent
+     jest wyborem osobnym; nie jest — motywy Pro mają po jednej, własnej
+     kolorystyce i akcent JEST ich tożsamością. Zgłoszone przez Damiana. */
   .theme-swatch{ flex:1; height:44px; min-width:0; border-radius:var(--radius);
     border:1px solid var(--border); padding:0; cursor:pointer; }
   .theme-swatch[aria-pressed="true"]{ border:2px solid var(--hwang); }
@@ -1806,6 +1812,7 @@
     align-self:flex-start;
     margin-bottom:2px;
   }
+  .pis-nota{ margin-top:8px; padding-top:6px; border-top:1px dashed var(--border); font-size:11.5px; line-height:1.45; color:var(--ink-dim); opacity:.85; }
   .hub-naglowek{ margin:2px 0 14px; }
   .hub-tytul{ font-size:26px; font-weight:800; letter-spacing:-.02em; margin:0 0 6px; color:var(--ink); }
   .hub-podtytul{ font-size:14px; line-height:1.5; color:var(--ink-dim); margin:0; max-width:640px; }
@@ -5795,6 +5802,14 @@
   #misjaPasek .mi-kropka.pelna{ background:var(--hwang); border-color:var(--hwang); }
   #misjaPasek .mi-licznik{ font:400 12px var(--font-ui); color:var(--ink-dim); margin-left:4px; }
   #misjaWynik .mi-naglowek{ font:600 15px var(--font-ui); margin-bottom:8px; }
+  #misjaWynik .mi-szok{ border:1px solid var(--bad); border-radius:var(--radius);
+    padding:12px 14px; margin:10px 0;
+    background:color-mix(in oklab, var(--bad) 10%, transparent); }
+  #misjaWynik .mi-szok-tytul{ font:800 14px var(--font-ui); margin-bottom:6px; color:var(--bad); }
+  #misjaWynik .mi-szok p{ margin:0 0 8px; font-size:13.5px; line-height:1.45; }
+  #misjaWynik .mi-szok-slowa{ display:flex; gap:6px; flex-wrap:wrap; }
+  #misjaWynik .mi-szok-slowa span{ font-weight:700; font-size:14px; padding:2px 8px;
+    border-radius:var(--radius-pill); border:1px solid var(--bad); color:var(--bad); }
   #misjaWynik .mi-werdykt{ font:700 16px var(--font-ui); margin-bottom:6px; }
   #misjaWynik .mi-werdykt.osiagniety{ color:var(--good); }
   #misjaWynik .mi-werdykt.nieosiagniety{ color:var(--bad); }
@@ -8253,7 +8268,7 @@
     <button class="back-btn" data-back="home" data-i18n="backHome">Menu główne</button>
 
     <div class="center-card" style="max-width:460px; margin:0 auto;">
-      <div class="eyebrow" data-i18n="pkEyebrow">Kompas Nunchi</div>
+      <div class="eyebrow" id="pkEyebrow" data-i18n="pkEyebrow">Kompas Nunchi</div>
       <div class="pk-podtytul" data-i18n="pkPodtytul">Dopasuj rejestr i formy szacunku do relacji</div>
       <input id="pkCzynnosc" class="pk-input" maxlength="120"
              data-i18n-placeholder="pkCzynnoscPh"
@@ -8269,7 +8284,6 @@
 
     <div id="pkWynik" class="pk-wynik"></div>
     <div class="pk-wynik">
-      <button class="pk-dziennik-btn" id="pkDziennikBtn">Dziennik wywołań</button>
       <!-- Wersja i odcisk WIDOCZNE, zanim ktokolwiek kliknie „kopiuj". Numer
            w panelu konta trzeba było znaleźć; tu stoi przy artefakcie, który
            się wysyła. -->
@@ -13311,7 +13325,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.572';
+const APP_VERSION = '2026-09-11.575';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -15313,12 +15327,18 @@ function renderAccountScreen(){
 
   // Motywy
   const pick = document.getElementById('acctThemePicker');
-  pick.innerHTML = THEMES.map(t => {
+  /* `hidden` HONOROWANE TAK SAMO JAK W PANELU MOTYWU. Do `.575` panel
+     filtrował (`THEMES.filter(t => !t.hidden ...)`), a ten ekran nie — więc
+     Klasyczny, wygaszony 2026-09-03, dalej stał na liście w „Moje konto".
+     Wpis ZOSTAJE w tablicy: użytkownik, który ma go wybranego, musi się dalej
+     poprawnie renderować (`THEMES.find` po `currentTheme` działa niezależnie
+     od tego filtru) — znika tylko z listy WYBORU, zgodnie z tamtą decyzją. */
+  pick.innerHTML = THEMES.filter(t => !t.hidden).map(t => {
     const locked = t.pro && !isPro;
     const nazwa = nazwaMotywu(t);
     return `<span class="theme-opcja" ${locked ? 'data-locked="true"' : ''}>
       <button type="button" class="theme-swatch" data-theme-id="${t.id}"
-        style="background:${t.sw[0]};" ${locked ? 'data-locked="true"' : ''}
+        style="background:linear-gradient(135deg,${t.sw[0]} 50%,${t.sw[1]} 50%);" ${locked ? 'data-locked="true"' : ''}
         aria-pressed="${t.id === currentTheme ? 'true' : 'false'}"
         aria-label="${escapeHtml(nazwa)}" title="${escapeHtml(nazwa)}"></button>
       <span class="theme-opcja-nazwa">${escapeHtml(nazwa)}${locked ? '<span class="theme-opcja-pro">Pro</span>' : ''}</span>
@@ -15344,7 +15364,7 @@ function renderAccountScreen(){
       const nazwaP = nazwaPalety(x);
       return `<span class="theme-opcja" ${locked ? 'data-locked="true"' : ''}>
         <button type="button" class="theme-swatch" data-scheme-id="${x.id}"
-          style="background:${x.sw[0]};" ${locked ? 'data-locked="true"' : ''}
+          style="background:linear-gradient(135deg,${x.sw[0]} 50%,${x.sw[1]} 50%);" ${locked ? 'data-locked="true"' : ''}
           aria-pressed="${x.id === active ? 'true' : 'false'}"
           aria-label="${escapeHtml(nazwaP)}" title="${escapeHtml(nazwaP)}"></button>
         <span class="theme-opcja-nazwa">${escapeHtml(nazwaP)}${locked ? '<span class="theme-opcja-pro">Pro</span>' : ''}</span>
@@ -19417,7 +19437,7 @@ function l1ParyDlaUcznia(){
   return L1_PARY.filter(x => (x.klastry || []).includes(k));
 }
 
-const NUNCHI_TABELA = [{"rozmowca":"starszy","sytuacja":"*","dystans":"pierwszy_raz","rejestr":"polite","honorific":true,"tolerancja":"formal","uwaga":"Pierwsze spotkanie ze starszym: 해요체 z -시-; 합니다체 bezpieczne","id":"starszy.any.pierwszy_raz"},{"rozmowca":"starszy","sytuacja":"prywatna","dystans":"znajomy","rejestr":"polite","honorific":true,"tolerancja":null,"uwaga":"Znajomy starszy: 합니다체 już za sztywne, 반말 nadal wykluczone","id":"starszy.prywatna.znajomy"},{"rozmowca":"starszy","sytuacja":"prywatna","dystans":"bliski","rejestr":"polite","honorific":true,"tolerancja":"casual","uwaga":"Rodzina: możliwe 반말 z honoryfikatywami (밥 드셨어?); bez -시- to błąd","id":"starszy.prywatna.bliski"},{"rozmowca":"starszy","sytuacja":"oficjalna","dystans":"*","rejestr":"formal","honorific":true,"tolerancja":"polite","uwaga":"Profesor, urząd, ceremonia","id":"starszy.oficjalna.any"},{"rozmowca":"przelozony","sytuacja":"sluzbowa","dystans":"*","rejestr":"formal","honorific":true,"tolerancja":"polite","uwaga":"W małych firmach 해요체 jest normą; 반말 nigdy","id":"przelozony.sluzbowa.any"},{"rozmowca":"przelozony","sytuacja":"oficjalna","dystans":"*","rejestr":"formal","honorific":true,"tolerancja":null,"uwaga":"Rozmowa kwalifikacyjna, klient zewnętrzny, prezentacja","id":"przelozony.oficjalna.any"},{"rozmowca":"przelozony","sytuacja":"prywatna","dystans":"znajomy","rejestr":"polite","honorific":true,"tolerancja":null,"uwaga":"회식: 합니다체 sztywne, 반말 wykluczone nawet po 편하게 해","id":"przelozony.prywatna.znajomy"},{"rozmowca":"rowny","sytuacja":"*","dystans":"pierwszy_raz","rejestr":"polite","honorific":false,"tolerancja":"formal","uwaga":"Rówieśnik nieznajomy = 해요체 do czasu 말 놓을까요?","id":"rowny.any.pierwszy_raz"},{"rozmowca":"rowny","sytuacja":"sluzbowa","dystans":"znajomy","rejestr":"polite","honorific":false,"tolerancja":"casual","uwaga":"Kolega z pracy: 반말 dopiero po ustaleniu; 선배 = zawsze 해요체 od 후배","id":"rowny.sluzbowa.znajomy"},{"rozmowca":"rowny","sytuacja":"prywatna","dystans":"bliski","rejestr":"casual","honorific":false,"tolerancja":null,"uwaga":"Bliski przyjaciel: 해요체 jest sygnałem złości lub ironii","id":"rowny.prywatna.bliski"},{"rozmowca":"mlodszy","sytuacja":"prywatna","dystans":"bliski","rejestr":"casual","honorific":false,"tolerancja":null,"uwaga":"Młodsze rodzeństwo, kuzyn, dziecko","id":"mlodszy.prywatna.bliski"},{"rozmowca":"mlodszy","sytuacja":"sluzbowa","dystans":"*","rejestr":"polite","honorific":false,"tolerancja":"casual","uwaga":"Młodszy podwładny: 해요체 bezpieczne, 반말 tolerowane po czasie","id":"mlodszy.sluzbowa.any"},{"rozmowca":"mlodszy","sytuacja":"oficjalna","dystans":"*","rejestr":"formal","honorific":false,"tolerancja":"polite","uwaga":"Wiek nie daje prawa do 반말 w sytuacji oficjalnej","id":"mlodszy.oficjalna.any"},{"rozmowca":"nieznajomy","sytuacja":"uslugowa","dystans":"pierwszy_raz","rejestr":"polite","honorific":true,"tolerancja":"formal","uwaga":"Obsługa: 해요체 + 주세요; 반말 wobec obsługi = arogancja","id":"nieznajomy.uslugowa.pierwszy_raz"},{"rozmowca":"nieznajomy","sytuacja":"prywatna","dystans":"pierwszy_raz","rejestr":"polite","honorific":true,"tolerancja":"formal","uwaga":"Ulica: 해요체 niezależnie od wieku rozmówcy","id":"nieznajomy.prywatna.pierwszy_raz"},{"rozmowca":"nieznajomy","sytuacja":"sluzbowa","dystans":"pierwszy_raz","rejestr":"formal","honorific":true,"tolerancja":"polite","uwaga":"Telefon do firmy, e-mail do obcej osoby","id":"nieznajomy.sluzbowa.pierwszy_raz"},{"rozmowca":"nieznajomy","sytuacja":"oficjalna","dystans":"pierwszy_raz","rejestr":"formal","honorific":true,"tolerancja":"polite","uwaga":"Urząd, policja, bank","id":"nieznajomy.oficjalna.pierwszy_raz"}];
+const NUNCHI_TABELA = [{"rozmowca":"starszy","sytuacja":"*","dystans":"pierwszy_raz","rejestr":"polite","honorific":true,"tolerancja":"formal","uwaga":"Pierwsze spotkanie ze starszym: 해요체 z -시-; 합니다체 bezpieczne","id":"starszy.any.pierwszy_raz"},{"rozmowca":"starszy","sytuacja":"prywatna","dystans":"znajomy","rejestr":"polite","honorific":true,"tolerancja":null,"uwaga":"Znajomy starszy: 합니다체 już za sztywne, 반말 nadal wykluczone","id":"starszy.prywatna.znajomy"},{"rozmowca":"starszy","sytuacja":"prywatna","dystans":"bliski","rejestr":"polite","honorific":true,"tolerancja":"casual","uwaga":"Rodzina: możliwe 반말 z honoryfikatywami (밥 드셨어?); bez -시- to błąd","id":"starszy.prywatna.bliski"},{"rozmowca":"starszy","sytuacja":"oficjalna","dystans":"*","rejestr":"formal","honorific":true,"tolerancja":"polite","uwaga":"Profesor, urząd, ceremonia","id":"starszy.oficjalna.any"},{"rozmowca":"przelozony","sytuacja":"sluzbowa","dystans":"*","rejestr":"formal","honorific":true,"tolerancja":"polite","uwaga":"W małych firmach 해요체 jest normą; 반말 nigdy","id":"przelozony.sluzbowa.any"},{"rozmowca":"przelozony","sytuacja":"oficjalna","dystans":"*","rejestr":"formal","honorific":true,"tolerancja":null,"uwaga":"Rozmowa kwalifikacyjna, klient zewnętrzny, prezentacja","id":"przelozony.oficjalna.any"},{"rozmowca":"przelozony","sytuacja":"prywatna","dystans":"znajomy","rejestr":"polite","honorific":true,"tolerancja":null,"uwaga":"회식: 합니다체 sztywne, 반말 wykluczone nawet po 편하게 해","id":"przelozony.prywatna.znajomy"},{"rozmowca":"rowny","sytuacja":"*","dystans":"pierwszy_raz","rejestr":"polite","honorific":false,"tolerancja":"formal","uwaga":"Rówieśnik nieznajomy = 해요체 do czasu 말 놓을까요?","id":"rowny.any.pierwszy_raz"},{"rozmowca":"rowny","sytuacja":"sluzbowa","dystans":"znajomy","rejestr":"polite","honorific":false,"tolerancja":"casual","uwaga":"Kolega z pracy: 반말 dopiero po ustaleniu; 선배 = zawsze 해요체 od 후배","id":"rowny.sluzbowa.znajomy"},{"rozmowca":"rowny","sytuacja":"prywatna","dystans":"bliski","rejestr":"casual","honorific":false,"tolerancja":null,"uwaga":"Bliski przyjaciel: 해요체 jest sygnałem złości lub ironii","id":"rowny.prywatna.bliski"},{"rozmowca":"mlodszy","sytuacja":"prywatna","dystans":"bliski","rejestr":"casual","honorific":false,"tolerancja":null,"uwaga":"Młodsze rodzeństwo, kuzyn, dziecko","id":"mlodszy.prywatna.bliski"},{"rozmowca":"mlodszy","sytuacja":"sluzbowa","dystans":"*","rejestr":"polite","honorific":false,"tolerancja":"casual","uwaga":"Młodszy podwładny: 해요체 bezpieczne, 반말 tolerowane po czasie","id":"mlodszy.sluzbowa.any"},{"rozmowca":"mlodszy","sytuacja":"oficjalna","dystans":"*","rejestr":"formal","honorific":false,"tolerancja":"polite","uwaga":"Wiek nie daje prawa do 반말 w sytuacji oficjalnej","id":"mlodszy.oficjalna.any"},{"rozmowca":"nieznajomy","sytuacja":"uslugowa","dystans":"pierwszy_raz","rejestr":"polite","honorific":true,"tolerancja":"formal","uwaga":"Obsługa: 해요체 + 주세요; 반말 wobec obsługi = arogancja","id":"nieznajomy.uslugowa.pierwszy_raz"},{"rozmowca":"nieznajomy","sytuacja":"prywatna","dystans":"pierwszy_raz","rejestr":"polite","honorific":true,"tolerancja":"formal","uwaga":"Ulica: 해요체 niezależnie od wieku rozmówcy","id":"nieznajomy.prywatna.pierwszy_raz"},{"rozmowca":"nieznajomy","sytuacja":"sluzbowa","dystans":"pierwszy_raz","rejestr":"formal","honorific":true,"tolerancja":"polite","uwaga":"Telefon do firmy, e-mail do obcej osoby","id":"nieznajomy.sluzbowa.pierwszy_raz"},{"rozmowca":"nieznajomy","sytuacja":"oficjalna","dystans":"pierwszy_raz","rejestr":"formal","honorific":true,"tolerancja":"polite","uwaga":"Urząd, policja, bank","id":"nieznajomy.oficjalna.pierwszy_raz"},{"rozmowca":"mlodszy","sytuacja":"prywatna","dystans":"znajomy","rejestr":"casual","honorific":false,"tolerancja":null,"uwaga":"Dziecko znajomych: 해체 z formami łagodzącymi; wulgaryzmy i ostry slang wykluczone","id":"mlodszy.prywatna.znajomy"}];
 
 const NUNCHI_SCENARIUSZE = [{"id":"ciotka-kolezanki","rozmowca":"starszy","sytuacja":"prywatna","dystans":"pierwszy_raz","rejestr":"polite","honorific":true,"tolerancja":null,"kontekst":"Rozmawiasz z ciotką koleżanki. Widzicie się pierwszy raz, jesteś u niej w domu na kolacji.","kontekstEn":"You are talking to a friend's aunt. It is your first meeting, at her home for dinner.","rola":"Ciotka koleżanki, ok. 55 lat, gościnna, wypytuje o pracę i rodzinę","rolaEn":"A friend's aunt, about 55, hospitable, asks about your work and family","haksaRejestr":"해요체 z formami honoryfikatywnymi wobec gościa (드세요, 오셨어요); może przejść na łagodne 반말 w drugiej połowie, jak starsza osoba do młodszej — to naturalne i NIE jest sygnałem, że uczeń też może","zaSztywno":"합니다체 brzmi jak rozmowa kwalifikacyjna — ciotka pomyśli, że gość jest spięty","zaLuzno":"반말 albo brak -시- (먹어요 zamiast 드세요) — odbierane jako brak wychowania","przyklad":"네, 잘 먹겠습니다. 이모님이 직접 만드셨어요?","przykladPl":"Dziękuję, smacznego. Sama pani to zrobiła?","pulapka":"Uczeń często odpowiada 반말, bo ciotka zaczęła mówić 반말 do niego — asymetria rejestru jest tu normą"},{"id":"tesciowa-obiad","rozmowca":"starszy","sytuacja":"prywatna","dystans":"znajomy","rejestr":"polite","honorific":true,"tolerancja":null,"kontekst":"Rozmawiasz z mamą swojego partnera / swojej partnerki. Znacie się od kilku miesięcy.","kontekstEn":"You are talking to your partner's mother. You have known each other a few months.","rola":"Przyszła teściowa, uprzejma, ale ocenia","rolaEn":"Prospective mother-in-law, polite but observant","haksaRejestr":"해요체 z honoryfikatywami; do partnera ucznia mówi 반말","zaSztywno":"합니다체 — zbyt oficjalne, jakby uczeń nie chciał się zbliżyć","zaLuzno":"반말, imię partnera bez tytułu przy niej, 너 — nie do przyjęcia","przyklad":"어머님, 오늘 김치찌개 정말 맛있었어요. 다음에 만드는 법 좀 가르쳐 주세요.","przykladPl":"Mamo (grzecznie), zupa była pyszna. Nauczy mnie pani następnym razem?","pulapka":"어머님 zamiast 어머니 — forma z -님 wobec cudzej matki"},{"id":"sasiad-starszy","rozmowca":"starszy","sytuacja":"prywatna","dystans":"znajomy","rejestr":"polite","honorific":true,"tolerancja":null,"kontekst":"W windzie spotykasz starszego sąsiada z piętra wyżej. Kłaniacie się sobie od roku.","kontekstEn":"In the lift you meet an elderly neighbour from upstairs. You have been greeting each other for a year.","rola":"Sąsiad ok. 70 lat, gadatliwy, pyta o pogodę i zdrowie","rolaEn":"Neighbour about 70, chatty, asks about the weather and your health","haksaRejestr":"해요체 lub łagodne 반말 do ucznia (젊은 사람이 부지런하네); uczeń zawsze 해요체 + honoryfikatywy","zaSztywno":"합니다체 dopuszczalne, ale sztywne","zaLuzno":"반말 — nie do pomyślenia; 안녕 zamiast 안녕하세요","przyklad":"안녕하세요, 어르신. 요즘 무릎은 좀 괜찮으세요?","przykladPl":"Dzień dobry. Jak kolano, lepiej?","pulapka":"어르신 jako zwrot; 괜찮으세요 z -시-"},{"id":"profesor-konsultacje","rozmowca":"starszy","sytuacja":"oficjalna","dystans":"znajomy","rejestr":"formal","honorific":true,"tolerancja":"polite","kontekst":"Idziesz na konsultacje do profesora, u którego masz zajęcia od semestru.","kontekstEn":"You go to office hours with a professor whose class you have attended for a semester.","rola":"Profesor, rzeczowy, oczekuje konkretnych pytań","rolaEn":"Professor, businesslike, expects concrete questions","haksaRejestr":"해요체 lub 합니다체 wobec studenta, bez 반말","zaSztywno":"—","zaLuzno":"해요체 jest ok; 반말 lub brak 교수님 w zwrocie — poważny błąd","przyklad":"교수님, 지난주 과제 관련해서 여쭤볼 게 있는데 잠깐 시간 괜찮으십니까?","przykladPl":"Panie profesorze, mam pytanie do zadania z zeszłego tygodnia — ma pan chwilę?","pulapka":"여쭤보다 zamiast 물어보다 wobec profesora"},{"id":"lekarz-wizyta","rozmowca":"starszy","sytuacja":"uslugowa","dystans":"pierwszy_raz","rejestr":"polite","honorific":true,"tolerancja":"formal","kontekst":"Jesteś u lekarza pierwszy raz. Opisujesz objawy.","kontekstEn":"You are at the doctor's for the first time, describing symptoms.","rola":"Lekarz internista, ok. 50 lat, zadaje krótkie pytania","rolaEn":"GP, about 50, asks short questions","haksaRejestr":"해요체 z -시- (어디가 불편하세요?)","zaSztywno":"합니다체 dopuszczalne","zaLuzno":"반말 — wykluczone; 아파 zamiast 아파요","przyklad":"사흘 전부터 목이 아프고 열이 좀 있어요.","przykladPl":"Od trzech dni boli mnie gardło i mam lekką gorączkę.","pulapka":"Uczeń mówi o sobie z -시- (제가 아프세요) — honoryfikatyw wobec siebie to częsty błąd"},{"id":"babcia-telefon","rozmowca":"starszy","sytuacja":"prywatna","dystans":"bliski","rejestr":"polite","honorific":true,"tolerancja":"casual","kontekst":"Dzwonisz do babci (własnej). Rozmawiacie co tydzień.","kontekstEn":"You call your own grandmother. You talk every week.","rola":"Babcia, serdeczna, pyta czy jesz i czy nie marzniesz","rolaEn":"Grandmother, warm, asks whether you eat and keep warm","haksaRejestr":"반말 do wnuka, ciepłe","zaSztywno":"합니다체 brzmi obco — babcia zapyta, czy coś się stało","zaLuzno":"W wielu rodzinach wnuk mówi do babci 반말 z honoryfikatywami (할머니, 밥 드셨어?) — to jest akceptowalne; nieakceptowalne jest 반말 bez -시- (밥 먹었어?)","przyklad":"할머니, 저예요. 진지 드셨어요? 날씨 추운데 감기 조심하세요.","przykladPl":"Babciu, to ja. Jadłaś? Zimno, uważaj na przeziębienie.","pulapka":"Rodzinne 반말 + honoryfikatywy to osobny wzorzec: końcówka luźna, czasownik grzeczny"},{"id":"ojciec-kolegi","rozmowca":"starszy","sytuacja":"prywatna","dystans":"pierwszy_raz","rejestr":"polite","honorific":true,"tolerancja":"formal","kontekst":"Kolega przedstawia cię swojemu ojcu na ulicy.","kontekstEn":"A friend introduces you to his father in the street.","rola":"Ojciec kolegi, małomówny, kiwa głową","rolaEn":"Friend's father, taciturn, nods","haksaRejestr":"krótkie 반말 lub 해요체 do młodego człowieka","zaSztywno":"합니다체 przy pierwszym spotkaniu jest w porządku","zaLuzno":"반말, 안녕 — nie","przyklad":"안녕하세요, 민수 친구 마렉이라고 합니다. 말씀 많이 들었어요.","przykladPl":"Dzień dobry, jestem Marek, kolega Minsu. Wiele o panu słyszałem.","pulapka":"-이라고 합니다 przy przedstawianiu się; 말씀 zamiast 말"},{"id":"szef-urlop","rozmowca":"przelozony","sytuacja":"sluzbowa","dystans":"znajomy","rejestr":"formal","honorific":true,"tolerancja":"polite","kontekst":"Prosisz kierownika zespołu o dzień urlopu. Pracujecie razem od roku.","kontekstEn":"You ask your team leader for a day off. You have worked together for a year.","rola":"Kierownik, zajęty, ale życzliwy; chce wiedzieć, kto przejmie zadania","rolaEn":"Team leader, busy but kind; wants to know who covers your tasks","haksaRejestr":"해요체 lub 합니다체 wobec pracownika","zaSztywno":"—","zaLuzno":"해요체 jest tolerowane w małych firmach; 반말 lub 휴가 갈게요 bez prośby — błąd","przyklad":"팀장님, 다음 주 금요일에 연차를 쓰고 싶은데 괜찮을까요? 급한 건은 김 대리한테 인수인계해 놓겠습니다.","przykladPl":"Szefie, chciałbym wziąć urlop w przyszły piątek — da się? Pilne sprawy przekażę Kimowi.","pulapka":"Prośba przez pytanie (괜찮을까요?), nie oznajmienie"},{"id":"szef-blad","rozmowca":"przelozony","sytuacja":"sluzbowa","dystans":"znajomy","rejestr":"formal","honorific":true,"tolerancja":null,"kontekst":"Musisz powiedzieć przełożonemu, że popełniłeś błąd w raporcie, który już poszedł do klienta.","kontekstEn":"You must tell your boss you made a mistake in a report that has already gone to the client.","rola":"Dyrektor działu, wymaga konkretów, nie lubi wymówek","rolaEn":"Department head, wants specifics, dislikes excuses","haksaRejestr":"합니다체 lub 해요체, rzeczowo","zaSztywno":"—","zaLuzno":"해요체 z wymówką (제가 바빠서요…) brzmi nieprofesjonalnie; 반말 wykluczone","przyklad":"부장님, 죄송합니다. 어제 보낸 보고서 3페이지 수치에 오류가 있었습니다. 수정본을 바로 다시 보내겠습니다.","przykladPl":"Przepraszam. W raporcie z wczoraj na 3. stronie jest błąd w liczbach. Zaraz wyślę poprawioną wersję.","pulapka":"죄송합니다 + fakt + działanie, bez 그런데"},{"id":"rozmowa-kwalifikacyjna","rozmowca":"przelozony","sytuacja":"oficjalna","dystans":"pierwszy_raz","rejestr":"formal","honorific":true,"tolerancja":null,"kontekst":"Rozmowa kwalifikacyjna. Odpowiadasz na pytanie o swoje słabe strony.","kontekstEn":"Job interview. You answer a question about your weaknesses.","rola":"Rekruter, uprzejmy, formalny, dopytuje","rolaEn":"Recruiter, polite, formal, probes","haksaRejestr":"합니다체 przez cały czas","zaSztywno":"—","zaLuzno":"해요체 dopuszczalne u młodszych rekruterów, ale ryzykowne; 반말, 뭐, 그냥 — dyskwalifikują","przyklad":"저는 일을 혼자 끌어안는 경향이 있었는데, 최근에는 팀원들과 업무를 나누려고 노력하고 있습니다.","przykladPl":"Miałem tendencję do brania wszystkiego na siebie, ostatnio staram się dzielić pracą z zespołem.","pulapka":"Bez wypełniaczy 음/그니까 — tu naturalność ustępuje formalności"},{"id":"klient-korporacyjny","rozmowca":"przelozony","sytuacja":"sluzbowa","dystans":"pierwszy_raz","rejestr":"formal","honorific":true,"tolerancja":null,"kontekst":"Pierwsze spotkanie z klientem, który jest starszy i reprezentuje większą firmę.","kontekstEn":"First meeting with a client who is older and represents a bigger company.","rola":"Kierownik ze strony klienta, dystyngowany, ocenia partnera","rolaEn":"Client-side manager, reserved, sizing up the partner","haksaRejestr":"합니다체","zaSztywno":"—","zaLuzno":"해요체 przy pierwszym spotkaniu B2B brzmi lekceważąco","przyklad":"처음 뵙겠습니다. ○○의 이지은입니다. 바쁘신데 시간 내 주셔서 감사합니다.","przykladPl":"Miło mi. Lee Jieun z ○○. Dziękuję, że znalazł pan czas.","pulapka":"뵙겠습니다, 시간 내 주셔서 — stałe formuły"},{"id":"szef-po-godzinach","rozmowca":"przelozony","sytuacja":"prywatna","dystans":"znajomy","rejestr":"polite","honorific":true,"tolerancja":null,"kontekst":"Firmowa kolacja (회식). Szef siedzi obok ciebie i pyta o hobby.","kontekstEn":"Company dinner (회식). Your boss sits next to you and asks about your hobbies.","rola":"Szef po dwóch kieliszkach, swobodniejszy, mówi 반말","rolaEn":"Boss after two drinks, more relaxed, uses 반말","haksaRejestr":"반말 lub 해요체 do pracownika, luźniej niż w biurze","zaSztywno":"합니다체 przy 회식 brzmi jak ciąg dalszy zebrania — szef powie 편하게 해","zaLuzno":"반말 — nawet gdy szef mówi 반말 i nawet gdy zaproponuje 편하게 해, uczeń zostaje przy 해요체","przyklad":"저는 주말에 등산을 자주 가요. 부장님도 산 좋아하세요?","przykladPl":"W weekendy często chodzę w góry. A pan lubi góry?","pulapka":"편하게 해 nie znaczy 반말 — znaczy 해요체 bez 합니다"},{"id":"szef-odmowa-nadgodzin","rozmowca":"przelozony","sytuacja":"sluzbowa","dystans":"znajomy","rejestr":"formal","honorific":true,"tolerancja":"polite","kontekst":"Szef prosi, żebyś został dziś po godzinach. Masz ważną sprawę rodzinną.","kontekstEn":"Your boss asks you to stay late today. You have an important family matter.","rola":"Kierownik pod presją terminu","rolaEn":"Manager under deadline pressure","haksaRejestr":"해요체 lub 합니다체, nalega raz","zaSztywno":"—","zaLuzno":"싫어요 / 안 돼요 / 못 해요 wprost — szorstkie; 반말 wykluczone","przyklad":"오늘은 집에 급한 일이 있어서 좀 어려울 것 같습니다. 내일 아침 일찍 나와서 마무리하겠습니다.","przykladPl":"Dziś mam pilną sprawę w domu, więc raczej się nie da. Przyjdę jutro wcześniej i dokończę.","pulapka":"Odmowa = powód + 좀 어려울 것 같다 + alternatywa"},{"id":"kolega-z-pracy-nowy","rozmowca":"rowny","sytuacja":"sluzbowa","dystans":"pierwszy_raz","rejestr":"polite","honorific":false,"tolerancja":"formal","kontekst":"Pierwszy dzień w pracy. Poznajesz kolegę z biurka obok, w twoim wieku.","kontekstEn":"First day at work. You meet the colleague at the next desk, your age.","rola":"Kolega z zespołu, otwarty, tłumaczy gdzie jest drukarka","rolaEn":"Teammate, friendly, explains where the printer is","haksaRejestr":"해요체, może zaproponować 말 놓기 po kilku dniach","zaSztywno":"합니다체 — ok pierwszego dnia, ale po tygodniu dziwne","zaLuzno":"반말 pierwszego dnia — za wcześnie, nawet jeśli równy wiekiem","przyklad":"안녕하세요, 오늘부터 같이 일하게 된 마렉이에요. 잘 부탁드려요.","przykladPl":"Cześć, jestem Marek, od dziś pracujemy razem. Liczę na współpracę.","pulapka":"잘 부탁드려요 — formuła bez polskiego odpowiednika"},{"id":"kolega-z-pracy-znajomy","rozmowca":"rowny","sytuacja":"sluzbowa","dystans":"znajomy","rejestr":"polite","honorific":false,"tolerancja":"casual","kontekst":"Kolega z zespołu, z którym pracujesz od pół roku, prosi o pomoc przy prezentacji.","kontekstEn":"A teammate you have worked with for six months asks for help with a presentation.","rola":"Kolega, równy wiekiem i stanowiskiem, jeszcze nie na 반말","rolaEn":"Teammate, same age and rank, not yet on 반말","haksaRejestr":"해요체; jeśli uczeń zaproponuje 말 놓기, zgadza się","zaSztywno":"합니다체 po pół roku brzmi jak dystans celowy","zaLuzno":"반말 bez wcześniejszego 말 놓을까요? — przeskok","przyklad":"지금은 좀 바쁜데, 세 시쯤 괜찮아요? 그때 같이 봐요.","przykladPl":"Teraz jestem zajęty, o trzeciej może być? Zobaczymy razem.","pulapka":"Warunkowe tak zamiast nie"},{"id":"przyjaciel-blisko","rozmowca":"rowny","sytuacja":"prywatna","dystans":"bliski","rejestr":"casual","honorific":false,"tolerancja":null,"kontekst":"Bliski przyjaciel dzwoni wieczorem, chce się wygadać po kłótni z dziewczyną.","kontekstEn":"A close friend calls in the evening, wanting to vent after a row with his girlfriend.","rola":"Przyjaciel od lat, mówi 반말, przeklina lekko (mniej w trybie dziecięcym)","rolaEn":"Friend of many years, uses 반말","haksaRejestr":"반말","zaSztywno":"해요체 wobec bliskiego przyjaciela brzmi jak obraza albo żart — komentarz lustra: „brzmisz, jakbyś się na niego gniewał”","zaLuzno":"—","przyklad":"야, 무슨 일이야? 천천히 말해 봐. 지금 어디야?","przykladPl":"Ej, co się stało? Mów powoli. Gdzie jesteś?","pulapka":"반말 z 야, -야, -아/어 bez 요 — tu 요 byłoby błędem"},{"id":"kolega-ze-studiow","rozmowca":"rowny","sytuacja":"prywatna","dystans":"znajomy","rejestr":"polite","honorific":false,"tolerancja":"casual","kontekst":"Kolega z grupy na uczelni, rok wyżej (선배), proponuje wspólny projekt.","kontekstEn":"A fellow student one year above you (선배) suggests a joint project.","rola":"선배, rok starszy, mówi do ciebie 반말, oczekuje 해요체","rolaEn":"선배 one year older, uses 반말 to you, expects 해요체","haksaRejestr":"반말 do 후배, przyjazne","zaSztywno":"합니다체 — 선배 się roześmieje","zaLuzno":"반말 do 선배 bez jego zgody — nawet przy roku różnicy","przyklad":"선배, 저도 그 주제 관심 있어요. 언제 한번 같이 얘기해요.","przykladPl":"Sunbae, mnie też ten temat interesuje. Pogadajmy kiedyś.","pulapka":"선배 jako zwrot; asymetria 반말↔해요체 mimo bliskiego wieku"},{"id":"rowiesnik-impreza","rozmowca":"rowny","sytuacja":"prywatna","dystans":"pierwszy_raz","rejestr":"polite","honorific":false,"tolerancja":null,"kontekst":"Na imprezie u znajomych poznajesz kogoś w swoim wieku.","kontekstEn":"At a friend's party you meet someone your own age.","rola":"Rówieśnik, wesoły, po chwili proponuje 말 놓자","rolaEn":"Peer, cheerful, soon suggests dropping formalities","haksaRejestr":"해요체, potem sam proponuje 우리 말 놓을까요?","zaSztywno":"합니다체 na imprezie — dziwne","zaLuzno":"반말 od pierwszego zdania — za szybko; po propozycji 말 놓자 przejście na 반말 jest oczekiwane i lustro to nagradza","przyklad":"저 마렉이에요. 몇 살이에요? 아, 동갑이네요! 그럼 말 놓을까요?","przykladPl":"Jestem Marek. Ile masz lat? O, rocznik! To przejdziemy na ty?","pulapka":"Pytanie o wiek jest tu normalne — to test, czy uczeń wie, po co się pyta"},{"id":"wspolokator","rozmowca":"rowny","sytuacja":"prywatna","dystans":"bliski","rejestr":"casual","honorific":false,"tolerancja":null,"kontekst":"Współlokator znów nie umył naczyń. Rozmawiacie w kuchni.","kontekstEn":"Your flatmate hasn't done the dishes again. You talk in the kitchen.","rola":"Współlokator, równy wiekiem, na 반말 od dawna, trochę leniwy","rolaEn":"Flatmate, same age, on 반말 for ages, a bit lazy","haksaRejestr":"반말","zaSztywno":"해요체 = ironia / złość","zaLuzno":"—","przyklad":"설거지 좀 하자. 이번 주만 세 번째야. 내가 요리하면 네가 설거지하기로 했잖아.","przykladPl":"Zrób naczynia. Trzeci raz w tym tygodniu. Umawialiśmy się: ja gotuję, ty zmywasz.","pulapka":"Bezpośredniość w 반말 wobec bliskiej osoby jest naturalna — lustro nie może tu karać za 직접성"},{"id":"mlodszy-kolega-praca","rozmowca":"mlodszy","sytuacja":"sluzbowa","dystans":"znajomy","rejestr":"polite","honorific":false,"tolerancja":"casual","kontekst":"Tłumaczysz nowemu, młodszemu koledze z pracy, jak działa system. Pracuje z tobą od miesiąca.","kontekstEn":"You explain the system to a new, younger colleague who has worked with you for a month.","rola":"Nowy pracownik, 5 lat młodszy, mówi do ciebie 해요체","rolaEn":"New employee, 5 years younger, uses 해요체 to you","haksaRejestr":"해요체, uprzejmy, zadaje pytania","zaSztywno":"합니다체 wobec młodszego podwładnego — sztywne, ale nie błędne","zaLuzno":"반말 po miesiącu jest w wielu firmach normalne od strony starszego — tolerowane; lustro tylko zaznacza, że w formalnych firmach lepiej 해요체","przyklad":"이거는 여기 누르면 돼요. 모르는 거 있으면 언제든 물어보세요.","przykladPl":"To się klika tutaj. Jak coś, pytaj kiedy chcesz.","pulapka":"Starszy może 반말, ale nie musi — 해요체 wobec młodszego jest bezpieczne"},{"id":"dziecko-znajomych","rozmowca":"mlodszy","sytuacja":"prywatna","dystans":"znajomy","rejestr":"casual","honorific":false,"tolerancja":null,"kontekst":"Rozmawiasz z 8-letnim synem znajomych, który pokazuje ci swój rysunek.","kontekstEn":"You talk to a friend's 8-year-old son who shows you his drawing.","rola":"Dziecko, 8 lat, mówi 반말 lub 해요체 (jak nauczone)","rolaEn":"Child, 8, uses 반말 or 해요체","haksaRejestr":"반말 lub dziecięce 해요체","zaSztywno":"해요체 do małego dziecka brzmi jak z podręcznika; 합니다체 — komicznie","zaLuzno":"—","przyklad":"우와, 이거 네가 그린 거야? 진짜 잘 그렸다! 이건 뭐야?","przykladPl":"Wow, to ty narysowałeś? Świetne! A co to jest?","pulapka":"-다 wykrzyknikowe (잘 그렸다!) to naturalne 반말"},{"id":"mlodszy-sluzbowo-formalnie","rozmowca":"mlodszy","sytuacja":"oficjalna","dystans":"pierwszy_raz","rejestr":"formal","honorific":false,"tolerancja":"polite","kontekst":"Prowadzisz rozmowę kwalifikacyjną z kandydatem młodszym od ciebie o 10 lat.","kontekstEn":"You interview a job candidate 10 years younger than you.","rola":"Kandydat, zdenerwowany, 합니다체","rolaEn":"Candidate, nervous, uses 합니다체","haksaRejestr":"합니다체","zaSztywno":"—","zaLuzno":"반말 wobec kandydata — nadużycie pozycji; 해요체 tolerowane","przyklad":"편하게 앉으세요. 먼저 자기소개 부탁드립니다.","przykladPl":"Proszę usiąść wygodnie. Najpierw proszę się przedstawić.","pulapka":"Wiek nie daje prawa do 반말 w sytuacji oficjalnej"},{"id":"kuzyn-mlodszy","rozmowca":"mlodszy","sytuacja":"prywatna","dystans":"bliski","rejestr":"casual","honorific":false,"tolerancja":null,"kontekst":"Młodszy kuzyn (19 lat) pyta cię o radę w sprawie studiów.","kontekstEn":"Your younger cousin (19) asks your advice about university.","rola":"Kuzyn, mówi do ciebie 형/누나/오빠/언니 + 해요체 lub 반말","rolaEn":"Cousin, addresses you as 형/누나/오빠/언니","haksaRejestr":"반말","zaSztywno":"해요체 wobec młodszego kuzyna — jak obcy","zaLuzno":"—","przyklad":"네가 뭘 좋아하는지가 제일 중요해. 급하게 정하지 마.","przykladPl":"Najważniejsze, co lubisz. Nie decyduj w pośpiechu.","pulapka":"너/네 wobec młodszego jest właściwe — lustro nie karze 너 tutaj"},{"id":"kawiarnia","rozmowca":"nieznajomy","sytuacja":"uslugowa","dystans":"pierwszy_raz","rejestr":"polite","honorific":false,"tolerancja":null,"kontekst":"Zamawiasz kawę w kawiarni.","kontekstEn":"You order coffee at a café.","rola":"Barista, 20-kilka lat, 해요체 z -시- (드릴까요?)","rolaEn":"Barista, twenties, polite 해요체","haksaRejestr":"해요체 z honoryfikatywami do klienta","zaSztywno":"합니다체 przy zamówieniu kawy — sztywne, choć niegroźne","zaLuzno":"반말 (아메리카노 하나 줘) — bardzo niegrzeczne wobec obsługi","przyklad":"아이스 아메리카노 한 잔 주세요. 얼음 조금만요.","przykladPl":"Poproszę jedno americano z lodem. Mało lodu.","pulapka":"주세요 wystarczy; 주시겠어요 nie jest potrzebne"},{"id":"taksowka","rozmowca":"nieznajomy","sytuacja":"uslugowa","dystans":"pierwszy_raz","rejestr":"polite","honorific":true,"tolerancja":"formal","kontekst":"Tłumaczysz taksówkarzowi (starszy pan), gdzie jechać.","kontekstEn":"You tell a taxi driver (an older man) where to go.","rola":"Kierowca, ok. 60 lat, mówi 해요체, czasem 반말 do młodych","rolaEn":"Driver, about 60, polite, sometimes 반말 to the young","haksaRejestr":"해요체, może 반말 wobec młodego pasażera","zaSztywno":"합니다체 ok","zaLuzno":"반말 wobec starszego kierowcy — nie, nawet jeśli on mówi 반말","przyklad":"기사님, 홍대입구역으로 가 주세요. 2번 출구 앞에서 세워 주시면 돼요.","przykladPl":"Panie kierowco, na stację Hongik. Proszę zatrzymać się przy wyjściu 2.","pulapka":"기사님 jako zwrot; 세워 주시면 돼요 — prośba przez 되다"},{"id":"urzad","rozmowca":"nieznajomy","sytuacja":"oficjalna","dystans":"pierwszy_raz","rejestr":"polite","honorific":true,"tolerancja":"formal","kontekst":"Załatwiasz sprawę w urzędzie dzielnicy — potrzebujesz zaświadczenia.","kontekstEn":"You are at the district office; you need a certificate.","rola":"Urzędniczka, 해요체 z -시-, rzeczowa","rolaEn":"Clerk, polite, businesslike","haksaRejestr":"해요체 / 합니다체","zaSztywno":"합니다체 jak najbardziej na miejscu","zaLuzno":"반말 wykluczone; 이거 (bez nazwy) i wskazywanie palcem — lustro: niejasność, nie rejestr","przyklad":"주민등록등본 한 통 발급받으려고 하는데요. 신분증 여기 있습니다.","przykladPl":"Chciałbym wyciąg z rejestru. Tu jest mój dowód.","pulapka":"-는데요 jako otwarcie sprawy — nie mówi wszystkiego, zostawia urzędniczce ruch"},{"id":"pytanie-o-droge-starszy","rozmowca":"nieznajomy","sytuacja":"prywatna","dystans":"pierwszy_raz","rejestr":"polite","honorific":true,"tolerancja":"formal","kontekst":"Pytasz starszą panią na ulicy o drogę do apteki.","kontekstEn":"You ask an elderly lady in the street the way to the pharmacy.","rola":"Starsza pani, życzliwa, mówi 반말 lub 해요체","rolaEn":"Elderly lady, kind, may use 반말","haksaRejestr":"해요체 lub 반말 wobec młodego","zaSztywno":"합니다체 dopuszczalne","zaLuzno":"반말 — nie; 저기요 jest ok jako zaczepka, 야 nie","przyklad":"저기, 실례합니다. 이 근처에 약국이 어디 있는지 아세요?","przykladPl":"Przepraszam, wie pani, gdzie tu jest apteka?","pulapka":"실례합니다 + 아세요 z -시-"},{"id":"pytanie-o-droge-mlody","rozmowca":"nieznajomy","sytuacja":"prywatna","dystans":"pierwszy_raz","rejestr":"polite","honorific":false,"tolerancja":null,"kontekst":"Pytasz nastolatka na przystanku, czy ten autobus jedzie na dworzec.","kontekstEn":"You ask a teenager at the bus stop whether this bus goes to the station.","rola":"Nastolatek, nieśmiały, odpowiada 해요체","rolaEn":"Teenager, shy, answers in 해요체","haksaRejestr":"해요체","zaSztywno":"합니다체 do nastolatka — dziwne","zaLuzno":"반말 do nieznajomego nastolatka — Koreańczycy starsi czasem tak robią, ale obcokrajowiec brzmi arogancko; lustro zaznacza","przyklad":"저기요, 이 버스 서울역 가요?","przykladPl":"Przepraszam, ten autobus jedzie na Dworzec Seulski?","pulapka":"Krótko, 해요체; nieznajomy = 해요체 niezależnie od wieku"},{"id":"sklep-reklamacja","rozmowca":"nieznajomy","sytuacja":"uslugowa","dystans":"pierwszy_raz","rejestr":"polite","honorific":true,"tolerancja":"formal","kontekst":"Zwracasz w sklepie buty, które okazały się uszkodzone. Sprzedawca się wykręca.","kontekstEn":"You return damaged shoes to a shop. The assistant is evasive.","rola":"Sprzedawca, uprzejmy, ale próbuje odesłać do producenta","rolaEn":"Shop assistant, polite but tries to redirect you to the maker","haksaRejestr":"해요체 z -시- wobec klienta","zaSztywno":"합니다체 ok","zaLuzno":"반말 lub podniesiony ton (뭐예요 이게?) — lustro: 직접성 za wysoka nawet przy racji","przyklad":"여기 뒤축이 찢어져 있는데요. 산 지 이틀밖에 안 됐어요. 교환이나 환불 가능할까요?","przykladPl":"Tu pięta jest rozdarta. Kupiłem dwa dni temu. Da się wymienić albo zwrócić?","pulapka":"Reklamacja = fakt + -는데요 + pytanie o możliwość, nie żądanie"},{"id":"telefon-do-firmy","rozmowca":"nieznajomy","sytuacja":"sluzbowa","dystans":"pierwszy_raz","rejestr":"formal","honorific":true,"tolerancja":null,"kontekst":"Dzwonisz do firmy, żeby zapytać o status zamówienia.","kontekstEn":"You call a company to ask about an order status.","rola":"Pracownik infolinii, 합니다체 skryptowe","rolaEn":"Call-centre worker, scripted 합니다체","haksaRejestr":"합니다체 skryptowe (무엇을 도와드릴까요?)","zaSztywno":"—","zaLuzno":"해요체 tolerowane; 반말 nie; brak przedstawienia się — lustro: niejasność","przyklad":"안녕하세요, 지난주에 주문한 건으로 문의드립니다. 주문 번호는 20240915-3321입니다.","przykladPl":"Dzień dobry, dzwonię w sprawie zamówienia z zeszłego tygodnia. Numer 20240915-3321.","pulapka":"문의드립니다 — czasownik z 드리다 wobec firmy"},{"id":"kolezanka-matki","rozmowca":"starszy","sytuacja":"prywatna","dystans":"pierwszy_raz","rejestr":"polite","honorific":true,"tolerancja":null,"kontekst":"Odbierasz telefon do mamy. Dzwoni jej koleżanka, mamy nie ma w domu.","kontekstEn":"You answer the phone for your mother. Her friend is calling and Mum is out.","rola":"Koleżanka mamy, ok. 50 lat, 반말 lub 해요체 do dziecka koleżanki","rolaEn":"Mother's friend, about 50","haksaRejestr":"반말 do młodego (엄마 계시니?) lub 해요체","zaSztywno":"합니다체 — jak w call center","zaLuzno":"반말 (엄마 없어) — nie do przyjęcia","przyklad":"어머니 지금 안 계세요. 들어오시면 전화 왔다고 말씀드릴게요.","przykladPl":"Mamy teraz nie ma. Jak wróci, przekażę, że pani dzwoniła.","pulapka":"안 계세요 (o własnej matce wobec obcego) — honoryfikatyw wobec nieobecnej osoby starszej"}];
 
@@ -19538,16 +19558,184 @@ function przekaznikBramkaSlangu(ko, reguleId, kontekst){
   return { dozwolone: false, powod: 'zakaz', poziom: rek.slang };
 }
 
+/* ══ NUNCHI SHOCK (눈치 쇼크) ══════════════════════════════════════════
+   Naruszenie tabu językowego rozstrzygamy U SIEBIE, nie u modelu.
+
+   Powód jest prosty: model, który ma ocenić scenę, jest jednocześnie jej
+   rozmówcą i autorem repliki, na którą uczeń odpowiada. Poproszony o
+   wskazanie naruszenia potrafi je zbagatelizować („w tym kontekście to
+   naturalne"), przeoczyć przy dłuższym przebiegu albo — najgorsze —
+   zgłosić naruszenie tam, gdzie go nie było. Żadne z tych zachowań nie
+   jest awarią; wszystkie są normalnym rozrzutem generacji. Werdykt, od
+   którego zależy zaliczenie sceny, nie może mieć rozrzutu.
+
+   Dlatego: bramka slangu (ta sama, którą maluje Kodeks) orzeka na
+   wypowiedziach ucznia, lokalnie i tak samo za każdym razem. Model
+   DOSTAJE gotowe ustalenie i ma je wyjaśnić uczniowi — nie ocenić.
+
+   CO ZNACZY „NARUSZENIE": odpowiedź bramki z `dozwolone:false`, czyli
+   `wulgarny` (zakaz bezwzględny), `zakaz` (poziom poza strefą tej
+   relacji) albo `echo` bez odbicia rozmówcy. Echo liczymy z replik
+   ROZMÓWCY w tej samej scenie — dokładnie tak, jak echo zdefiniowała
+   Fable w `.566`.
+
+   CZEGO NIE ROBI: nie ocenia rejestru, nie liczy błędów gramatycznych,
+   nie zna pojęcia „za luźno". To wszystko mierzą inne części. Tu pada
+   jedno pytanie: czy padło słowo, którego w tej relacji paść nie może. */
+let NUNCHI_SZOK_HASLA = null;
+function nunchiSzokHasla(){
+  if(!NUNCHI_SZOK_HASLA){
+    /* NAJDŁUŻSZE PIERWSZE. `핵꿀잼` zawiera `꿀잼`; bez sortowania raport
+       nazwałby wyzwalaczem krótszy wyraz, a to inny poziom slangu i inne
+       orzeczenie bramki. */
+    NUNCHI_SZOK_HASLA = allWords
+      .filter(w => w && w.slang)
+      .map(w => bezNumeru(String(w.ko || '')).trim())
+      .filter(Boolean)
+      .sort((a, b) => b.length - a.length);
+  }
+  return NUNCHI_SZOK_HASLA;
+}
+
+/* ECHO PRZYCHODZI JAKO ZDANIA, BRAMKA CZYTA HASŁA.
+   Bramka sprawdza odbicie przez `pkSlangRekord(s)`, czyli DOKŁADNE
+   dopasowanie hasła słownikowego. W Kodeksie to wystarcza, bo tam echo
+   podaje się jako pojedyncze hasło (`[wzor.ko]`). W scenie repliki
+   rozmówcy to całe zdania — `pkSlangRekord('짱 좋네')` zwraca null i
+   odbicie NIE ZOSTAJE ZAUWAŻONE. Skutek byłby cichy i dokładnie
+   odwrotny do zamierzonego: uczeń odbijający slang szefa dostawałby
+   Nunchi Shock za zachowanie, które reguła echa wprost dopuszcza.
+
+   Wyciąganie haseł należy tu, nie do bramki: bramka ma kontrakt „lista
+   słów" i ma go zachować. Znalezione przez `test-574.js`, na tej samej
+   asercji, która miała pilnować, żeby detektor nie karał za slang jako
+   taki. */
+function nunchiSzokEcho(wpisy){
+  const lista = Array.isArray(wpisy) ? wpisy : [];
+  const out = [];
+  lista.forEach(w => {
+    const t = bezNumeru(String(w || '')).trim();
+    if(!t) return;
+    if(pkSlangRekord(t)){ if(out.indexOf(t) === -1) out.push(t); return; }
+    nunchiSzokHasla().forEach(h => {
+      if(t.indexOf(h) !== -1 && out.indexOf(h) === -1) out.push(h);
+    });
+  });
+  /* Wulgaryzmy ZOSTAJĄ na liście. Odsiewa je bramka, w `byloOdbicie` —
+     i ma to robić w jednym miejscu, żeby zasada „wulgaryzm rozmówcy nie
+     otwiera echa" miała jeden opis, nie dwa. */
+  return out;
+}
+
+function nunchiSzokWykryj(wypowiedzi, regulaId, kontekst){
+  const k = kontekst || {};
+  const ctx = { echo: nunchiSzokEcho(k.echo), kanal: k.kanal || 'mowa' };
+  const lista = Array.isArray(wypowiedzi) ? wypowiedzi : [wypowiedzi];
+  const maRegule = !!przekaznikRegula(regulaId);
+  const naruszenia = [];
+  lista.forEach(zdanie => {
+    const t = String(zdanie || '');
+    if(!t) return;
+    /* Maska zjada trafione hasło NIEZALEŻNIE od werdyktu: gdyby zjadała
+       tylko naruszenia, dozwolone `핵꿀잼` przepuściłoby `꿀잼` jako
+       osobne trafienie i scena dostałaby szok za słowo, które padło raz
+       i było dozwolone. */
+    let maska = t;
+    nunchiSzokHasla().forEach(haslo => {
+      if(maska.indexOf(haslo) === -1) return;
+      maska = maska.split(haslo).join(' '.repeat(haslo.length));
+      const w = przekaznikBramkaSlangu(haslo, regulaId, ctx);
+      if(w.dozwolone) return;
+      /* BEZ REGUŁY orzekamy wyłącznie o wulgaryzmie — on jest zakazany pod
+         każdą regułą, więc brak reguły niczego nie zmienia. Poziomy slangu
+         bez reguły zostawiamy w spokoju: 2 scenariusze z 31 nie mają dziś
+         swojej reguły w tabeli i jednym z nich jest `kolega-ze-studiow`,
+         czyli najbardziej naturalny kontekst slangu w całej aplikacji. */
+      if(!maRegule && w.powod !== 'wulgarny') return;
+      naruszenia.push({ ko: haslo, powod: w.powod, poziom: w.poziom, zdanie: t });
+    });
+  });
+  /* Trigger bez powtórzeń — to samo słowo w trzech turach to jeden powód. */
+  const widziane = {};
+  const trigger = naruszenia
+    .filter(n => { const k = n.ko + '|' + n.powod; if(widziane[k]) return false; widziane[k] = 1; return true; })
+    .map(n => n.ko + ' (' + n.powod + ')').join(', ');
+  return { szok: naruszenia.length > 0, naruszenia: naruszenia, trigger: trigger, maRegule: maRegule };
+}
+
+/* Detektor dla BIEŻĄCEJ sceny. Funkcja jest CZYSTA względem stanu sceny
+   (`aiChatHistory`, `nunchiAktywny`), więc wolno ją wołać z dwóch miejsc
+   — z oceny i z widoku — i obie dostaną to samo. Tym samym nie trzeba
+   trzymać wyniku w zmiennej modułowej ani zerować jej w trzech miejscach,
+   gdzie scena się kończy; zapomniane zerowanie przeniosłoby szok na
+   następną misję. */
+function nunchiSzokScena(){
+  const sc = (typeof nunchiAktywny !== 'undefined') ? nunchiAktywny : null;
+  const regula = nunchiRegulaScenariusza(sc);
+  const tury = Array.isArray(aiChatHistory) ? aiChatHistory : [];
+  return nunchiSzokWykryj(
+    tury.filter(t => t.speaker === 'user').map(t => t.ko),
+    regula ? regula.id : null,
+    { echo: tury.filter(t => t.speaker === 'bot').map(t => t.ko), kanal: 'mowa' });
+}
+
+/* Blok do promptu oceny. Model ma WYJAŚNIĆ ustalenie, nie je rozpatrzyć —
+   stąd jawne „nie podważaj". Bez tego zdania model przy łagodnym kontekście
+   potrafi odpowiedzieć „to było w porządku" i zaprzeczyć banerowi, który
+   uczeń widzi obok. */
+function nunchiSzokDoPromptu(szok){
+  if(!szok || !szok.szok) return '';
+  return 'DANE LOKALNEGO DETEKTORA: ' + JSON.stringify({ nunchiShock: true, trigger: szok.trigger }) + '\n'
+    + 'Uczeń użył w tej scenie słownictwa, które w tej relacji nie może paść (NUNCHI SHOCK / 눈치 쇼크). '
+    + 'Ustalenie zapadło lokalnie i NIE PODLEGA Twojej ocenie — nie podważaj go, nie łagodź i nie pomijaj. '
+    + 'Scena jest niezaliczona niezależnie od tego, czy cel został osiągnięty. '
+    + 'W polu "nastepnym_razem" wyjaśnij po ludzku, dlaczego to słowo nie pasuje do tego rozmówcy.\n\n';
+}
+
 /* Zdanie do promptu GENEROWANE z tej samej mapy, z której korzysta bramka.
    Dwa niezależne opisy jednej zasady rozjeżdżają się przy pierwszej zmianie,
    a rozjazd bramka-prompt jest niewidoczny: bramka milczy, model generuje. */
 const PK_SLANG_NAZWA_PL = Object.freeze({ potoczny: 'potoczny', mlodziezowy: 'młodzieżowy', czatowy: 'czatowy' });
+/* REPREZENTANT POZIOMU. Bramka rozstrzyga o SŁOWIE, a zdanie promptu mówi
+   o POZIOMIE — żeby jedno zapytać o drugie, potrzebny jest przedstawiciel
+   poziomu wzięty ze słownika. Dowolne niewulgarne hasło wystarczy: bramka
+   patrzy na `rek.slang`, nie na kształt hasła, więc każdy reprezentant
+   tego samego poziomu daje tę samą odpowiedź. */
+let PK_PRZYKLADY_POZIOMU = null;
+function pkPrzykladPoziomu(poziom){
+  if(!PK_PRZYKLADY_POZIOMU){
+    PK_PRZYKLADY_POZIOMU = {};
+    allWords.forEach(w => {
+      if(!w || !w.slang || w.wulgarny) return;
+      if(!PK_PRZYKLADY_POZIOMU[w.slang]) PK_PRZYKLADY_POZIOMU[w.slang] = bezNumeru(String(w.ko || '')).trim();
+    });
+  }
+  return PK_PRZYKLADY_POZIOMU[poziom] || null;
+}
+
 function pkSlangDoPromptu(reguleId){
   const wolno = [], echo = [];
   Object.keys(PK_SLANG_MAPA).forEach(p => {
-    const m = PK_SLANG_MAPA[p];
-    if(m.dozwolone.indexOf(reguleId) !== -1 && !m.wymagaKanalu) wolno.push(PK_SLANG_NAZWA_PL[p] || p);
-    if(m.echo.indexOf(reguleId) !== -1) echo.push(PK_SLANG_NAZWA_PL[p] || p);
+    const nazwa = PK_SLANG_NAZWA_PL[p] || p;
+    const slowo = pkPrzykladPoziomu(p);
+    if(!slowo){
+      /* Poziom bez reprezentanta w słowniku — bramka nie ma o co zostać
+         zapytana. CICHE POMINIĘCIE zmieniłoby prompt bez śladu, więc dla
+         tego jednego poziomu czytamy mapę, jawnie i z komentarzem. */
+      const m = PK_SLANG_MAPA[p];
+      if(m.dozwolone.indexOf(reguleId) !== -1 && !m.wymagaKanalu) wolno.push(nazwa);
+      if(m.echo.indexOf(reguleId) !== -1) echo.push(nazwa);
+      return;
+    }
+    /* Dwa pytania, bo zdanie promptu rozróżnia trzy stany, a bramka
+       odpowiada binarnie: „wolno" to zgoda BEZ odbicia, „echo" to odmowa
+       bez odbicia i zgoda po odbiciu. Kanał `mowa`, bo ten prompt
+       produkuje wypowiedzi mówione — poziom czatowy odpada tu przez samą
+       bramkę, bez osobnej reguły w tym miejscu. */
+    const bez = przekaznikBramkaSlangu(slowo, reguleId, { echo: [], kanal: 'mowa' });
+    const zEch = przekaznikBramkaSlangu(slowo, reguleId, { echo: [slowo], kanal: 'mowa' });
+    if(bez.dozwolone) wolno.push(nazwa);
+    else if(zEch.dozwolone) echo.push(nazwa);
   });
   const zdania = [];
   if(wolno.length) zdania.push('Slang dopuszczalny w tej relacji: ' + wolno.join(', ') + '.');
@@ -19583,6 +19771,34 @@ function przekaznikRegula(id){
     NUNCHI_TABELA.forEach(r => { if(r.id) PRZEKAZNIK_REGULY.set(r.id, r); });
   }
   return PRZEKAZNIK_REGULY.get(id) || null;
+}
+
+/* SCENARIUSZ → REGUŁA RELACJI. Scena niesie `rozmowca`, `sytuacja`,
+   `dystans`, ale NIE niesie `regula_id` — a bramka slangu pyta właśnie
+   o regułę. Do `.574` nic w pliku tych dwóch światów nie łączyło:
+   `NUNCHI_SCENARIUSZE` obsługiwały rozmowę, `NUNCHI_TABELA` Kompas i Kodeks.
+
+   To NIE jest sklejenie trzech pól kropkami. Tabela używa `*` w znaczeniu
+   „ta reguła nie rozróżnia tego wymiaru" (`starszy.any.pierwszy_raz` ma
+   `sytuacja:'*'`), więc dopasowanie musi honorować gwiazdkę — sklejenie
+   trafiłoby w 10 scenariuszy z 31 zamiast w 29.
+
+   Zmierzone na `.573` przed budową: 29 z 31 scenariuszy trafia w DOKŁADNIE
+   jedną regułę, 0 niejednoznacznych, 2 bez reguły (rowny.prywatna.znajomy,
+   mlodszy.prywatna.znajomy). Te dwie luki są w tabeli relacji i czekają na
+   rozstrzygnięcie Fable/Damiana — tu nie zgaduję, tylko zwracam null. */
+function nunchiRegulaScenariusza(sc){
+  if(!sc || !sc.rozmowca) return null;
+  const pasuje = NUNCHI_TABELA.filter(r =>
+    r.rozmowca === sc.rozmowca
+    && (r.sytuacja === '*' || r.sytuacja === sc.sytuacja)
+    && (r.dystans === '*' || r.dystans === sc.dystans));
+  /* Przy więcej niż jednym kandydacie NIE wybieram „lepszego" po liczbie
+     gwiazdek: cicha heurystyka w miejscu, które orzeka o niezaliczeniu
+     sceny, jest gorsza niż brak orzeczenia. Dziś kandydat jest zawsze
+     najwyżej jeden (zmierzone) — gdyby tabela się rozrosła, wolę null
+     i zgłoszenie niż zgadywanie. */
+  return pasuje.length === 1 ? pasuje[0] : null;
 }
 
 /* KROK 2, część pierwsza: w jakim rejestrze stoi zdanie.
@@ -19701,7 +19917,17 @@ function przekaznikRejestrZdania(ko){
    Kierunek błędu jest tu świadomy: filtr zbyt wąski MILCZY o błędzie, filtr
    zbyt szeroki UCZY, że poprawna konstrukcja jest błędem. Drugie jest gorsze. */
 const PK_PIERWSZA_OSOBA = /(제가|저는|저도|저희가|저희는|내가|나는|나도)/;
-const PK_HONORYFIKATYW = /(으시|으실|우시|우실|십니|세요|셔|시겠|시는)/;
+/* `셨` DOPISANE W `.574`. Do tej pory stało wyłącznie w
+   `PK_SZACUNEK_INFIKS`, a komentarz przy tamtej stałej mówił wprost, że
+   dopisanie tutaj zmienia zachowanie FILTRU autohonoryfikacji i wymaga
+   własnej kalibracji. Kalibracja została zrobiona i to jest jej wynik:
+   filtr zaczyna łapać autohonoryfikację w czasie przeszłym
+   (`제가 참석하기 어려우셨어요`), a na korpusie zdań poprawnych — gdzie
+   `-셨-` stoi legalnie przy podmiocie trzecioosobowym — milczy tak samo
+   jak przed zmianą. Mierzone w `test-574.js`, w obie strony, na obu
+   plikach. Kierunek błędu zostaje ten sam co w `.554`: wolę filtr, który
+   przemilczy błąd, niż taki, który uczy, że poprawne zdanie jest błędem. */
+const PK_HONORYFIKATYW = /(으시|으실|우시|우실|십니|세요|셔|셨|시겠|시는)/;
 
 /* R1. `-(으)실게요` — BŁĄD ZAWSZE, bez szukania podmiotu.
    `-ㄹ게요` jest wyłącznie pierwszoosobowe (obietnica mówiącego),
@@ -20448,11 +20674,13 @@ const PK_FORMULA_OPIS = { pl: 'Formuła grzecznościowa', en: 'Set polite phrase
   dopisek: { pl: 'stały zwrot oficjalny', en: 'fixed formal expression' } };
 const PK_SZACUNEK_DOPISEK = { pl: 'z formami szacunku', en: 'with respect forms' };
 
-/* WŁASNA stała, NIE `PK_HONORYFIKATYW`. Tamta obsługuje filtr
-   autohonoryfikacji i NIE MA `셨` — dokładnie tej dziury, którą kontrola
-   przeciwna serii 03 znalazła w moim narzędziu. Dopisanie `셨` tam zmieniłoby
-   zachowanie FILTRU i wymaga własnej kalibracji na przykładach Fable, więc
-   nie robię tego przy okazji zmiany napisu. Tu `셨` być musi, bo bez niego
+/* WŁASNA stała, NIE `PK_HONORYFIKATYW`. Obie mają dziś `셨` — tamta
+   dostała je w `.574` po własnej kalibracji — ale stałe zostają OSOBNE,
+   bo odpowiadają na różne pytania: `PK_HONORYFIKATYW` bramkuje filtr
+   BŁĘDU (autohonoryfikacja), a ta opisuje, czy zdanie NIESIE formy
+   szacunku, i dlatego zawiera też `십시오`, którego tamta nie potrzebuje.
+   Zlanie ich w jedną poszerzyłoby filtr błędu o `십시오` bez kalibracji.
+   Tu `셨` być musi, bo bez niego
    `할머니, 진지 잡수셨어?` — wzorcowe zdanie relacji `starszy.prywatna.bliski` —
    dostałoby etykietę „bez form szacunku". */
 const PK_SZACUNEK_INFIKS = /(으시|으실|우시|우실|십니|세요|셔|셨|시겠|시는|십시오)/;
@@ -21028,8 +21256,24 @@ function pkPodepnij(){
   const wejscie = document.getElementById('pkWejscieBtn');
   if(wejscie) wejscie.addEventListener('click', () => pkOtworz());
 
-  const dz = document.getElementById('pkDziennikBtn');
-  if(dz) dz.addEventListener('click', () => {
+  /* GEST, NIE PRZYCISK. Dziennik jest narzędziem diagnostycznym i nie ma
+     czego szukać w produkcyjnym UI — ale usunięcie go razem z mechanizmem
+     zabrałoby zgłoszeniom załącznik, po który się go czyta. Zostaje więc
+     całość, za potrójnym stuknięciem w nagłówek „Kompas Nunchi".
+
+     Okno 1200 ms między stuknięciami: krócej wymaga zręczności, dłużej
+     zbiera przypadkowe dotknięcia z różnych chwil w jedno „otwarcie".
+     Licznik zeruje się po każdym odsłonięciu, więc gest jest powtarzalny,
+     a nie jednorazowy. */
+  let pkStukLicznik = 0, pkStukCzas = 0;
+  const naglowek = document.getElementById('pkEyebrow');
+  if(naglowek) naglowek.addEventListener('click', () => {
+    const teraz = Date.now();
+    if(teraz - pkStukCzas > 1200) pkStukLicznik = 0;
+    pkStukCzas = teraz;
+    pkStukLicznik += 1;
+    if(pkStukLicznik < 3) return;
+    pkStukLicznik = 0;
     const pre = document.getElementById('pkDziennik');
     if(!pre) return;
     if(!pre.hidden){ pre.hidden = true; return; }
@@ -24766,6 +25010,7 @@ function renderHanjaScreen(){
     const pole = document.getElementById('pisPole');
     pisRysowane = []; pisAktywna = null; pisStany = []; pisByloKomplet = false;
     pisZlyKierunek = false; pisWzorObok = null; pisItem = h;
+    pisGeometrycznie = true;   // hanja: dane PRC, kolejności nie oceniamy
     pisPodepnij(pole, h);
     pisRysuj(pole);
     const czysc = karta.querySelector('.pis-czysc');
@@ -26319,6 +26564,11 @@ const PIS_TOLERANCJA = 22;      // px w układzie 0-100; poza tym punkt uznajemy
    kresce, więc bez tej flagi dźwięk ukończenia powtarzałby się przy każdym
    kolejnym dotknięciu pola. */
 let pisByloKomplet = false;
+/* Który widok jest podpięty: karta hanja ocenia BEZ kolejności
+   (dane w normie chińskiej), ekran hangulu Z kolejnością (dane
+   zmierzone z Noto Serif KR, kolejność niesporna). Ustawiane przy
+   podpięciu pola, czytane przez pisPokazOcene. */
+let pisGeometrycznie = false;
 let pisRysowane = [];           // kreski narysowane przez usera: [[{x,y},...], ...]
 let pisAktywna = null;          // kreska w trakcie rysowania
 let pisStany = [];              // ocena każdej narysowanej kreski: 'ok'|'kierunek'|'polozenie'|'brak'
@@ -26349,8 +26599,24 @@ function pisOdleglosc(ax, ay, bx, by){
 
 /* Ocena: dla każdej kreski wzorcowej sprawdzamy tę, którą user narysował jako
    n-tą. Brak kreski = brak punktów za nią. */
-function pisOcen(item){
+/* TRYB GEOMETRYCZNY — dodany w .573.
+   Domyślnie (bez drugiego argumentu) funkcja działa jak dotąd: kreska ucznia
+   numer i porównywana z kreską wzorca numer i. To jest ocena KOLEJNOŚCI
+   i dla hangulu jest w porządku — tamte ścieżki są zmierzone z Noto Serif KR,
+   a kolejność pisania liter hangul nie jest sporna.
+
+   Dla hanja jest odwrotnie: ścieżki idą z hanzi-writer-data, czyli z normy
+   chińskiej, a koreańska przy części znaków się różni. Zmierzone na .572:
+   ten sam, poprawny rysunek z zamienionymi kreskami 1 i 2 dawał błąd
+   na 150 znakach ze 210 (300 kresek). Uczeń piszący poprawnie po koreańsku
+   dostawał czerwone.
+
+   W trybie geometrycznym parowanie idzie przez kanwaDopasuj — po położeniu
+   końców, nie po indeksie — więc kolejność przestaje mieć wpływ, a zwrot
+   i położenie są oceniane dalej. Kontrakt wyjściowy bez zmian. */
+function pisOcen(item, geometrycznie){
   const wzor = pisWzorzec(item);
+  if(geometrycznie && typeof kanwaDopasuj === 'function') return pisOcenGeometrycznie(wzor);
   const wynik = wzor.map((d, i) => {
     const w = pisKonce(d);
     const u = pisRysowane[i];
@@ -26462,8 +26728,40 @@ function pisWyczysc(el){
   setTimeout(dokoncz, 420);
 }
 
+/* Ocena bez oglądania się na kolejność. Korzysta z tego samego
+   `kanwaDopasuj`, co pełnoekranowa kaligrafia z .569 — jeden silnik, dwa
+   widoki. Zwraca DOKŁADNIE ten sam kształt co pisOcen, bo `pisPokazOcene`
+   czyta `wynik[i].powod` i buduje z tego komunikat. */
+function pisOcenGeometrycznie(wzor){
+  const kanoniczne = wzor.map(pisLamanaZeSciezki).filter(k => k.length >= 2);
+  const uzytkownika = (pisRysowane || []).filter(k => k && k.length >= 2);
+  const d = kanwaDopasuj(uzytkownika, kanoniczne);
+  /* Wynik jest indeksowany PO WZORCU, nie po kolejności rysowania — tak samo
+     jak dotąd, żeby numery kresek w komunikacie znaczyły to samo co na
+     podglądzie wzorca. */
+  const wynik = kanoniczne.map((k, ik) => {
+    const iu = d.zajeteK[ik];
+    if(iu === undefined) return { ok:false, powod:'brak' };
+    const para = d.pary.find(x => x.ik === ik);
+    if(para && para.odwrocona) return { ok:false, powod:'kierunek' };
+    return { ok:true };
+  });
+  return {
+    wynik,
+    trafione: wynik.filter(x => x.ok).length,
+    razem: kanoniczne.length,
+    nadmiar: Math.max(0, uzytkownika.length - kanoniczne.length),
+  };
+}
+
+/* Ścieżka SVG -> łamana punktów. `kanwaPunkty` robi to samo i jest wyżej
+   w pliku; wołam ją, zamiast pisać drugi parser tych samych danych. */
+function pisLamanaZeSciezki(d){
+  return (typeof kanwaPunkty === 'function') ? kanwaPunkty(d) : [];
+}
+
 function pisPokazOcene(el, item){
-  const o = pisOcen(item);
+  const o = pisOcen(item, pisGeometrycznie);
   const box = el.parentElement.querySelector('.pis-ocena');
   if(!box) return;
   const en = uiLang === 'en';
@@ -26491,9 +26789,14 @@ function pisPokazOcene(el, item){
   }
   pisByloKomplet = komplet;
   box.innerHTML = `<div class="pis-wynik${komplet ? ' ok' : ''}">`
-    + (komplet ? (en ? '✓ Correct order and direction' : '✓ Dobra kolejność i kierunek')
+    + (komplet ? (pisGeometrycznie
+        ? (en ? '✓ Correct shape and direction' : '✓ Dobry kształt i kierunek')
+        : (en ? '✓ Correct order and direction' : '✓ Dobra kolejność i kierunek'))
                : `${o.trafione} / ${o.razem}`)
-    + '</div>' + (uwaga ? `<div class="pis-uwaga">${uwaga}</div>` : '');
+    + '</div>' + (uwaga ? `<div class="pis-uwaga">${uwaga}</div>` : '')
+    + (pisGeometrycznie ? `<div class="pis-nota">${en
+        ? 'Stroke ORDER is not graded yet: the reference data follows the mainland Chinese norm, and the Korean tradition differs for some characters.'
+        : 'KOLEJNOŚĆ kresek nie jest jeszcze oceniana: dane wzorcowe idą za normą chińską, a tradycja koreańska przy części znaków się różni.'}</div>` : '');
 }
 
 function pisPodepnij(el, item){
@@ -26624,6 +26927,7 @@ function renderHangulLetterStage(list, labelPl, labelEn){
     const pole = document.getElementById('pisPole');
     pisRysowane = []; pisAktywna = null; pisStany = []; pisByloKomplet = false;
     pisZlyKierunek = false; pisWzorObok = null; pisItem = item;
+    pisGeometrycznie = false;  // hangul: dane z pomiaru, kolejność uczciwa
     pisPodepnij(pole, item);
     pisRysuj(pole);   // zapowiedź pierwszej kreski widoczna przed pierwszą próbą
     const czysc = document.querySelector('.pis-czysc');
@@ -31848,10 +32152,16 @@ async function ocenMisje(){
   const kryteria = (uiLang === 'en' ? misjaAktywna.kryteria.en : misjaAktywna.kryteria.pl)
     .map((k, i) => `${i + 1}. ${k}`).join('\n');
 
+  /* NUNCHI SHOCK liczony PRZED wywołaniem modelu. Kolejność jest treścią:
+     gdyby detektor stał za wywołaniem, awaria sieci kasowałaby ustalenie,
+     które nie ma z siecią nic wspólnego. */
+  const szok = nunchiSzokScena();
+
   const instruction = `Oceń ZAMKNIĘTĄ SCENĘ językową ucznia (język ojczysty: ${langName}) prowadzoną po koreańsku.\n\n`
     + `Cel sceny: ${misjaAktywna.cel.pl}\n`
     + `Kryteria zaliczenia:\n${kryteria}\n\n`
     + `Przebieg:\n${historia}\n\n`
+    + nunchiSzokDoPromptu(szok)
     + 'UWAGA: to transkrypcja MOWY - drobne przekręcenia mogą pochodzić z rozpoznawania, nie od ucznia.\n\n'
     + `Odpowiedz WYŁĄCZNIE czystym tekstem JSON, bez markdown, w formacie: `
     + `{"cel":"osiagniety"|"czesciowo"|"nieosiagniety","cel_uzasadnienie":"jedno zdanie w języku ${langName}",`
@@ -31863,14 +32173,34 @@ async function ocenMisje(){
   if(!response.ok) throw new Error('Błąd połączenia z AI (status ' + response.status + ').');
   const data = await response.json();
   const cleaned = (data.content || []).map(b => b.text || '').join('').replace(/```json/gi, '').replace(/```/g, '').trim();
-  return JSON.parse(cleaned);
+  const raport = JSON.parse(cleaned);
+  /* NADPISANIE, NIE PROŚBA. Prompt prosi model, żeby nie podważał
+     ustalenia — ale prośba do modelu nie jest gwarancją, a od tego werdyktu
+     zależy zaliczenie sceny. Więc po odpowiedzi ustawiamy go u siebie.
+     `mirror` znika przy szoku celowo: „uprzejmość ✓" obok banera o
+     wulgaryzmie to dwa sprzeczne zdania na jednym ekranie, a wygrywa to
+     milsze. To jest owo „wyzerowanie punktów rejestru i etykiety" —
+     punktów liczbowych misje nie mają, więc zerowaniem jest odebranie
+     zaliczenia rejestru, nie odjęcie liczby. */
+  if(szok.szok){
+    raport.cel = 'nieosiagniety';
+    raport.mirror = null;
+    raport.nunchiShock = { nunchiShock: true, trigger: szok.trigger, naruszenia: szok.naruszenia };
+  }
+  return raport;
 }
 
 function renderMisjaWynik(raport, blad){
   const en = uiLang === 'en';
   /* Scena doszła do końca - zapisujemy ją nawet wtedy, gdy werdykt nie
      dojechał (uczeń przeszedł przez wszystkie wymiany, to się liczy). */
-  try{ zapiszMisjeZrobiona(misjaAktywna.id, raport && raport.cel); }catch(e){}
+  /* Ten sam detektor, wołany drugi raz na niezmienionym stanie sceny.
+     Nie jest to drugi opis zasady, tylko drugie wywołanie tej samej
+     czystej funkcji — i dzięki temu szok działa także wtedy, gdy werdykt
+     modelu NIE DOJECHAŁ (`raport === null`). Naruszenie tabu nie zależy
+     od tego, czy sieć odpowiedziała. */
+  const szokW = nunchiSzokScena();
+  try{ zapiszMisjeZrobiona(misjaAktywna.id, szokW.szok ? 'nieosiagniety' : (raport && raport.cel)); }catch(e){}
   const box = document.getElementById('misjaWynik');
   /* Liczone U SIEBIE, bez modelu: błędy zebrane przy każdej turze. */
   const bledy = aiChatHistory.filter(t => t.speaker === 'user')
@@ -31884,15 +32214,31 @@ function renderMisjaWynik(raport, blad){
   };
 
   let html = `<div class="mi-naglowek">${escapeHtml(misjaAktywna.ikona + ' ' + (en ? misjaAktywna.tytul.en : misjaAktywna.tytul.pl))}</div>`;
+  /* Baner STOI NAD werdyktem, nie pod nim. Uczeń, który zobaczy najpierw
+     „cel osiągnięty", a dopiero niżej informację o tabu, zapamięta to
+     pierwsze. Kolejność na ekranie jest tu częścią nauczania. */
+  if(szokW.szok){
+    const slowa = szokW.naruszenia.map(n => n.ko);
+    const bezPowtorzen = slowa.filter((s, i) => slowa.indexOf(s) === i);
+    html += `<div class="mi-szok">
+        <div class="mi-szok-tytul">${en ? 'Nunchi Shock (눈치 쇼크)' : 'Nunchi Shock (눈치 쇼크)'}</div>
+        <p>${en
+          ? 'A word came up that cannot be said to this person in this situation. The scene does not count — regardless of the goal.'
+          : 'Padło słowo, które do tego rozmówcy w tej sytuacji nie może paść. Scena jest niezaliczona — niezależnie od celu.'}</p>
+        <div class="mi-szok-slowa">${bezPowtorzen.map(s => `<span>${escapeHtml(s)}</span>`).join('')}</div>
+      </div>`;
+  }
   if(raport){
-    const stan = IKONA[raport.cel] ? raport.cel : 'czesciowo';
+    const stan = szokW.szok ? 'nieosiagniety' : (IKONA[raport.cel] ? raport.cel : 'czesciowo');
     html += `<div class="mi-werdykt ${stan}">${IKONA[stan]} ${escapeHtml(ETYKIETA[stan])}</div>`;
     if(raport.cel_uzasadnienie) html += `<p>${escapeHtml(raport.cel_uzasadnienie)}</p>`;
     if((raport.kryteria || []).length){
       html += '<ul class="mi-kryteria">' + raport.kryteria.map(k =>
         `<li>${k.spelnione ? '✓' : '·'} ${escapeHtml(k.opis || '')}</li>`).join('') + '</ul>';
     }
-    if(raport.mirror){
+    /* Przy szoku lustro znika: „uprzejmość ✓" pod banerem o słowie, które
+       paść nie mogło, to dwa sprzeczne zdania na jednym ekranie. */
+    if(raport.mirror && !szokW.szok){
       const WYMIARY = {
         uprzejmosc: en ? 'politeness' : 'uprzejmość',
         bezposrednosc: en ? 'directness' : 'bezpośredniość',
