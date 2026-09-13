@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.579
-  Zbudowane na: e14ce91e4c7ebc822a8de761ea74e56f (.578)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.581
+  Zbudowane na: 021037e7ecd7347f7b2d1d95d0c5d9d5 (.580)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -13360,7 +13360,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.579';
+const APP_VERSION = '2026-09-11.581';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -19738,18 +19738,28 @@ const CarVoiceQuiz = {
       if(onEnd) onEnd();
     };
     this.mowiTeraz = true;
-    if(!('speechSynthesis' in window)){ dalej(); return; }
-    try{ window.speechSynthesis.cancel(); }catch(e){}
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang;
-    /* Spokojniejsze tempo: w aucie liczy się zrozumiałość, nie pośpiech. */
-    u.rate = (lang === 'ko-KR') ? 0.88 : 0.92;
-    u.pitch = 0.98;
-    u.onend = dalej;
-    u.onerror = dalej;
+    /* TEN SAM LEKTOR CO W ODPYTYWANIU I NA FISZKACH.
+       `mow()` próbuje najpierw lektora Premium (ko-KR-Neural2, przez bufor
+       współdzielony), a gdy go nie ma — syntezy przeglądarki z NAJLEPSZYM
+       dostępnym głosem zamiast domyślnego. Do `.580` tryb samochodowy
+       budował własne `SpeechSynthesisUtterance` i przez to jako jedyne
+       miejsce w aplikacji mówił głosem systemowym z przypadku.
+
+       `shared: true`, bo w aucie lecą hasła ZE SŁOWNIKA — ta sama treść
+       wbudowana co na fiszkach, więc ten sam bufor. Bez tego każdy przejazd
+       generowałby te same słowa od nowa. */
     if(this.carWatchdog) clearTimeout(this.carWatchdog);
-    this.carWatchdog = setTimeout(dalej, 1800 + String(text).length * 60);
-    try{ window.speechSynthesis.speak(u); }catch(e){ dalej(); }
+    /* ZAPAS WIĘKSZY NIŻ PRZY WŁASNEJ SYNTEZIE. Watchdog pilnuje teraz dwóch
+       rzeczy naraz: `onend`, którego część przeglądarek nie odpala, ORAZ
+       żądania sieciowego po lektora Premium — a w aucie zasięg bywa, jaki
+       bywa. Czekania na CZŁOWIEKA to dalej nie dotyczy. */
+    this.carWatchdog = setTimeout(dalej, 3500 + String(text).length * 60);
+    try{
+      const obietnica = (typeof mow === 'function')
+        ? mow(text, lang, { shared: true })
+        : Promise.resolve();
+      Promise.resolve(obietnica).then(dalej, dalej);
+    }catch(e){ dalej(); }
   },
 
   pause(){
@@ -20483,6 +20493,41 @@ function przekaznikRejestrZdania(ko){
 
    Kierunek błędu jest tu świadomy: filtr zbyt wąski MILCZY o błędzie, filtr
    zbyt szeroki UCZY, że poprawna konstrukcja jest błędem. Drugie jest gorsze. */
+/* GRANICA MORFEMU. Rdzeń honoryfikatywny wolno uznać tylko tam, gdzie
+   naprawdę jest rdzeniem, a nie przypadkowym podciągiem. Dwie klasy, bo
+   koreański ma dwa różne zachowania (rozstrzygnięcie Fable):
+
+     A — rdzeń zawsze stanowi osobny wyraz. Warunek: początek napisu albo
+         spacja przed. To zdejmuje kolizje 힘드셨 ⊃ 드셨, 만드세요 ⊃ 드세,
+         거드세요 ⊃ 드세.
+     B — rdzeń stoi legalnie W ŚRODKU, w konstrukcjach posiłkowych pisanych
+         łącznie (앉아계세요, 하고계셨어요). Warunek: początek, spacja albo
+         sylaba łącząca tuż przed.
+
+   Sylaby łączące wypisane, nie policzone z jamo: lista jest krótka,
+   zamknięta i pochodzi od Fable, a rozkładanie sylaby na samogłoskę
+   dokładałoby regułę tam, gdzie wystarcza wyliczenie. */
+const PK_SUPLETYWNE_B = Object.freeze(['계시', '계세', '계셨']);
+const PK_LACZNIKI = Object.freeze(['아', '어', '여', '워', '줘', '해', '려', '내', '켜', '고']);
+
+function pkSupletywneTrafienia(ko){
+  const t = String(ko || '');
+  const trafione = [];
+  PK_SUPLETYWNE.forEach(rdzen => {
+    let i = t.indexOf(rdzen);
+    while(i !== -1){
+      const przed = i === 0 ? '' : t.charAt(i - 1);
+      let wolno = (i === 0 || przed === ' ');
+      if(!wolno && PK_SUPLETYWNE_B.indexOf(rdzen) !== -1){
+        wolno = PK_LACZNIKI.indexOf(przed) !== -1;
+      }
+      if(wolno){ trafione.push(rdzen); break; }
+      i = t.indexOf(rdzen, i + 1);
+    }
+  });
+  return trafione;
+}
+
 const PK_PIERWSZA_OSOBA = /(제가|저는|저도|저희가|저희는|내가|나는|나도)/;
 /* `셨` DOPISANE W `.574`. Do tej pory stało wyłącznie w
    `PK_SZACUNEK_INFIKS`, a komentarz przy tamtej stałej mówił wprost, że
@@ -20560,7 +20605,7 @@ function przekaznikAutohonoryfikacja(ko){
     /* R2b — rzeczownik honoryfikatywny o własności mówiącego. */
     if(PK_RZECZ_HONOR.some(r => new RegExp('(제|저희)\\s*' + r).test(k))){ znalezione.push(k); return; }
     /* R2c — czasownik supletywny przy pierwszoosobowym podmiocie. */
-    if(PK_PIERWSZA_OSOBA.test(k) && PK_SUPLETYWNE.some(s => k.indexOf(s) !== -1)){ znalezione.push(k); return; }
+    if(PK_PIERWSZA_OSOBA.test(k) && pkSupletywneTrafienia(k).length){ znalezione.push(k); return; }
 
     if(!PK_HONORYFIKATYW.test(k)) return;
     /* Moja reguła z `.554`: honoryfikatyw tuż po nominalizacji `-기` —
@@ -21254,7 +21299,7 @@ const PK_SZACUNEK_INFIKS = /(으시|으실|우시|우실|십니|세요|셔|셨|�
 function pkNiesieSzacunek(ko){
   if(!ko || typeof ko !== 'string') return false;
   if(PK_SZACUNEK_INFIKS.test(ko)) return true;
-  if(PK_SUPLETYWNE.some(s => ko.indexOf(s) !== -1)) return true;
+  if(pkSupletywneTrafienia(ko).length) return true;
   return PK_RZECZ_HONOR.some(r => ko.indexOf(r) !== -1);
 }
 
