@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.584
-  Zbudowane na: 267a927bd4e4dbb532209344296381e2 (.583)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.585
+  Zbudowane na: c682509a6331161dde46e1339845b9ab (.584)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -3833,18 +3833,41 @@
      znaku. Kwadrat WYŁĄCZNIE ustala środek: promienie sięgają 290 px,
      a halo 328 px, więc muszą z niego wychodzić i nigdzie po drodze nie
      wolno postawić `overflow:hidden`. */
-  .ng-glif{ position:relative; display:grid; place-items:center; }
+  /* JEDNOSTKA SKALI CAŁEJ KOMPOZYCJI POZIOMU 4.
+     `1em` wewnątrz `.ng-glif` znaczy „1 px prototypu": równo 1 px powyżej
+     580 px szerokości okna i proporcjonalnie mniej poniżej. 0,1724138vw to
+     100/580 vw, a 580 px to pełny rozmach najdłuższych promieni (2 × 290).
+     Dzięki temu na telefonie nic nie jest ucinane, a wszystkie liczby
+     w środku zostają dokładnie takie, jakie podaje prototyp — zmienia się
+     wyłącznie jednostka.
+
+     SKALUJE SIĘ ZNAK RAZEM Z AUREOLĄ, nie sama aureola. Przy skali 0,672
+     i znaku zostawionym na 112 px promienie startowałyby 48 px od środka,
+     a znak sięga 56 px — wchodziłyby POD niego zamiast wychodzić zza niego,
+     czyli powstałaby dokładnie ta wada, którą prototyp usuwa odsunięciem
+     o 72 px.
+
+     Czysty CSS, bo obrót telefonu ma działać bez nasłuchu zdarzeń i bez
+     sprzątania po zamkniętej oprawie. Uwaga przy edycji: każdy potomek,
+     który ustawi sobie `font-size` w px, wypada z tej skali. */
+  .ng-glif{ position:relative; display:grid; place-items:center;
+    font-size:min(1px, 0.1724138vw); line-height:0; }
   .ng-glif .ng-znak{ position:relative; z-index:2; }
   .ng-aureola{
-    position:absolute; left:50%; top:50%; width:240px; height:240px;
-    margin:-120px 0 0 -120px; pointer-events:none; z-index:0;
+    position:absolute; left:50%; top:50%; width:240em; height:240em;
+    margin:-120em 0 0 -120em; pointer-events:none; z-index:0;
   }
   .ng-aureola > *{ position:absolute; left:50%; top:50%; }
   .au-winieta{
-    width:940px; height:940px; margin:-470px 0 0 -470px; pointer-events:none;
+    width:940em; height:940em; margin:-470em 0 0 -470em; pointer-events:none;
     background:
-      radial-gradient(circle, color-mix(in srgb, var(--hwang) 17%, transparent) 0%, rgba(0,0,0,0) 24%),
-      radial-gradient(circle, rgba(0,0,0,0) 20%, color-mix(in srgb, var(--ink) 22%, transparent) 58%);
+      radial-gradient(circle, color-mix(in srgb, var(--hwang) 17%, transparent) 0%, rgba(0,0,0,0) 24%);
+    animation:aura-wejscie 2600ms ease-out 500ms both;
+  }
+  .au-mrok{
+    width:200vmax; height:200vmax; margin:-100vmax 0 0 -100vmax; pointer-events:none;
+    background:radial-gradient(circle, rgba(0,0,0,0) 94em,
+      color-mix(in srgb, var(--ink) 22%, transparent) 273em);
     animation:aura-wejscie 2600ms ease-out 500ms both;
   }
   /* Obrót siedzi na POJEMNIKU, nie na paskach: obracanie 36 osobnych
@@ -3858,9 +3881,9 @@
   .au-pylek{ position:absolute; left:0; top:0; width:0; height:0; }
   .au-kropka{ position:absolute; border-radius:50%; opacity:0; }
   .au-halo{ border-radius:50%; }
-  .au-krag{ width:260px; height:260px; margin:-130px 0 0 -130px; border-radius:50%; opacity:0; }
+  .au-krag{ width:260em; height:260em; margin:-130em 0 0 -130em; border-radius:50%; opacity:0; }
   .ng-p4 .ng-znak{
-    font-size:112px; color:var(--hwang);
+    font-size:112em; line-height:1; color:var(--hwang);
     /* MARGINES ZERO, I TO NIE JEST KOSMETYKA. `.ng-znak` niesie z bazy
        `margin-bottom:16px`, a `.ng-glif` jest siatką — wysokość liczy się
        z MARGINESOWEGO pudełka znaku, więc środek siatki (i aureoli) ląduje
@@ -3868,8 +3891,10 @@
        na znak zostało dokładnie 8,0 px rozjazdu; to jest te 16/2.
        Odstęp do tekstu daje linia tuszu (`margin:0 auto 18px`). */
     margin-bottom:0;
-    text-shadow:0 0 26px color-mix(in srgb, var(--hwang) 55%, transparent),
-                0 0 78px color-mix(in srgb, var(--hwang) 30%, transparent);
+    /* Poświata też w `em`: rozmyta na 26 px aureola przy znaku 75 px
+       wyglądałaby jak plama, nie jak blask. */
+    text-shadow:0 0 26em color-mix(in srgb, var(--hwang) 55%, transparent),
+                0 0 78em color-mix(in srgb, var(--hwang) 30%, transparent);
     animation:cer-znak 1600ms cubic-bezier(.2,.8,.3,1) 600ms both;
   }
   /* Pod znakiem — czasy prototypu, nie domyślne czasy pozostałych poziomów. */
@@ -3887,10 +3912,25 @@
     animation:ng-tekst 900ms ease-out 1900ms both; }
   .ng-p4 .ng-opis{ font:400 15px/1.5 var(--font-ui); color:var(--ink-dim);
     animation:ng-tekst 900ms ease-out 2200ms both; }
+  /* DWA ELEMENTY, KAŻDY Z JEDNYM ZADANIEM. Do `.584` stała tu jedna
+     animacja `cer-oddech ... 3000ms infinite both` — a `both` wypełnia
+     WSTECZNIE, więc przez całą trzysekundową zwłokę element siedział na
+     klatce 0% (`opacity:.5`) i instrukcja wyjścia była widoczna, zanim
+     pojawił się znak, do którego się odnosi.
+
+     Dwóch animacji na jednym elemencie to nie naprawia: obie sterują
+     `opacity` i późniejsza z listy znowu wypełnia wstecznie. Zewnętrzny
+     element robi więc jednorazowe wejście (stan bazowy `opacity:0`,
+     `forwards`, więc przed zwłoką nic nie wypełnia), a wewnętrzny oddycha
+     bez końca i bez zwłoki. Nic się nie nakłada. */
   .ng-p4 .ng-dotknij{
     font:400 12px var(--font-mono, ui-monospace, monospace); color:var(--ink-dim);
-    margin-top:26px;
-    animation:cer-oddech 2400ms ease-in-out 3000ms infinite both;
+    margin-top:26px; opacity:0;
+    animation:ng-tekst 900ms ease-out 3000ms forwards;
+  }
+  .ng-p4 .ng-dotknij-tresc{
+    display:inline-block;
+    animation:cer-oddech 2400ms ease-in-out infinite;
   }
 
   /* ── poziom 1: pasek z góry, bez nakładki ── */
@@ -3929,7 +3969,8 @@
        i oddech. Zostaje samo pojawienie się — `aura-wejscie`, `cer-znak`
        i `ng-tekst` — bo obraz ma się pokazać, a nie zniknąć. */
     .ng-oprawa, .ng-pasek, .ng-znak, .ng-tytul, .ng-opis,
-    .ng-krag, .au-promienie, .au-kropka, .au-halo, .au-krag, .ng-p4 .ng-dotknij,
+    .ng-krag, .au-promienie, .au-kropka, .au-halo, .au-krag,
+    .ng-p4 .ng-dotknij, .ng-p4 .ng-dotknij-tresc,
     .ng-p2 .ng-scena::before, .ng-p2 .ng-scena::after,
     .ng-p3 .ng-scena::before, .ng-p2.ng-st2 .ng-tresc, .ng-p2.ng-st3 .ng-tresc{
       animation:none !important;
@@ -3939,6 +3980,10 @@
        się w losowej klatce — pyłek zamrożony w połowie lotu wygląda jak
        zabrudzony ekran. */
     .ng-krag, .au-pylek{ display:none; }
+    /* Wygaszona animacja wejścia zostawiłaby podpowiedź na stanie bazowym
+       `opacity:0`, czyli przy wyłączonym ruchu nie byłoby widać, jak wyjść
+       z oprawy, która nie gaśnie sama. */
+    .ng-p4 .ng-dotknij{ opacity:1; }
     .ab-reszta > summary::after{ transition:none; }
   }
 
@@ -13463,7 +13508,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.584';
+const APP_VERSION = '2026-09-11.585';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -19737,14 +19782,19 @@ function pokazNagrode(znak, tytul, opis, opcje){
      2200 / 3600 ms  rozsunięcie halo o 1400 ms daje wolne dudnienie —
              to ono odpowiada dwóm głosom w podkładzie. */
 function aureolaHtml(n){
+  /* WYMIARY W `em`, NIE W `px` — patrz komentarz przy `.ng-glif`.
+     Liczby są co do jednej te same co w prototypie; `em` znaczy tu
+     „piksel prototypu", który na wąskim ekranie jest mniejszy niż piksel
+     urządzenia. Jedyny wyjątek to OBRAMOWANIA halo i kręgów: kreska
+     włosowa zeskalowana do 0,67 px znika albo miga, więc zostaje 1 px. */
   const promienie = Array.from({ length: 36 }, (_, i) => {
     const dlugi = i % 3 === 0;
     const len = dlugi ? 210 : (i % 3 === 1 ? 132 : 92);
     const kolor = i % 6 === 0 ? 'var(--cheong)' : 'var(--hwang)';
     const proc = dlugi ? 42 : 26;
     return '<span class="au-promien" style="transform:rotate(' + (i * 10) + 'deg)">'
-      + '<span class="au-pasek" style="width:' + (dlugi ? 2 : 1) + 'px; height:' + len + 'px;'
-      + ' left:-1px; top:' + (-(72 + len)) + 'px;'
+      + '<span class="au-pasek" style="width:' + (dlugi ? 2 : 1) + 'em; height:' + len + 'em;'
+      + ' left:-1em; top:' + (-(72 + len)) + 'em;'
       + ' background:linear-gradient(to top, color-mix(in srgb, ' + kolor + ' ' + proc + '%, transparent), rgba(0,0,0,0));"></span>'
       + '</span>';
   }).join('');
@@ -19755,17 +19805,17 @@ function aureolaHtml(n){
     const czas = 5200 + (i % 6) * 700;
     const zwloka = 1400 + i * 260;
     return '<span class="au-pylek" style="transform:rotate(' + (i * 20 + (i % 3) * 7) + 'deg)">'
-      + '<span class="au-kropka" style="width:' + rozmiar + 'px; height:' + rozmiar + 'px;'
-      + ' left:-1.5px; top:0; background:' + kolor + ';'
+      + '<span class="au-kropka" style="width:' + rozmiar + 'em; height:' + rozmiar + 'em;'
+      + ' left:-1.5em; top:0; background:' + kolor + ';'
       + ' animation:aura-pylek ' + czas + 'ms cubic-bezier(.4,.2,.5,.9) ' + zwloka + 'ms infinite both;"></span>'
       + '</span>';
   }).join('');
 
   const halo =
-      '<span class="au-halo" style="width:246px; height:246px; margin:-123px 0 0 -123px;'
+      '<span class="au-halo" style="width:246em; height:246em; margin:-123em 0 0 -123em;'
     + ' border:1px solid color-mix(in srgb, var(--hwang) 34%, transparent);'
     + ' animation:aura-tchnienie 6400ms ease-in-out 2200ms infinite both;"></span>'
-    + '<span class="au-halo" style="width:328px; height:328px; margin:-164px 0 0 -164px;'
+    + '<span class="au-halo" style="width:328em; height:328em; margin:-164em 0 0 -164em;'
     + ' border:1px solid color-mix(in srgb, var(--cheong) 26%, transparent);'
     + ' animation:aura-tchnienie 6400ms ease-in-out 3600ms infinite both;"></span>';
 
@@ -19783,6 +19833,7 @@ function aureolaHtml(n){
   return '<div class="ng-tresc">'
     + '<div class="ng-glif">'
     +   '<div class="ng-aureola" aria-hidden="true">'
+    +     '<span class="au-mrok"></span>'
     +     '<span class="au-winieta"></span>'
     +     '<span class="au-promienie">' + promienie + '</span>'
     +     pylki + halo + kregi
@@ -19793,7 +19844,8 @@ function aureolaHtml(n){
     + (prog ? '<div class="ng-prog">' + escapeHtml(prog) + '</div>' : '')
     + '<div class="ng-tytul">' + escapeHtml(n.tytul) + '</div>'
     + (n.opis ? '<div class="ng-opis">' + escapeHtml(n.opis) + '</div>' : '')
-    + '<div class="ng-dotknij">' + (en ? 'tap to close' : 'dotknij, aby zamknąć') + '</div>'
+    + '<div class="ng-dotknij"><span class="ng-dotknij-tresc">'
+    +   (en ? 'tap to close' : 'dotknij, aby zamknąć') + '</span></div>'
     + '</div>';
 }
 
