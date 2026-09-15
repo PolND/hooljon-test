@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.587
-  Zbudowane na: dd20bb19779142df9506732ea433f263 (.586)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.589
+  Zbudowane na: 7048bded6da89bdd303fbff7233a2ea1 (.588)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -13541,7 +13541,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.587';
+const APP_VERSION = '2026-09-11.589';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -21246,6 +21246,68 @@ const PK_POSILKOWE = [
   '줘', '줄', '준', '주',
 ];
 
+/* Sufiksy posiłkowego `드리다` — pokornego supletywu posiłkowego `주다`.
+   NAJDŁUŻSZE NAJPIERW: gałąź B′ zwraca pierwsze dopasowanie, więc krótszy
+   sufiks stojący wyżej zjadłby dłuższy. */
+const PK_POSILKOWE_DRI = [
+  '드리겠습니다', '드리겠습니까', '드리겠어요', '드리겠다',
+  '드렸습니다', '드렸습니까', '드렸는데요', '드렸어요', '드렸는데', '드렸다',
+  '드립니다', '드립니까', '드릴게요', '드릴까요', '드리세요', '드리는데',
+  '드릴게', '드릴까', '드려서', '드려요', '드리면', '드리며', '드리고',
+  '드리는', '드리기', '드리다', '드릴', '드린', '드려', '드리',
+];
+
+/* KANON `N드리다`, WARSTWA A — bezsporne, słownikowe (표준국어대사전 /
+   국립국어원). Wolno rozpoznawać I generować. `축하드리다` jest w tej warstwie
+   od 2011, kiedy 국립국어원 uznał je za standard; `설명드리다` też jest
+   dopuszczone, bo wyjaśnienie jest skierowane do słuchacza i na jego rzecz.
+
+   Zasada, z której ta lista wynika — zapisana, żeby nie zgniła po cichu:
+   N musi być czynnością SKIEROWANĄ DO osoby honorowanej i NA JEJ RZECZ, taką,
+   przy której odbiorca daje się wstawić w `께`. Lista zamknięta bez zapisanej
+   zasady starzeje się niezauważona; to samo ostrzeżenie stoi przy
+   `PK_SUPLETYWNE` i tam kosztowało trzy brakujące pozycje. */
+const PK_NDRI_A = ['말씀', '부탁', '감사', '사과', '축하', '인사', '연락', '전화', '보고',
+  '안내', '문의', '답변', '약속', '소개', '설명', '선물', '공양'];
+
+/* WARSTWA B — przyjęte w mowie biura, kwestionowane normatywnie.
+   ROZPOZNAWAĆ, NIE GENEROWAĆ. `확인드리다` jest tu sztandarowe: norma pyta
+   „kto komu potwierdza?" i każe `확인해 드리다` albo `확인하겠습니다`.
+   Native tak pisze w mailu i uczeń to usłyszy, więc rozbiór ma działać —
+   ale wariant z warstwy B wychodzi z walidatora z ostrzeżeniem
+   `OFFICE_HUMBLE_OVERUSE`, żeby nie uczyć tego jako wzorca. */
+const PK_NDRI_B = ['확인', '공유', '요청', '전달', '회신', '참고', '질문', '제안', '협조'];
+
+function pkNdriWarstwa(n){
+  if(!n) return null;
+  if(PK_NDRI_A.indexOf(n) !== -1) return 'A';
+  if(PK_NDRI_B.indexOf(n) !== -1) return 'B';
+  return null;
+}
+/* Baza znaczeniowa: NAJPIERW `N하다`, bo `드리-` jest pokorną wersją właśnie
+   jego. Dopiero potem samo `N` — to ratuje `답변` („odpowiedź"), które ma
+   hasło rzeczownikowe, a czasownikowego nie ma. `null` znaczy „kanon jest,
+   leksykonu nie ma" (`공양`, `회신`) i gałąź wtedy MILCZY: rozbiór
+   prowadzący donikąd jest gorszy niż brak rozbioru. */
+function pkNdriBaza(n){
+  if(slownikSensy(n + '하다', allWords).length) return n + '하다';
+  if(slownikSensy(n, allWords).length) return n;
+  return null;
+}
+
+/* Samogłoski, na które kończy się forma 아/어 — ㅏㅐㅓㅔㅕㅘㅙㅝㅞ.
+   Konstrukcja `-아/어 드리다` doczepia się WYŁĄCZNIE do tej formy, a ta
+   zawsze kończy się sylabą OTWARTĄ (jong === 0). Stąd dwa warunki, nie jeden:
+   `건` ma dobrą samogłoskę (ㅓ), ale zamknięte `ㄴ`, i tylko warunek jong
+   odróżnia `건드려` od `들어드려`. */
+const PK_JUNG_INFINITIWU = Object.freeze([0, 1, 4, 5, 6, 9, 10, 14, 15]);
+function pkGlowaInfinitiwu(x){
+  if(!x) return false;
+  const r = rozloz(x.slice(-1));
+  if(!r || r.jong !== 0) return false;
+  return PK_JUNG_INFINITIWU.indexOf(r.jung) !== -1;
+}
+
 /* Czy `x + 다` jest HASŁEM — czyli czy głowa zrostu to prawdziwy czasownik. */
 function pkGlowaCzasownik(x){
   if(!x) return false;
@@ -21425,6 +21487,53 @@ function przekaznikRozbior(t){
     const glowa = t.slice(0, -aux.length);
     if(pkGlowaCzasownik(glowa) || pkGlowaSciagnieta(glowa)) return { szew: aux, glowa: glowa, droga: 'posilkowe' };
   }
+  /* B″. `N드리다` — przyrostek pokory na rzeczowniku czynnościowym.
+
+     STOI PRZED B′ ŚWIADOMIE. Siedem rzeczowników kanonu (`감사`, `사과`,
+     `축하`, `인사`, `전화`, `안내`, `소개`) kończy się sylabą otwartą
+     o samogłosce z infinitiwu, więc PRZECHODZI bramkę morfologiczną B′.
+     Dziś nie wyciekają tam tylko dlatego, że nie mają licencji `N + 주다` —
+     a to prawda o ZAWARTOŚCI SŁOWNIKA, nie o regule. Kanon jest zamknięty,
+     więc rozstrzyga pierwszy i kolejność przestaje zależeć od przypadku.
+
+     `보고` i `참고` mają tu drugi powód: `bazyDlaFormy` widzi w nich
+     formy `보다` i `참다` (`보`+`고`), więc `pkGlowaSciagnieta` daje na
+     nich `true`. Jako rzeczowniki kanonu są rozstrzygane, zanim
+     ktokolwiek zdąży przeczytać je jako czasownik z końcówką `-고`. */
+  for(const aux of PK_POSILKOWE_DRI){
+    if(t.length <= aux.length || !t.endsWith(aux)) continue;
+    const n = t.slice(0, -aux.length);
+    const warstwa = pkNdriWarstwa(n);
+    if(!warstwa) continue;
+    const baza = pkNdriBaza(n);
+    if(!baza) continue;
+    return { szew: aux, glowa: n, droga: 'ndri', warstwa: warstwa, baza: baza, rejestr: 'pokorny' };
+  }
+  /* B′. posiłkowe `드리다` — pokorny supletyw posiłkowego `주다`.
+     Stoi ZA gałęzią B, bo zbiory sufiksów są rozłączne i kolejność między
+     nimi niczego nie rozstrzyga, a czyta się to jako parę.
+
+     DWIE BRAMKI, obie konieczne, żadna sama nie wystarcza:
+
+     (1) `pkGlowaInfinitiwu` — głowa musi być formą 아/어. Bez niej `두드려`
+         rozpada się na `두` + `드려`, bo `두다` JEST czasownikiem i stary
+         warunek głowy przepuszcza to bez mrugnięcia. Bramka odrzuca komplet
+         6 haseł `X드리다` ze słownika i wszystkie głowy rzeczownikowe.
+
+     (2) licencja — czasownik, forma ściągnięta ALBO `głowa + 주다` jest
+         hasłem. Trzecia klauzula jest sednem tego frontu: leksykon
+         posiłkowego `주다` licencjonuje odpowiednik na `드리다`. Bez niej
+         `도와드릴게요` zostaje nieznane, bo `도와` wypada z OBU starych
+         predykatów (zmierzone: czasownik=false, ściągnięta=false) —
+         `도와줄게요` działa dziś wyłącznie przez hasło `도와주다`. */
+  for(const aux of PK_POSILKOWE_DRI){
+    if(t.length <= aux.length || !t.endsWith(aux)) continue;
+    const glowa = t.slice(0, -aux.length);
+    if(!pkGlowaInfinitiwu(glowa)) continue;
+    if(pkGlowaCzasownik(glowa) || pkGlowaSciagnieta(glowa) || slownikSensy(glowa + '주다', allWords).length > 0){
+      return { szew: aux, glowa: glowa, droga: 'posilkowe-dri' };
+    }
+  }
   /* C. sam token jest formą 주다 — `주실`, `주실래요`. */
   for(const aux of PK_POSILKOWE){
     if(t !== aux && t.startsWith('주') && PK_KONCOWKI.indexOf(t.slice(1)) !== -1) return { szew: t.slice(1), glowa: '주', droga: 'juda' };
@@ -21480,6 +21589,7 @@ function przekaznikAnalizaLeksykalna(ko){
       if(proba){ r = proba; formaRozbioru = f; break; }
     }
     if(r){ wynik.push({ token: c, stan: 'rozbior', glowa: r.glowa, szew: r.szew, droga: r.droga,
+      warstwa: r.warstwa, baza: r.baza, rejestr: r.rejestr,
       forma: formaRozbioru !== c ? formaRozbioru : undefined }); return; }
     wynik.push({ token: c, stan: 'nieznany' });
   });
@@ -21571,6 +21681,17 @@ function walidujPrzekaznik(dane){
 
     const analiza = przekaznikAnalizaLeksykalna(v.zdanie_ko);
     kroki.push({ krok: 3, nazwa: 'leksyka', strategia: v.id_strategii, tokeny: analiza });
+    /* WARSTWA B — `확인드리다`, `공유드리다` i reszta mowy biurowej.
+       Rozpoznanie już zadziałało (token nie jest `nieznany`, wariant da się
+       zapisać), ale wariant wychodzi z adnotacją. Tak wygląda „rozpoznawać,
+       nie generować" wtedy, gdy to TEN SAM moduł generuje tekst: zakaz bez
+       egzekucji w walidatorze byłby postulatem, nie regułą. */
+    const biurowe = analiza.filter(x => x.warstwa === 'B').map(x => x.token);
+    if(biurowe.length){
+      ostrzezenia.push({ rodzaj: 'rejestr', code: 'OFFICE_HUMBLE_OVERUSE',
+        tresc: 'pokora biurowa kwestionowana przez normę: ' + biurowe.join(', ') +
+          ' — poprawnie „N해 드리다" albo zwykłe „N하겠습니다"' });
+    }
     const nieznane = analiza.filter(x => x.stan === 'nieznany').map(x => x.token);
     if(nieznane.length){
       ostrzezenia.push({ rodzaj: 'leksyka', code: 'UNVERIFIED_TOKEN', tresc: 'słowa spoza słownika: ' + nieznane.join(', ') });
