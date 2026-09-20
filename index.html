@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.624
-  Zbudowane na: 8b4e44445203ea1011a862152cfe4224 (.623)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.625
+  Zbudowane na: b798e9accaae58e088a2821699f076b0 (.624)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -5062,6 +5062,15 @@
   #odpytywaniePanel.odp-oled .odp-licznik{ color:#4a4a4a; }
   #odpytywaniePanel.odp-oled .odp-status{ color:#555; }
   #odpytywaniePanel.odp-oled .odp-toggle{ color:#666; }
+  /* Listwa gaśnie razem z resztą (.625). Bez tego pigułki świeciłyby
+     ramkami na czarnym ekranie — czyli dokładnie to, czemu tryb OLED
+     ma zapobiegać. Wciśnięta zostaje czytelna, bo to jedyna informacja
+     o tym, czego uczeń w tej chwili słucha. */
+  #odpytywaniePanel.odp-oled .odp-zestaw{ color:#5a5a5a; border-color:#1e1e1e; }
+  #odpytywaniePanel.odp-oled .odp-zestaw[aria-pressed="true"]{
+    background-color:#1a1a1a; color:#9a9a9a; border-color:#2a2a2a;
+  }
+  #odpytywaniePanel.odp-oled .odp-zestawy-dzial{ color:#3a3a3a; }
   #odpytywaniePanel.odp-oled .odp-rytm{ background-color:#141414; }
   #odpytywaniePanel.odp-oled .odp-rytm span{ background-color:#3a3a3a; }
   #odpytywaniePanel.odp-oled .odp-linia{ background-color:#1f1f1f; }
@@ -7160,6 +7169,15 @@
     margin:0 0 8px; padding:2px 0;
   }
   .odp-zestawy::-webkit-scrollbar{ display:none; }
+  /* W PANELU (.625) listwa ma oddech z obu stron — stoi między kartą
+     a przełącznikami, więc bez marginesu skleja się z jednym albo drugim. */
+  .odp-zestawy--panel{ margin:10px 0 6px; align-items:center; }
+  /* Etykieta działu „Moje zestawy": nie jest przyciskiem i nie wolno jej
+     wyglądać jak przycisk — inaczej uczeń będzie w nią stukał. */
+  .odp-zestawy-dzial{
+    flex:none; padding:0 4px 0 6px; color:var(--ink-dim); opacity:.7;
+    font:400 11.5px var(--font-ui); white-space:nowrap; align-self:center;
+  }
   .odp-zestaw{
     flex:none; min-height:36px; padding:7px 14px; border-radius:var(--radius-pill);
     border:1px solid var(--border); background:0; color:var(--ink-dim);
@@ -7824,12 +7842,13 @@
       </button>
       <!-- Odpytywanie głosem - wejście stąd, bo to wariant nauki słówek.
            Kafel jest po przeglądaniu, żeby nie konkurował z podstawową ścieżką. -->
-      <!-- Listwa zestawów (.615). Stoi NAD kaflem, na ekranie, który uczeń
-           i tak widzi — kafel ma zasadę „bez kolejnego ekranu konfiguracji",
-           więc wybór nie może mieszkać ani w modalu, ani na nowym ekranie.
-           Pigułki buduje JavaScript z DEFAULT_CAR_SETS: statyczny HTML
-           przestałby wiedzieć o piątym zestawie i nikt by tego nie zauważył. -->
-      <div class="odp-zestawy" id="odpZestawy" role="group" aria-label="Zestaw do powtórki"></div>
+      <!-- LISTWA ZESTAWÓW PRZENIESIONA DO PANELU TRYBU (.625). Stała tu
+           od `.615` i była to zła lokalizacja: domyślną pigułką jest
+           „Całość (SRS)", czyli cały słownik, a kafel startuje sesję bez
+           pytania. Uczeń, który listwy nad kaflem nie zauważył, dostawał
+           w „trybie bez ekranu" losowe hasła z wszystkich poziomów i nie
+           miał jak powiązać tego z paskiem na ekranie obok. Wybór należy
+           do widoku, w którym skutkuje — więc mieszka teraz w panelu. -->
       <button class="home-card" id="odpytywanieCard">
         <span class="icon">듣</span>
         <span class="hc-main">
@@ -9617,6 +9636,12 @@
              przycisku nie byłoby żadnego sposobu powiedzenia apce „nie umiałem".
              Duży cel, żeby dało się trafić bez patrzenia. -->
         <button type="button" class="odp-pudlo-btn" id="odpPudloBtn" data-i18n="odpNieUmiem">Nie umiałem</button>
+        <!-- LISTWA ZESTAWÓW (.625). Stoi DOKŁADNIE NAD sterowaniem sesji:
+             to też jest sterowanie, tylko materiałem zamiast dźwiękiem.
+             Buduje ją JavaScript przy KAŻDYM otwarciu panelu — statyczny
+             HTML nie wiedziałby ani o piątym pakiecie, ani o folderach
+             ucznia, ani o zmianie języka. -->
+        <div class="odp-zestawy odp-zestawy--panel" id="odpZestawy" role="group" aria-label="Zestaw do powtórki"></div>
         <!-- DWA PRZEŁĄCZNIKI, BO TO DWIE RÓŻNE RZECZY. Do .581 mikrofon
              chodził wyłącznie razem z oceną — a komendy głosowe („powtórz",
              „nie wiem", „pauza") bez mikrofonu nie istnieją, więc domyślnie
@@ -15222,7 +15247,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.624';
+const APP_VERSION = '2026-09-11.625';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -17981,9 +18006,74 @@ function carSetZnajdz(id){
    dawałaby cichy powrót do pełnej puli — najgorszy możliwy objaw. */
 function ustawZestawSamochodowy(id){
   if(id === null || id === undefined){ selectedCarSet = null; return true; }
+  /* FOLDER MUSI MIEĆ CZYM KARMIĆ SESJĘ. Przyjęcie folderu, z którego
+     nie da się zbudować kolejki, dawałoby pigułkę wciśniętą i ciszę —
+     objaw nie do odróżnienia od awarii dźwięku. */
+  const f = carSetFolder(id);
+  if(f){
+    if(carSetFolderPula(f).length < ODP_MIN_SLOW) return false;
+    selectedCarSet = id;
+    return true;
+  }
   if(!carSetZnajdz(id)) return false;
   selectedCarSet = id;
   return true;
+}
+
+/* ═══ KLUCZ ZESTAWU JEST POLIMORFICZNY (.625) ═══════════════════════════
+
+   Dwie postacie, jedna zmienna `selectedCarSet`:
+
+       'przetrwanie'        pakiet wbudowany z DEFAULT_CAR_SETS
+       'custom:Kuchnia'     folder z „Moich słówek"
+
+   Prefiks, a nie osobna zmienna, bo wybór jest JEDEN — dwie zmienne
+   znaczyłyby, że istnieje stan, w którym wybrane są oba naraz, i ktoś
+   kiedyś musiałby rozstrzygać, który wygrywa. Rozcinamy na PIERWSZYM
+   dwukropku, więc nazwa folderu może go zawierać. */
+const ODP_FOLDER_PREFIKS = 'custom:';
+function carSetFolder(id){
+  if(typeof id !== 'string' || id.indexOf(ODP_FOLDER_PREFIKS) !== 0) return null;
+  const n = id.slice(ODP_FOLDER_PREFIKS.length);
+  return n ? n : null;
+}
+/* Pula folderu liczona TYM SAMYM kryterium, co reszta „Moich słówek"
+   (`jestMojeSlowo`), a nie własnym warunkiem na kategorię. Własny warunek
+   w tym miejscu już raz istniał i gubił skany — patrz komentarz przy
+   `getMyWordsPool`. */
+function carSetFolderPula(nazwa){
+  if(!nazwa) return [];
+  return allWords.filter(function(w){
+    return jestMojeSlowo(w) && (w.folder || DEFAULT_FOLDER) === nazwa;
+  });
+}
+/* Wybór rozwiązany do postaci, na której da się pracować. `null` znaczy
+   „Całość (SRS)" ALBO klucz, który dziś nie prowadzi donikąd (skasowany
+   folder) — i te dwa przypadki celowo nie są rozróżniane tutaj, tylko
+   przy budowaniu kolejki, gdzie widać pustkę i jest komu o niej powiedzieć. */
+function carSetWybrany(){
+  if(!selectedCarSet) return null;
+  const f = carSetFolder(selectedCarSet);
+  if(f) return { rodzaj: 'folder', folder: f };
+  const z = carSetZnajdz(selectedCarSet);
+  return z ? { rodzaj: 'wbudowany', zestaw: z } : null;
+}
+
+/* ═══ TWARDA BRAMKA POZIOMU W PAKIECIE (.625) ═══════════════════════════
+
+   `poziomPasuje` przepuszcza rekord BEZ pola `level` — i słusznie, bo tam,
+   gdzie stoi, chodzi o własne słówka ucznia, których nikt nie poziomuje.
+   W pakiecie startowym ta sama reguła znaczy co innego: „Przetrwanie" ma
+   z definicji zawierać L1, a nie L1 plus wszystko, czego nie opisano.
+
+   Zmierzone na `.624`: dziś KAŻDY z 7683 rekordów ma liczbowy poziom,
+   więc bramka nie odcina ani jednego hasła (476 → 476). Ale rekord bez
+   poziomu wchodzi do puli natychmiast, gdy się pojawi — sprawdzone przez
+   wstawienie takiego rekordu do `extendedPool`: 476 → 477. Bramka jest
+   więc zamkniętymi drzwiami, nie naprawą, i tak ma być opisana. */
+function carSetPoziomPasuje(poziomy, w){
+  if(!poziomy || !poziomy.length) return true;
+  return poziomy.indexOf(w.level) !== -1;
 }
 
 /* Filtry wspólne pakietu. „detekcjaTylko" NIE MA na tej liście świadomie:
@@ -17997,7 +18087,7 @@ const CAR_SET_POS_FRAZA = Object.freeze(['idiom', 'proverb', 'phrase']);
 function carSetPasuje(zestaw, w){
   if(!zestaw || !w || !w.ko) return false;
   if(zestaw.kategorie.indexOf(w.category) === -1) return false;
-  if(!poziomPasuje(w, zestaw.poziomy)) return false;
+  if(!carSetPoziomPasuje(zestaw.poziomy, w)) return false;
   if(w.wulgarny === true) return false;
   if(w.category === 'Slang i mowa potoczna') return false;
   /* Reguła Fable: w pakiecie startowym frazy dłuższe niż sześć sylab
@@ -18043,7 +18133,7 @@ function zbudujKolejkeOdpytywania(){
      brzmiało „w obrębie pakietu", a włączenie ich zawsze zmieniłoby
      kolejność materiału każdemu, kto używa trybu dziś — bez pomiaru
      i bez pytania. Bez zestawu kolejka powstaje dokładnie jak dotąd. */
-  if(carSetZnajdz(selectedCarSet)){
+  if(carSetWybrany()){
     const zeZdaniem = reszta.filter(w => !!w.ex);
     const bezZdania = reszta.filter(w => !w.ex);
     return [...shuffle(zalegle), ...shuffle(zeZdaniem), ...shuffle(bezZdania)].slice(0, 200);
@@ -18558,16 +18648,47 @@ function zakodujSlowa(lista){
 
 let geminiDrillWords = null;   // ustawione tylko na czas sesji odpytywania
 
+/* Treść mówi MINIMUM, bo „za mało" nie pozwala ocenić, czy brakuje
+   jednego słowa, czy dwustu. Liczba pochodzi ze stałej, nie z napisu. */
+function odpZaMaloTekst(){
+  return uiLang === 'en'
+    ? 'Too few words in this selection (minimum ' + ODP_MIN_SLOW + ').'
+    : 'Za mało słów w tym wyborze (minimum ' + ODP_MIN_SLOW + ').';
+}
+
+/* ═══ PANEL OTWIERA SIĘ PRZED KOLEJKĄ (.625) ════════════════════════════
+
+   Do `.624` odmowa startu kończyła się alertem i zamkniętym panelem.
+   Od `.625` listwa zestawów mieszka W PANELU, więc zamknięty panel przy
+   odmowie byłby ślepym zaułkiem: wybór, z którego nie da się wystartować,
+   nie dałby się też zmienić, a jest pamiętany między uruchomieniami.
+
+   Dlatego kolejność jest odwrócona: najpierw panel i listwa, potem próba
+   zbudowania kolejki. Odmowa zostawia uczniowi widoczny powód i widoczne
+   wyjście. Warstwa sprzętowa (kotwica audio, czerń OLED) wchodzi WYŁĄCZNIE
+   przy sesji, która naprawdę rusza — inaczej odmowa gasiłaby ekran. */
+function odpytywanieOtworzPanel(){
+  odpZestawyZbuduj();
+  /* Gest wyjścia podpina zwykle `OledLockOverlay.enable()`. Przy odmowie
+     startu ten nie zostanie zawołany, a panel i tak jest otwarty — więc
+     podpinamy sam gest. Podpięcie jest jednorazowe (`gestPodpiety`). */
+  try{ OledLockOverlay.mount(); }catch(e){}
+  document.getElementById('odpytywaniePanel').classList.add('open');
+}
+
 async function odpytywanieStart(){
-  odpytywanieKolejka = zbudujKolejkeOdpytywania();
-  if(odpytywanieKolejka.length < ODP_MIN_SLOW){
-    /* Treść mówi MINIMUM, bo „za mało" nie pozwalało ocenić, czy brakuje
-       jednego słowa, czy dwustu. Liczba pochodzi ze stałej, nie z napisu. */
-    alert(uiLang === 'en'
-      ? 'Too few words in this selection (minimum ' + ODP_MIN_SLOW + ').'
-      : 'Za mało słów w tym wyborze (minimum ' + ODP_MIN_SLOW + ').');
-    return;
+  odpytywanieOtworzPanel();
+  await odpytywanieRozpocznijSesje();
+}
+
+async function odpytywanieRozpocznijSesje(){
+  const kolejka = zbudujKolejkeOdpytywania();
+  if(kolejka.length < ODP_MIN_SLOW){
+    odpytywanieStatus(odpZaMaloTekst());
+    return false;
   }
+  odpytywanieKolejka = kolejka;
+  odpytywanieStatus('');
   odpytywanieIdx = 0;
   odpSeria = 0;
   odpytywanieAktywne = true;
@@ -18586,8 +18707,8 @@ async function odpytywanieStart(){
   await CarAudioSession.startAnchor();
   await OledLockOverlay.enable();
 
-  document.getElementById('odpytywaniePanel').classList.add('open');
   odpytywanieRunda();
+  return true;
 }
 
 function odpytywanieStop(koniec){
@@ -28131,9 +28252,20 @@ async function ensureExtendedPool(){
    było to nieosiągalne; listwa czyni to osiągalnym, więc domyślne
    wywołanie ma zachowywać się dokładnie jak przed `.614`. */
 function pickPool(opcje){
+  /* PAKIET WYBRANY W TRYBIE BEZ EKRANU ROZSTRZYGA PIERWSZY (.625).
+
+     Do `.624` stał ZA gałęzią „Moje słówka", więc uczeń, który ostatnio
+     uczył się z własnej listy, wchodził w „Przetrwanie" i dostawał swoje
+     słowa. Zmierzone: pakiet 476 haseł, cztery własne słowa → pula 4.
+     To ta sama podmiana, którą komentarz przy `getMyWordsPool` opisuje
+     w drugą stronę („Zestaw był ignorowany, a nie zawężany"), tylko
+     z ról zamienionych. Wybór zrobiony W TYM widoku wygrywa; tryb nauki
+     ustawiony gdzie indziej nie ma prawa go cicho podmienić. */
+  const wybor = (opcje && opcje.zestaw) ? carSetWybrany() : null;
+  if(wybor && wybor.rodzaj === 'folder') return carSetFolderPula(wybor.folder);
   // Tryb "Moje słówka": własny zestaw usera, CELOWO bez filtrowania po dziale
   // i poziomie - user dodał te słowa świadomie.
-  if(vocabStudySource === 'myWords'){
+  if(!wybor && vocabStudySource === 'myWords'){
     return getMyWordsPool();
   }
   let base;
@@ -28152,9 +28284,8 @@ function pickPool(opcje){
      „zbudujKolejkeOdpytywania" liczy zaległe SRS JUŻ Z PAKIETU: pozycja
      spoza pakietu nie ma jak wejść na czoło kolejki, choćby była
      najbardziej zaległa. Zmierzone, nie założone. */
-  const zestawSamochodowy = (opcje && opcje.zestaw) ? carSetZnajdz(selectedCarSet) : null;
-  if(zestawSamochodowy){
-    return base.filter(w => carSetPasuje(zestawSamochodowy, w));
+  if(wybor && wybor.rodzaj === 'wbudowany'){
+    return base.filter(w => carSetPasuje(wybor.zestaw, w));
   }
   if(selectedCategories && selectedCategories.length){
     base = base.filter(w => selectedCategories.includes(w.category || 'Własne') && matchesLevel(w));
@@ -37626,6 +37757,9 @@ const ODP_ZESTAW_IKONY = Object.freeze({
   przetrwanie: '\uD83D\uDEDF', podroz: '\uD83D\uDE97',
   biuro: '\uD83D\uDCBC', rozmowa: '\uD83D\uDCAC',
 });
+/* Pigułka „Całości" nie ma id, więc nie może mieszkać w tablicy wyżej. */
+const ODP_IKONA_CALOSC = '\uD83D\uDD04';
+const ODP_IKONA_FOLDER = '\uD83D\uDCC1';
 
 function odpZestawZapamietaj(id){
   try{
@@ -37640,6 +37774,12 @@ function odpZestawZapamietaj(id){
 function odpZestawPrzywroc(){
   let zapisany = null;
   try{ zapisany = localStorage.getItem(ODP_ZESTAW_KLUCZ); }catch(e){ zapisany = null; }
+  /* FOLDERY WCZYTUJĄ SIĘ PÓŹNIEJ NIŻ TA LINIA. Sprawdzanie tutaj, czy
+     folder ma dość słów, kasowałoby wybór ucznia za to, że dane jeszcze
+     nie doszły — objaw nie do odróżnienia od utraty ustawienia. Badamy
+     więc samą POSTAĆ klucza; pustkę zgłosi budowanie kolejki, przy
+     otwartej listwie, więc ślepego zaułka i tak nie ma. */
+  if(zapisany && carSetFolder(zapisany)){ selectedCarSet = zapisany; return selectedCarSet; }
   if(zapisany && !carSetZnajdz(zapisany)){ odpZestawZapamietaj(null); zapisany = null; }
   ustawZestawSamochodowy(zapisany || null);
   return selectedCarSet;
@@ -37653,35 +37793,122 @@ function odpZestawyOdswiez(){
   });
 }
 
+/* Pozycje listwy powstają Z DANYCH: pakiety z `DEFAULT_CAR_SETS`, foldery
+   z „Moich słówek". Folder wchodzi na listwę dopiero, gdy ma czym karmić
+   sesję — pigułka prowadząca do odmowy startu byłaby gorsza niż jej brak. */
+function odpZestawyPozycje(){
+  const poz = [{
+    id: '', nazwa: 'Całość (SRS)', nazwaEn: 'Everything (SRS)', ikona: ODP_IKONA_CALOSC,
+  }];
+  DEFAULT_CAR_SETS.forEach(function(z){
+    poz.push({ id: z.id, nazwa: z.nazwa, nazwaEn: z.nazwaEn,
+      ikona: ODP_ZESTAW_IKONY[z.id] || '' });
+  });
+  let foldery = [];
+  try{ foldery = getMyFolders(); }catch(e){ foldery = []; }
+  foldery.forEach(function(para){
+    if(!para || para[1] < ODP_MIN_SLOW) return;
+    const etykieta = folderLabel(para[0]);
+    poz.push({ id: ODP_FOLDER_PREFIKS + para[0], nazwa: etykieta, nazwaEn: etykieta,
+      ikona: ODP_IKONA_FOLDER, folder: true });
+  });
+  return poz;
+}
+
+/* ŻYWA PODMIANA MATERIAŁU (.625). Listwa stoi teraz w panelu, więc pigułkę
+   da się stuknąć W TRAKCIE sesji. Nowa kolejka podstawia się pod automat,
+   ale RUNDY NIE PRZERYWAMY: pętla `odpytywanieRunda` jest rekurencyjna
+   i czeka na zdarzenia, a drugie jej wywołanie znaczyłoby dwa głosy naraz.
+   Bieżące słowo dokańcza się, następne przychodzi już z nowego pakietu —
+   i pasek stanu mówi to wprost, bo cicha zwłoka wygląda jak brak reakcji. */
+function odpZestawPrzelacz(id){
+  const poprzedni = selectedCarSet;
+  if(!ustawZestawSamochodowy(id || null)){
+    odpytywanieStatus(odpZaMaloTekst());
+    odpZestawyOdswiez();
+    return false;
+  }
+  /* PONOWNE STUKNIĘCIE W AKTYWNY PAKIET NIE PRZEBUDOWUJE KOLEJKI.
+     Przebudowa znaczyłaby nowe tasowanie i powrót na początek, czyli
+     utratę postępu za dotknięcie, które nic nie miało zmienić — a listwa
+     stoi teraz w uchwycie samochodowym, gdzie przypadkowe dotknięcia są
+     regułą, nie wyjątkiem. */
+  if(odpytywanieAktywne && (poprzedni || '') === (id || '')){
+    odpZestawyOdswiez();
+    odpytywanieStatus(odpZestawNazwa(id));
+    return true;
+  }
+  if(!odpytywanieAktywne){
+    /* Pamiętamy od razu: `ustawZestawSamochodowy` już odrzuciło wybór,
+       z którego nie da się zbudować sesji, więc nie ma czego cofać. */
+    odpZestawZapamietaj(id || null);
+    odpZestawyOdswiez();
+    /* Panel jest otwarty, a sesji nie ma: albo start właśnie odmówił,
+       albo kolejka dobiegła końca. W obu razach to samo tapnięcie ma
+       ruszyć sesję — odsyłanie ucznia po ekran, którego w tym trybie
+       nie ogląda, byłoby drogą okrężną przez ekran. */
+    odpytywanieRozpocznijSesje();
+    return true;
+  }
+  const nowa = zbudujKolejkeOdpytywania();
+  if(nowa.length < ODP_MIN_SLOW){
+    ustawZestawSamochodowy(poprzedni);
+    odpZestawyOdswiez();
+    odpytywanieStatus(odpZaMaloTekst());
+    return false;
+  }
+  odpytywanieKolejka = nowa;
+  odpytywanieIdx = 0;
+  odpZestawZapamietaj(id || null);
+  odpZestawyOdswiez();
+  odpytywanieStatus(odpZestawNazwa(id) + odpOdNastepnego());
+  return true;
+}
+function odpZestawNazwa(id){
+  const p = odpZestawyPozycje();
+  for(let i = 0; i < p.length; i += 1){
+    if(p[i].id === (id || '')) return uiLang === 'en' ? p[i].nazwaEn : p[i].nazwa;
+  }
+  return '';
+}
+function odpOdNastepnego(){
+  return uiLang === 'en' ? ' — from the next word' : ' — od następnego słowa';
+}
+
 function odpZestawyZbuduj(){
   const box = document.getElementById('odpZestawy');
   if(!box || typeof DEFAULT_CAR_SETS === 'undefined') return;
-  const calosc = { id: '', nazwa: 'Całość (SRS)', nazwaEn: 'Everything (SRS)' };
-  const pozycje = [calosc].concat(DEFAULT_CAR_SETS.map(function(z){
-    return { id: z.id, nazwa: z.nazwa, nazwaEn: z.nazwaEn };
-  }));
   box.innerHTML = '';
-  pozycje.forEach(function(poz){
+  let dzialWstawiony = false;
+  odpZestawyPozycje().forEach(function(poz){
+    if(poz.folder && !dzialWstawiony){
+      dzialWstawiony = true;
+      const d = document.createElement('span');
+      d.className = 'odp-zestawy-dzial';
+      d.textContent = ODP_IKONA_FOLDER + (uiLang === 'en' ? ' My sets' : ' Moje zestawy');
+      box.appendChild(d);
+    }
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'odp-zestaw';
     b.dataset.zestaw = poz.id;
-    const ikona = poz.id ? (ODP_ZESTAW_IKONY[poz.id] || '') : '';
-    b.textContent = (ikona ? ikona + ' ' : '') + (uiLang === 'en' ? poz.nazwaEn : poz.nazwa);
+    b.textContent = (poz.ikona ? poz.ikona + ' ' : '') + (uiLang === 'en' ? poz.nazwaEn : poz.nazwa);
     b.setAttribute('aria-pressed', 'false');
     b.addEventListener('click', function(){
-      /* Jedno tapnięcie przestawia pulę i nic poza tym — bez ekranów,
-         bez pytań, bez startu sesji. Start dalej należy do kafla. */
-      ustawZestawSamochodowy(poz.id || null);
-      odpZestawZapamietaj(poz.id || null);
-      odpZestawyOdswiez();
+      /* Jedno tapnięcie przestawia materiał. Gdy sesja stoi (odmowa startu
+         albo koniec kolejki), to samo tapnięcie ją rozpoczyna — panel jest
+         już otwarty, więc czekanie na powrót do kafla byłoby okrężną drogą
+         przez ekran, którego uczeń w tym trybie nie ogląda. */
+      odpZestawPrzelacz(poz.id);
     });
     box.appendChild(b);
   });
-  odpZestawPrzywroc();
   odpZestawyOdswiez();
 }
-odpZestawyZbuduj();
+/* Przywrócenie wyboru zostaje przy WCZYTANIU, choć listwa powstaje dopiero
+   przy otwarciu panelu: `selectedCarSet` musi być ustawiony, zanim kafel
+   zbuduje pierwszą kolejkę. */
+odpZestawPrzywroc();
 
 document.getElementById('odpytywanieCard').addEventListener('click', ()=>{
   /* JEDNA ścieżka dla wszystkich. Premium różni się WYŁĄCZNIE jakością lektora,
