@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.639
-  Zbudowane na: 698d4d887a9c9418325a3cfe00f17579 (.638)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.640
+  Zbudowane na: e6dadb90e2423f2ff2b97fc86c2546aa (.639)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -17694,7 +17694,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.639';
+const APP_VERSION = '2026-09-11.640';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -26247,12 +26247,58 @@ function wieloIndex(){
     Array.from(lista).forEach((f) => {
       if(f && f.indexOf(' ') !== -1 && mapa[f] === undefined) mapa[f] = g;
     });
+    /* FORMA SŁOWNIKOWA TEŻ JEST FORMĄ, i przez sto wersji jej tu nie było.
+       Generator `formy()` zwraca odmiany, ale nie zwraca podstawy, a indeks
+       bierze wyłącznie to, co generator wyprodukuje. Skutek zmierzony na
+       `.639`: 29 z 29 lematów bez własnego klucza, przez co `눈치 없어요`
+       scalało się, a `눈치 없다` nie. Dotyczyło to także `들어 있다` —
+       przykładu, dla którego ten mechanizm powstał. */
+    if(mapa[g] === undefined) mapa[g] = g;
+  });
+
+  /* ═══ DRUGIE PRZEJŚCIE: HASŁA NIEODMIENNE, DOSŁOWNIE ════════════════
+
+     Bramka `pos` wyżej pyta „czy umiem to ODMIENIĆ" i dla predykatów
+     wielowyrazowych jest właściwa. Dla 640 pozostałych haseł ze spacją
+     (195 phrase, 140 noun, 125 idiom, 53 proverb, 123 bez `pos`, 4 adverb)
+     właściwe pytanie brzmi „czy umiem to ROZPOZNAĆ W CAŁOŚCI" — bo one
+     się nie odmieniają i w tekście stoją tak, jak w słowniku.
+
+     KLUCZ NORMALIZOWANY TĄ SAMĄ DROGĄ, KTÓRĄ CZYTNIK CZYŚCI TOKEN.
+     284 z tych haseł niesie w kluczu interpunkcję (`잘 가!`, `문자
+     보낼게요.`), a scalanie porównuje tokeny już oczyszczone — bez tego
+     kroku żadne z nich nie miałoby szans trafić. Zmierzone: 640 kluczy,
+     zero odpadło, zero zeszło do jednego członu.
+
+     PIERWSZEŃSTWO MA KLUCZ ODMIENNY: `mapa[k] === undefined`. Zmierzona
+     kolizja jest dokładnie jedna — `열이 나요` jako forma `열이 나다`
+     wobec frazy `열이 나요.`. */
+  allWords.forEach((w) => {
+    if(!w || w.pos === 'verb' || w.pos === 'adjective') return;
+    const g = String(w.ko).replace(/\s\(\d+\)$/, '');
+    if(g.indexOf(' ') === -1) return;
+    const k = g.split(/\s+/).map((t) => cleanReaderWord(t) || '').filter(Boolean).join(' ');
+    if(!k || k.indexOf(' ') === -1) return;
+    if(mapa[k] === undefined) mapa[k] = w.ko;
+  });
+
+  /* ZASIĘG SCALANIA LICZONY, NIE WPISANY. Stała `4` z komentarzem
+     „najdłuższe wyrażenie ma trzy człony" była nieaktualna: po
+     normalizacji w bazie stoją klucze do SIEDMIU członów. Podniesienie
+     jej na siedem tylko przesunęłoby moment, w którym znów skłamie. */
+  WIELO_MAX = 2;
+  Object.keys(mapa).forEach((k) => {
+    const n = k.split(' ').length;
+    if(n > WIELO_MAX) WIELO_MAX = n;
   });
   WIELO_INDEX = mapa;
   return mapa;
 }
 
-const PK_SCALANIE_MAX = 4;   // najdłuższe wyrażenie w bazie ma trzy człony
+/* Najdłuższy klucz w indeksie, ustawiany przy jego budowie. Wartość
+   początkowa to dolna granica sensowna dla scalania (dwa człony) —
+   gdyby indeks był pusty, pętla i tak niczego nie znajdzie. */
+let WIELO_MAX = 2;
 
 function przekaznikScalWielowyrazowe(lista){
   if(!Array.isArray(lista) || lista.length < 2) return lista;
@@ -26262,7 +26308,7 @@ function przekaznikScalWielowyrazowe(lista){
   let i = 0;
   while(i < lista.length){
     let lemat = null, dlugosc = 0;
-    const gorna = Math.min(PK_SCALANIE_MAX, lista.length - i);
+    const gorna = Math.min(WIELO_MAX, lista.length - i);
     for(let n = gorna; n >= 2; n -= 1){
       const napis = lista.slice(i, i + n).map((x) => x.token).join(' ');
       if(mapa[napis] !== undefined){ lemat = mapa[napis]; dlugosc = n; break; }
