@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.640
-  Zbudowane na: e6dadb90e2423f2ff2b97fc86c2546aa (.639)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.641
+  Zbudowane na: 0232be60e479a0cbbcea5ed92ef58804 (.640)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -747,6 +747,16 @@
   .row-switch i{ width:25px; height:25px; border-radius:50%; background:var(--card); display:block; }
   .acct-chevron{ flex:none; color:var(--ink-dim); font-size:18px; line-height:1; }
   #acctRows .dr-row{ content-visibility:visible; cursor:pointer; }
+  /* IKONY USTAWIEŃ — kolor `--ink-dim`, nie akcent. Ustawienia to
+     drogowskazy, nie akcje; akcent w tej liście zostaje wyłącznie przy
+     suwaku wibracji, czyli przy jedynej rzeczy, która coś przełącza.
+     Emoji miały własne, przypadkowe kolory i krzyczały głośniej od niego. */
+  #acctRows .dr-row .ikona{ width:22px; height:22px; flex:none; color:var(--ink-dim); }
+  #acctRows .dr-row .ikona svg{ width:22px; height:22px; display:block; }
+  /* Wariant rysunku wybiera MOTYW, nie JS — oba siedzą w DOM. */
+  #acctRows .dr-row .ikona .ik-sciety{ display:none; }
+  [data-theme="kobalt"] #acctRows .dr-row .ikona .ik-zaokr{ display:none; }
+  [data-theme="kobalt"] #acctRows .dr-row .ikona .ik-sciety{ display:block; }
   #acctRows .dr-row-ko{ font-family:var(--font-ui); font-size:15px; }
 
   /* Wyloguj: --hwang, bez ikony i bez czerwieni. Czerwień zostaje dla
@@ -17694,7 +17704,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.640';
+const APP_VERSION = '2026-09-11.641';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -19109,7 +19119,7 @@ const I18N = {
   loginGoogleBtn: { pl: 'Kontynuuj przez Google', en: 'Continue with Google' },
   loadingScreenText: { pl: 'Wczytywanie danych…', en: 'Loading your data…' },
   premiumEyebrow: { pl: 'Premium', en: 'Premium' },
-  premiumTitle: { pl: 'Premium — bez limitów / W darmowej wersji masz 20 pytań dziennie — tyle wystarczy na solidną sesję nauki. Premium usuwa ten limit, usuwa reklamy i dorzuca dodatki.', en: 'Premium — no limits / In the free version you get 20 questions a day — enough for a solid study session. Premium removes this limit, removes ads and adds extras.' },
+  premiumTitle: { pl: 'Bez limitu pytań', en: 'No question limit' },
   priceRibbon: { pl: 'Jedyny plan / Rocznie', en: 'Only plan / Yearly' },
   priceSub: { pl: 'Ok. 15 zł/mies. Odnawia się co roku, anulujesz kiedy chcesz.', en: 'About 15 zł/month. Renews yearly, cancel anytime.' },
   compareTable: { pl: '(tabela porównawcza Premium)', en: '(Premium comparison table)' },
@@ -19782,26 +19792,62 @@ function renderAccountScreen(){
     spick.innerHTML = ''; spick.style.display = 'none';
   }
 
+/* ═══ IKONY USTAWIEŃ — DWA WARIANTY RYSUNKU W JEDNYM WPISIE ════════════
+   Oba warianty siedzą w DOM naraz, a CSS pokazuje właściwy dla motywu.
+   Bez JS i bez mignięcia przy przełączeniu motywu — ta sama technika,
+   co przy ikonach trybów.
+
+   ═══ PIĘĆ ZASAD IKONOGRAFII (Damian, 22.09.2026) ═══════════════════
+
+   1. TRZY POZIOMY, TRZY MATERIAŁY. Glif koreański = treść nauki.
+      Rysunek = tryby i hub. Cienki kontur = ustawienia. Poziom
+      w hierarchii ma być czytelny, ZANIM przeczytasz nazwę.
+   2. ZNAK JEST WSPÓLNY, OPRAWA NALEŻY DO MOTYWU. Ujednolicenie opraw
+      zamienia motyw w samą paletę.
+   3. IKONA DZIECKA NIE MOŻE BYĆ WARIANTEM IKONY RODZICA. Jeśli
+      „Scenariusze" są linią, to nic wewnątrz Scenariuszy nie jest linią.
+   4. W JĘZYKU KRESEK: NIGDY TRZY KRESKI. Trzy to logo.
+   5. CENTROWANIE JEST LICZONE, NIE DOSUWANE. Każda ikona ma obrys
+      wpisany w pole 100×100 tak, że środek obrysu leży w (50,50),
+      a większy wymiar wynosi 74 jednostki.
+
+   NIE „NAPRAWIAJ" NAGIEGO GLIFU W KOBALCIE, dokładając mu kółka dla
+   spójności — zasada 2 mówi, że to oprawa jest wyróżnikiem motywu.
+
+   Zasada 5 zmierzona na tych sześciu rysunkach: środek (50,0 ; 50,0)
+   we wszystkich dwunastu wariantach; większy wymiar 74,0 w pięciu
+   z sześciu, a przy `wibracje` 72,2 — bo jej najszerszy element ma
+   obrys 6, nie 7. */
+const IKONY_USTAWIEN = Object.freeze({
+  osiagniecia: '<svg class="ik-zaokr" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(3.16,3.16) scale(0.9367)" fill="currentColor" fill-rule="evenodd"><circle cx="50" cy="38" r="24" fill="none" stroke="currentColor" stroke-width="7"/><path d="M38 58 L32 86 L50 76 L68 86 L62 58" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g></svg><svg class="ik-sciety" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(3.16,3.16) scale(0.9367)" fill="currentColor" fill-rule="evenodd"><circle cx="50" cy="38" r="24" fill="none" stroke="currentColor" stroke-width="7"/><path d="M38 58 L32 86 L50 76 L68 86 L62 58" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter"/></g></svg>',
+  ustawienia: '<svg class="ik-zaokr" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(0.67,0.67) scale(0.9867)" fill="currentColor" fill-rule="evenodd"><path d="M16 32 L84 32" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 68 L84 68" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="36" cy="32" r="9"/><circle cx="66" cy="68" r="9"/></g></svg><svg class="ik-sciety" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(0.67,0.67) scale(0.9867)" fill="currentColor" fill-rule="evenodd"><path d="M16 32 L84 32" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M16 68 L84 68" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter"/><circle cx="36" cy="32" r="9"/><circle cx="66" cy="68" r="9"/></g></svg>',
+  subskrypcja: '<svg class="ik-zaokr" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(5.42,5.42) scale(0.8916)" fill="currentColor" fill-rule="evenodd"><path d="M50 12 L62 38 L88 42 L69 61 L74 88 L50 75 L26 88 L31 61 L12 42 L38 38 L50 12" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g></svg><svg class="ik-sciety" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(5.42,5.42) scale(0.8916)" fill="currentColor" fill-rule="evenodd"><path d="M50 12 L62 38 L88 42 L69 61 L74 88 L50 75 L26 88 L31 61 L12 42 L38 38 L50 12" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter"/></g></svg>',
+  przewodnik: '<svg class="ik-zaokr" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(5.42,5.42) scale(0.8916)" fill="currentColor" fill-rule="evenodd"><path d="M50 88 C 50 88, 78 58, 78 40 A 28 28 0 1 0 22 40 C 22 58, 50 88, 50 88 Z" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="7"/></g></svg><svg class="ik-sciety" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(5.42,5.42) scale(0.8916)" fill="currentColor" fill-rule="evenodd"><path d="M50 88 C 50 88, 78 58, 78 40 A 28 28 0 1 0 22 40 C 22 58, 50 88, 50 88 Z" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="round"/><circle cx="50" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="7"/></g></svg>',
+  pomoc: '<svg class="ik-zaokr" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(3.16,3.16) scale(0.9367)" fill="currentColor" fill-rule="evenodd"><circle cx="50" cy="50" r="36" fill="none" stroke="currentColor" stroke-width="7"/><path d="M38 40 A 12 12 0 1 1 50 54 L50 60" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="74" r="4.5"/></g></svg><svg class="ik-sciety" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(3.16,3.16) scale(0.9367)" fill="currentColor" fill-rule="evenodd"><circle cx="50" cy="50" r="36" fill="none" stroke="currentColor" stroke-width="7"/><path d="M38 40 A 12 12 0 1 1 50 54 L50 60" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="round"/><circle cx="50" cy="74" r="4.5"/></g></svg>',
+  wibracje: '<svg class="ik-zaokr" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(4.88,4.88) scale(0.9024)" fill="currentColor" fill-rule="evenodd"><rect x="34" y="18" width="32" height="64" fill="none" stroke="currentColor" stroke-width="7"/><path d="M50 70 L50 70" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 36 C 12 44, 12 56, 18 64" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M82 36 C 88 44, 88 56, 82 64" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g></svg><svg class="ik-sciety" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(4.88,4.88) scale(0.9024)" fill="currentColor" fill-rule="evenodd"><rect x="34" y="18" width="32" height="64" fill="none" stroke="currentColor" stroke-width="7"/><path d="M50 70 L50 70" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M18 36 C 12 44, 12 56, 18 64" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="butt" stroke-linejoin="round"/><path d="M82 36 C 88 44, 88 56, 82 64" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="butt" stroke-linejoin="round"/></g></svg>',
+});
+
   // Wiersze ustawień - wzorzec .dr-row z v3 §1.1
   const rows = [
-    { label: uiLang === 'en' ? '🏆 My achievements' : '🏆 Moje osiągnięcia', go:()=>setScreen('achievements') },
-    { label: uiLang === 'en' ? '⚙️ Sound, language, report a bug' : '⚙️ Dźwięk, język, zgłoszenia', go:()=>setScreen('settings') },
-    { label: uiLang === 'en' ? '⭐ Subscription' : '⭐ Subskrypcja', go:()=>document.getElementById('premiumPanel').classList.add('open') },
+    { ikona: 'osiagniecia', label: uiLang === 'en' ? 'My achievements' : 'Moje osiągnięcia', go:()=>setScreen('achievements') },
+    { ikona: 'ustawienia', label: uiLang === 'en' ? 'Sound, language, report a bug' : 'Dźwięk, język, zgłoszenia', go:()=>setScreen('settings') },
+    { ikona: 'subskrypcja', label: uiLang === 'en' ? 'Subscription' : 'Subskrypcja', go:()=>document.getElementById('premiumPanel').classList.add('open') },
     /* DWA OSOBNE WEJŚCIA, bo to dwie różne rzeczy. „Przewodnik" to nowy
        reflektor po triadzie. „Jak korzystać z apki" zostaje przy starym
        wprowadzeniu, bo tamten ekran niesie JEDYNY w całej aplikacji wybór
        języka ojczystego (`wybor: 'l1'` → `l1Ustaw`); przepięcie tego
        przycisku na reflektor odcięłoby użytkownika od tego ustawienia. */
-    { label: uiLang === 'en' ? '🧭 App guide' : '🧭 Przewodnik po aplikacji',
+    { ikona: 'przewodnik', label: uiLang === 'en' ? 'App guide' : 'Przewodnik po aplikacji',
       go:()=>{ document.getElementById('accountPanel').classList.remove('open');
                setScreen('modeSelect');
                setTimeout(() => reflektorStart(true), 420); } },
-    { label: uiLang === 'en' ? '❓ How to use the app' : '❓ Jak korzystać z apki', go:()=>{ const b=document.getElementById('replayOnboardingBtn'); if(b) b.click(); } },
-    { label: uiLang === 'en' ? '📳 Vibration on answers' : '📳 Wibracje przy odpowiedziach', toggle:true },
+    { ikona: 'pomoc', label: uiLang === 'en' ? 'How to use the app' : 'Jak korzystać z apki', go:()=>{ const b=document.getElementById('replayOnboardingBtn'); if(b) b.click(); } },
+    { ikona: 'wibracje', label: uiLang === 'en' ? 'Vibration on answers' : 'Wibracje przy odpowiedziach', toggle:true },
   ];
   const wrap = document.getElementById('acctRows');
   wrap.innerHTML = rows.map((r,i) => `
     <div class="dr-row" data-i="${i}">
+      ${r.ikona && IKONY_USTAWIEN[r.ikona] ? `<span class="ikona" aria-hidden="true">${IKONY_USTAWIEN[r.ikona]}</span>` : ''}
       <div class="dr-row-main"><div class="dr-row-ko">${escapeHtml(r.label)}</div></div>
       ${r.toggle
         ? `<button type="button" class="row-switch" role="switch" aria-checked="${hapticsEnabled ? 'true' : 'false'}"
