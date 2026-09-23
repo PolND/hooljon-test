@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.641
-  Zbudowane na: 0232be60e479a0cbbcea5ed92ef58804 (.640)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.645
+  Zbudowane na: be463c83538c5cf16fe4071722501a0c (.644)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -409,6 +409,14 @@
     padding:0 3px; background:var(--surface-2); }
   @supports (background: color-mix(in oklab, red 12%, transparent)){
     [data-theme="kobalt"] .reader-hit{ background:color-mix(in oklab, var(--hwang) 12%, transparent); }
+  }
+  /* WYRAŻENIE WIELOWYRAZOWE (.642) — cały zakres dostaje wygląd trafienia,
+     bo uczeń ma zobaczyć, KTÓRE słowa czyta się razem. */
+  .reading-word.rw-wyrazenie{ color:var(--hwang); border-bottom:2px solid var(--hwang); }
+  [data-theme="kobalt"] .reading-word.rw-wyrazenie{ border-bottom:0; border-radius:4px;
+    padding:0 3px; background:var(--surface-2); }
+  @supports (background: color-mix(in oklab, red 12%, transparent)){
+    [data-theme="kobalt"] .reading-word.rw-wyrazenie{ background:color-mix(in oklab, var(--hwang) 12%, transparent); }
   }
   [data-theme="kobalt"] .reader-progress{ height:3px; border-radius:var(--radius-pill); }
   [data-theme="kobalt"] .reader-progress i{ height:3px; border-radius:var(--radius-pill); }
@@ -895,7 +903,12 @@
 
      AKCENT --hwang WYSTĘPUJE TYLKO NA POZIOMIE 1. To jedyna reguła kolorystyczna
      tego ekranu - nie rozszczelniać jej przy dokładaniu kafli, bo wtedy kolor
-     znowu zacznie znaczyć „to jest przycisk" zamiast „tu wracasz". */
+     znowu zacznie znaczyć „to jest przycisk" zamiast „tu wracasz".
+
+     WYJĄTEK (.644, pakiet nr 2 §2, zatwierdzony przez Damiana): GLIF w polu
+     kafla „Nauki" jest w --hwang we wszystkich trzech motywach. Jadeit miał
+     to już wcześniej; od .644 także Papier (obwódka krążka) i Kobalt (nagi
+     glif). Tło kafla zostaje neutralne. */
 
   /* ── Poziom 1: hero „Powtórki" ─────────────────────────────────────────── */
   .home-card.variant-hero{
@@ -956,7 +969,12 @@
   [data-theme="kobalt"] .home-section-learn .home-card{
     padding:12px 14px; flex-direction:column; align-items:flex-start; gap:8px;
   }
-  .home-section-learn .home-card .icon{ flex:none; }
+  /* OPRAWA GLIFU — część wspólna (.644, pakiet nr 2 §2). Glif jest ten sam
+     we wszystkich motywach; pole wokół niego należy do motywu (zasada 2). */
+  .home-section-learn .home-card .icon{
+    flex:none; display:grid; place-items:center;
+    font-family:var(--font-ko);
+  }
   /* Skala typograficzna jest WSPÓLNA dla wszystkich motywów - to nie układ,
      tylko rozmiar (v6 §6: tytuł 15px, opis 12px, nagłówek sekcji 11px). */
   .home-section-learn .home-card .title{ font-size:15px; font-weight:700; line-height:1.2; }
@@ -1028,18 +1046,37 @@
      różnicy jest przede wszystkim KSZTAŁT POLA GLIFU - kółko w Jadeicie,
      kwadrat w Kobalcie. To ważniejsze niż gradient: przy zmniejszeniu ekranu
      gradient przestaje być widoczny, kształt nie. */
+  /* Pakiet nr 2 §2 (.644). Do .643 te reguły były martwe — kontener był
+     pusty, więc żaden kafel ich nie łapał.
+
+     Jadeit — tarcza z akcentem na 14%.
+     Kobalt — NAGI glif; oprawą jest sama komórka siatki (hairline 1px, zero
+              promienia). Kółko biłoby się z siatką, która już jest ramą.
+     Papier — krążek z glifem W ŚRODKU (decyzja Damiana). Do .643 Papier
+              pokazywał przy każdej pozycji ten sam pusty krążek, bo motyw
+              liniowy zamieniał glif na rysunek zapasowy (shapeIconFor).
+              Papier to data-theme="" (pusty atrybut), a przed pierwszym
+              applyTheme — brak atrybutu; selektor łapie oba stany. */
   [data-theme="jade"] .home-section-learn .home-card .icon{
     width:36px; height:36px; border-radius:50%;
-    display:grid; place-items:center; font-size:19px;
-    background:color-mix(in srgb, var(--hwang) 12%, transparent);
-    color:var(--hwang);
+    background:color-mix(in srgb, var(--hwang) 14%, transparent);
+    color:var(--hwang); font-size:18px;
   }
   [data-theme="kobalt"] .home-section-learn .home-card .icon{
-    width:32px; height:32px; border-radius:6px;
-    display:grid; place-items:center; font-size:17px;
-    background:var(--card-hi); color:var(--ink);
+    width:34px; height:34px; border-radius:0; background:none;
+    color:var(--hwang); font-size:23px;
   }
-  @supports not (background: color-mix(in srgb, red 12%, transparent)){
+  /* Obwódka jako box-shadow inset, NIE border. Chromium zaokrągla grubość
+     obramowania między 1 a 2 px W DÓŁ do całego piksela — border:1.6px
+     rysował się jako 1px przy każdej gęstości ekranu (zmierzone przy DPR
+     1, 2, 2.625 i 3). Cień nie jest zaokrąglany, więc 1.6px ze specyfikacji
+     jest widoczne jako 1.6px. Wymiar pola się nie zmienia (cień nie zajmuje
+     miejsca w układzie). */
+  :root:is([data-theme=""], :not([data-theme])) .home-section-learn .home-card .icon{
+    width:36px; height:36px; border-radius:50%;
+    box-shadow:inset 0 0 0 1.6px var(--hwang); color:var(--hwang); font-size:16px;
+  }
+  @supports not (background: color-mix(in srgb, red 14%, transparent)){
     [data-theme="jade"] .home-section-learn .home-card .icon{ background:var(--surface-2); }
   }
 
@@ -1048,6 +1085,10 @@
     grid-column:1 / -1;
     background:var(--card);
     padding:9px 22px;
+    /* .644: margin:0. Tło kontenera to kolor linii siatki — każdy margines
+       nagłówka był widoczny jako szary pas nad „Rozmową" i „Poligonem"
+       (znalezione na zrzucie Symulatora, dopiero po wypełnieniu kontenera). */
+    margin:0;
   }
   /* GDYBY „Nauka" urosła do nieparzystej liczby kafli: samo grid-column:1/-1 na
      kaflu NIE wystarczy, a w każdym motywie z innego powodu.
@@ -1071,11 +1112,26 @@
   }
   /* Strzałka zakłada układ poziomy - w kaflu pionowym nie ma dla niej miejsca. */
   [data-theme="jade"] .home-section-learn .home-card.variant-row::after{ content:none; }
-  [data-theme="jade"] .home-section-learn .home-card.variant-row .icon{
-    width:44px; height:44px; border-radius:15px; font-size:21px; flex:none;
-  }
+  /* Tu stała reguła pola 44×44 z promieniem 15px (makieta 1b). Przy pustym
+     kontenerze była martwa; po jego wypełnieniu w .644 przebiłaby tarczę
+     36px z §2 — ma wyższą specyficzność (.variant-row) — i Jadeit dostałby
+     zaokrąglony kwadrat zamiast koła, czyli straciłby wyróżnik motywu.
+     Usunięta; oprawa glifu jest w jednym miejscu, wyżej. */
   [data-theme="jade"] .home-section-learn .home-card.variant-row .title{ font-size:15px; }
   [data-theme="jade"] .home-section-learn .home-card.variant-row .desc{ font-size:12px; margin-top:2px; }
+
+  /* SIEROTA W SIATCE (.644) — rozwiązanie opisane w komentarzu wyżej,
+     wreszcie z regułą. Klasa .span-2 na konkretnym kaflu, nie :nth-child.
+       Warsztat  — pięć kafli; piąty, „Historia i kultura", na pełną szerokość.
+       Symulator — „Rozmowa z AI" jest jedynym kaflem swojej sekcji.
+     Jadeit: wiersz zamiast kolumny (inaczej pusty pas po prawej).
+     Kobalt: align-self:start + min-height:0 (inaczej kafel ~205px). */
+  [data-theme="jade"] .home-section-learn .home-card.span-2,
+  [data-theme="kobalt"] .home-section-learn .home-card.span-2{ grid-column:1 / -1; }
+  [data-theme="jade"] .home-section-learn .home-card.variant-row.span-2{
+    flex-direction:row; align-items:center;
+  }
+  [data-theme="kobalt"] .home-section-learn .home-card.span-2{ align-self:start; min-height:0; }
 
   /* ── KOBALT (PRO) · grafit i kobalt ─────────────────────────────────── */
   [data-scheme="kobalt"]{
@@ -2948,6 +3004,72 @@
   }
   .price-card.recommended button{background:var(--hwang); color:var(--on-accent);}
   .price-card button.owned{background:var(--good); border-color:var(--good); color:var(--on-accent);}
+
+  /* ═══ PANEL PREMIUM (.645, pakiet nr 2 §6.2) ═══════════════════════════
+     Prefiks #premiumPanel celowo: reguły motywów (.tier-tab.active na
+     akcencie, .price-card.recommended) mają tę samą specyficzność co
+     wszystko bez id, a tu układ jest jeden dla wszystkich motywów. */
+  #premiumPanel .premium-eyebrow{ font-size:10.5px; }
+  #premiumPanel h3.premium-title{ font-size:25px; font-weight:600; letter-spacing:-.02em; margin:0 0 4px; }
+  #premiumPanel .premium-lead{ margin:0; color:var(--ink-dim); font-size:14px; line-height:1.45; }
+  /* Pigułka jak .login-tabs: wybrana zakładka to karta na szynie, nie akcent. */
+  #premiumPanel .tier-tabs{
+    display:flex; gap:0; padding:3px; margin:16px 0 6px;
+    border-radius:var(--radius-pill); background:var(--surface-2);
+  }
+  #premiumPanel .tier-tab{
+    flex:1; border:0; background:transparent; color:var(--ink-dim);
+    border-radius:var(--radius-pill); min-height:40px; padding:8px 0;
+    font:600 13.5px/1 var(--font-ui);
+  }
+  #premiumPanel .tier-tab.active{
+    background:var(--card); color:var(--ink); border-color:transparent; box-shadow:var(--shadow-card);
+  }
+  #premiumPanel .premium-korzysci{ list-style:none; margin:6px 0 4px; padding:0; }
+  #premiumPanel .premium-korzysci li{
+    display:flex; align-items:center; gap:10px; padding:9px 0;
+    border-bottom:1px solid var(--border); font-size:14px; line-height:1.3; color:var(--ink);
+  }
+  #premiumPanel .premium-korzysci li:last-child{ border-bottom:0; }
+  #premiumPanel .premium-korzysci .pk-ikona{ flex:none; width:18px; height:18px; color:var(--hwang); }
+  #premiumPanel .premium-korzysci .pk-ikona svg{ width:18px; height:18px; display:block; }
+  #premiumPanel .premium-korzysci .pk-tekst{ flex:1; min-width:0; }
+  #premiumPanel .premium-korzysci .pk-wartosc{ flex:none; color:var(--ink-dim); font-size:13px; }
+  #premiumPanel .premium-korzysci li.zablokowana,
+  #premiumPanel .premium-korzysci li.zablokowana .pk-ikona{ color:var(--ink-dim); }
+  /* Karty są WYBOREM (radio), nie wyjściami — wybraną oznacza obwódka. */
+  #premiumPanel .price-card{
+    font:inherit; text-align:left; color:inherit; cursor:pointer;
+    border:1px solid var(--border);
+  }
+  #premiumPanel .price-card.wybrana{ border:1.5px solid var(--hwang); }
+  #premiumPanel .price-card .sub{ min-height:0; }
+  /* Dwie karty OBOK SIEBIE w 390 px. Kwota 32px z nowrap wyznaczała
+     minimalną szerokość karty i miesięczna wystawała poza panel o 26 px
+     (tak było już w .644 — „19 zł / mie…" ucięte). min-width:0 pozwala
+     karcie się zwęzić, mniejsza kwota i ciaśniejszy padding mieszczą
+     „149 zł / rok" i „19 zł / mies." bez łamania. */
+  /* Górny padding 24px: odznaka „−35%" wisi od górnej krawędzi (top:-1px,
+     ok. 20px wysokości) i przy węższej karcie nachodziła na „ROCZNIE". */
+  #premiumPanel .price-card{ min-width:0; flex:1 1 0; padding:24px 12px 14px; }
+  #premiumPanel .price-card .amount{ font-size:26px; }
+  #premiumPanel .price-card .amount small{ font-size:12.5px; }
+  #premiumPanel .premium-kup{ width:100%; min-height:48px; margin-top:6px; }
+  #premiumPanel .premium-kup.owned{ background:var(--good); border-color:var(--good); color:var(--on-accent); }
+  #premiumPanel .premium-druk{
+    margin:8px 0 0; text-align:center; font-size:12px; color:var(--ink-dim); white-space:nowrap;
+  }
+  #premiumPanel .premium-dlaczego{
+    margin-top:12px; border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+  }
+  #premiumPanel .premium-dlaczego summary{
+    list-style:none; cursor:pointer; padding:12px 0; font-size:14px; font-weight:600; color:var(--ink);
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+  }
+  #premiumPanel .premium-dlaczego summary::-webkit-details-marker{ display:none; }
+  #premiumPanel .premium-dlaczego summary::after{ content:'+'; color:var(--ink-dim); font-weight:400; font-size:18px; line-height:1; }
+  #premiumPanel .premium-dlaczego[open] summary::after{ content:'−'; }
+  #premiumPanel .premium-dlaczego p{ margin:0 0 12px; font-size:13.5px; line-height:1.5; color:var(--ink-dim); }
   @media (max-width:360px){
     .price-cards{flex-direction:column;}
   }
@@ -6961,6 +7083,33 @@
   .home-head .hh-title, .home-head .hh-brand,
   .bn-tab .bn-lab{ font-family:var(--font-ui); }
   .home-card .icon svg{ display:block; }
+
+  /* ═══ IKONY TRYBÓW I HUBU (.644, pakiet nr 2 §3–§4) ═══════════════════
+     Wszystkie trzy warianty leżą w karcie naraz; CSS pokazuje właściwy.
+     Bez JS i bez mignięcia przy przełączeniu motywu.
+
+       .ico-glif   — Papier. Klucz (emoji albo glif) siedzi WYŁĄCZNIE
+                     w data-orig-icon; applyThemeIcons wstawia w to miejsce
+                     rysunek liniowy (tryby) albo krążek (hub). Emoji nigdy
+                     nie trafia do tekstu karty — także przed pierwszym
+                     applyTheme i przy wyłączonym JS.
+       .ico-kreski — Jadeit, kreski ze znaku.
+       .ico-linie  — Kobalt, linie ścięte.
+
+     Pole ikony STAŁE 38×38 we wszystkich motywach, żeby karty nie skakały
+     przy przełączeniu. Bez płytki: rysunek JEST ikoną (w Jadeicie ogólna
+     reguła .home-card .icon dawała płytkę 52px pod emoji). */
+  .home-screen .home-card .icon.ico-pole{
+    width:38px; height:38px; flex:none; display:grid; place-items:center;
+    background:none; border:0; border-radius:0; font-size:20px;
+  }
+  .home-card .icon.ico-pole > .ico-glif{ display:grid; place-items:center; }
+  .home-card .icon.ico-pole > .ico-kreski,
+  .home-card .icon.ico-pole > .ico-linie{ display:none; width:38px; height:38px; }
+  [data-theme="jade"]   .home-card .icon.ico-pole > .ico-glif  { display:none; }
+  [data-theme="jade"]   .home-card .icon.ico-pole > .ico-kreski{ display:block; }
+  [data-theme="kobalt"] .home-card .icon.ico-pole > .ico-glif  { display:none; }
+  [data-theme="kobalt"] .home-card .icon.ico-pole > .ico-linie { display:block; }
   .bn-tab .bn-ico svg{ display:block; margin:0 auto; }
   .bn-tab .bn-ico{ display:block; }
   [data-theme="kobalt"] .bn-tab .bn-ico{ display:none; }
@@ -7632,21 +7781,21 @@
     <h3 style="text-align:center; font-family:var(--font-ko); font-size:20px; margin:0 0 4px;" data-i18n="modeSelectTitle">Jak dziś się uczysz?</h3>
     <p class="hint-note" style="text-align:center; margin-bottom:14px;" data-i18n="modeSelectHint">Możesz przełączać się między trybami w każdej chwili.</p>
     <button class="home-card" id="modeSelectStoryBtn">
-      <span class="icon">📖</span>
+      <span class="icon ico-pole"><span class="ico-glif" data-orig-icon="📖" aria-hidden="true"></span><svg class="ico-kreski" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(7.84,9.38) scale(0.8605)" fill="currentColor" fill-rule="evenodd"><g transform="translate(46,58) rotate(0) scale(0.0815) translate(-501.9,-302.3)"><path d="M992.4,125.5 973.4,129.3 962.0,136.9 935.4,140.7 904.9,155.9 870.7,163.5 813.7,186.3 783.3,186.3 768.1,190.1 752.9,201.5 733.8,201.5 680.6,220.5 642.6,239.5 619.8,243.3 543.7,273.8 532.3,270.0 539.9,262.4 558.9,258.6 600.8,239.5 642.6,228.1 711.0,197.7 722.4,197.7 752.9,186.3 760.5,178.7 783.3,174.9 790.9,167.3 783.3,167.3 760.5,178.7 737.6,182.5 726.2,190.1 714.8,190.1 707.2,197.7 684.4,201.5 627.4,228.1 574.1,239.5 558.9,251.0 532.3,262.4 513.3,258.6 498.1,270.0 471.5,273.8 441.1,289.0 418.3,292.8 395.4,304.2 376.4,304.2 365.0,308.0 349.8,319.4 323.2,323.2 315.6,330.8 247.1,353.6 235.7,353.6 224.3,361.2 155.9,384.0 144.5,384.0 133.1,391.6 121.7,391.6 98.9,406.8 57.0,418.3 60.8,425.9 79.8,425.9 121.7,410.6 136.9,414.4 129.3,422.1 95.1,433.5 83.7,433.5 60.8,444.9 68.4,441.1 76.0,452.5 57.0,456.3 45.6,463.9 11.4,475.3 19.0,479.1 38.0,479.1 95.1,463.9 106.5,471.5 114.1,471.5 121.7,460.1 140.7,471.5 190.1,460.1 216.7,448.7 243.3,444.9 308.0,422.1 319.4,425.9 338.4,422.1 357.4,410.6 368.8,410.6 380.2,403.0 391.6,403.0 406.8,391.6 418.3,391.6 429.7,384.0 441.1,384.0 460.1,376.4 467.7,368.8 471.5,372.6 501.9,349.8 528.5,346.0 589.4,319.4 631.2,308.0 711.0,273.8 794.7,243.3 783.3,243.3 771.9,251.0 749.0,258.6 726.2,258.6 718.6,262.4 714.8,270.0 680.6,281.4 661.6,281.4 650.2,289.0 642.6,277.6 654.0,270.0 661.6,273.8 669.2,266.2 699.6,254.8 718.6,254.8 733.8,243.3 764.3,231.9 775.7,220.5 798.5,216.7 851.7,197.7 866.9,186.3 874.5,186.3 882.1,178.7 889.7,178.7 882.1,174.9 901.1,159.7 920.2,152.1 943.0,148.3 950.6,140.7 973.4,136.9Z"/></g><circle cx="84" cy="30" r="8"/></g></svg><svg class="ico-linie" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(-0.70,-5.64) scale(1.0963)" fill="currentColor" fill-rule="evenodd"><path d="M16 80 L40 80 L40 50 L72 50 L72 26" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter"/><rect x="64" y="18" width="16" height="16"/></g></svg></span>
       <span>
         <div class="title" data-i18n="modeSelectStoryTitle">Tryb opowieści</div>
         <div class="desc" data-i18n="modeSelectStoryDesc">Prowadzeni krok po kroku — lekcja po lekcji, bez zgadywania co wybrać.</div>
       </span>
     </button>
     <button class="home-card" id="modeSelectSandboxBtn">
-      <span class="icon">🧭</span>
+      <span class="icon ico-pole"><span class="ico-glif" data-orig-icon="🧭" aria-hidden="true"></span><svg class="ico-kreski" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(-5.79,-5.28) scale(1.1055)" fill="currentColor" fill-rule="evenodd"><g transform="translate(50,50) rotate(0) scale(0.1157) translate(-452.5,-136.9)"><path d="M737.6,3.8 711.0,11.4 680.6,26.6 669.2,26.6 612.2,49.4 604.6,57.0 566.5,68.4 558.9,76.0 539.9,79.8 532.3,87.5 520.9,87.5 513.3,95.1 456.3,117.9 444.9,117.9 433.5,125.5 406.8,133.1 387.8,133.1 357.4,140.7 262.4,178.7 228.1,182.5 178.7,197.7 167.3,212.9 174.9,224.3 174.9,239.5 178.7,239.5 193.9,258.6 201.5,262.4 235.7,270.0 254.8,270.0 315.6,251.0 334.6,239.5 376.4,228.1 498.1,178.7 547.5,155.9 570.3,140.7 585.6,136.9 593.2,129.3 585.6,129.3 551.3,148.3 486.7,174.9 475.3,171.1 498.1,155.9 524.7,148.3 539.9,136.9 627.4,98.9 638.8,83.7 665.4,72.2 676.8,60.8 695.8,53.2 699.6,45.6 688.2,38.0 707.2,22.8 733.8,11.4Z"/></g><g transform="translate(50,50) rotate(40) scale(0.1142) translate(-551.4,-467.7)"><path d="M840.3,349.8 806.1,357.4 794.7,365.0 775.7,365.0 737.6,376.4 726.2,384.0 714.8,384.0 680.6,395.4 616.0,425.9 585.6,433.5 547.5,452.5 532.3,456.3 528.5,448.7 520.9,448.7 475.3,471.5 448.7,475.3 414.4,490.5 380.2,494.3 357.4,505.7 300.4,524.7 285.2,524.7 266.2,539.9 262.4,562.7 285.2,581.7 296.6,585.6 368.8,585.6 441.1,562.7 490.5,543.7 536.1,520.9 566.5,513.3 581.7,501.9 597.0,498.1 635.0,475.3 661.6,467.7 680.6,452.5 718.6,433.5 711.0,429.7 718.6,422.1 730.0,422.1 745.2,410.6 771.9,403.0 787.1,391.6 775.7,395.4 768.1,387.8 802.3,372.6 806.1,365.0 832.7,357.4Z"/></g></g></svg><svg class="ico-linie" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(-2.11,-2.11) scale(1.0423)" fill="currentColor" fill-rule="evenodd"><rect x="18" y="18" width="28" height="28" fill="none" stroke="currentColor" stroke-width="7"/><rect x="54" y="18" width="28" height="28" fill="none" stroke="currentColor" stroke-width="7"/><rect x="18" y="54" width="28" height="28" fill="none" stroke="currentColor" stroke-width="7"/><rect x="54" y="54" width="28" height="28" fill="none" stroke="currentColor" stroke-width="7"/></g></svg></span>
       <span>
         <div class="title" data-i18n="modeSelectSandboxTitle">Tryb Sandbox</div>
         <div class="desc" data-i18n="modeSelectSandboxDesc">Pełne menu, swobodna nawigacja — dla obytych z apką.</div>
       </span>
     </button>
     <button class="home-card" id="modeSelectAcademyBtn">
-      <span class="icon">📜</span>
+      <span class="icon ico-pole"><span class="ico-glif" data-orig-icon="📜" aria-hidden="true"></span><svg class="ico-kreski" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(2.15,-2.22) scale(0.9359)" fill="currentColor" fill-rule="evenodd"><g transform="translate(50,30) rotate(20) scale(0.1298) translate(-452.5,-136.9)"><path d="M737.6,3.8 711.0,11.4 680.6,26.6 669.2,26.6 612.2,49.4 604.6,57.0 566.5,68.4 558.9,76.0 539.9,79.8 532.3,87.5 520.9,87.5 513.3,95.1 456.3,117.9 444.9,117.9 433.5,125.5 406.8,133.1 387.8,133.1 357.4,140.7 262.4,178.7 228.1,182.5 178.7,197.7 167.3,212.9 174.9,224.3 174.9,239.5 178.7,239.5 193.9,258.6 201.5,262.4 235.7,270.0 254.8,270.0 315.6,251.0 334.6,239.5 376.4,228.1 498.1,178.7 547.5,155.9 570.3,140.7 585.6,136.9 593.2,129.3 585.6,129.3 551.3,148.3 486.7,174.9 475.3,171.1 498.1,155.9 524.7,148.3 539.9,136.9 627.4,98.9 638.8,83.7 665.4,72.2 676.8,60.8 695.8,53.2 699.6,45.6 688.2,38.0 707.2,22.8 733.8,11.4Z"/></g><g transform="translate(32,68) rotate(110) scale(0.0588) translate(-551.4,-467.7)"><path d="M840.3,349.8 806.1,357.4 794.7,365.0 775.7,365.0 737.6,376.4 726.2,384.0 714.8,384.0 680.6,395.4 616.0,425.9 585.6,433.5 547.5,452.5 532.3,456.3 528.5,448.7 520.9,448.7 475.3,471.5 448.7,475.3 414.4,490.5 380.2,494.3 357.4,505.7 300.4,524.7 285.2,524.7 266.2,539.9 262.4,562.7 285.2,581.7 296.6,585.6 368.8,585.6 441.1,562.7 490.5,543.7 536.1,520.9 566.5,513.3 581.7,501.9 597.0,498.1 635.0,475.3 661.6,467.7 680.6,452.5 718.6,433.5 711.0,429.7 718.6,422.1 730.0,422.1 745.2,410.6 771.9,403.0 787.1,391.6 775.7,395.4 768.1,387.8 802.3,372.6 806.1,365.0 832.7,357.4Z"/></g><g transform="translate(68,68) rotate(110) scale(0.0588) translate(-551.4,-467.7)"><path d="M840.3,349.8 806.1,357.4 794.7,365.0 775.7,365.0 737.6,376.4 726.2,384.0 714.8,384.0 680.6,395.4 616.0,425.9 585.6,433.5 547.5,452.5 532.3,456.3 528.5,448.7 520.9,448.7 475.3,471.5 448.7,475.3 414.4,490.5 380.2,494.3 357.4,505.7 300.4,524.7 285.2,524.7 266.2,539.9 262.4,562.7 285.2,581.7 296.6,585.6 368.8,585.6 441.1,562.7 490.5,543.7 536.1,520.9 566.5,513.3 581.7,501.9 597.0,498.1 635.0,475.3 661.6,467.7 680.6,452.5 718.6,433.5 711.0,429.7 718.6,422.1 730.0,422.1 745.2,410.6 771.9,403.0 787.1,391.6 775.7,395.4 768.1,387.8 802.3,372.6 806.1,365.0 832.7,357.4Z"/></g></g></svg><svg class="ico-linie" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(3.16,2.23) scale(0.9367)" fill="currentColor" fill-rule="evenodd"><path d="M14 34 L50 16 L86 34" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M26 42 L26 80" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M50 42 L50 80" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M74 42 L74 80" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M14 86 L86 86" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter"/></g></svg></span>
       <span>
         <div class="title" data-i18n="modeSelectAcademyTitle">Akademia</div>
         <div class="desc" data-i18n="modeSelectAcademyDesc">Słownictwo specjalistyczne z dziedzin akademickich — dla poziomu średnio zaawansowanego i wyżej.</div>
@@ -7739,15 +7888,20 @@
     <div class="daily-value-summary" style="display:none; text-align:center; font-size:14.5px; color:var(--ink-dim); background:var(--card-hi); border-radius:12px; padding:10px 14px; margin-bottom:12px;"></div>
 
 
-      <!-- Nagłówek „Nauka" WEWNĄTRZ kontenera (v6 §4). W Jadeicie i Kobalcie
-           zajmuje obie kolumny dzięki grid-column:1/-1; w pozostałych czterech
-           motywach kontener ma display:contents, więc nagłówek jest po prostu
-           śródtytułem w toku - dokładnie tak jak wcześniej. -->
-      <div class="home-section-learn">
+      <!-- KONTENER SIATKI (.644, pakiet nr 2 §1). Do .643 stał tu PUSTY,
+           a nagłówki i kafle leżały obok niego jako rodzeństwo — przez to
+           siatka Jadeitu i Kobaltu, kształty pola glifu i rozciąganie
+           nagłówka na obie kolumny nie łapały niczego.
 
-      </div>
+           Nagłówki MUSZĄ być bezpośrednimi dziećmi: reguła rozciągająca
+           używa „>". W Papierze kontener ma display:contents, więc układ
+           jest wierszowy jak dotąd.
+
+           Skutek uboczny: groupHomeRows nie opakowuje już tych kafli
+           w .home-group — szuka wyłącznie bezpośrednich dzieci ekranu. -->
+      <div class="home-section-learn">
     <div class="achv-section-title" data-i18n="symSectionRozmowa">Rozmowa</div>
-    <button class="home-card variant-row" data-target="aiChat">
+    <button class="home-card variant-row span-2" data-target="aiChat">
       <span class="icon">화</span>
       <span>
         <div class="title" data-i18n="homeChatTitle">Rozmowa z AI</div>
@@ -7782,6 +7936,8 @@
          (sprawdzone na home, academy, vocabMode, aiChat, dictBrowse).
          Oba jej napisy przeszły na ekran przeglądania słownika: tytuł jako
          nagłówek, opis ze skalą jako podtytuł — patrz `.dict-head`. -->
+
+      </div>
 
     <div class="home-hint" data-i18n="symHint">Tu nic nie jest oceniane. Ustaw relację, zobacz trzy strategie, sprawdź słowo.</div>
   </div>
@@ -9165,7 +9321,7 @@
       <p class="hub-podtytul" data-i18n="scnHubSubtitle">Wybierz tryb pracy: uporządkowany kurs fabularny albo swobodny trening mechaniki.</p>
     </div>
     <button class="home-card hub-karta" data-target="storyMap" id="hubBtnPath">
-      <span class="icon">길</span>
+      <span class="icon ico-pole"><span class="ico-glif" data-orig-icon="길" aria-hidden="true">길</span><svg class="ico-kreski" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(2.44,3.21) scale(0.9368)" fill="currentColor" fill-rule="evenodd"><g opacity=".42"><g transform="translate(46,38) rotate(20) scale(0.1142) translate(-551.4,-467.7)"><path d="M840.3,349.8 806.1,357.4 794.7,365.0 775.7,365.0 737.6,376.4 726.2,384.0 714.8,384.0 680.6,395.4 616.0,425.9 585.6,433.5 547.5,452.5 532.3,456.3 528.5,448.7 520.9,448.7 475.3,471.5 448.7,475.3 414.4,490.5 380.2,494.3 357.4,505.7 300.4,524.7 285.2,524.7 266.2,539.9 262.4,562.7 285.2,581.7 296.6,585.6 368.8,585.6 441.1,562.7 490.5,543.7 536.1,520.9 566.5,513.3 581.7,501.9 597.0,498.1 635.0,475.3 661.6,467.7 680.6,452.5 718.6,433.5 711.0,429.7 718.6,422.1 730.0,422.1 745.2,410.6 771.9,403.0 787.1,391.6 775.7,395.4 768.1,387.8 802.3,372.6 806.1,365.0 832.7,357.4Z"/></g></g><g transform="translate(52,62) rotate(20) scale(0.0734) translate(-501.9,-302.3)"><path d="M992.4,125.5 973.4,129.3 962.0,136.9 935.4,140.7 904.9,155.9 870.7,163.5 813.7,186.3 783.3,186.3 768.1,190.1 752.9,201.5 733.8,201.5 680.6,220.5 642.6,239.5 619.8,243.3 543.7,273.8 532.3,270.0 539.9,262.4 558.9,258.6 600.8,239.5 642.6,228.1 711.0,197.7 722.4,197.7 752.9,186.3 760.5,178.7 783.3,174.9 790.9,167.3 783.3,167.3 760.5,178.7 737.6,182.5 726.2,190.1 714.8,190.1 707.2,197.7 684.4,201.5 627.4,228.1 574.1,239.5 558.9,251.0 532.3,262.4 513.3,258.6 498.1,270.0 471.5,273.8 441.1,289.0 418.3,292.8 395.4,304.2 376.4,304.2 365.0,308.0 349.8,319.4 323.2,323.2 315.6,330.8 247.1,353.6 235.7,353.6 224.3,361.2 155.9,384.0 144.5,384.0 133.1,391.6 121.7,391.6 98.9,406.8 57.0,418.3 60.8,425.9 79.8,425.9 121.7,410.6 136.9,414.4 129.3,422.1 95.1,433.5 83.7,433.5 60.8,444.9 68.4,441.1 76.0,452.5 57.0,456.3 45.6,463.9 11.4,475.3 19.0,479.1 38.0,479.1 95.1,463.9 106.5,471.5 114.1,471.5 121.7,460.1 140.7,471.5 190.1,460.1 216.7,448.7 243.3,444.9 308.0,422.1 319.4,425.9 338.4,422.1 357.4,410.6 368.8,410.6 380.2,403.0 391.6,403.0 406.8,391.6 418.3,391.6 429.7,384.0 441.1,384.0 460.1,376.4 467.7,368.8 471.5,372.6 501.9,349.8 528.5,346.0 589.4,319.4 631.2,308.0 711.0,273.8 794.7,243.3 783.3,243.3 771.9,251.0 749.0,258.6 726.2,258.6 718.6,262.4 714.8,270.0 680.6,281.4 661.6,281.4 650.2,289.0 642.6,277.6 654.0,270.0 661.6,273.8 669.2,266.2 699.6,254.8 718.6,254.8 733.8,243.3 764.3,231.9 775.7,220.5 798.5,216.7 851.7,197.7 866.9,186.3 874.5,186.3 882.1,178.7 889.7,178.7 882.1,174.9 901.1,159.7 920.2,152.1 943.0,148.3 950.6,140.7 973.4,136.9Z"/></g></g></svg><svg class="ico-linie" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(3.16,1.29) scale(0.9367)" fill="currentColor" fill-rule="evenodd"><g opacity=".45"><rect x="14" y="22" width="56" height="34" fill="none" stroke="currentColor" stroke-width="7"/></g><rect x="30" y="48" width="56" height="34" fill="none" stroke="currentColor" stroke-width="7"/></g></svg></span>
       <span>
         <div class="hub-odznaka" data-i18n="scnHubPathBadge">Kurs prowadzony</div>
         <div class="title" data-i18n="scnHubPathTitle">Ścieżka lekcji</div>
@@ -9174,7 +9330,7 @@
       </span>
     </button>
     <button class="home-card hub-karta" data-target="warsztat" id="hubBtnWorkshop">
-      <span class="icon">연</span>
+      <span class="icon ico-pole"><span class="ico-glif" data-orig-icon="연" aria-hidden="true">연</span><svg class="ico-kreski" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(2.56,6.78) scale(0.9487)" fill="currentColor" fill-rule="evenodd"><g transform="translate(50,56) rotate(0) scale(0.0795) translate(-501.9,-302.3)"><path d="M992.4,125.5 973.4,129.3 962.0,136.9 935.4,140.7 904.9,155.9 870.7,163.5 813.7,186.3 783.3,186.3 768.1,190.1 752.9,201.5 733.8,201.5 680.6,220.5 642.6,239.5 619.8,243.3 543.7,273.8 532.3,270.0 539.9,262.4 558.9,258.6 600.8,239.5 642.6,228.1 711.0,197.7 722.4,197.7 752.9,186.3 760.5,178.7 783.3,174.9 790.9,167.3 783.3,167.3 760.5,178.7 737.6,182.5 726.2,190.1 714.8,190.1 707.2,197.7 684.4,201.5 627.4,228.1 574.1,239.5 558.9,251.0 532.3,262.4 513.3,258.6 498.1,270.0 471.5,273.8 441.1,289.0 418.3,292.8 395.4,304.2 376.4,304.2 365.0,308.0 349.8,319.4 323.2,323.2 315.6,330.8 247.1,353.6 235.7,353.6 224.3,361.2 155.9,384.0 144.5,384.0 133.1,391.6 121.7,391.6 98.9,406.8 57.0,418.3 60.8,425.9 79.8,425.9 121.7,410.6 136.9,414.4 129.3,422.1 95.1,433.5 83.7,433.5 60.8,444.9 68.4,441.1 76.0,452.5 57.0,456.3 45.6,463.9 11.4,475.3 19.0,479.1 38.0,479.1 95.1,463.9 106.5,471.5 114.1,471.5 121.7,460.1 140.7,471.5 190.1,460.1 216.7,448.7 243.3,444.9 308.0,422.1 319.4,425.9 338.4,422.1 357.4,410.6 368.8,410.6 380.2,403.0 391.6,403.0 406.8,391.6 418.3,391.6 429.7,384.0 441.1,384.0 460.1,376.4 467.7,368.8 471.5,372.6 501.9,349.8 528.5,346.0 589.4,319.4 631.2,308.0 711.0,273.8 794.7,243.3 783.3,243.3 771.9,251.0 749.0,258.6 726.2,258.6 718.6,262.4 714.8,270.0 680.6,281.4 661.6,281.4 650.2,289.0 642.6,277.6 654.0,270.0 661.6,273.8 669.2,266.2 699.6,254.8 718.6,254.8 733.8,243.3 764.3,231.9 775.7,220.5 798.5,216.7 851.7,197.7 866.9,186.3 874.5,186.3 882.1,178.7 889.7,178.7 882.1,174.9 901.1,159.7 920.2,152.1 943.0,148.3 950.6,140.7 973.4,136.9Z"/></g><g transform="translate(62,40) rotate(108) scale(0.0623) translate(-551.4,-467.7)"><path d="M840.3,349.8 806.1,357.4 794.7,365.0 775.7,365.0 737.6,376.4 726.2,384.0 714.8,384.0 680.6,395.4 616.0,425.9 585.6,433.5 547.5,452.5 532.3,456.3 528.5,448.7 520.9,448.7 475.3,471.5 448.7,475.3 414.4,490.5 380.2,494.3 357.4,505.7 300.4,524.7 285.2,524.7 266.2,539.9 262.4,562.7 285.2,581.7 296.6,585.6 368.8,585.6 441.1,562.7 490.5,543.7 536.1,520.9 566.5,513.3 581.7,501.9 597.0,498.1 635.0,475.3 661.6,467.7 680.6,452.5 718.6,433.5 711.0,429.7 718.6,422.1 730.0,422.1 745.2,410.6 771.9,403.0 787.1,391.6 775.7,395.4 768.1,387.8 802.3,372.6 806.1,365.0 832.7,357.4Z"/></g></g></svg><svg class="ico-linie" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(0.67,0.67) scale(0.9867)" fill="currentColor" fill-rule="evenodd"><path d="M16 68 L84 32" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M42 26 L58 74" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="butt" stroke-linejoin="miter"/></g></svg></span>
       <span>
         <div class="hub-odznaka" data-i18n="scnHubWorkBadge">Aparat ćwiczeniowy</div>
         <div class="title" data-i18n="scnHubWorkTitle">Warsztat</div>
@@ -9210,6 +9366,14 @@
          na ekran") i prowadził do DRUGIEGO silnika: bez zapisu do SRS, bez
          mostu natywnego, bez rozmytego dopasowania. Jedno wejście prowadzi
          teraz do jednego automatu — patrz #odpytywanieCard. -->
+    <!-- KONTENER SIATKI (.644, pakiet nr 2 §1). „Powtórki" (variant-hero)
+         i „Trudne słowa" zostają NA ZEWNĄTRZ: oba to wejścia do tej samej
+         kolejki powtórek, a „Trudne słowa" pojawia się warunkowo — w środku
+         zmieniałoby liczbę kafli z pięciu na sześć i sierota raz by była,
+         raz nie. Nagłówek „Warsztat" też zostaje nad bohaterem: jest tytułem
+         całego ekranu, nie tej sekcji.
+         „Sceny z oceną" to poziom 3 (Praktyka) — wiersze poza siatką. -->
+    <div class="home-section-learn">
     <button class="home-card variant-row" data-target="hangul" id="hangulSandboxCard">
       <span class="icon">한</span>
       <span>
@@ -9238,13 +9402,14 @@
         <div class="desc" data-i18n="homeReadingDesc">Czytaj na głos, w stylu karaoke.</div>
       </span>
     </button>
-    <button class="home-card variant-row" data-target="culture">
+    <button class="home-card variant-row span-2" data-target="culture">
       <span class="icon">문</span>
       <span>
         <div class="title" data-i18n="homeCultureTitle">Historia i kultura</div>
         <div class="desc" data-i18n="homeCultureDesc">Szamanizm, tradycje, święta — kontekst za językiem.</div>
       </span>
     </button>
+    </div>
     <div class="achv-section-title" style="margin-top:18px;" data-i18n="scnSectionSceny">Sceny z oceną</div>
     <button class="home-card variant-row" data-target="aiChat" id="scnMisjeCard">
       <span class="icon">임</span>
@@ -9678,47 +9843,30 @@
     <div class="modal-card">
       <button class="modal-close" data-close="premiumPanel" aria-label="Zamknij">✕</button>
       <div class="premium-eyebrow" data-i18n="premiumEyebrow">Premium</div>
-      <h3 class="premium-title"><span data-i18n="premiumTitle">Premium i Premium Pro</span></h3>
-      <p data-i18n="premiumDesc">Premium usuwa dzienny limit i reklamy. Premium Pro dokłada do tego wszystkie funkcje oparte o AI — bo każde ich użycie ma realny koszt, który wolimy uczciwie pokazać, niż schować w cenie dla wszystkich.</p>
+      <h3 class="premium-title"><span data-i18n="premiumTitle">Bez limitu pytań</span></h3>
+      <!-- PANEL PREMIUM (.645, pakiet nr 2 §6.2). Kolejność z pakietu:
+           nadkreślnik · jedno zdanie · podtytuł · pigułka Premium/Pro ·
+           lista korzyści · dwie karty cen · JEDEN przycisk · drobny druk ·
+           „Dlaczego Pro kosztuje więcej?" jako rozwijany wiersz.
+           Podtytuł, lista, karty, przycisk i druk rysuje renderPremiumPanel()
+           — liczby liczone z CENY, nie wpisane w tłumaczenia (§6.3). -->
+      <p class="premium-lead" id="premiumLead"></p>
 
-      <div class="tier-tabs">
-        <button class="tier-tab active" id="tierTabBasic" data-tier="basic" data-i18n="tierTabBasic">Premium</button>
-        <button class="tier-tab" id="tierTabPro" data-tier="pro" data-i18n="tierTabPro">Premium Pro</button>
+      <div class="tier-tabs" role="tablist">
+        <button class="tier-tab active" id="tierTabBasic" data-tier="basic" role="tab" aria-selected="true" data-i18n="tierTabBasic">Premium</button>
+        <button class="tier-tab" id="tierTabPro" data-tier="pro" role="tab" aria-selected="false" data-i18n="tierTabPro">Premium Pro</button>
       </div>
 
-      <div class="price-cards" id="basicPriceCards">
-        <div class="price-card recommended">
-          <div class="ribbon" data-i18n="recommendedPlan">Poleca się</div>
-          <div class="label" data-i18n="yearlyLabel">Rocznie</div>
-          <div class="amount">149 zł <small>/ rok</small></div>
-          <div class="sub" data-i18n="priceSubBasic">Ok. 12 zł/mies. Odnawia się co roku, anulujesz kiedy chcesz.</div>
-          <button id="buyYearlyBasic" data-i18n="chooseYearly">Wybierz roczną</button>
-        </div>
-        <div class="price-card">
-          <div class="label" data-i18n="monthlyLabel">Miesięcznie</div>
-          <div class="amount">19 zł <small>/ mies.</small></div>
-          <div class="sub" data-i18n="priceSubMonthly">Elastycznie — bez zobowiązań na rok. Anulujesz w każdej chwili.</div>
-          <button id="buyMonthlyBasic" data-i18n="chooseMonthly">Wybierz miesięczną</button>
-        </div>
-      </div>
+      <ul class="premium-korzysci" id="premiumKorzysci"></ul>
 
-      <div class="price-cards" id="proPriceCards" style="display:none;">
-        <div class="price-card recommended">
-          <div class="ribbon" data-i18n="recommendedPlan">Poleca się</div>
-          <div class="label" data-i18n="yearlyLabel">Rocznie</div>
-          <div class="amount">399 zł <small>/ rok</small></div>
-          <div class="sub" data-i18n="priceSubPro">Ok. 33 zł/mies. Odnawia się co roku, anulujesz kiedy chcesz.</div>
-          <button id="buyYearlyPro" data-i18n="chooseYearly">Wybierz roczną</button>
-        </div>
-        <div class="price-card">
-          <div class="label" data-i18n="monthlyLabel">Miesięcznie</div>
-          <div class="amount">49 zł <small>/ mies.</small></div>
-          <div class="sub" data-i18n="priceSubMonthly">Elastycznie — bez zobowiązań na rok. Anulujesz w każdej chwili.</div>
-          <button id="buyMonthlyPro" data-i18n="chooseMonthly">Wybierz miesięczną</button>
-        </div>
-      </div>
+      <div class="price-cards" id="premiumCeny" role="radiogroup"></div>
+      <button class="primary premium-kup" id="premiumKupBtn" type="button"></button>
+      <p class="premium-druk" id="premiumDruk"></p>
 
-      <p class="hint-note" id="aiCostExplainer" style="text-align:center; margin-top:4px;" data-i18n="aiCostExplainerShort">Dlaczego Pro kosztuje więcej? Każda rozmowa z Haksą czy ocena AI wymaga wywołania modelu językowego — to realny koszt za każdym razem, nie jednorazowy koszt treści.</p>
+      <details class="premium-dlaczego" id="aiCostExplainer">
+        <summary data-i18n="aiCostPytanie">Dlaczego Pro kosztuje więcej?</summary>
+        <p data-i18n="aiCostOdpowiedz"></p>
+      </details>
 
       <!-- Nagroda za reklamy: widoczna TYLKO gdy user nie ma Premium (ani prawdziwego, ani
            z aktywnej wcześniejszej nagrody) - patrz renderRewardedAdProgress(). Placeholder
@@ -9735,32 +9883,13 @@
         <div id="rewardedAdClaimedMsg" style="display:none; margin-top:10px; font-size:14.5px; color:var(--good); font-weight:600;"></div>
       </div>
 
-      <!-- Porównanie planów jako TABELA. Wariant z korzyściami rozpisanymi
-           w kartach (wzorzec .perk z v2 §3) był zbudowany i odrzucony po
-           obejrzeniu: przy wyborze planu szuka się porównania, a tabela
-           pokazuje wszystkie trzy naraz. Decyzja Damiana 2026-09-04. -->
-      <table class="compare-table" id="compareTable">
-        <tr><th data-i18n="tFeature">Funkcja</th><th data-i18n="tFree">Darmowe</th><th data-i18n="tPremium">Premium</th><th data-i18n="tPremiumPro">Pro</th></tr>
-        <tr><td data-i18n="tWords">Słówka i tryby nauki</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
-        <tr><td data-i18n="tAudio">Wymowa / audio</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
-        <tr><td data-i18n="tSrs">Powtórki (SRS)</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
-        <tr><td data-i18n="tQuestions">Pytania dziennie</td><td data-i18n="t30day">20 / dzień</td><td class="also" data-i18n="tNoLimit">bez limitu</td><td class="also" data-i18n="tNoLimit">bez limitu</td></tr>
-        <tr><td data-i18n="tAds">Reklamy</td><td data-i18n="tYesShort">są</td><td class="also" data-i18n="tNoneShort">brak</td><td class="also" data-i18n="tNoneShort">brak</td></tr>
-        <!-- KOMPAS STOI WYSOKO CELOWO. Tabela czytana od góry ma powiedzieć,
-             za co naprawdę płaci się w Pro; schowany między „scenariuszami"
-             a „importem ze zdjęcia" byłby jednym z wielu ptaszków.
-             „1 dziennie" w kolumnie darmowej to OBIETNICA, którą musi spełnić
-             ai-proxy — w HTML da się napisać cokolwiek. -->
-        <tr><td data-i18n="tKompas">Kompas Nunchi — dobór rejestru i etykiety</td><td class="also" data-i18n="tKompasFree">1 / dzień</td><td class="also" data-i18n="tKompasStd">pakiet</td><td class="also">✓</td></tr>
-        <tr><td data-i18n="tHaksa">Rozmowa z Haksa (AI)</td><td>—</td><td>—</td><td class="also">✓</td></tr>
-        <tr><td data-i18n="tReadingAi">Czytanie z oceną AI</td><td>—</td><td>—</td><td class="also">✓</td></tr>
-        <tr><td data-i18n="tScenarioAi">Scenariusze dla grup</td><td>—</td><td>—</td><td class="also">✓</td></tr>
-        <tr><td data-i18n="tImportAi">Import słówek ze zdjęcia/pliku</td><td>—</td><td>—</td><td class="also">✓</td></tr>
-        <tr><td data-i18n="tTypedAi">Inteligentny fallback przy wpisywaniu</td><td>—</td><td>—</td><td class="also">✓</td></tr>
-        <tr><td data-i18n="tThemes">Dodatkowe motywy kolorystyczne</td><td>—</td><td class="also">✓</td><td class="also">✓</td></tr>
-        <tr><td data-i18n="tStats">Zaawansowane statystyki (celność, tempo)</td><td>—</td><td class="also">✓</td><td class="also">✓</td></tr>
-        <tr><td data-i18n="tExport">Eksport słówek do CSV</td><td>—</td><td class="also">✓</td><td class="also">✓</td></tr>
-      </table>
+      <!-- TABELA PORÓWNAWCZA USUNIĘTA W .645 — decyzja Damiana z 23.09
+           odwołuje tę z 04.09. Uzasadnienie: w wąskim widoku tabela z czterema
+           kolumnami wymusza ścisk i drobny tekst; lista z kłódką przy
+           pozycjach Pro mówi to samo jedną kolumną. Treść tabeli NIE ZGINĘŁA:
+           każdy płatny wiersz jest pozycją KORZYSCI (te same klucze I18N,
+           te same wartości). Trzy wiersze wspólne dla wszystkich planów
+           (słówka, audio, SRS) nie są korzyścią płatną i nie weszły. -->
       <div class="row">
         <button class="primary" id="togglePremium" data-i18n="togglePremiumOff">Wyłącz Premium (demo)</button>
       </div>
@@ -17704,7 +17833,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.641';
+const APP_VERSION = '2026-09-11.645';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -18694,9 +18823,8 @@ const I18N = {
   tKompasStd: { pl: 'pakiet', en: 'bundle' },
   tierTabBasic: { pl: 'Premium', en: 'Premium' },
   tierTabPro: { pl: 'Premium Pro', en: 'Premium Pro' },
-  priceSubBasic: { pl: 'Ok. 12 zł/mies. Odnawia się co roku, anulujesz kiedy chcesz.', en: 'About 10 zł/month. Renews yearly, cancel anytime.' },
-  priceSubPro: { pl: 'Ok. 33 zł/mies. Odnawia się co roku, anulujesz kiedy chcesz.', en: 'About 40 zł/month. Renews yearly, cancel anytime.' },
-  aiCostExplainerShort: { pl: 'Dlaczego Pro kosztuje więcej? Każda rozmowa z Haksą czy ocena AI wymaga wywołania modelu językowego — to realny koszt za każdym razem, nie jednorazowy koszt treści.', en: 'Why does Pro cost more? Every conversation with Haksa or AI evaluation calls a language model — a real cost each time, not a one-time content cost.' },
+  aiCostPytanie: { pl: 'Dlaczego Pro kosztuje więcej?', en: 'Why does Pro cost more?' },
+  aiCostOdpowiedz: { pl: 'Każda rozmowa z Haksą czy ocena AI wymaga wywołania modelu językowego — to realny koszt za każdym razem, nie jednorazowy koszt treści.', en: 'Every conversation with Haksa or AI evaluation calls a language model — a real cost each time, not a one-time content cost.' },
   tPremiumPro: { pl: 'Pro', en: 'Pro' },
   tImportAi: { pl: 'Import słówek ze zdjęcia/pliku', en: 'Import words from photo/file' },
   tTypedAi: { pl: 'Inteligentny fallback przy wpisywaniu', en: 'Smart fallback for typed answers' },
@@ -19120,8 +19248,12 @@ const I18N = {
   loadingScreenText: { pl: 'Wczytywanie danych…', en: 'Loading your data…' },
   premiumEyebrow: { pl: 'Premium', en: 'Premium' },
   premiumTitle: { pl: 'Bez limitu pytań', en: 'No question limit' },
+  premiumLead: { pl: 'Darmowa wersja daje {n} pytań dziennie.', en: 'The free version gives you {n} a day.' },
+  cenaNaRok: { pl: '/ rok', en: '/ yr' },
+  cenaNaMies: { pl: '/ mies.', en: '/ mo' },
+  premiumDrukRok: { pl: 'Odnawia się co roku. Anulujesz w każdej chwili.', en: 'Renews yearly. Cancel anytime.' },
+  premiumDrukMies: { pl: 'Odnawia się co miesiąc. Anulujesz w każdej chwili.', en: 'Renews monthly. Cancel anytime.' },
   priceRibbon: { pl: 'Jedyny plan / Rocznie', en: 'Only plan / Yearly' },
-  priceSub: { pl: 'Ok. 15 zł/mies. Odnawia się co roku, anulujesz kiedy chcesz.', en: 'About 15 zł/month. Renews yearly, cancel anytime.' },
   compareTable: { pl: '(tabela porównawcza Premium)', en: '(Premium comparison table)' },
   togglePremium: { pl: 'Wyłącz Premium (demo)', en: 'Turn off Premium (demo)' },
   interstitialTag: { pl: 'Reklama · miejsce na format interstitial / Placeholder: baner sieci reklamowej (np. AdMob) / Krótka przerwa co kilka rund. Wspiera darmowy dostęp do nauki dla wszystkich.', en: 'Advertisement · interstitial format placeholder / Placeholder: ad network banner (e.g. AdMob) / A short break every few rounds. Supports free access to learning for everyone.' },
@@ -19261,6 +19393,8 @@ function applyUiLangUI(){
   if(btn) btn.textContent = uiLang === 'en' ? 'EN' : 'PL';
 
   applyI18n();
+  /* .645: panel Premium jest rysowany w JS — applyI18n go nie widzi. */
+  if(typeof renderPremiumPanel === 'function') renderPremiumPanel();
 
   /* Kafelki kompasu są budowane w JS PO starcie, więc `applyI18n` po nich nie
      przechodzi — bez tego wywołania przełączenie na EN zostawiało polskie
@@ -21810,9 +21944,17 @@ function applyOldstyleLabels(theme){
 function applyThemeIcons(theme){
   const meta = THEMES.find(t => t.id === theme) || THEMES[0];
   const mode = meta.mode || 'map';
-  document.querySelectorAll('.home-card .icon').forEach(el => {
+  document.querySelectorAll('.home-card .icon').forEach(pole => {
+    /* .644: karta z trzema wariantami rysunku (tryby, hub) — motyw rusza
+       tylko warstwę .ico-glif. Podmiana całego pola, jak do .643,
+       zniszczyłaby rysunki Jadeitu i Kobaltu przy pierwszym applyTheme. */
+    const el = pole.querySelector(':scope > .ico-glif') || pole;
     if(!el.dataset.origIcon) el.dataset.origIcon = el.textContent.trim();
     const o = el.dataset.origIcon;
+    /* .644: w kafelkach „Nauki" GLIF JEST WSPÓLNY dla wszystkich motywów
+       (pakiet nr 2 §2, zasada 2) — motyw zmienia oprawę w CSS, nie znak.
+       Motyw liniowy nie wstawia tu już rysunku zapasowego. */
+    if(pole.closest('.home-section-learn')){ el.textContent = o; return; }
     // Tryb liniowy NIGDY nie spada z powrotem na emoji: gdy brak dokładnej ikony,
     // bierze kształt tematyczny (patrz ICON_SHAPE_MAP). Dzięki temu nie ma ani
     // emoji, ani pustych miejsc - to był warunek przy usuwaniu emotek z interfejsu.
@@ -26286,9 +26428,18 @@ function wieloIndex(){
        widać to w audycie jako `BEZ KLASY`, a nie znika po cichu. */
     const wpis = klasy.get(g) || klasy.get(czlony[czlony.length - 1]);
     if(!wpis) return;
-    const czasownik = (wpis[0] === g) ? wpis[2] : (w.pos === 'verb' ? 1 : 0);
+    /* CZĘŚĆ MOWY JAKO NAPIS, NIE JAKO LICZBA (.642). „formy()” porównuje
+       „pos === 'verb'”, a tu przez sto wersji szła liczba: „wpis[2]” z tablicy
+       klas (0/1) albo „1”/„0” wyliczone z „w.pos”. „1 === 'verb'” jest fałszem,
+       więc gałąź przydawkowa (-는, -ㄴ다/는다) nie wchodziła NIGDY dla wyrażeń
+       wielowyrazowych. Zmierzone na „.641”: 24 z 24 predykatów czasownikowych
+       traciło po dwie formy, 48 form razem, nadmiaru zero. Przymiotniki nie
+       traciły nic tylko dlatego, że „0 === 'verb'” jest fałszem tak samo —
+       usterka była niewidoczna dokładnie tam, gdzie przypadkiem dawała dobry
+       wynik. Zgłoszone przez Damiana. */
+    const posDlaFormy = (wpis[0] === g) ? (wpis[2] ? 'verb' : 'adjective') : w.pos;
     let lista = null;
-    try { lista = formy(g, wpis[1], czasownik); } catch(e){ return; }
+    try { lista = formy(g, wpis[1], posDlaFormy); } catch(e){ return; }
     if(!lista) return;
     Array.from(lista).forEach((f) => {
       if(f && f.indexOf(' ') !== -1 && mapa[f] === undefined) mapa[f] = g;
@@ -37518,7 +37669,90 @@ const FORMY_SCIAGNIETE = {
   ]
 };
 
-async function openWordSheet(rawWord, el){
+/* ═══ OKNO SĄSIADÓW W CZYTNIKU (.642) ══════════════════════════════════
+
+   Arkusz słowa dostawał JEDEN token — ten, w który uczeń stuknął — i nie
+   miał skąd wziąć sąsiadów. Indeks wielowyrazowy był gotowy od „.640”, ale
+   czytał go tylko Przekaźnik. Stąd „잘 먹겠습니다” rozpadało się w czytniku
+   na „dobrze" + „jeść", choć w słowniku stoi w komplecie.
+
+   SEGMENTACJA TA SAMA CO W PRZEKAŹNIKU: od lewej, najdłuższe dopasowanie.
+   Czytnik nie ma własnego algorytmu — gdyby miał, ten sam tekst dzieliłby
+   się inaczej w dwóch miejscach aplikacji. Zmierzone na czytankach „.642”:
+   94 scalenia w czytniku, 94 w Przekaźniku.
+
+   GRANICE, KTÓRYCH ZAKRES NIE PRZEKRACZA:
+     · koniec zdania albo znak interpunkcyjny na końcu tokenu (. ! ? … , : ;)
+       — token z takim znakiem może wyrażenie KOŃCZYĆ, nie może go ciągnąć;
+     · separator inny niż spacja (kropka środkowa „·” z rozbicia zrostów);
+     · token bez hangulu (liczba, łacinka).
+   Zmierzone: ani jedno scalenie Przekaźnika na czytankach nie przekracza
+   żadnej z tych granic, więc czytnik nie traci niczego, co Przekaźnik widzi.
+
+   PRÓG CZYTNIKA — „READER_MAX_TOKENS” (decyzja Damiana). Wyrażenie dłuższe
+   niż cztery człony albo przysłowie NIE przejmuje stuknięcia: arkusz pokazuje
+   kliknięte słowo, a pod nim baner „Część dłuższego wyrażenia", który
+   otwiera całość. Stuknięcie w jedno słowo siedmiowyrazowego zdania nie może
+   zamykać dostępu do tego słowa. Segmentacja idzie jednak z PEŁNYM zasięgiem
+   indeksu — próg decyduje o tym, co arkusz pokazuje, nie o tym, co jest
+   wyrażeniem. */
+const READER_MAX_TOKENS = 4;
+const CZYTNIK_KONIEC = /[.!?…,:;]["'”’」』)\]]*$/;
+
+function czytnikWyrazenie(tokeny, sep, idx){
+  if(!Array.isArray(tokeny) || idx < 0 || idx >= tokeny.length) return null;
+  let mapa;
+  try { mapa = wieloIndex(); } catch(e){ return null; }
+  const czyste = (t) => {
+    const c = cleanReaderWord(t);
+    return (c && /[가-힣]/.test(c)) ? c : null;
+  };
+  let i = 0;
+  while(i < tokeny.length && i <= idx){
+    if(!czyste(tokeny[i])){ i += 1; continue; }
+    let traf = null;
+    for(let n = Math.min(WIELO_MAX, tokeny.length - i); n >= 2; n -= 1){
+      const czlony = [];
+      let ok = true;
+      for(let k = i; k < i + n; k += 1){
+        const c = czyste(tokeny[k]);
+        if(!c){ ok = false; break; }
+        if(k < i + n - 1){
+          if(CZYTNIK_KONIEC.test(tokeny[k])){ ok = false; break; }
+          if(sep && sep[k] !== undefined && sep[k] !== ' '){ ok = false; break; }
+        }
+        czlony.push(c);
+      }
+      if(!ok) continue;
+      const klucz = czlony.join(' ');
+      if(mapa[klucz] !== undefined){
+        traf = { start: i, end: i + n - 1, klucz: klucz, lemat: mapa[klucz], czlonow: n };
+        break;
+      }
+    }
+    if(traf){
+      if(idx >= traf.start && idx <= traf.end) return traf;
+      i = traf.end + 1;
+    } else {
+      i += 1;
+    }
+  }
+  return null;
+}
+
+/* Podświetla CAŁY zakres wyrażenia, żeby uczeń widział, które słowa czyta
+   się razem. Wołane przy każdym otwarciu arkusza — z „null” zdejmuje
+   poprzednie podświetlenie, więc nie zostaje po kolejnym stuknięciu. */
+function oznaczWyrazenie(wyr){
+  document.querySelectorAll('#readingTextBox .rw-wyrazenie').forEach(x => x.classList.remove('rw-wyrazenie'));
+  if(!wyr) return;
+  for(let k = wyr.start; k <= wyr.end; k += 1){
+    const x = document.querySelector('#readingTextBox .reading-word[data-idx="' + k + '"]');
+    if(x) x.classList.add('rw-wyrazenie');
+  }
+}
+
+async function openWordSheet(rawWord, el, opcje){
   // Na szerokim ekranie treść trafia do panelu bocznego zamiast do paska u dołu.
   // Panel niczego nie zasłania, więc może rosnąć do treści - stąd 'auto' zamiast
   // stałych 232px, które na wąskim są konieczne, żeby tekst nie skakał.
@@ -37542,7 +37776,17 @@ async function openWordSheet(rawWord, el){
   // stąd puste arkusze przy najczęstszych wyrazach. Zgłoszone 2026-09-01.
   let hit = null, shown = word, sensy = [];
   const forms = readerLookupForms(word);
-  for(const form of forms){
+  /* WYRAŻENIE WIELOWYRAZOWE (.642). Gdy stuknięty token należy do wyrażenia
+     ze słownika, arkusz pokazuje CAŁE wyrażenie — ale tylko do progu
+     „READER_MAX_TOKENS” i nie dla przysłów. Dłuższe dostaje baner niżej.
+     „wymus” przychodzi z tego banera: uczeń poprosił o całość wprost. */
+  const wyr = (opcje && opcje.wyrazenie) || null;
+  const wyrSensy = wyr ? slownikSensy(wyr.lemat, allWords) : [];
+  const wyrPos = wyrSensy.length ? (wyrSensy[0].pos || null) : null;
+  let wyrBezposrednio = !!wyr && wyrSensy.length > 0 &&
+    (!!(opcje && opcje.wymus) || (wyr.czlonow <= READER_MAX_TOKENS && wyrPos !== 'proverb'));
+  if(wyrBezposrednio){ hit = wyrSensy[0]; sensy = wyrSensy; shown = wyrSensy[0].ko; }
+  if(!hit) for(const form of forms){
     const s = slownikSensy(form, allWords);
     if(s.length){ hit = s[0]; sensy = s; shown = form; break; }
   }
@@ -37561,6 +37805,27 @@ async function openWordSheet(rawWord, el){
     }
   }
 
+  /* ZASTĘPSTWO WYRAŻENIEM (.643, decyzja Damiana). Gdy stuknięte słowo nie
+     ma WŁASNEGO hasła — ani wprost, ani przez bazę — a należy do wyrażenia,
+     które normalnie dostałoby tylko baner (przysłowie albo ponad próg),
+     arkusz otwiera całe wyrażenie od razu. Bez tego uczeń widział
+     „Brak w słowniku" nad banerem z przysłowiem, które W SŁOWNIKU JEST,
+     i czekał ok. 0,8 s na serwer, zanim baner w ogóle się pojawił.
+
+     Ochrona przed zawłaszczaniem stuknięcia zostaje nienaruszona: przejmujemy
+     wyłącznie tam, gdzie nie ma pojedynczego hasła, które uczeń mógłby
+     chcieć zbadać zamiast wyrażenia. Serwer nie jest pytany — lokalny słownik
+     odpowiedział już, że słowa nie zna, a wyrażenie zna.
+
+     Zmierzone na „.642": w czytankach reguła obejmuje dokładnie dwa tokeny
+     (첫술에, 배부르랴 — oba z przysłowia 첫술에 배부르랴). W samym słowniku
+     118 wyrażeń z banerem ma 557 tokenów, z czego 116 (21%) nie ma własnego
+     hasła. */
+  if(!hit && wyr && !wyrBezposrednio && wyrSensy.length){
+    wyrBezposrednio = true;
+    hit = wyrSensy[0]; sensy = wyrSensy; shown = wyrSensy[0].ko;
+  }
+
   if(!hit){
     for(const form of forms){
       try{
@@ -37572,7 +37837,10 @@ async function openWordSheet(rawWord, el){
     }
   }
   if(token !== wordSheetToken) return;   // user tapnął już w inne słowo
-  markReaderHit(el, shown);
+  /* Przy wyrażeniu podświetlamy CAŁY zakres; „markReaderHit” z pustą bazą
+     otacza stuknięty token w całości, a „oznaczWyrazenie” dokłada resztę. */
+  markReaderHit(el, wyrBezposrednio ? null : shown);
+  oznaczWyrazenie(wyrBezposrednio ? wyr : null);
 
   const sino = deconstructSinoWord(shown, hit && hit.hanja);
   const verb = (typeof KOREAN_VERBS !== 'undefined')
@@ -37623,7 +37891,21 @@ async function openWordSheet(rawWord, el){
   /* Alternatywy liczymy TYLKO przy trafieniu lokalnym: gdy hasło przyszło
      z serwera, `shown` nie jest bazą z naszego indeksu i pytanie o inne bazy
      tej samej formy nie ma sensu. */
-  const alternatywy = hit ? inneBazyDlaUcznia(forms, shown) : [];
+  /* Przy wyrażeniu NIE liczymy alternatyw: „forms” to formy stukniętego
+     słowa, nie wyrażenia, więc „inne możliwe znaczenie" mówiłoby o czymś
+     innym niż nagłówek arkusza. */
+  const alternatywy = (hit && !wyrBezposrednio) ? inneBazyDlaUcznia(forms, shown) : [];
+  /* BANER DŁUŻSZEGO WYRAŻENIA. Stuknięte słowo należy do wyrażenia ponad
+     progiem albo do przysłowia — arkusz pokazuje słowo, a baner prowadzi
+     do całości. Klik idzie tą samą funkcją, z „wymus”. */
+  const wyrBaner = (wyr && !wyrBezposrednio && wyrSensy.length)
+    ? '<div class="word-alt word-wyr"><span class="ws-lab">'
+      + (uiLang === 'en' ? 'part of a longer expression' : 'część dłuższego wyrażenia')
+      + '</span><button type="button" class="ws-wyr">'
+      + escapeHtml(wyrSensy[0].ko) + ' · '
+      + escapeHtml(uiLang === 'en' ? (wyrSensy[0].en || '') : (wyrSensy[0].pl || ''))
+      + '</button></div>'
+    : '';
   /* Sklejanie napisów, a NIE zagnieżdżony literał szablonowy. Pierwsza wersja
      miała tu `...` w środku ${...} i wyszedł z tego BŁĄD SKŁADNI w gotowym
      pliku — a jedyne, co o tym powiedziało, to strażnik pilnujący czegoś
@@ -37664,6 +37946,7 @@ async function openWordSheet(rawWord, el){
     ${(hit && hit.doslownie) ? `<div class="word-doslownie"><span>${uiLang === 'en' ? 'literally' : 'dosłownie'}</span> ${escapeHtml(hit.doslownie)}</div>` : ''}
         ${(hit && hit.note) ? `<div class="word-note">${escapeHtml(hit.note)}</div>` : ''}
     ${senseBlock}
+    ${wyrBaner}
     ${altBlock}
     ${hanjaBlock}
     ${hanjaInne}
@@ -37681,6 +37964,8 @@ async function openWordSheet(rawWord, el){
     const a = alternatywy[Number(btn.dataset.alt)];
     if(a) openWordSheet(a.baza, el);
   }));
+  const wyrBtn = sheet.querySelector('.ws-wyr');
+  if(wyrBtn) wyrBtn.addEventListener('click', () => openWordSheet(rawWord, el, { wyrazenie: wyr, wymus: true }));
 
   document.getElementById('wsTtsBtn').addEventListener('click', () => speakKorean(shown));
   const conjBtn = document.getElementById('wsConjBtn');
@@ -37965,7 +38250,11 @@ function renderReadingText(){
          dostawał undefined i podświetlenie zostawało tam, gdzie padło za
          pierwszym razem - user klikał kolejne słowa, a obramowanie siedziało
          na pierwszym. Zgłoszone przez Damiana 2026-09-06. */
-      openWordSheet(readingWordsRaw[idx], el);
+      /* OKNO SĄSIADÓW (.642): arkusz dostaje wyrażenie, do którego należy
+         stuknięty token, liczone na całym tekście tą samą segmentacją co
+         w Przekaźniku. */
+      openWordSheet(readingWordsRaw[idx], el,
+        { wyrazenie: czytnikWyrazenie(readingWordsRaw, readingWordsSep, idx) });
     });
   });
 }
@@ -40032,6 +40321,122 @@ document.getElementById('conjLimitPremiumBtn').addEventListener('click', ()=>{
   document.getElementById('premiumPanel').scrollIntoView({behavior:'smooth', block:'start'});
 });
 
+/* ═══ PANEL PREMIUM (.645, pakiet nr 2 §6.2–§6.3) ════════════════════════
+   JEDNO ŹRÓDŁO CEN. Karty cennika są źródłem prawdy (decyzja Damiana 23.09).
+   Wszystko inne — odznaka rabatu, cena miesięczna z rocznej, cena roczna
+   z miesięcznej, napis na przycisku, notka w statystykach — jest z tej
+   tablicy LICZONE. Do .644 te same kwoty stały w pięciu miejscach i trzy
+   z nich się rozjechały: notka Pro mówiła 55/480, notka Premium 25/120,
+   a angielski podpis karty podawał 10 zł miesięcznie przy 149 zł rocznie.
+
+   Zmiana ceny = zmiana jednej linii tutaj. Nie wpisywać kwot w I18N. */
+const CENY = Object.freeze({
+  basic: Object.freeze({ mies: 19, rok: 149 }),
+  pro:   Object.freeze({ mies: 49, rok: 399 }),
+});
+function cenyPochodne(tier){
+  const c = CENY[tier];
+  const rokZMies = c.mies * 12;
+  const oszczednosc = rokZMies - c.rok;
+  return {
+    mies: c.mies, rok: c.rok, rokZMies: rokZMies, oszczednosc: oszczednosc,
+    procent: Math.round(oszczednosc / rokZMies * 100),
+    naMiesZRoku: c.rok / 12,
+  };
+}
+/* Kwota w złotych w konwencji języka interfejsu: „12,42 zł" po polsku,
+   „12.42 zł" po angielsku. Liczba ta sama — zmienia się tylko separator. */
+function zl(kwota, zGroszami){
+  const f = new Intl.NumberFormat(uiLang === 'en' ? 'en-US' : 'pl-PL',
+    zGroszami ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : { maximumFractionDigits: 0 });
+  return f.format(kwota) + ' zł';
+}
+function etykietaPlanu(tier, plan){
+  const c = CENY[tier];
+  if(!c) return '';
+  if(plan === 'monthly') return uiLang === 'en'
+    ? 'monthly (' + zl(c.mies) + '/mo.)' : 'miesięczny (' + zl(c.mies) + '/mies.)';
+  return uiLang === 'en' ? 'yearly (' + zl(c.rok) + '/yr.)' : 'roczny (' + zl(c.rok) + '/rok)';
+}
+
+/* LISTA KORZYŚCI = płatne wiersze dawnej tabeli, te same klucze i wartości.
+     klucz I18N z wartością → wiersz z wartością po prawej,
+     true  → ptaszek, false → kłódka i szary tekst (pozycja tylko w Pro). */
+const KORZYSCI = Object.freeze([
+  { klucz: 'tQuestions',  basic: 'tNoLimit',   pro: 'tNoLimit' },
+  { klucz: 'tAds',        basic: 'tNoneShort', pro: 'tNoneShort' },
+  { klucz: 'tKompas',     basic: 'tKompasStd', pro: true },
+  { klucz: 'tHaksa',      basic: false, pro: true },
+  { klucz: 'tReadingAi',  basic: false, pro: true },
+  { klucz: 'tScenarioAi', basic: false, pro: true },
+  { klucz: 'tImportAi',   basic: false, pro: true },
+  { klucz: 'tTypedAi',    basic: false, pro: true },
+  { klucz: 'tThemes',     basic: true,  pro: true },
+  { klucz: 'tStats',      basic: true,  pro: true },
+  { klucz: 'tExport',     basic: true,  pro: true },
+]);
+const PK_PTASZEK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const PK_KLODKA = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="10.5" width="13" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+
+let premiumWybor = { tier: 'basic', plan: 'rok' };
+
+function renderPremiumPanel(){
+  const lista = document.getElementById('premiumKorzysci');
+  if(!lista) return;
+  const T = (k) => tr(I18N[k]);
+  const tier = premiumWybor.tier;
+  const plan = premiumWybor.plan;
+  const p = cenyPochodne(tier);
+
+  [['basic', 'tierTabBasic'], ['pro', 'tierTabPro']].forEach(([t, id]) => {
+    const b = document.getElementById(id);
+    if(!b) return;
+    b.classList.toggle('active', t === tier);
+    b.setAttribute('aria-selected', String(t === tier));
+  });
+
+  document.getElementById('premiumLead').textContent = T('premiumLead').replace('{n}', String(DAILY_LIMIT));
+
+  lista.innerHTML = KORZYSCI.map((k) => {
+    const v = k[tier];
+    const zablokowana = v === false;
+    const wartosc = (typeof v === 'string') ? '<span class="pk-wartosc">' + escapeHtml(T(v)) + '</span>' : '';
+    const ikona = zablokowana
+      ? '<span class="pk-ikona" role="img" aria-label="' + escapeHtml(T('tierTabPro')) + '">' + PK_KLODKA + '</span>'
+      : '<span class="pk-ikona">' + PK_PTASZEK + '</span>';
+    return '<li class="' + (zablokowana ? 'zablokowana' : 'dostepna') + '" data-klucz="' + k.klucz + '">' +
+      ikona + '<span class="pk-tekst">' + escapeHtml(T(k.klucz)) + '</span>' + wartosc + '</li>';
+  }).join('');
+
+  const karta = (planK) => {
+    const rok = planK === 'rok';
+    const wybrana = plan === planK;
+    return '<button type="button" class="price-card' + (rok ? ' recommended' : '') + (wybrana ? ' wybrana' : '') +
+      '" role="radio" aria-checked="' + wybrana + '" data-plan="' + planK + '">' +
+      (rok ? '<span class="ribbon">−' + p.procent + '%</span>' : '') +
+      '<span class="label">' + escapeHtml(T(rok ? 'yearlyLabel' : 'monthlyLabel')) + '</span>' +
+      '<span class="amount">' + zl(rok ? p.rok : p.mies) + ' <small>' + escapeHtml(T(rok ? 'cenaNaRok' : 'cenaNaMies')) + '</small></span>' +
+      '<span class="sub">' + (rok
+        ? zl(p.naMiesZRoku, true) + ' ' + escapeHtml(T('cenaNaMies'))
+        : zl(p.rokZMies) + ' ' + escapeHtml(T('cenaNaRok'))) + '</span>' +
+      '</button>';
+  };
+  document.getElementById('premiumCeny').innerHTML = karta('rok') + karta('mies');
+
+  const kup = document.getElementById('premiumKupBtn');
+  const planZapis = plan === 'rok' ? 'yearly' : 'monthly';
+  const posiada = premiumTier === tier && premiumPlan === planZapis;
+  kup.textContent = posiada
+    ? (uiLang === 'en' ? 'Your plan ✓' : 'Twój plan ✓')
+    : T(plan === 'rok' ? 'chooseYearly' : 'chooseMonthly') + ' — ' + zl(plan === 'rok' ? p.rok : p.mies);
+  kup.classList.toggle('owned', posiada);
+
+  /* Druk jedną linią (§6.2 pkt 8). Dawny podpis karty miesięcznej
+     („Elastycznie — bez zobowiązań na rok…") nie mieścił się w 390 px —
+     stąd osobne zdanie, zbudowane jak roczne z pakietu. */
+  document.getElementById('premiumDruk').textContent = T(plan === 'rok' ? 'premiumDrukRok' : 'premiumDrukMies');
+}
+
 function applyPremiumUI(){
   // Licznik minut AI w headerze (widoczny globalnie) oraz sekcja nagrody za reklamy -
   // odświeżane za każdym razem, gdy status Premium jest ustalany na nowo (start apki,
@@ -40043,43 +40448,29 @@ function applyPremiumUI(){
   const btn = document.getElementById('premiumBtn');
   const adSlot = document.getElementById('adSlot');
   const toggleBtn = document.getElementById('togglePremium');
-  const buyYearlyBasicBtn = document.getElementById('buyYearlyBasic');
-  const buyMonthlyBasicBtn = document.getElementById('buyMonthlyBasic');
-  const buyYearlyProBtn = document.getElementById('buyYearlyPro');
-  const buyMonthlyProBtn = document.getElementById('buyMonthlyPro');
 
   btn.textContent = isPremium ? (uiLang === 'en' ? '⭐ Premium active' : '⭐ Premium aktywne') : '⭐ Premium';
   btn.classList.toggle('is-active', isPremium);
   adSlot.style.display = (isPremium || currentScreen === 'home') ? 'none' : 'flex';
 
-  const owns = (tier, plan) => premiumTier === tier && premiumPlan === plan;
-  const yearlyLabel = uiLang === 'en' ? 'Choose yearly' : 'Wybierz roczną';
-  const monthlyLabel = uiLang === 'en' ? 'Choose monthly' : 'Wybierz miesięczną';
-  const ownedLabel = uiLang === 'en' ? 'Your plan ✓' : 'Twój plan ✓';
-  buyYearlyBasicBtn.textContent = owns('basic','yearly') ? ownedLabel : yearlyLabel;
-  buyYearlyBasicBtn.classList.toggle('owned', owns('basic','yearly'));
-  buyMonthlyBasicBtn.textContent = owns('basic','monthly') ? ownedLabel : monthlyLabel;
-  buyMonthlyBasicBtn.classList.toggle('owned', owns('basic','monthly'));
-  buyYearlyProBtn.textContent = owns('pro','yearly') ? ownedLabel : yearlyLabel;
-  buyYearlyProBtn.classList.toggle('owned', owns('pro','yearly'));
-  buyMonthlyProBtn.textContent = owns('pro','monthly') ? ownedLabel : monthlyLabel;
-  buyMonthlyProBtn.classList.toggle('owned', owns('pro','monthly'));
+  /* .645: cztery przyciski zakupu zastąpione jednym — patrz renderPremiumPanel. */
+  renderPremiumPanel();
 
   toggleBtn.style.display = isPremium ? 'inline-block' : 'none';
   toggleBtn.textContent = uiLang === 'en' ? 'Turn off Premium (demo)' : 'Wyłącz Premium (demo)';
 
   const acc = totalAnswered ? Math.round((totalCorrect/totalAnswered)*100) : 0;
   if(premiumTier === 'pro'){
-    const planLabel = uiLang === 'en'
-      ? (premiumPlan === 'monthly' ? 'monthly (55 zł/mo.)' : 'yearly (480 zł/yr.)')
-      : (premiumPlan === 'monthly' ? 'miesięczny (55 zł/mies.)' : 'roczny (480 zł/rok)');
+    const planLabel
+      /* .645: z CENY — do .644 stało tu 55/480 przy kartach 49/399. */
+      = etykietaPlanu('pro', premiumPlan);
     document.getElementById('premiumStatsNote').textContent = uiLang === 'en'
       ? `Active Premium Pro plan, ${planLabel}. Accuracy: ${acc}% (${totalCorrect}/${totalAnswered} answers). Ads, daily limit and all AI features unlocked — thank you for your support!`
       : `Aktywny plan Premium Pro, ${planLabel}. Celność: ${acc}% (${totalCorrect}/${totalAnswered} odpowiedzi). Reklamy, dzienny limit i wszystkie funkcje AI odblokowane — dziękujemy za wsparcie!`;
   } else if(premiumTier === 'basic'){
-    const planLabel = uiLang === 'en'
-      ? (premiumPlan === 'monthly' ? 'monthly (25 zł/mo.)' : 'yearly (120 zł/yr.)')
-      : (premiumPlan === 'monthly' ? 'miesięczny (25 zł/mies.)' : 'roczny (120 zł/rok)');
+    const planLabel
+      /* .645: z CENY — do .644 stało tu 25/120 przy kartach 19/149. */
+      = etykietaPlanu('basic', premiumPlan);
     document.getElementById('premiumStatsNote').textContent = uiLang === 'en'
       ? `Active Premium plan, ${planLabel}. Accuracy: ${acc}% (${totalCorrect}/${totalAnswered} answers). Ads and the daily limit are off. Want Haksa, AI Reading and more? Upgrade to Premium Pro.`
       : `Aktywny plan Premium, ${planLabel}. Celność: ${acc}% (${totalCorrect}/${totalAnswered} odpowiedzi). Reklamy i dzienny limit wyłączone. Chcesz też Haksa, Czytanie z AI i więcej? Przejdź na Premium Pro.`;
@@ -40295,22 +40686,20 @@ document.getElementById('dailyReadingGoProBtn')?.addEventListener('click', () =>
 document.getElementById('togglePremium').addEventListener('click', showPremiumNotWiredUp);
 document.getElementById('watchRewardedAdBtn').addEventListener('click', watchRewardedAdPlaceholder);
 
-document.getElementById('buyYearlyBasic').addEventListener('click', showPremiumNotWiredUp);
-document.getElementById('buyMonthlyBasic').addEventListener('click', showPremiumNotWiredUp);
-document.getElementById('buyYearlyPro').addEventListener('click', showPremiumNotWiredUp);
-document.getElementById('buyMonthlyPro').addEventListener('click', showPremiumNotWiredUp);
-
+document.getElementById('premiumKupBtn').addEventListener('click', showPremiumNotWiredUp);
+document.getElementById('premiumCeny').addEventListener('click', (e) => {
+  const k = e.target.closest('[data-plan]');
+  if(!k) return;
+  premiumWybor.plan = k.dataset.plan;
+  renderPremiumPanel();
+});
 document.getElementById('tierTabBasic').addEventListener('click', ()=>{
-  document.getElementById('tierTabBasic').classList.add('active');
-  document.getElementById('tierTabPro').classList.remove('active');
-  document.getElementById('basicPriceCards').style.display = 'flex';
-  document.getElementById('proPriceCards').style.display = 'none';
+  premiumWybor.tier = 'basic';
+  renderPremiumPanel();
 });
 document.getElementById('tierTabPro').addEventListener('click', ()=>{
-  document.getElementById('tierTabPro').classList.add('active');
-  document.getElementById('tierTabBasic').classList.remove('active');
-  document.getElementById('proPriceCards').style.display = 'flex';
-  document.getElementById('basicPriceCards').style.display = 'none';
+  premiumWybor.tier = 'pro';
+  renderPremiumPanel();
 });
 
 function finishVocabRound(isCorrect){
