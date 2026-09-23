@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.646
-  Zbudowane na: 439d09b175f90598a30f2320b3ce720a (.645)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.648
+  Zbudowane na: 402b442ae4d9afa90c8a298449988f0c (.647)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -17833,7 +17833,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.646';
+const APP_VERSION = '2026-09-11.648';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -18818,14 +18818,10 @@ const I18N = {
   deptFilterPlaceholder: { pl: 'Szukaj działu…', en: 'Search sections…' },
   retellGateMsg: { pl: 'Ocena swobodnej wypowiedzi przez AI to funkcja Premium Pro — reszta Czytania (czytanie na głos, śledzenie wymowy) jest dostępna w zwykłym Premium.', en: 'AI evaluation of free-form retelling is a Premium Pro feature — the rest of Reading (reading aloud, pronunciation tracking) is available in regular Premium.' },
   seePremiumPro: { pl: 'Zobacz Premium Pro', en: 'See Premium Pro' },
-  tKompas: { pl: 'Kompas Nunchi — dobór rejestru i etykiety', en: 'Nunchi Compass — register and etiquette' },
-  tKompasStd: { pl: 'pakiet', en: 'bundle' },
   tierTabBasic: { pl: 'Premium', en: 'Premium' },
   tierTabPro: { pl: 'Premium Pro', en: 'Premium Pro' },
   aiCostPytanie: { pl: 'Dlaczego Pro kosztuje więcej?', en: 'Why does Pro cost more?' },
   aiCostOdpowiedz: { pl: 'Każda rozmowa z Haksą czy ocena AI wymaga wywołania modelu językowego — to realny koszt za każdym razem, nie jednorazowy koszt treści.', en: 'Every conversation with Haksa or AI evaluation calls a language model — a real cost each time, not a one-time content cost.' },
-  tImportAi: { pl: 'Import słówek ze zdjęcia/pliku', en: 'Import words from photo/file' },
-  tTypedAi: { pl: 'Inteligentny fallback przy wpisywaniu', en: 'Smart fallback for typed answers' },
   backToList: { pl: '◀ Wróć do listy', en: '◀ Back to list' },
   dictFilterPlaceholder: { pl: 'Szukaj w tym dziale…', en: 'Search in this section…' },
   dictBrowseSearchPlaceholder: { pl: 'Szukaj w całym słowniku…', en: 'Search the whole dictionary…' },
@@ -19054,16 +19050,6 @@ const I18N = {
   speechUnsupported2: { pl: 'Twoja przeglądarka nie obsługuje rozpoznawania mowy (Web Speech API). Ta funkcja działa najlepiej w Chrome na komputerze lub Androidzie.', en: 'Your browser does not support speech recognition (Web Speech API). This feature works best in Chrome on desktop or Android.' },
   startConversation: { pl: 'Rozpocznij rozmowę', en: 'Start conversation' },
   startReading: { pl: 'Zacznij czytać', en: 'Start reading' },
-  tAds: { pl: 'Reklamy', en: 'Ads' },
-  tExport: { pl: 'Eksport słówek do CSV', en: 'Export words to CSV' },
-  tHaksa: { pl: 'Rozmowa z Haksa (AI)', en: 'Conversation with Haksa (AI)' },
-  tReadingAi: { pl: 'Czytanie z oceną AI', en: 'Reading with AI evaluation' },
-  tScenarioAi: { pl: 'Scenariusze dla grup', en: 'Group scenarios' },
-  tNoLimit: { pl: 'bez limitu', en: 'no limit' },
-  tNoneShort: { pl: 'brak', en: 'none' },
-  tQuestions: { pl: 'Pytania dziennie', en: 'Questions per day' },
-  tStats: { pl: 'Zaawansowane statystyki (celność, tempo)', en: 'Advanced stats (accuracy, pace)' },
-  tThemes: { pl: 'Dodatkowe motywy kolorystyczne', en: 'Extra color themes' },
   takePickPhoto: { pl: 'Zrób / wybierz zdjęcie', en: 'Take / pick a photo' },
   titleLabel: { pl: 'Tytuł', en: 'Title' },
   togglePremiumOff: { pl: 'Wyłącz Premium (demo)', en: 'Turn off Premium (demo)' },
@@ -19240,6 +19226,10 @@ const I18N = {
   cenaNaMies: { pl: '/ mies.', en: '/ mo' },
   premiumDrukRok: { pl: 'Odnawia się co roku. Anulujesz w każdej chwili.', en: 'Renews yearly. Cancel anytime.' },
   premiumDrukMies: { pl: 'Odnawia się co miesiąc. Anulujesz w każdej chwili.', en: 'Renews monthly. Cancel anytime.' },
+  korzyscPytania: { pl: 'Nielimitowane pytania i ćwiczenia w lekcjach', en: 'Unlimited daily questions & lesson exercises' },
+  korzyscKompasPakiet: { pl: 'Większy pakiet zapytań do Kompasu Nunchi', en: 'Expanded daily allowance for Nunchi Compass' },
+  korzyscHaksaGlos: { pl: 'Rozmowy głosowe AI z Haksą (duży pakiet minut)', en: 'Voice AI conversations with Haksa (monthly allowance)' },
+  korzyscKompasPro: { pl: 'Kompas Nunchi bez limitu i dogłębna analiza kontekstu', en: 'Unlimited Nunchi Compass & in-depth situational analysis' },
   priceRibbon: { pl: 'Jedyny plan / Rocznie', en: 'Only plan / Yearly' },
   togglePremium: { pl: 'Wyłącz Premium (demo)', en: 'Turn off Premium (demo)' },
   interstitialTag: { pl: 'Reklama · miejsce na format interstitial / Placeholder: baner sieci reklamowej (np. AdMob) / Krótka przerwa co kilka rund. Wspiera darmowy dostęp do nauki dla wszystkich.', en: 'Advertisement · interstitial format placeholder / Placeholder: ad network banner (e.g. AdMob) / A short break every few rounds. Supports free access to learning for everyone.' },
@@ -26604,9 +26594,41 @@ function pkJestPrzydawka(token){
   if(/인$/.test(c) && c.length > 1 && slownikSensy(c.slice(0, -1), allWords).length) return true;
   return false;
 }
-function sensZKontekstu(rdzen, poprz, nast){
+/* Baza tokenu tą samą drogą, którą Przekaźnik i czytnik szukają hasła:
+   najpierw formy stukniętego słowa (bez partykuł), potem bazy odmiany
+   (풀었다 → 풀다). Zwraca RDZEŃ, bez numeru sensu. */
+function pkBazaTokenu(token){
+  const c = cleanReaderWord(token || '');
+  if(!c || !/[가-힣]/.test(c)) return null;
+  const rdz = (k) => String(k || '').replace(/\s\(\d+\)$/, '');
+  const formy = readerLookupForms(c);
+  for(const f of formy){ const s = slownikSensy(f, allWords); if(s.length) return rdz(s[0].ko); }
+  for(const f of formy){
+    for(const b of bazyDlaFormy(f)){ const s = slownikSensy(b, allWords); if(s.length) return rdz(s[0].ko); }
+  }
+  return null;
+}
+/* JEDNA FUNKCJA, TRZY REGUŁY (.647). „token" to stuknięty wyraz tak, jak
+   stoi w tekście — z partykułą albo bez.
+
+     C (.636, od .647 także w czytniku) — rdzeń Z PARTYKUŁĄ przed czasownikiem
+        z listy PK_KOLOKACJE_NASTEPNIK: 한을 풀다, 한이 서리다 → 恨 (2).
+     B — goły rdzeń, po nim licznik → (1).     A — goły rdzeń po przydawce → (3).
+
+   C i A/B się nie spotykają: C wymaga partykuły, A i B jej zakazują.
+   Do .646 C żyła w osobnym przebiegu Przekaźnika i czytnik jej nie znał
+   (decyzja Damiana z 23.09: dopisać do wspólnej funkcji). */
+function sensZKontekstu(rdzen, token, poprz, nast){
+  const c = cleanReaderWord(token || '');
+  const tabC = PK_KOLOKACJE_NASTEPNIK[rdzen];
+  if(tabC && nast && c.length === rdzen.length + 1 && c.indexOf(rdzen) === 0 && PK_KOLOKACJE_PARTYKULA.test(c)){
+    const baza = pkBazaTokenu(nast);
+    if(baza){
+      for(const nr of Object.keys(tabC)){ if(tabC[nr].indexOf(baza) !== -1) return nr; }
+    }
+  }
   const reg = PK_KONTEKST_SENSU[rdzen];
-  if(!reg) return null;
+  if(!reg || c !== rdzen) return null;
   if(reg.licznikPo && nast && pkJestLicznikiem(nast)) return reg.licznikPo;
   if(reg.przydawka && poprz && pkJestPrzydawka(poprz)) return reg.przydawka;
   return null;
@@ -26632,47 +26654,20 @@ function przekaznikKolokacje(lista, kontekst){
       } catch(e){}
     });
   }
-  /* PRZEBIEG W PRZÓD — osobny, bo patrzy na token NASTĘPNY. Idzie po
-     wyniku pierwszego przebiegu, nie równolegle: gdyby oba działały
-     w jednej pętli, reguła wsteczna mogłaby zmienić cel, na który reguła
-     w przód dopiero patrzy, i o wyniku decydowałaby kolejność. */
-  for(let i = 0; i < lista.length - 1; i += 1){
-    const t = lista[i];
-    if(!t || t.stan !== 'slownik' || !t.cel) continue;
-    const tabela = PK_KOLOKACJE_NASTEPNIK[rdzen(t.cel)];
-    if(!tabela) continue;
-    if(!PK_KOLOKACJE_PARTYKULA.test(t.token)) continue;
-    const nast = lista[i + 1];
-    if(!nast) continue;
-    /* Czasownik dochodzi do nas albo jako hasło (형태 „풀다"), albo jako
-       baza rozbioru formy („풀었다"). Pytamy o obie drogi, bo czytnik tak
-       samo pokazuje uczniowi jedno i drugie. */
-    const bazaNast = rdzen(nast.cel || nast.baza || '');
-    if(!bazaNast) continue;
-    Object.keys(tabela).forEach((nr) => {
-      if(tabela[nr].indexOf(bazaNast) === -1) return;
-      const kandydat = rdzen(t.cel) + ' (' + nr + ')';
-      try {
-        if(slownikSensy(kandydat, allWords).length){ t.cel = kandydat; t.kolokacja = bazaNast; }
-      } catch(e){}
-    });
-  }
-  /* PRZEBIEG KONTEKSTOWY (.646) — reguły A i B z PK_KONTEKST_SENSU. Tylko
-     GOŁY rdzeń („한", nie „한을"): z partykułą rozstrzyga przebieg w przód
-     wyżej (한을 풀다 → 恨), więc oba przebiegi nie wchodzą sobie w drogę. */
-  /* SĄSIEDZI Z SUROWEGO TEKSTU, nie z listy. Lista niesie tokeny już
-     oczyszczone — bez kropek — więc „비가 오는. 한 여자가" wyglądało jak
-     przydawka tuż przed „한" i dawało „dopóki" przez granicę zdania
-     (złapane w test-646, w czytniku było dobrze). Ta sama funkcja
-     czytnikSasiedzi co w czytniku, na tych samych surowych tokenach. */
+  /* PRZEBIEG KONTEKSTOWY — od .647 JEDEN, dla reguł A, B i C. Do .646 C
+     (한을 풀다 → 恨) miała własny przebieg „w przód", liczony na wyniku
+     analizy (nast.cel), a czytnik jej nie znał. Teraz obie strony pytają
+     tę samą funkcję sensZKontekstu, z sąsiadami z SUROWEGO tekstu
+     (czytnikSasiedzi) — więc to samo zdanie czyta się tak samo w czytniku
+     i w Przekaźniku, łącznie z granicą zdania. */
   const surowe = (kontekst && Array.isArray(kontekst.surowe)) ? kontekst.surowe : null;
   for(let i = 0; i < lista.length; i += 1){
     const t = lista[i];
     if(!t || t.stan !== 'slownik' || !t.cel || !surowe || typeof t.sur !== 'number') continue;
     const r = rdzen(t.cel);
-    if(!PK_KONTEKST_SENSU[r] || cleanReaderWord(t.token) !== r) continue;
+    if(!PK_KONTEKST_SENSU[r] && !PK_KOLOKACJE_NASTEPNIK[r]) continue;
     const sas = czytnikSasiedzi(surowe, kontekst.sep, t.sur);
-    const nr = sensZKontekstu(r, sas.poprz, sas.nast);
+    const nr = sensZKontekstu(r, t.token, sas.poprz, sas.nast);
     if(!nr) continue;
     const kandydat = r + ' (' + nr + ')';
     try {
@@ -37903,11 +37898,11 @@ async function openWordSheet(rawWord, el, opcje){
      w Przekaźniku; pozostałe sensy zostają pod „znaczy też". */
   if(hit && !wyrBezposrednio && opcje && opcje.sasiedzi){
     const r = String(hit.ko).replace(/\s\(\d+\)$/, '');
-    if(word === r){
-      const nr = sensZKontekstu(r, opcje.sasiedzi.poprz, opcje.sasiedzi.nast);
-      const wybrany = nr ? sensy.find((s) => s.ko === r + ' (' + nr + ')') : null;
-      if(wybrany && wybrany !== hit){ hit = wybrany; sensy = [wybrany].concat(sensy.filter((s) => s !== wybrany)); }
-    }
+    /* .647: stuknięty wyraz idzie w całości (z partykułą) — reguła C
+       patrzy właśnie na partykułę; A i B same sprawdzają, czy rdzeń jest goły. */
+    const nr = sensZKontekstu(r, word, opcje.sasiedzi.poprz, opcje.sasiedzi.nast);
+    const wybrany = nr ? sensy.find((s) => s.ko === r + ' (' + nr + ')') : null;
+    if(wybrany && wybrany !== hit){ hit = wybrany; sensy = [wybrany].concat(sensy.filter((s) => s !== wybrany)); }
   }
 
   /* ZASTĘPSTWO WYRAŻENIEM (.643, decyzja Damiana). Gdy stuknięte słowo nie
@@ -40465,21 +40460,27 @@ function etykietaPlanu(tier, plan){
   return uiLang === 'en' ? 'yearly (' + zl(c.rok) + '/yr.)' : 'roczny (' + zl(c.rok) + '/rok)';
 }
 
-/* LISTA KORZYŚCI = płatne wiersze dawnej tabeli, te same klucze i wartości.
-     klucz I18N z wartością → wiersz z wartością po prawej,
-     true  → ptaszek, false → kłódka i szary tekst (pozycja tylko w Pro). */
+/* LISTA KORZYŚCI (.648, decyzja Damiana z 23.09) — cztery wiersze, każdy
+   sprawdzony z mechaniką kont, zanim wszedł do panelu:
+
+     1. pytania i ćwiczenia bez limitu     Premium ✓  Pro ✓   limit 20/dzień obejmuje
+                                                              słówka, gramatykę, koniugację
+     2. większy pakiet Kompasu             Premium ✓  Pro ✓   darmowe 1/dzień, Premium pakiet
+     3. rozmowy głosowe z Haksą (pakiet)   Premium 🔒 Pro ✓   w Pro MIESIĘCZNY LIMIT MINUT —
+                                                              stąd „pakiet", nie „bez limitu"
+     4. Kompas bez limitu + analiza        Premium 🔒 Pro ✓   bez limitu dopiero w Pro
+
+   Do .647 lista miała 11 wierszy przepisanych z dawnej tabeli. Pakiet nr 2
+   §6.2 mówi o czterech; Damian wybrał, które.
+
+     true  → ptaszek, false → kłódka i szary tekst (pozycja tylko w Pro).
+   Klucz I18N z wartością (napis po prawej) mechanizm dalej obsługuje, ale
+   żaden z czterech wierszy go nie potrzebuje. */
 const KORZYSCI = Object.freeze([
-  { klucz: 'tQuestions',  basic: 'tNoLimit',   pro: 'tNoLimit' },
-  { klucz: 'tAds',        basic: 'tNoneShort', pro: 'tNoneShort' },
-  { klucz: 'tKompas',     basic: 'tKompasStd', pro: true },
-  { klucz: 'tHaksa',      basic: false, pro: true },
-  { klucz: 'tReadingAi',  basic: false, pro: true },
-  { klucz: 'tScenarioAi', basic: false, pro: true },
-  { klucz: 'tImportAi',   basic: false, pro: true },
-  { klucz: 'tTypedAi',    basic: false, pro: true },
-  { klucz: 'tThemes',     basic: true,  pro: true },
-  { klucz: 'tStats',      basic: true,  pro: true },
-  { klucz: 'tExport',     basic: true,  pro: true },
+  { klucz: 'korzyscPytania',      basic: true,  pro: true },
+  { klucz: 'korzyscKompasPakiet', basic: true,  pro: true },
+  { klucz: 'korzyscHaksaGlos',    basic: false, pro: true },
+  { klucz: 'korzyscKompasPro',    basic: false, pro: true },
 ]);
 const PK_PTASZEK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const PK_KLODKA = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="10.5" width="13" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
