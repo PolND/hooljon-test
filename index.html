@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.664
-  Zbudowane na: 59931607a5c1e7f1d22b8fd9109365a7 (.663)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.666
+  Zbudowane na: e2818da607a9c9098bc55771f80074e0 (.665)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -77,6 +77,111 @@
   })();
 </script>
 
+<!-- ═══ SPLASH (.666, pakiet wdrożeniowy §3) ═══════════════════════════════
+     Stoi PRZED fontami Google (arkusz blokuje renderowanie) i przed trzema
+     skryptami z CDN (blokują parser). Tylko to, co parser zobaczy przed nimi,
+     może się narysować, zanim one dojdą.
+
+     Uwaga dla przyszłych sesji: div w nagłówku zamyka go niejawnie (reguła
+     parsera HTML). Wszystko od tego miejsca, czyli preconnect, arkusz fontów,
+     skrypty CDN i główny styl, trafia w DOM do <body>, nie do <head>. Działa
+     identycznie (arkusze i skrypty obowiązują gdziekolwiek stoją), a meta,
+     tytuł, ikony, manifest i rejestracja SW zostają w <head>, bo są wyżej.
+     Nie przenoś tego bloku wyżej niż skrypt SW ani niżej niż arkusz fontów.
+
+     Rysowanie idzie na kompozytorze, nie na wątku głównym. Maska SVG z §2
+     animowana wprost (tak jak na ekranie wczytywania) stoi, dopóki wątek
+     główny parsuje i kompiluje główny skrypt: zmierzone 350 ms bez jednej
+     klatki w 640-milisekundowej kaskadzie. Dlatego geometria §2 jest
+     odwrócona: kreska stoi nieruchomo, przycięta statycznie do swojego pasa
+     (ten sam prostokąt obrócony o −20,3°), a z pasa zjeżdża kremowa
+     zasłona. Jej lewy brzeg to prawy brzeg prostokąta maski z §2 (x + 1128
+     w układzie obróconym), a przejście 72 jednostek to ten sam czubek pędzla
+     (ostatnie 6% z 1200). Zasłona przesuwa się o 640 / 1071 / 646, więc obraz
+     w każdej chwili jest ten sam co z maską, a animowany jest tylko transform
+     elementu HTML, który przeglądarka liczy poza wątkiem głównym.
+     Zasłony są o 5 jednostek wyższe od pasa z każdej strony: przerwy między
+     pasami (14,6 i 27,2) są puste, a miękka krawędź nie odsłania włosa kreski.
+
+     Zero tekstu. Kolory są tożsamością jak ikona (krem F1EEE8, granat 2A2A37),
+     poza systemem motywów. Wyjście: dopiero gdy rysunek się skończył ORAZ
+     setScreen wybrał pierwszy ekran; wtedy podwójny requestAnimationFrame,
+     klasa „wyjscie” (300 ms), usunięcie węzła w animationend samego splasha. -->
+<style>
+  #hjSplash{ position:fixed; inset:0; z-index:2147483000; display:flex; align-items:center; justify-content:center;
+             overflow:hidden; background:#F1EEE8; color:#2A2A37; pointer-events:none;
+             /* Awaryjnie, gdyby JS nie wstał: po 12 s splash sam gaśnie. */
+             animation:hjSplashAwaria 300ms ease-out 12s both; }
+  /* --k: długość jednej jednostki viewBox; znak ma min(44vw, 190px) szerokości. */
+  #hjSplash .hjs-znak{ --k:min(.044vw, .19px); position:relative; width:calc(var(--k) * 1000); height:calc(var(--k) * 593.2); }
+  #hjSplash svg{ display:block; width:100%; height:100%; }
+  #hjSplash .hjz{ position:absolute; width:calc(var(--k) * 2400);
+                  background:linear-gradient(to right, rgba(241,238,232,0) 0, #F1EEE8 calc(var(--k) * 72)); }
+  /* Kaskada: 240 ms na kreskę, starty 0 / 200 / 400 ms, całość 640 ms. */
+  #hjSplash .hjz1{ left:calc(var(--k) * 142.9); top:calc(var(--k) * 62.4); height:calc(var(--k) * 157.5);
+                   transform-origin:calc(var(--k) * 357.1) calc(var(--k) * 234.2);
+                   animation:hjSZ1 240ms cubic-bezier(.22,.61,.36,1) 0ms both; }
+  #hjSplash .hjz2{ left:calc(var(--k) * -92.2); top:calc(var(--k) * 224.5); height:calc(var(--k) * 164.3);
+                   transform-origin:calc(var(--k) * 592.2) calc(var(--k) * 72.1);
+                   animation:hjSZ2 240ms cubic-bezier(.22,.61,.36,1) 200ms both; }
+  #hjSplash .hjz3{ left:calc(var(--k) * 112.8); top:calc(var(--k) * 406); height:calc(var(--k) * 149.7);
+                   transform-origin:calc(var(--k) * 387.2) calc(var(--k) * -109.4);
+                   animation:hjSZ3 240ms cubic-bezier(.22,.61,.36,1) 400ms both; }
+  @keyframes hjSZ1{ from{ transform:rotate(-20.3deg) translateX(0); } to{ transform:rotate(-20.3deg) translateX(calc(var(--k) * 640)); } }
+  @keyframes hjSZ2{ from{ transform:rotate(-20.3deg) translateX(0); } to{ transform:rotate(-20.3deg) translateX(calc(var(--k) * 1071)); } }
+  @keyframes hjSZ3{ from{ transform:rotate(-20.3deg) translateX(0); } to{ transform:rotate(-20.3deg) translateX(calc(var(--k) * 646)); } }
+  #hjSplash.wyjscie{ animation:hjSplashWyjscie 300ms cubic-bezier(.22,.61,.36,1) both; }
+  @keyframes hjSplashWyjscie{ to{ opacity:0; transform:translateY(-14px); } }
+  @keyframes hjSplashAwaria{ to{ opacity:0; visibility:hidden; } }
+  /* Bez ruchu: znak stoi od razu w całości, a JS zdejmuje węzeł bez animacji. */
+  @media (prefers-reduced-motion: reduce){
+    #hjSplash .hjz{ display:none; }
+  }
+</style>
+<div id="hjSplash" aria-hidden="true"><div class="hjs-znak"><svg viewBox="0 0 1000 593.2" aria-hidden="true" focusable="false">
+  <defs>
+    <clipPath id="hjSC1"><rect transform="rotate(-20.3 500 296.6)" x="-2000" y="67.4" width="5000" height="147.5"/></clipPath>
+    <clipPath id="hjSC2"><rect transform="rotate(-20.3 500 296.6)" x="-2000" y="229.5" width="5000" height="154.3"/></clipPath>
+    <clipPath id="hjSC3"><rect transform="rotate(-20.3 500 296.6)" x="-2000" y="411" width="5000" height="139.7"/></clipPath>
+  </defs>
+  <g fill="currentColor" fill-rule="evenodd">
+    <path clip-path="url(#hjSC1)" d="M737.6,3.8 711.0,11.4 680.6,26.6 669.2,26.6 612.2,49.4 604.6,57.0 566.5,68.4 558.9,76.0 539.9,79.8 532.3,87.5 520.9,87.5 513.3,95.1 456.3,117.9 444.9,117.9 433.5,125.5 406.8,133.1 387.8,133.1 357.4,140.7 262.4,178.7 228.1,182.5 178.7,197.7 167.3,212.9 174.9,224.3 174.9,239.5 178.7,239.5 193.9,258.6 201.5,262.4 235.7,270.0 254.8,270.0 315.6,251.0 334.6,239.5 376.4,228.1 498.1,178.7 547.5,155.9 570.3,140.7 585.6,136.9 593.2,129.3 585.6,129.3 551.3,148.3 486.7,174.9 475.3,171.1 498.1,155.9 524.7,148.3 539.9,136.9 627.4,98.9 638.8,83.7 665.4,72.2 676.8,60.8 695.8,53.2 699.6,45.6 688.2,38.0 707.2,22.8 733.8,11.4Z"/>
+    <path clip-path="url(#hjSC2)" d="M992.4,125.5 973.4,129.3 962.0,136.9 935.4,140.7 904.9,155.9 870.7,163.5 813.7,186.3 783.3,186.3 768.1,190.1 752.9,201.5 733.8,201.5 680.6,220.5 642.6,239.5 619.8,243.3 543.7,273.8 532.3,270.0 539.9,262.4 558.9,258.6 600.8,239.5 642.6,228.1 711.0,197.7 722.4,197.7 752.9,186.3 760.5,178.7 783.3,174.9 790.9,167.3 783.3,167.3 760.5,178.7 737.6,182.5 726.2,190.1 714.8,190.1 707.2,197.7 684.4,201.5 627.4,228.1 574.1,239.5 558.9,251.0 532.3,262.4 513.3,258.6 498.1,270.0 471.5,273.8 441.1,289.0 418.3,292.8 395.4,304.2 376.4,304.2 365.0,308.0 349.8,319.4 323.2,323.2 315.6,330.8 247.1,353.6 235.7,353.6 224.3,361.2 155.9,384.0 144.5,384.0 133.1,391.6 121.7,391.6 98.9,406.8 57.0,418.3 60.8,425.9 79.8,425.9 121.7,410.6 136.9,414.4 129.3,422.1 95.1,433.5 83.7,433.5 60.8,444.9 68.4,441.1 76.0,452.5 57.0,456.3 45.6,463.9 11.4,475.3 19.0,479.1 38.0,479.1 95.1,463.9 106.5,471.5 114.1,471.5 121.7,460.1 140.7,471.5 190.1,460.1 216.7,448.7 243.3,444.9 308.0,422.1 319.4,425.9 338.4,422.1 357.4,410.6 368.8,410.6 380.2,403.0 391.6,403.0 406.8,391.6 418.3,391.6 429.7,384.0 441.1,384.0 460.1,376.4 467.7,368.8 471.5,372.6 501.9,349.8 528.5,346.0 589.4,319.4 631.2,308.0 711.0,273.8 794.7,243.3 783.3,243.3 771.9,251.0 749.0,258.6 726.2,258.6 718.6,262.4 714.8,270.0 680.6,281.4 661.6,281.4 650.2,289.0 642.6,277.6 654.0,270.0 661.6,273.8 669.2,266.2 699.6,254.8 718.6,254.8 733.8,243.3 764.3,231.9 775.7,220.5 798.5,216.7 851.7,197.7 866.9,186.3 874.5,186.3 882.1,178.7 889.7,178.7 882.1,174.9 901.1,159.7 920.2,152.1 943.0,148.3 950.6,140.7 973.4,136.9Z"/>
+    <path clip-path="url(#hjSC3)" d="M840.3,349.8 806.1,357.4 794.7,365.0 775.7,365.0 737.6,376.4 726.2,384.0 714.8,384.0 680.6,395.4 616.0,425.9 585.6,433.5 547.5,452.5 532.3,456.3 528.5,448.7 520.9,448.7 475.3,471.5 448.7,475.3 414.4,490.5 380.2,494.3 357.4,505.7 300.4,524.7 285.2,524.7 266.2,539.9 262.4,562.7 285.2,581.7 296.6,585.6 368.8,585.6 441.1,562.7 490.5,543.7 536.1,520.9 566.5,513.3 581.7,501.9 597.0,498.1 635.0,475.3 661.6,467.7 680.6,452.5 718.6,433.5 711.0,429.7 718.6,422.1 730.0,422.1 745.2,410.6 771.9,403.0 787.1,391.6 775.7,395.4 768.1,387.8 802.3,372.6 806.1,365.0 832.7,357.4Z"/>
+  </g>
+</svg><i class="hjz hjz1"></i><i class="hjz hjz2"></i><i class="hjz hjz3"></i></div></div>
+<script>
+  /* Sterowanie wyjściem splasha. Skrypt inline, więc nie czeka na sieć. */
+  (function(){
+    var s = document.getElementById('hjSplash');
+    if(!s) return;
+    var bezRuchu = false;
+    try{ bezRuchu = window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+    var usun = function(){ if(s && s.parentNode) s.parentNode.removeChild(s); s = null; };
+    /* Tylko własne animationend: zdarzenia zasłon (hjz1–3) bąbelkują w górę
+       i skasowałyby splash po pierwszej kresce. */
+    s.addEventListener('animationend', function(e){ if(e.target === s) usun(); });
+    var rysunek = new Promise(function(gotowe){
+      if(bezRuchu) return gotowe();
+      setTimeout(gotowe, 1500);           // gdyby animacja nie ruszyła
+      try{
+        var w3 = s.querySelector('.hjz3');
+        var a = w3 && w3.getAnimations ? w3.getAnimations()[0] : null;
+        if(a && a.finished) a.finished.then(gotowe, gotowe);
+      }catch(e){}
+    });
+    var wezwany = false;
+    window.hjSplashPoEkranie = function(){
+      if(wezwany || !s) return;
+      wezwany = true;
+      rysunek.then(function(){
+        if(!s) return;
+        if(bezRuchu){ usun(); return; }
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ if(s) s.classList.add('wyjscie'); }); });
+      });
+    };
+  })();
+</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Public+Sans:wght@400;500;600;700;800&family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -5659,42 +5764,61 @@
     min-height:calc(100vh - 40px);
     gap:16px;
   }
-  /* Odsłanianie kreski od lewej do prawej. clip-path zamiast stroke-dashoffset,
-     bo to WYPEŁNIONE obrysy, nie linie - dasharray na nich nie zadziała. */
-/* RYSOWANIE W PĘTLI. Wcześniej sekwencja szła raz (`forwards`) i znak stał
-     nieruchomo - przy dłuższym ładowaniu wyglądało to, jakby apka zawisła.
-     Poświata jako sygnał „pracuję" nie wypadła dobrze, więc zapętlamy samo
-     rysowanie.
+  /* ═══ RYSOWANIE ZNAKU (.665, pakiet wdrożeniowy §2 i §4) ═══════════════
+     Do .664 kreskę odsłaniał clip-path inset() — pionowo, W POPRZEK jej
+     własnego kierunku. Teraz każda kreska ma maskę: prostokąt obrócony
+     o −20,3° wokół (500, 296.6), przesuwany translateX WZDŁUŻ kreski;
+     ostatnie 6% prostokąta to gradient — ślad czubka pędzla. Dystanse
+     w jednostkach viewBox (640 / 1071 / 646), więc nie zależą od rozmiaru.
 
-     Jeden cykl 2400 ms: trzy kreski po 240 ms jedna po drugiej (0-31%), potem
-     komplet stoi do 85%, a między 85% a 86% wszystkie znikają naraz. Znikanie
-     w JEDNYM momencie jest ważne - gdyby kreski gasły po kolei, wyglądałoby to
-     jak wymazywanie, a ma wyglądać jak nowe pociągnięcie pędzla.
-     Zgłoszone przez Damiana 2026-09-06. */
-  .ld-znak g path{ clip-path:inset(0 100% 0 0); animation:2400ms linear infinite; }
-  .ld-znak g path:nth-child(1){ animation-name:ld-rys1; }
-  .ld-znak g path:nth-child(2){ animation-name:ld-rys2; }
-  .ld-znak g path:nth-child(3){ animation-name:ld-rys3; }
+     Pętla 2400 ms: rysowanie 0–640 ms, komplet stoi do 2050 ms, a w 85,42%
+     WSZYSTKO znika w jednej klatce — znikanie po kolei wyglądałoby jak
+     wymazywanie, a ma wyglądać jak nowe pociągnięcie (ustalenie z 06.09).
+     Krzywa --ease wpisana w klatki dosłownie: var() w @keyframes nie jest
+     wszędzie pewne, a to jedyne miejsce, gdzie by stał. */
+  :root{ --ease: cubic-bezier(.22,.61,.36,1); }
+  .ld-znak .w1, .ld-znak .w2, .ld-znak .w3{ animation-duration:2400ms; animation-iteration-count:infinite;
+                                            animation-timing-function:linear; }
+  .ld-znak .w1{ animation-name:ldD1; }
+  .ld-znak .w2{ animation-name:ldD2; }
+  .ld-znak .w3{ animation-name:ldD3; }
+  @keyframes ldD1{ 0%{ transform:translateX(0); animation-timing-function:cubic-bezier(.22,.61,.36,1); }
+                   10.83%, 85.42%{ transform:translateX(640px); } 85.43%, 100%{ transform:translateX(0); } }
+  @keyframes ldD2{ 0%, 7.92%{ transform:translateX(0); animation-timing-function:cubic-bezier(.22,.61,.36,1); }
+                   18.75%, 85.42%{ transform:translateX(1071px); } 85.43%, 100%{ transform:translateX(0); } }
+  @keyframes ldD3{ 0%, 15.83%{ transform:translateX(0); animation-timing-function:cubic-bezier(.22,.61,.36,1); }
+                   26.67%, 85.42%{ transform:translateX(646px); } 85.43%, 100%{ transform:translateX(0); } }
 
-  @keyframes ld-rys1{
-    0%{ clip-path:inset(0 100% 0 0); }
-    10%, 85%{ clip-path:inset(0 0 0 0); }
-    86%, 100%{ clip-path:inset(0 100% 0 0); }
-  }
-  @keyframes ld-rys2{
-    0%, 10%{ clip-path:inset(0 100% 0 0); }
-    20%, 85%{ clip-path:inset(0 0 0 0); }
-    86%, 100%{ clip-path:inset(0 100% 0 0); }
-  }
-  @keyframes ld-rys3{
-    0%, 20%{ clip-path:inset(0 100% 0 0); }
-    31%, 85%{ clip-path:inset(0 0 0 0); }
-    86%, 100%{ clip-path:inset(0 100% 0 0); }
-  }
-
-  /* Bez ruchu: znak stoi od razu w całości. */
+  /* Bez ruchu: znak stoi od razu w całości (maski odsunięte do końca). */
   @media (prefers-reduced-motion: reduce){
-    .ld-znak g path{ animation:none !important; clip-path:none !important; }
+    .ld-znak .w1{ animation:none !important; transform:translateX(640px); }
+    .ld-znak .w2{ animation:none !important; transform:translateX(1071px); }
+    .ld-znak .w3{ animation:none !important; transform:translateX(646px); }
+  }
+
+  /* ═══ WSKAŹNIK INLINE (.665, §4.1) ═══════════════════════════════════
+     Poniżej 24 px trzy kreski zlewają się w plamę, więc tylko ŚRODKOWA
+     kreska, viewBox 11 125 982 355, cykl 1000 ms (0–32% rysowanie, do 80%
+     stoi, reset). Progi BEZ JavaScriptu — animacje startują od nowa za
+     każdym razem, gdy element dostaje display inne niż none:
+       < 300 ms   nic (opacity 0),
+       300–3000   sam znak,
+       > 3000     znak + tekst statusu.
+     Tekst jest w drzewie od początku (role=status) — czytnik ekranu nie
+     czeka na próg. Kolor przez --ld-mark, jak duży znak: każdy wskaźnik
+     ładowania, duży i mały, ma kolor akcentu. */
+  .hj-lad{ color:var(--ld-mark); }
+  .hj-lad .hj-lad-znak{ display:block; width:44px; height:auto; overflow:visible; opacity:0; animation:hjLadProg 1ms linear 300ms forwards; }
+  .hj-lad .hj-lad-tekst{ opacity:0; animation:hjLadProg 1ms linear 3000ms forwards; color:var(--ink-dim); font:500 12.5px var(--font-ui); }
+  .hj-lad .w2{ animation:hjLadRys 1000ms linear infinite; }
+  @keyframes hjLadProg{ to{ opacity:1; } }
+  @keyframes hjLadRys{ 0%{ transform:translateX(0); animation-timing-function:cubic-bezier(.22,.61,.36,1); }
+                       32%, 80%{ transform:translateX(1071px); } 80.01%, 100%{ transform:translateX(0); } }
+  /* Kolumna: bez flexa, bo miejsca wywołania przełączają style.display = 'block'. */
+  .hj-lad-kolumna{ text-align:center; padding:30px; }
+  .hj-lad-kolumna .hj-lad-znak{ margin:0 auto 8px; }
+  @media (prefers-reduced-motion: reduce){
+    .hj-lad .w2{ animation:none !important; transform:translateX(1071px); }
   }
 
   /* currentColor bierze kolor z .loading-screen, więc znak zmienia się
@@ -5730,7 +5854,10 @@
      Bez płytki, bo znak SIĘ RYSUJE - pieczęć wokół kresek, które dopiero
      powstają, byłaby ramą wokół pustki przez pierwsze 250 ms.
      Zgłoszone przez Damiana 2026-09-06. */
-  .loading-mark{ width:64px; height:auto; color:var(--hwang); }   /* .664: było 56/56 */
+  /* .665 (§4.1): kolor znaku przez token — zmiana na var(--ink) to jedna linia,
+     a gdyby mylił tylko w jednym motywie: [data-theme="jade"]{ --ld-mark:var(--ink); }. */
+  :root{ --ld-mark: var(--hwang); }
+  .loading-mark{ width:64px; height:auto; color:var(--ld-mark); }   /* .664: było 56/56 */
 /* ═══ EKRAN ŁADOWANIA ══════════════════════════════════════════════════════
      Kółko zastąpione oddechem znaku. Stockowy spinner mówi „coś się dzieje",
      ale nie mówi CO ani gdzie jesteś - a to pierwsza rzecz, jaką widzi user
@@ -7374,11 +7501,10 @@
     background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
     width:max-content;
   }
-  .typing i{ width:6px; height:6px; border-radius:50%; background:var(--hwang); animation:typing 1.2s infinite; }
-  .typing i:nth-child(2){ animation-delay:.15s }
-  .typing i:nth-child(3){ animation-delay:.3s }
-  @keyframes typing{ 0%,60%,100%{opacity:.25} 30%{opacity:1} }
-  @media (prefers-reduced-motion:reduce){ .typing i{ animation:none; opacity:.6 } }
+  /* .665: trzy kropki zastąpione wskaźnikiem inline (.hj-lad) — kreska znaku
+     i tekst statusu po 3 s; dymek zostaje. */
+  .typing.hj-lad{ align-items:center; gap:10px; }
+  .typing.hj-lad .hj-lad-znak{ width:34px; }
 
   .chat-bar{
     display:flex; align-items:center; justify-content:center; gap:14px;
@@ -7707,6 +7833,11 @@
      logo (dwie strzałki składające się w H), przerysowany na krzywe,
      żeby dało się go barwić tokenami i żeby nie mydlił się w ikonie. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<!-- .665 — czubek pędzla dla masek rysowania znaku (§2): ostatnie 6% prostokąta
+     maski wygasa. Tu, w definicjach, a nie w SVG ekranu, bo ekran wczytywania
+     i wskaźniki inline bywają display:none, a gradient z ukrytego drzewa
+     nie w każdej przeglądarce się rysuje. -->
+<linearGradient id="hjTip" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff"/><stop offset=".94" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
 <!-- ═══ ZNAK 2B ═══════════════════════════════════════════════════════════
        Trzy kreski pędzla o schodzącej wadze. Zastępuje dawny znak, który był
        literą H z grotami skierowanymi w górę - ten sam gest, którym rysuje się
@@ -7882,10 +8013,15 @@
          Pozostałe cztery miejsca zostają na <use>, bo tam nic nie animujemy.
          Zgłoszone przez Damiana 2026-09-06. -->
     <svg class="loading-mark ld-znak" viewBox="0 0 1000 593.2" aria-hidden="true">
+      <defs>
+        <mask id="ldM1" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1300" height="900"><g transform="rotate(-20.3 500 296.6)"><rect class="w1" x="-985.1" y="67.4" width="1200" height="147.5" fill="url(#hjTip)"/></g></mask>
+        <mask id="ldM2" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1300" height="900"><g transform="rotate(-20.3 500 296.6)"><rect class="w2" x="-1220.2" y="229.5" width="1200" height="154.3" fill="url(#hjTip)"/></g></mask>
+        <mask id="ldM3" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1300" height="900"><g transform="rotate(-20.3 500 296.6)"><rect class="w3" x="-1015.2" y="411" width="1200" height="139.7" fill="url(#hjTip)"/></g></mask>
+      </defs>
       <g fill="currentColor" fill-rule="evenodd">
-        <path d="M737.6,3.8 711.0,11.4 680.6,26.6 669.2,26.6 612.2,49.4 604.6,57.0 566.5,68.4 558.9,76.0 539.9,79.8 532.3,87.5 520.9,87.5 513.3,95.1 456.3,117.9 444.9,117.9 433.5,125.5 406.8,133.1 387.8,133.1 357.4,140.7 262.4,178.7 228.1,182.5 178.7,197.7 167.3,212.9 174.9,224.3 174.9,239.5 178.7,239.5 193.9,258.6 201.5,262.4 235.7,270.0 254.8,270.0 315.6,251.0 334.6,239.5 376.4,228.1 498.1,178.7 547.5,155.9 570.3,140.7 585.6,136.9 593.2,129.3 585.6,129.3 551.3,148.3 486.7,174.9 475.3,171.1 498.1,155.9 524.7,148.3 539.9,136.9 627.4,98.9 638.8,83.7 665.4,72.2 676.8,60.8 695.8,53.2 699.6,45.6 688.2,38.0 707.2,22.8 733.8,11.4Z"/>
-        <path d="M992.4,125.5 973.4,129.3 962.0,136.9 935.4,140.7 904.9,155.9 870.7,163.5 813.7,186.3 783.3,186.3 768.1,190.1 752.9,201.5 733.8,201.5 680.6,220.5 642.6,239.5 619.8,243.3 543.7,273.8 532.3,270.0 539.9,262.4 558.9,258.6 600.8,239.5 642.6,228.1 711.0,197.7 722.4,197.7 752.9,186.3 760.5,178.7 783.3,174.9 790.9,167.3 783.3,167.3 760.5,178.7 737.6,182.5 726.2,190.1 714.8,190.1 707.2,197.7 684.4,201.5 627.4,228.1 574.1,239.5 558.9,251.0 532.3,262.4 513.3,258.6 498.1,270.0 471.5,273.8 441.1,289.0 418.3,292.8 395.4,304.2 376.4,304.2 365.0,308.0 349.8,319.4 323.2,323.2 315.6,330.8 247.1,353.6 235.7,353.6 224.3,361.2 155.9,384.0 144.5,384.0 133.1,391.6 121.7,391.6 98.9,406.8 57.0,418.3 60.8,425.9 79.8,425.9 121.7,410.6 136.9,414.4 129.3,422.1 95.1,433.5 83.7,433.5 60.8,444.9 68.4,441.1 76.0,452.5 57.0,456.3 45.6,463.9 11.4,475.3 19.0,479.1 38.0,479.1 95.1,463.9 106.5,471.5 114.1,471.5 121.7,460.1 140.7,471.5 190.1,460.1 216.7,448.7 243.3,444.9 308.0,422.1 319.4,425.9 338.4,422.1 357.4,410.6 368.8,410.6 380.2,403.0 391.6,403.0 406.8,391.6 418.3,391.6 429.7,384.0 441.1,384.0 460.1,376.4 467.7,368.8 471.5,372.6 501.9,349.8 528.5,346.0 589.4,319.4 631.2,308.0 711.0,273.8 794.7,243.3 783.3,243.3 771.9,251.0 749.0,258.6 726.2,258.6 718.6,262.4 714.8,270.0 680.6,281.4 661.6,281.4 650.2,289.0 642.6,277.6 654.0,270.0 661.6,273.8 669.2,266.2 699.6,254.8 718.6,254.8 733.8,243.3 764.3,231.9 775.7,220.5 798.5,216.7 851.7,197.7 866.9,186.3 874.5,186.3 882.1,178.7 889.7,178.7 882.1,174.9 901.1,159.7 920.2,152.1 943.0,148.3 950.6,140.7 973.4,136.9Z"/>
-        <path d="M840.3,349.8 806.1,357.4 794.7,365.0 775.7,365.0 737.6,376.4 726.2,384.0 714.8,384.0 680.6,395.4 616.0,425.9 585.6,433.5 547.5,452.5 532.3,456.3 528.5,448.7 520.9,448.7 475.3,471.5 448.7,475.3 414.4,490.5 380.2,494.3 357.4,505.7 300.4,524.7 285.2,524.7 266.2,539.9 262.4,562.7 285.2,581.7 296.6,585.6 368.8,585.6 441.1,562.7 490.5,543.7 536.1,520.9 566.5,513.3 581.7,501.9 597.0,498.1 635.0,475.3 661.6,467.7 680.6,452.5 718.6,433.5 711.0,429.7 718.6,422.1 730.0,422.1 745.2,410.6 771.9,403.0 787.1,391.6 775.7,395.4 768.1,387.8 802.3,372.6 806.1,365.0 832.7,357.4Z"/>
+        <path mask="url(#ldM1)" d="M737.6,3.8 711.0,11.4 680.6,26.6 669.2,26.6 612.2,49.4 604.6,57.0 566.5,68.4 558.9,76.0 539.9,79.8 532.3,87.5 520.9,87.5 513.3,95.1 456.3,117.9 444.9,117.9 433.5,125.5 406.8,133.1 387.8,133.1 357.4,140.7 262.4,178.7 228.1,182.5 178.7,197.7 167.3,212.9 174.9,224.3 174.9,239.5 178.7,239.5 193.9,258.6 201.5,262.4 235.7,270.0 254.8,270.0 315.6,251.0 334.6,239.5 376.4,228.1 498.1,178.7 547.5,155.9 570.3,140.7 585.6,136.9 593.2,129.3 585.6,129.3 551.3,148.3 486.7,174.9 475.3,171.1 498.1,155.9 524.7,148.3 539.9,136.9 627.4,98.9 638.8,83.7 665.4,72.2 676.8,60.8 695.8,53.2 699.6,45.6 688.2,38.0 707.2,22.8 733.8,11.4Z"/>
+        <path mask="url(#ldM2)" d="M992.4,125.5 973.4,129.3 962.0,136.9 935.4,140.7 904.9,155.9 870.7,163.5 813.7,186.3 783.3,186.3 768.1,190.1 752.9,201.5 733.8,201.5 680.6,220.5 642.6,239.5 619.8,243.3 543.7,273.8 532.3,270.0 539.9,262.4 558.9,258.6 600.8,239.5 642.6,228.1 711.0,197.7 722.4,197.7 752.9,186.3 760.5,178.7 783.3,174.9 790.9,167.3 783.3,167.3 760.5,178.7 737.6,182.5 726.2,190.1 714.8,190.1 707.2,197.7 684.4,201.5 627.4,228.1 574.1,239.5 558.9,251.0 532.3,262.4 513.3,258.6 498.1,270.0 471.5,273.8 441.1,289.0 418.3,292.8 395.4,304.2 376.4,304.2 365.0,308.0 349.8,319.4 323.2,323.2 315.6,330.8 247.1,353.6 235.7,353.6 224.3,361.2 155.9,384.0 144.5,384.0 133.1,391.6 121.7,391.6 98.9,406.8 57.0,418.3 60.8,425.9 79.8,425.9 121.7,410.6 136.9,414.4 129.3,422.1 95.1,433.5 83.7,433.5 60.8,444.9 68.4,441.1 76.0,452.5 57.0,456.3 45.6,463.9 11.4,475.3 19.0,479.1 38.0,479.1 95.1,463.9 106.5,471.5 114.1,471.5 121.7,460.1 140.7,471.5 190.1,460.1 216.7,448.7 243.3,444.9 308.0,422.1 319.4,425.9 338.4,422.1 357.4,410.6 368.8,410.6 380.2,403.0 391.6,403.0 406.8,391.6 418.3,391.6 429.7,384.0 441.1,384.0 460.1,376.4 467.7,368.8 471.5,372.6 501.9,349.8 528.5,346.0 589.4,319.4 631.2,308.0 711.0,273.8 794.7,243.3 783.3,243.3 771.9,251.0 749.0,258.6 726.2,258.6 718.6,262.4 714.8,270.0 680.6,281.4 661.6,281.4 650.2,289.0 642.6,277.6 654.0,270.0 661.6,273.8 669.2,266.2 699.6,254.8 718.6,254.8 733.8,243.3 764.3,231.9 775.7,220.5 798.5,216.7 851.7,197.7 866.9,186.3 874.5,186.3 882.1,178.7 889.7,178.7 882.1,174.9 901.1,159.7 920.2,152.1 943.0,148.3 950.6,140.7 973.4,136.9Z"/>
+        <path mask="url(#ldM3)" d="M840.3,349.8 806.1,357.4 794.7,365.0 775.7,365.0 737.6,376.4 726.2,384.0 714.8,384.0 680.6,395.4 616.0,425.9 585.6,433.5 547.5,452.5 532.3,456.3 528.5,448.7 520.9,448.7 475.3,471.5 448.7,475.3 414.4,490.5 380.2,494.3 357.4,505.7 300.4,524.7 285.2,524.7 266.2,539.9 262.4,562.7 285.2,581.7 296.6,585.6 368.8,585.6 441.1,562.7 490.5,543.7 536.1,520.9 566.5,513.3 581.7,501.9 597.0,498.1 635.0,475.3 661.6,467.7 680.6,452.5 718.6,433.5 711.0,429.7 718.6,422.1 730.0,422.1 745.2,410.6 771.9,403.0 787.1,391.6 775.7,395.4 768.1,387.8 802.3,372.6 806.1,365.0 832.7,357.4Z"/>
       </g>
     </svg>
     
@@ -8350,7 +8486,9 @@
   <div id="dictWordListScreen" style="display:none;">
     <button class="back-btn" id="dictWordListBackBtn" data-back="dictLevel" data-i18n="backDictLevel">Wybór poziomu</button>
     <div class="ai-chat-status" id="dictWordListStatus"></div>
-    <div id="dictWordListLoading" style="text-align:center; padding:30px; color:var(--ink-dim);" data-i18n="dictLoading">Ładowanie…</div>
+    <!-- .665 — wskaźnik inline (§4.1): kreska po 300 ms, napis po 3 s. data-i18n
+         przeniesione na sam napis — na kontenerze nadpisywałoby SVG. -->
+    <div id="dictWordListLoading" class="hj-lad hj-lad-kolumna" role="status"><svg class="hj-lad-znak" viewBox="11 125 982 355" aria-hidden="true"><defs><mask id="hjLadSlownik" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1300" height="900"><g transform="rotate(-20.3 500 296.6)"><rect class="w2" x="-1220.2" y="229.5" width="1200" height="154.3" fill="url(#hjTip)"/></g></mask></defs><path fill="currentColor" fill-rule="evenodd" mask="url(#hjLadSlownik)" d="M992.4,125.5 973.4,129.3 962.0,136.9 935.4,140.7 904.9,155.9 870.7,163.5 813.7,186.3 783.3,186.3 768.1,190.1 752.9,201.5 733.8,201.5 680.6,220.5 642.6,239.5 619.8,243.3 543.7,273.8 532.3,270.0 539.9,262.4 558.9,258.6 600.8,239.5 642.6,228.1 711.0,197.7 722.4,197.7 752.9,186.3 760.5,178.7 783.3,174.9 790.9,167.3 783.3,167.3 760.5,178.7 737.6,182.5 726.2,190.1 714.8,190.1 707.2,197.7 684.4,201.5 627.4,228.1 574.1,239.5 558.9,251.0 532.3,262.4 513.3,258.6 498.1,270.0 471.5,273.8 441.1,289.0 418.3,292.8 395.4,304.2 376.4,304.2 365.0,308.0 349.8,319.4 323.2,323.2 315.6,330.8 247.1,353.6 235.7,353.6 224.3,361.2 155.9,384.0 144.5,384.0 133.1,391.6 121.7,391.6 98.9,406.8 57.0,418.3 60.8,425.9 79.8,425.9 121.7,410.6 136.9,414.4 129.3,422.1 95.1,433.5 83.7,433.5 60.8,444.9 68.4,441.1 76.0,452.5 57.0,456.3 45.6,463.9 11.4,475.3 19.0,479.1 38.0,479.1 95.1,463.9 106.5,471.5 114.1,471.5 121.7,460.1 140.7,471.5 190.1,460.1 216.7,448.7 243.3,444.9 308.0,422.1 319.4,425.9 338.4,422.1 357.4,410.6 368.8,410.6 380.2,403.0 391.6,403.0 406.8,391.6 418.3,391.6 429.7,384.0 441.1,384.0 460.1,376.4 467.7,368.8 471.5,372.6 501.9,349.8 528.5,346.0 589.4,319.4 631.2,308.0 711.0,273.8 794.7,243.3 783.3,243.3 771.9,251.0 749.0,258.6 726.2,258.6 718.6,262.4 714.8,270.0 680.6,281.4 661.6,281.4 650.2,289.0 642.6,277.6 654.0,270.0 661.6,273.8 669.2,266.2 699.6,254.8 718.6,254.8 733.8,243.3 764.3,231.9 775.7,220.5 798.5,216.7 851.7,197.7 866.9,186.3 874.5,186.3 882.1,178.7 889.7,178.7 882.1,174.9 901.1,159.7 920.2,152.1 943.0,148.3 950.6,140.7 973.4,136.9Z"/></svg><span class="hj-lad-tekst" data-i18n="dictLoading">Ładowanie…</span></div>
 
     <div id="dictWordListView">
       <div class="dict-head">
@@ -8725,9 +8863,11 @@
     <div class="mirror-nota" id="mirrorNota"></div>
   </div>
       </div>
-      <!-- Trzy kropki "pisze". Jedyna nieustanna animacja w apce, więc
-           prefers-reduced-motion ją wyłącza (v3 §4). -->
-      <div class="typing" id="geminiTyping" style="display:none;" aria-hidden="true"><i></i><i></i><i></i></div>
+      <!-- .665 — wskaźnik inline zamiast trzech kropek (pakiet wdrożeniowy §4.1).
+           Kropki stały w markupie, ale NIC ich nie pokazywało; teraz pokazuje je
+           haksaCzeka() — przy łączeniu i po ręcznym domknięciu tury, do
+           pierwszego dźwięku odpowiedzi. Tekst = status z paska Haksy. -->
+      <div class="typing hj-lad" id="geminiTyping" style="display:none;" role="status"><svg class="hj-lad-znak" viewBox="11 125 982 355" aria-hidden="true"><defs><mask id="hjLadHaksa" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1300" height="900"><g transform="rotate(-20.3 500 296.6)"><rect class="w2" x="-1220.2" y="229.5" width="1200" height="154.3" fill="url(#hjTip)"/></g></mask></defs><path fill="currentColor" fill-rule="evenodd" mask="url(#hjLadHaksa)" d="M992.4,125.5 973.4,129.3 962.0,136.9 935.4,140.7 904.9,155.9 870.7,163.5 813.7,186.3 783.3,186.3 768.1,190.1 752.9,201.5 733.8,201.5 680.6,220.5 642.6,239.5 619.8,243.3 543.7,273.8 532.3,270.0 539.9,262.4 558.9,258.6 600.8,239.5 642.6,228.1 711.0,197.7 722.4,197.7 752.9,186.3 760.5,178.7 783.3,174.9 790.9,167.3 783.3,167.3 760.5,178.7 737.6,182.5 726.2,190.1 714.8,190.1 707.2,197.7 684.4,201.5 627.4,228.1 574.1,239.5 558.9,251.0 532.3,262.4 513.3,258.6 498.1,270.0 471.5,273.8 441.1,289.0 418.3,292.8 395.4,304.2 376.4,304.2 365.0,308.0 349.8,319.4 323.2,323.2 315.6,330.8 247.1,353.6 235.7,353.6 224.3,361.2 155.9,384.0 144.5,384.0 133.1,391.6 121.7,391.6 98.9,406.8 57.0,418.3 60.8,425.9 79.8,425.9 121.7,410.6 136.9,414.4 129.3,422.1 95.1,433.5 83.7,433.5 60.8,444.9 68.4,441.1 76.0,452.5 57.0,456.3 45.6,463.9 11.4,475.3 19.0,479.1 38.0,479.1 95.1,463.9 106.5,471.5 114.1,471.5 121.7,460.1 140.7,471.5 190.1,460.1 216.7,448.7 243.3,444.9 308.0,422.1 319.4,425.9 338.4,422.1 357.4,410.6 368.8,410.6 380.2,403.0 391.6,403.0 406.8,391.6 418.3,391.6 429.7,384.0 441.1,384.0 460.1,376.4 467.7,368.8 471.5,372.6 501.9,349.8 528.5,346.0 589.4,319.4 631.2,308.0 711.0,273.8 794.7,243.3 783.3,243.3 771.9,251.0 749.0,258.6 726.2,258.6 718.6,262.4 714.8,270.0 680.6,281.4 661.6,281.4 650.2,289.0 642.6,277.6 654.0,270.0 661.6,273.8 669.2,266.2 699.6,254.8 718.6,254.8 733.8,243.3 764.3,231.9 775.7,220.5 798.5,216.7 851.7,197.7 866.9,186.3 874.5,186.3 882.1,178.7 889.7,178.7 882.1,174.9 901.1,159.7 920.2,152.1 943.0,148.3 950.6,140.7 973.4,136.9Z"/></svg><span class="hj-lad-tekst" id="geminiTypingTekst">…</span></div>
       <!-- Pasek dolny wg v3 §4: mikrofon 68px to JEDYNY duży element, po bokach
            kwadraty 46px. Rozmowa głosowa jest sednem funkcji Premium, więc nie
            chowamy jej za ikoną obok pola tekstowego. -->
@@ -11045,9 +11185,21 @@ function base64ToArrayBuffer(base64){
   return bytes.buffer;
 }
 
-function setGeminiVoiceStatus(text){
+function setGeminiVoiceStatus(text, czeka){
   const el = document.getElementById('geminiVoiceStatus');
   if(el) el.textContent = text;
+  /* .665 — każdy status bez flagi „czeka" zdejmuje wskaźnik; status
+     oczekiwania go pokazuje i przekazuje mu swój tekst (próg 3 s). */
+  haksaCzeka(!!czeka, text);
+}
+/* Wskaźnik inline w dymku Haksy (§4.1). Progi robi CSS: animacje startują
+   od nowa przy każdym przejściu z display:none, więc tu tylko przełącznik. */
+function haksaCzeka(tak, tekst){
+  const el = document.getElementById('geminiTyping');
+  if(!el) return;
+  const t = document.getElementById('geminiTypingTekst');
+  if(t && tekst) t.textContent = tekst;
+  el.style.display = tak ? '' : 'none';
 }
 
 async function connectGeminiRelay(isRetry){
@@ -11064,7 +11216,7 @@ async function connectGeminiRelay(isRetry){
      podsumowanie czegoś, co już się skończyło, obok świeżego transkryptu. */
   { const oc = document.getElementById('geminiOcena'); if(oc) oc.style.display = 'none'; } // przy auto-ponowieniu zachowujemy ewentualny transkrypt (i tak pusty, bo nic nie zdążyło przyjść)
   document.getElementById('geminiConnectBtn').disabled = true;
-  setGeminiVoiceStatus(uiLang === 'en' ? 'Connecting…' : 'Łączenie…');
+  setGeminiVoiceStatus(uiLang === 'en' ? 'Connecting…' : 'Łączenie…', true);
 
   // level trafia do przekaźnika jako parametr - NA RAZIE nieużywany po tamtej stronie
   // (patrz pytanie do Claude Code), ale wysyłamy już teraz, żeby nie trzeba było
@@ -11156,7 +11308,7 @@ async function connectGeminiRelay(isRetry){
 
   geminiSocket.onopen = () => {
     console.log('[Gemini Live] Gniazdo WebSocket otwarte, czekam na setupComplete...');
-    setGeminiVoiceStatus(uiLang === 'en' ? 'Socket open, waiting for setup…' : 'Gniazdo otwarte, czekam na gotowość…');
+    setGeminiVoiceStatus(uiLang === 'en' ? 'Socket open, waiting for setup…' : 'Gniazdo otwarte, czekam na gotowość…', true);
   };
 
   geminiSocket.onmessage = (event) => {
@@ -11238,6 +11390,8 @@ async function connectGeminiRelay(isRetry){
     if(msg.serverContent){
       const parts = msg.serverContent.modelTurn && msg.serverContent.modelTurn.parts;
       if(parts){
+        /* .665: pierwszy fragment odpowiedzi kończy oczekiwanie. */
+        if(parts.length) haksaCzeka(false);
         parts.forEach(part => {
           if(part.inlineData && part.inlineData.data) queueGeminiAudioPlayback(part.inlineData.data);
         });
@@ -11366,7 +11520,7 @@ function resetGeminiButtonsToReady(){
 
     if(!isRetry && wasNeverReady && event.code === 1006){
       console.log('[Gemini Live] Wygląda na znany przypadek opóźnienia propagacji - próbuję ponownie automatycznie...');
-      setGeminiVoiceStatus(uiLang === 'en' ? 'Retrying connection…' : 'Ponawiam połączenie…');
+      setGeminiVoiceStatus(uiLang === 'en' ? 'Retrying connection…' : 'Ponawiam połączenie…', true);
       setTimeout(()=> connectGeminiRelay(true), 800);
       return;
     }
@@ -11516,7 +11670,7 @@ function endGeminiTurn(){
   if(geminiSocket && geminiSocket.readyState === WebSocket.OPEN){
     geminiSocket.send(JSON.stringify({ realtimeInput: { audioStreamEnd: true } }));
   }
-  setGeminiVoiceStatus(uiLang === 'en' ? 'Waiting for response…' : 'Czekam na odpowiedź…');
+  setGeminiVoiceStatus(uiLang === 'en' ? 'Waiting for response…' : 'Czekam na odpowiedź…', true);
 }
 
 /* Zakończenie całej rozmowy - mikrofon i gniazdo. */
@@ -17984,7 +18138,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.664';
+const APP_VERSION = '2026-09-11.666';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -18164,6 +18318,8 @@ function isAllDeptsMode(){
 }
 
 function setScreen(screen){
+  /* .666 — pierwszy wybrany ekran zwalnia splash (§3). Kolejne wywołania nic nie robią. */
+  try{ if(typeof window.hjSplashPoEkranie === 'function') window.hjSplashPoEkranie(); }catch(e){}
   /* WYCISZENIE PRZY ZMIANIE EKRANU. setScreen zatrzymywał mikrofon i chował
      arkusz słowa, ale NIE przerywał syntezatora - odsłuch czytanki grał dalej
      po wyjściu do menu głównego, do innego modułu, wszędzie. Głos bez
