@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.694
-  Zbudowane na: 0ed783389d5160fc1ab01ccd8ad1d59d (.693)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.695
+  Zbudowane na: b9a44eece3140afade6afb0e63cb9a04 (.694)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -17455,6 +17455,13 @@ function formy(baza, irr, pos, zRegulySi) {
     }
     out.add(f + '서');       // -아서/어서
     out.add(f + '도');       // -아도/어도
+    /* .695 — ROZKAŹNIK -아라 / -어라 (해라, 마셔라, 돌아와라). Zmierzone na .694:
+       8 rozkaźników dotąd nieznanych, 0 złych zmian, jedna nowa zbieżność
+       z hasłem (나라 → też 나다; czytnik trafia wprost w „kraj”). -아야
+       CELOWO NIE: rozbiór czyta je już dziś (131 wystąpień), a w indeksie
+       psuło „듣고 나서야” (→ 나서다) i rozbijało 그래야. Decyzja Damiana
+       po .694, opinia Fable (odpowiedz-694 pole 3). */
+    out.add(f + '라');       // -아라/어라
   });
 
   /* 합니다체 */
@@ -18373,7 +18380,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.694';
+const APP_VERSION = '2026-09-11.695';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -27559,7 +27566,18 @@ function pkBazaKolokatu(token){
    하고 울어요” wraca do owcy. 매애 jest hasłem, więc wchodzi zwykłą listą.
    Pominięte: 양치기, 양털 — nie są hasłami (Fable: „jeśli hasła”).
    .694 — + 새끼 (1) (Fable, odpowiedz-691 pole 2): klucz dostał numer w .693,
-   więc kolokat wchodzi z numerem (양 새끼 = jagnię). */
+   więc kolokat wchodzi z numerem (양 새끼 = jagnię).
+   .695 — RODZINA 새끼 (Fable, odpowiedz-694 pole 1): ta sama granica co warunek
+   detektora szoku, żeby arkusz słowa i detektor mówiły jednym głosem.
+     (2) po 이 / 저 / 그 / 개 / 미친 / 나쁜 / 저런 / 이런 tuż przed — napisy
+         tokenu, jak chciała Fable (이 i 개 są też hasłami, ale nie o sens chodzi);
+     (1) zwierzę, 내 / 우리 / 제 w oknie 2 przed albo 낳다 po — STOI WYŻEJ niż
+         reguła wołacza / liczby mnogiej (uwaga Fable: 강아지 새끼들);
+     (2) 새끼야 (wołacz), 새끼들 (liczba mnoga) — Fable zapisała to jako „nast
+         야 / 들”, ale oba są końcówką TEGO SAMEGO tokenu, więc warunek to
+         początek tokenu (새끼들이, 새끼들아 też).
+   Pominięte: 동물 (nie jest hasłem). 제 jako napis: to ściągnięte 저의, a baza
+   저 jest rozbita. */
 const PK_OTOCZENIE = Object.freeze({
   '리': Object.freeze({ 'domyslny': '2', 'reguly': Object.freeze([
     Object.freeze({ 'sens': '2', 'przydawkaL': true }),
@@ -27626,6 +27644,11 @@ const PK_OTOCZENIE = Object.freeze({
     Object.freeze({ 'sens': '3', 'okno': 1, 'nast': Object.freeze(['팔 (2)', '손', '발', '쪽 (1)', '눈', '귀', '옆', '다리', '어깨', '무릎', '국']) }),
     Object.freeze({ 'sens': '1', 'okno': 2, 'nast': Object.freeze(['털', '고기', '젖', '울다', '매애', '새끼 (1)']), 'poprz': Object.freeze(['늑대']) }),
     Object.freeze({ 'sens': '2', 'okno': 2, 'nast': Object.freeze(['많다', '적다', '조절', '많이']), 'poprz': Object.freeze(['음식', '밥', '물', '일 (3)', '공부', '숙제']) }),
+  ]) }),
+  '새끼': Object.freeze({ 'domyslny': '1', 'reguly': Object.freeze([
+    Object.freeze({ 'sens': '2', 'okno': 1, 'poprzNapis': Object.freeze(['이', '저', '그', '개', '미친', '나쁜', '저런', '이런']) }),
+    Object.freeze({ 'sens': '1', 'okno': 2, 'poprz': Object.freeze(['강아지', '고양이', '양 (1)', '소', '돼지', '닭', '새', '내', '우리']), 'poprzNapis': Object.freeze(['제']), 'nast': Object.freeze(['낳다']) }),
+    Object.freeze({ 'sens': '2', 'token': Object.freeze(['새끼야', '새끼들']) }),
   ]) }),
   '뛰다': Object.freeze({ 'domyslny': '1', 'reguly': Object.freeze([
     Object.freeze({ 'sens': '2', 'okno': 2, 'poprz': Object.freeze(['폴짝', '껑충', '토끼', '개구리', '물가', '가격', '값']) }),
@@ -27698,6 +27721,10 @@ function pkSensZOtoczenia(tab, c, poprz, nast, okno){
         return pkListaMa(r.poprz, pkBazaKolokatu(t));
       });
       if(!traf && r.poprzPoczatek) traf = przed.some((t) => { const tc = cleanReaderWord(t || ''); return r.poprzPoczatek.some((x) => tc.indexOf(x) === 0); });
+      /* .695 — napis tokenu w oknie PRZED (rodzina 새끼: 이 / 저 / 그, 미친,
+         제). Do .694 poprzNapis działał tylko w regule bez okna (jeden token
+         przed); żadna rodzina z oknem go nie używała, więc nic się nie zmienia. */
+      if(!traf && r.poprzNapis) traf = przed.some((t) => r.poprzNapis.indexOf(cleanReaderWord(t || '')) !== -1);
       if(!traf && r.nast) traf = po.some((t) => pkListaMa(r.nast, pkBazaKolokatu(t)));
       if(traf) return r.sens;
       continue;
@@ -27870,6 +27897,11 @@ const PK_LEMAT_Z_KONTEKSTU = (function(){
     '걸어서': geolGeot,
     '걸어도': geolGeot,
     '걸었습니까': geolGeot,
+    /* .695 — 걸어야 (Fable, odpowiedz-694 pole 2): forma z rozbioru, ta sama
+       lista; 걸어라: od .695 generator tworzy -어라, więc to nowa forma wspólna
+       obu leksemów (była na pierwotnej liście Fable). */
+    '걸어야': geolGeot,
+    '걸어라': geolGeot,
     '펴요': piPie,
     '폈어요': piPie,
     '폈습니다': piPie,
