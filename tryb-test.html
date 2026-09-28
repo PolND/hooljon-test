@@ -65,6 +65,18 @@
   <p class="small">Puść muzykę w innej aplikacji (Spotify, Muzyka Apple) i zostaw grającą. Wróć tutaj i stuknij przycisk. Sprawdź, czy muzyka się zatrzymała/przygasła, czy grała dalej razem z głosem.</p>
   <button id="bMusicTest">Ustaw „playback” i odtwórz zdanie</button></div>
 
+<div class="krok"><b>10. Kotwica + mikrofon, BEZ „playback”</b>
+  <p class="small">Sam test kroku 7, ale bez zmiany audioSession — sprawdza, czy to KOTWICA sama w sobie (ciągła cicha pętla audio) przeszkadza mikrofonowi, niezależnie od trybu sesji. Powiedz coś zaraz po starcie.</p>
+  <button id="bAnchorMicOnly">Kotwica + mikrofon (bez playback)</button></div>
+
+<div class="krok"><b>11. Mikrofon najpierw, kotwica potem</b>
+  <p class="small">Odwrotna kolejność: najpierw mikrofon (pół sekundy na złapanie), dopiero potem kotwica. Sprawdza, czy to KOLEJNOŚĆ startu ma znaczenie. Powiedz coś od razu po stuknięciu.</p>
+  <button id="bMicFirstAnchor">Mikrofon, potem kotwica</button></div>
+
+<div class="krok"><b>12. Opóźnienie po „playback” przed mikrofonem</b>
+  <p class="small">Ustawia „playback”, czeka 400 ms, dopiero wtedy startuje mikrofon — bez kotwicy. Sprawdza, czy krok 6 zawodził tylko dlatego, że mikrofon startował ZA SZYBKO po zmianie sesji.</p>
+  <button id="bPlaybackDelayMic">„Playback”, poczekaj, mikrofon</button></div>
+
 <button id="bCopy">Kopiuj log</button>
 <pre id="log"></pre>
 
@@ -255,6 +267,24 @@
     log('--- sprawdź teraz, czy muzyka w innej aplikacji ucichła/zatrzymała się ---');
     ustawPlayback();
     startAnchor().then(function(){ say('음악 테스트 중입니다'); });
+  };
+
+  /* 10. Kotwica + mikrofon, bez playback */
+  $('bAnchorMicOnly').onclick = function(){
+    startAnchor();
+    sluchaj('kotwica+mikrofon (bez playback)');
+  };
+
+  /* 11. Mikrofon najpierw, kotwica potem */
+  $('bMicFirstAnchor').onclick = function(){
+    sluchaj('mikrofon-najpierw');
+    setTimeout(startAnchor, 500);
+  };
+
+  /* 12. Playback, opóźnienie, potem mikrofon (bez kotwicy) */
+  $('bPlaybackDelayMic').onclick = function(){
+    ustawPlayback();
+    setTimeout(function(){ sluchaj('mikrofon po 400ms'); }, 400);
   };
 
   $('bCopy').onclick = function(){
