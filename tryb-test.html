@@ -37,7 +37,8 @@
 <div class="krok"><b>3. Głos aplikacji (syntezator mowy)</b>
   <p class="small">A: od razu w geście. B: po opóźnieniu (jak w trybie: najpierw kotwica i czekanie). Jeśli A słychać, a B nie, przyczyną jest utrata zgody użytkownika po opóźnieniu.</p>
   <button id="bVoiceA">A. Głos od razu</button>
-  <button id="bVoiceB">B. Głos po kotwicy i 1,5 s</button></div>
+  <button id="bVoiceB">B. Głos po kotwicy i 1,5 s</button>
+  <button id="bVoiceC">C. Głos po ustawieniu sesji audio „playback”</button></div>
 
 <div class="krok"><b>4. Głos przy zgaszonym ekranie</b>
   <p class="small">Stuknij, zablokuj telefon na 30 s, odblokuj i stuknij „Stop”. W logu zobaczysz, które zdania faktycznie ruszyły przy zablokowanym ekranie.</p>
@@ -68,6 +69,7 @@
     log('tryb z ekranu głównego (standalone): ' + st);
     log('wakeLock: ' + ('wakeLock' in navigator) + ' | mediaSession: ' + ('mediaSession' in navigator) + ' | speechSynthesis: ' + ('speechSynthesis' in window));
     log('SpeechRecognition: ' + !!(window.SpeechRecognition || window.webkitSpeechRecognition));
+    log('audioSession: ' + (navigator.audioSession ? 'jest (typ: ' + navigator.audioSession.type + ')' : 'brak'));
     try{
       var v = speechSynthesis.getVoices();
       log('głosy: ' + v.length + ', koreańskich: ' + v.filter(function(x){ return /^ko/i.test(x.lang); }).map(function(x){ return x.name; }).join(', '));
@@ -146,6 +148,12 @@
   $('bVoiceB').onclick = function(){
     startAnchor().then(function(){ return new Promise(function(r){ setTimeout(r, 1500); }); })
       .then(function(){ say('안녕하세요, 테스트 B'); });
+  };
+
+  $('bVoiceC').onclick = function(){
+    if(!navigator.audioSession){ log('audioSession: BRAK w tej przeglądarce'); return; }
+    try{ navigator.audioSession.type = 'playback'; log('audioSession.type = ' + navigator.audioSession.type); }catch(e){ log('audioSession: BŁĄD ' + e.message); return; }
+    startAnchor().then(function(){ say('안녕하세요, 테스트 C'); });
   };
 
   /* 4. Pętla głosowa */
