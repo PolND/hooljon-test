@@ -49,6 +49,22 @@
   <p class="small">Powiedz coś po koreańsku, np. „안녕하세요”.</p>
   <button id="bRec">Słuchaj (ko-KR)</button></div>
 
+<div class="krok"><b>6. Mikrofon pod „playback” (jak w trybie bez ekranu)</b>
+  <p class="small">Ustawia sesję audio na „playback” (tak jak robi to teraz apka), a potem od razu prosi o mikrofon. Sprawdza, czy iPhone w ogóle da mikrofon w tym trybie sesji.</p>
+  <button id="bRecPlayback">Ustaw „playback” i słuchaj</button></div>
+
+<div class="krok"><b>7. Mikrofon i głos naraz (pełna symulacja trybu bez ekranu)</b>
+  <p class="small">Włącza kotwicę + „playback”, startuje nasłuch, a po 1 s odtwarza zdanie — dokładnie kolejność zdarzeń z prawdziwej sesji (pytanie, potem słuchanie odpowiedzi). Powiedz coś, gdy usłyszysz zdanie.</p>
+  <button id="bBoth">Start: głos + mikrofon razem</button></div>
+
+<div class="krok"><b>8. Dźwięk interfejsu po zwolnieniu „playback”</b>
+  <p class="small">Włącz teraz tryb cichy (ma być aktywny). Przycisk ustawia „playback”, odtwarza zdanie, zwalnia sesję z powrotem do „auto”, i pół sekundy później odtwarza krótki sygnał (dźwięk dobrze/źle). Sygnał w trybie cichym NIE powinien być słyszalny — to oznacza, że dźwięki interfejsu wróciły do posłuszeństwa przełącznikowi.</p>
+  <button id="bBeepAfter">Test: głos, potem sygnał</button></div>
+
+<div class="krok"><b>9. Muzyka z innych aplikacji</b>
+  <p class="small">Puść muzykę w innej aplikacji (Spotify, Muzyka Apple) i zostaw grającą. Wróć tutaj i stuknij przycisk. Sprawdź, czy muzyka się zatrzymała/przygasła, czy grała dalej razem z głosem.</p>
+  <button id="bMusicTest">Ustaw „playback” i odtwórz zdanie</button></div>
+
 <button id="bCopy">Kopiuj log</button>
 <pre id="log"></pre>
 
@@ -177,6 +193,68 @@
     r.onerror = function(e){ log('mikrofon: BŁĄD ' + e.error); };
     r.onend = function(){ log('mikrofon: koniec nasłuchu'); };
     try{ r.start(); }catch(e){ log('mikrofon: wyjątek ' + e.message); }
+  };
+
+  /* 6. Mikrofon pod 'playback' */
+  function ustawPlayback(){
+    if(!navigator.audioSession){ log('audioSession: BRAK — pomijam ustawienie, testuję samym mikrofonem/głosem'); return false; }
+    try{ navigator.audioSession.type = 'playback'; log('audioSession.type = playback'); return true; }
+    catch(e){ log('audioSession: BŁĄD ' + e.message); return false; }
+  }
+  function ustawAuto(){
+    if(!navigator.audioSession) return;
+    try{ navigator.audioSession.type = 'auto'; log('audioSession.type = auto'); }catch(e){}
+  }
+  function sluchaj(etykieta){
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SR){ log('rozpoznawanie mowy: BRAK wsparcia'); return; }
+    var r = new SR(); r.lang = 'ko-KR'; r.interimResults = true;
+    r.onstart = function(){ log(etykieta + ': start nasłuchu'); };
+    r.onresult = function(e){ var res = e.results[e.results.length - 1]; log(etykieta + ': usłyszano' + (res.isFinal ? ' (finalnie)' : '') + ': ' + res[0].transcript); };
+    r.onerror = function(e){ log(etykieta + ': BŁĄD ' + e.error); };
+    r.onend = function(){ log(etykieta + ': koniec nasłuchu'); };
+    try{ r.start(); }catch(e){ log(etykieta + ': wyjątek ' + e.message); }
+  }
+  $('bRecPlayback').onclick = function(){
+    ustawPlayback();
+    sluchaj('mikrofon pod playback');
+  };
+
+  /* 7. Mikrofon i głos naraz */
+  $('bBoth').onclick = function(){
+    ustawPlayback();
+    startAnchor();
+    sluchaj('mikrofon (symulacja)');
+    setTimeout(function(){ say('질문이에요, 대답해 보세요'); }, 1000);
+  };
+
+  /* 8. Sygnał interfejsu po zwolnieniu playback */
+  function beep(){
+    try{
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.value = 880; g.gain.value = 0.2;
+      o.connect(g); g.connect(ctx.destination);
+      o.start(); o.stop(ctx.currentTime + 0.15);
+      log('sygnał interfejsu: odtworzony (jeśli tryb cichy WŁĄCZONY, nie powinieneś go usłyszeć)');
+    }catch(e){ log('sygnał interfejsu: BŁĄD ' + e.message); }
+  }
+  $('bBeepAfter').onclick = function(){
+    ustawPlayback();
+    startAnchor().then(function(){
+      say('신호 테스트');
+      setTimeout(function(){
+        ustawAuto();
+        setTimeout(beep, 500);
+      }, 2500);
+    });
+  };
+
+  /* 9. Muzyka z innych aplikacji — info + ten sam mechanizm co krok 3C */
+  $('bMusicTest').onclick = function(){
+    log('--- sprawdź teraz, czy muzyka w innej aplikacji ucichła/zatrzymała się ---');
+    ustawPlayback();
+    startAnchor().then(function(){ say('음악 테스트 중입니다'); });
   };
 
   $('bCopy').onclick = function(){
