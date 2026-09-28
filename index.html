@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.702
-  Zbudowane na: d05652c728e1b08e778bc9091e34a1e2 (.701)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.703
+  Zbudowane na: d8ae56ca8731e51bc4ad5738d9ca3c0d (.702)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -11414,13 +11414,21 @@ function haksaCzeka(tak, tekst){
   el.style.display = tak ? '' : 'none';
 }
 
+/* .703 — numer połączenia z Haksą. Spóźnione onclose starego gniazda (szybkie
+   rozłącz → połącz) nie może oddać 'auto' pod nową rozmową. */
+let haksaPolaczenieNr = 0;
+
 async function connectGeminiRelay(isRetry){
   if(!isPremiumPro){
     setGeminiVoiceStatus(uiLang === 'en' ? 'This feature requires Premium Pro.' : 'Ta funkcja wymaga Premium Pro.');
     return;
   }
+  /* .703 — 'playback' na całą rozmowę, w geście stuknięcia przed await.
+     Bez tego w trybie cichym rozmowa jest jednostronna (decyzja Damiana). */
+  HjSesjaAudio.wlacz('haksa');
+  const haksaMojeNr = ++haksaPolaczenieNr;
   const { data: { session } } = await sb.auth.getSession();
-  if(!session){ setGeminiVoiceStatus('Musisz być zalogowany/a.'); return; }
+  if(!session){ setGeminiVoiceStatus('Musisz być zalogowany/a.'); if(haksaMojeNr === haksaPolaczenieNr) HjSesjaAudio.zwolnij('haksa'); return; }
 
   geminiSetupComplete = false;
   if(!isRetry) resetGeminiTranscript();
@@ -11708,6 +11716,10 @@ function resetGeminiButtonsToReady(){
     /* 4010: przekaźnik odrzucił tryb odpytywania - brak listy słów albo zła.
        Czyścimy stan, żeby kolejne kliknięcie „Rozmowa" nie próbowało wysłać
        tej samej wadliwej listy. */
+    /* .703 — rozłączenie oddaje 'auto'. Wyjątek: automatyczne ponowienie po
+       1006 niżej — rozmowa trwa dalej, więc 'playback' zostaje. Oddaje tylko
+       najnowsze połączenie. */
+    if((isRetry || !wasNeverReady || event.code !== 1006) && haksaMojeNr === haksaPolaczenieNr) HjSesjaAudio.zwolnij('haksa');
     if(event.code === 4010){
       /* Przekaźnik odrzucił tryb odpytywania - najczęściej dlatego, że migracja
          z mode=drill nie jest jeszcze wdrożona. Zamiast zostawiać usera z błędem,
@@ -18383,7 +18395,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.702';
+const APP_VERSION = '2026-09-11.703';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -21120,6 +21132,30 @@ let odpytywanieWakeLock = null;
 let ttsNiedostepny = false;      // po pierwszym twardym błędzie nie próbujemy dalej
 const ttsPamiec = new Map();     // adres audio w obrębie sesji, żeby nie pytać dwa razy
 
+/* ═══ SESJA AUDIO iOS (.703) ═════════════════════════════════════════════
+   Na iPhonie przełącznik trybu cichego wycisza synteze mowy i lektora, bo
+   strona domyślnie gra w kategorii „ambient”. Test Damiana na urządzeniu
+   (iOS 18.7, aplikacja z ekranu głównego, tryb cichy): po ustawieniu
+   navigator.audioSession.type = 'playback' przed głosem dźwięk jest.
+
+   Decyzja Damiana (.703): 'playback' tylko na czas mowy, której uczeń słucha:
+     - tryb bez ekranu: raz na całą sesję, od startu do odpytywanieStop();
+       nie przełączamy przy każdej wypowiedzi (trzaski, urwane początki);
+     - pojedynczy odsłuch wymowy (speakKorean, lektor Premium): na czas odsłuchu;
+     - rozmowa z Haksą: od połączenia do rozłączenia.
+   Dźwięki interfejsu (dobrze / źle, kliknięcia, fanfary) zostają przy
+   przełączniku. 'play-and-record' świadomie NIE — nieprzetestowane.
+
+   Właściciele zamiast gołego przełączania: odsłuch słowa w trakcie sesji
+   albo rozmowy nie może po swoim końcu oddać 'auto' pod trwającą sesją.
+   Typ zmieniamy tylko wtedy, gdy jest inny niż bieżący. */
+const HjSesjaAudio = {
+  wlasciciele: new Set(),
+  ustaw(typ){ try{ if(navigator.audioSession && navigator.audioSession.type !== typ) navigator.audioSession.type = typ; }catch(e){} },
+  wlacz(kto){ this.wlasciciele.add(kto); this.ustaw('playback'); },
+  zwolnij(kto){ this.wlasciciele.delete(kto); if(!this.wlasciciele.size) this.ustaw('auto'); }
+};
+
 async function ttsPremium(tekst, opcje){
   /* Warunek to isPremium (basic LUB pro), nie isPremiumPro. Rozstrzygnięte
      2026-09-05: TTS różni się od pozostałych funkcji AI tym, że koszt NIE ROŚNIE
@@ -22062,14 +22098,22 @@ function odpytywanieOtworzPanel(){
 }
 
 async function odpytywanieStart(){
+  /* .703 — synchronicznie w geście stuknięcia, przed jakimkolwiek await. */
+  HjSesjaAudio.wlacz('odpytywanie');
   odpytywanieOtworzPanel();
   await odpytywanieRozpocznijSesje();
 }
 
 async function odpytywanieRozpocznijSesje(){
+  /* .703 — ta funkcja startuje sesję także z pigułki zestawu (po odmowie
+     albo po końcu kolejki), z pominięciem odpytywanieStart(). Tam też to
+     jest gest stuknięcia, więc 'playback' ustawiamy przed pierwszym await. */
+  HjSesjaAudio.wlacz('odpytywanie');
   const kolejka = zbudujKolejkeOdpytywania();
   if(kolejka.length < ODP_MIN_SLOW){
     odpytywanieStatus(odpZaMaloTekst());
+    /* Start odmówił: sesji nie ma, więc nie trzymamy 'playback'. */
+    if(!odpytywanieAktywne) HjSesjaAudio.zwolnij('odpytywanie');
     return false;
   }
   odpytywanieKolejka = kolejka;
@@ -22112,6 +22156,7 @@ function odpytywanieStop(koniec){
      panelem. Uchwyt istnieje od 2026-09-06, tylko nikt go tu nie wołał. */
   ttsZatrzymaj();
   CarAudioSession.stopAnchor();
+  HjSesjaAudio.zwolnij('odpytywanie');   /* .703 — powrót do 'auto' po kotwicy */
   CarAudioSession.wyczysc();
   OledLockOverlay.disable();
   if(!koniec) document.getElementById('odpytywaniePanel').classList.remove('open');
@@ -22179,14 +22224,31 @@ function odpNasluch(wlaczony){
   if(lin) lin.classList.toggle('slucha', wlaczony);
 }
 
+/* .703 — numer bieżącego odsłuchu. Oddaje 'auto' tylko ostatni: stary odsłuch
+   przerwany nowym (cancel → onerror / onend) nie może zdjąć 'playback'
+   spod nowego. Bezpiecznik czasowy łapie odsłuch, który nie zgłosi końca
+   (lektor zatrzymany przez ttsZatrzymaj, brak onend w mobilnym Safari). */
+let odsluchNr = 0;
+
 async function speakKorean(text, opcje){
   if(!text) return;
+  /* .703 — 'playback' synchronicznie w geście stuknięcia, przed await. */
+  const nr = ++odsluchNr;
+  HjSesjaAudio.wlacz('odsluch');
+  let skonczony = false;
+  const koniec = () => {
+    if(skonczony) return;
+    skonczony = true;
+    clearTimeout(bezpiecznik);
+    if(nr === odsluchNr) HjSesjaAudio.zwolnij('odsluch');
+  };
+  const bezpiecznik = setTimeout(koniec, 8000 + String(text).length * 150);
   /* Lektor Premium także tutaj - to ta sama treść wbudowana (fiszki, przykłady,
      czytanki), więc domyślnie wspólny bufor. Wywołania z własnymi słowami usera
      przekazują { shared:false }. */
   { const url = await ttsPremium(text, { shared: !(opcje && opcje.shared === false) });
-    if(url && await ttsOdtworz(url)) return; }
-  if(!('speechSynthesis' in window)) return; // cicho - przeglądarka nie wspiera, nie ma czym ostrzec w locie
+    if(url && await ttsOdtworz(url)){ koniec(); return; } }
+  if(!('speechSynthesis' in window)){ koniec(); return; } // cicho - przeglądarka nie wspiera, nie ma czym ostrzec w locie
   try{
     window.speechSynthesis.cancel(); // przerywa ewentualne poprzednie odtwarzanie, żeby się nie nakładały
     const utterance = new SpeechSynthesisUtterance(text);
@@ -22195,8 +22257,10 @@ async function speakKorean(text, opcje){
     // odpytywania: fiszki, czytanki, przykłady gramatyczne.
     { const g = najlepszyGlos('ko-KR'); if(g) utterance.voice = g; }
     utterance.rate = 0.9; // odrobinę wolniej niż domyślne tempo - łatwiej się uczyć
+    utterance.onend = koniec;
+    utterance.onerror = koniec;
     window.speechSynthesis.speak(utterance);
-  }catch(e){ /* cicho - brak głosu koreańskiego w systemie itp., nie blokujemy reszty interfejsu */ }
+  }catch(e){ koniec(); /* cicho - brak głosu koreańskiego w systemie itp., nie blokujemy reszty interfejsu */ }
 }
 
 function playCorrectSound(){
