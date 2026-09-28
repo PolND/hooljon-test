@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Hooljon — test trybu bez ekranu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+  body{ font:16px/1.45 -apple-system, system-ui, sans-serif; margin:0; padding:16px; background:#f4f1ea; color:#222; }
+  h1{ font-size:19px; margin:0 0 4px; }
+  p.small{ font-size:13px; color:#555; margin:2px 0 10px; }
+  button{ display:block; width:100%; padding:13px; margin:8px 0; font:600 15px -apple-system, system-ui, sans-serif; border:0; border-radius:10px; background:#2a2a37; color:#f1eee8; }
+  button.stop{ background:#a33; }
+  .krok{ border:1px solid #d5d0c4; border-radius:12px; padding:10px 12px; margin:12px 0; background:#fff; }
+  .krok b{ display:block; margin-bottom:2px; }
+  pre{ font:12px/1.4 ui-monospace, Menlo, monospace; white-space:pre-wrap; word-break:break-word; background:#111; color:#cfe8cf; padding:10px; border-radius:10px; min-height:120px; max-height:45vh; overflow:auto; }
+  #zegar{ font:700 22px ui-monospace, Menlo, monospace; text-align:center; }
+</style>
+</head>
+<body>
+<h1>Test trybu bez ekranu</h1>
+<p class="small">Uruchamiaj kroki po kolei, z tego samego miejsca, z którego używasz apki (ikona na ekranie głównym albo Safari). Na końcu stuknij „Kopiuj log” i wklej mi wynik.</p>
+
+<div class="krok"><b>0. Informacje o urządzeniu</b>
+  <button id="bInfo">Pokaż informacje</button></div>
+
+<div class="krok"><b>1. Blokada snu (ekran ma nie gasnąć)</b>
+  <p class="small">Stuknij, potem połóż telefon i nie dotykaj go przez 60 s. Zegar poniżej pokaże, czy ekran przez ten czas nie zgasł (ciągłość ticków).</p>
+  <button id="bWake">Włącz blokadę snu</button>
+  <div id="zegar">—</div></div>
+
+<div class="krok"><b>2. Kotwica audio + widżet na ekranie blokady</b>
+  <p class="small">Cicha ścieżka w pętli i metadane z okładką, jak w trybie bez ekranu. Po stuknięciu zablokuj telefon i zobacz, co jest na ekranie blokady i w wyspie.</p>
+  <button id="bAnchor">Włącz kotwicę + widżet</button>
+  <button id="bAnchorStop" class="stop">Wyłącz kotwicę</button></div>
+
+<div class="krok"><b>3. Głos aplikacji (syntezator mowy)</b>
+  <p class="small">A: od razu w geście. B: po opóźnieniu (jak w trybie: najpierw kotwica i czekanie). Jeśli A słychać, a B nie, przyczyną jest utrata zgody użytkownika po opóźnieniu.</p>
+  <button id="bVoiceA">A. Głos od razu</button>
+  <button id="bVoiceB">B. Głos po kotwicy i 1,5 s</button></div>
+
+<div class="krok"><b>4. Głos przy zgaszonym ekranie</b>
+  <p class="small">Stuknij, zablokuj telefon na 30 s, odblokuj i stuknij „Stop”. W logu zobaczysz, które zdania faktycznie ruszyły przy zablokowanym ekranie.</p>
+  <button id="bLoop">Start: głos co 8 s</button>
+  <button id="bLoopStop" class="stop">Stop</button></div>
+
+<div class="krok"><b>5. Mikrofon i rozpoznawanie mowy</b>
+  <p class="small">Powiedz coś po koreańsku, np. „안녕하세요”.</p>
+  <button id="bRec">Słuchaj (ko-KR)</button></div>
+
+<button id="bCopy">Kopiuj log</button>
+<pre id="log"></pre>
+
+<script>
+(function(){
+  var out = document.getElementById('log'), lines = [];
+  function t(){ var d = new Date(); return d.toTimeString().slice(0,8) + '.' + String(d.getMilliseconds()).padStart(3,'0'); }
+  function log(m){ var s = t() + ' [' + document.visibilityState + '] ' + m; lines.push(s); out.textContent = lines.join('\n'); out.scrollTop = out.scrollHeight; }
+  function $(id){ return document.getElementById(id); }
+
+  ['visibilitychange','pagehide','pageshow','freeze','resume'].forEach(function(n){
+    (n === 'visibilitychange' ? document : window).addEventListener(n, function(){ log('zdarzenie: ' + n); });
+  });
+
+  $('bInfo').onclick = function(){
+    var st = (window.navigator.standalone === true) || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+    log('UA: ' + navigator.userAgent);
+    log('tryb z ekranu głównego (standalone): ' + st);
+    log('wakeLock: ' + ('wakeLock' in navigator) + ' | mediaSession: ' + ('mediaSession' in navigator) + ' | speechSynthesis: ' + ('speechSynthesis' in window));
+    log('SpeechRecognition: ' + !!(window.SpeechRecognition || window.webkitSpeechRecognition));
+    try{
+      var v = speechSynthesis.getVoices();
+      log('głosy: ' + v.length + ', koreańskich: ' + v.filter(function(x){ return /^ko/i.test(x.lang); }).map(function(x){ return x.name; }).join(', '));
+    }catch(e){ log('głosy: błąd ' + e.message); }
+  };
+
+  /* 1. Blokada snu + zegar */
+  var sentinel = null, last = Date.now();
+  setInterval(function(){
+    var now = Date.now(), gap = now - last; last = now;
+    if(sentinel){ $('zegar').textContent = new Date().toTimeString().slice(0,8); }
+    if(gap > 3000) log('LUKA w tickach: ' + Math.round(gap/1000) + ' s (strona była wstrzymana albo ekran zgasł)');
+  }, 1000);
+  $('bWake').onclick = function(){
+    if(!('wakeLock' in navigator)){ log('wakeLock: BRAK wsparcia'); return; }
+    navigator.wakeLock.request('screen').then(function(s){
+      sentinel = s; log('wakeLock: PRZYZNANA');
+      s.addEventListener('release', function(){ log('wakeLock: zwolniona przez system'); sentinel = null; });
+    }).catch(function(e){ log('wakeLock: ODMOWA — ' + e.name + ': ' + e.message); });
+  };
+
+  /* 2. Kotwica + MediaSession */
+  var anchor = null;
+  function silentWav(){
+    var sr = 8000, n = sr, b = new Uint8Array(44 + n), v = new DataView(b.buffer);
+    function w(o, s){ for(var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); }
+    w(0,'RIFF'); v.setUint32(4, 36 + n, true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true);
+    v.setUint16(20,1,true); v.setUint16(22,1,true); v.setUint32(24,sr,true); v.setUint32(28,sr,true);
+    v.setUint16(32,1,true); v.setUint16(34,8,true); w(36,'data'); v.setUint32(40,n,true);
+    for(var i = 0; i < n; i++) b[44 + i] = 128;
+    var bin = ''; for(var j = 0; j < b.length; j++) bin += String.fromCharCode(b[j]);
+    return 'data:audio/wav;base64,' + btoa(bin);
+  }
+  function cover(){
+    var c = document.createElement('canvas'); c.width = c.height = 512; var x = c.getContext('2d');
+    x.fillStyle = '#2A2A37'; x.fillRect(0,0,512,512); x.fillStyle = '#C1512F'; x.fillRect(0,454,512,58);
+    x.fillStyle = '#F1EEE8'; x.font = '700 120px serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText('안녕', 256, 230); return c.toDataURL('image/png');
+  }
+  function startAnchor(){
+    if(!anchor){ anchor = document.createElement('audio'); anchor.src = silentWav(); anchor.loop = true; anchor.volume = 0.01; }
+    return anchor.play().then(function(){ log('kotwica: gra'); }).catch(function(e){ log('kotwica: BŁĄD ' + e.name + ': ' + e.message); });
+  }
+  $('bAnchor').onclick = function(){
+    startAnchor().then(function(){
+      if(!('mediaSession' in navigator)){ log('mediaSession: brak'); return; }
+      try{
+        navigator.mediaSession.metadata = new MediaMetadata({ title: '식당', artist: 'Hooljon', album: 'Test',
+          artwork: [{ src: cover(), sizes: '512x512', type: 'image/png' }] });
+        navigator.mediaSession.playbackState = 'playing';
+        ['play','pause','nexttrack','previoustrack'].forEach(function(a){
+          try{ navigator.mediaSession.setActionHandler(a, function(){ log('przycisk widżetu: ' + a); }); }catch(e){}
+        });
+        log('mediaSession: metadane ustawione (tytuł „식당”, okładka 512x512)');
+      }catch(e){ log('mediaSession: BŁĄD ' + e.message); }
+    });
+  };
+  $('bAnchorStop').onclick = function(){
+    if(anchor) anchor.pause();
+    try{ navigator.mediaSession.metadata = null; navigator.mediaSession.playbackState = 'none'; }catch(e){}
+    log('kotwica: zatrzymana');
+  };
+
+  /* 3. Głos */
+  function say(text){
+    if(!('speechSynthesis' in window)){ log('speechSynthesis: brak'); return; }
+    var u = new SpeechSynthesisUtterance(text); u.lang = 'ko-KR';
+    var v = speechSynthesis.getVoices().filter(function(x){ return /^ko/i.test(x.lang); })[0]; if(v) u.voice = v;
+    u.onstart = function(){ log('głos: START „' + text + '”'); };
+    u.onend = function(){ log('głos: koniec „' + text + '”'); };
+    u.onerror = function(e){ log('głos: BŁĄD ' + e.error); };
+    speechSynthesis.speak(u);
+    log('głos: speak() wywołane „' + text + '”');
+  }
+  $('bVoiceA').onclick = function(){ say('안녕하세요, 테스트 A'); };
+  $('bVoiceB').onclick = function(){
+    startAnchor().then(function(){ return new Promise(function(r){ setTimeout(r, 1500); }); })
+      .then(function(){ say('안녕하세요, 테스트 B'); });
+  };
+
+  /* 4. Pętla głosowa */
+  var loopT = null, loopN = 0;
+  $('bLoop').onclick = function(){
+    if(loopT) return;
+    startAnchor();
+    loopN = 0;
+    loopT = setInterval(function(){ loopN++; say('하나 ' + loopN); }, 8000);
+    log('pętla: start');
+  };
+  $('bLoopStop').onclick = function(){ if(loopT){ clearInterval(loopT); loopT = null; } try{ speechSynthesis.cancel(); }catch(e){} log('pętla: stop'); };
+
+  /* 5. Mikrofon */
+  $('bRec').onclick = function(){
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SR){ log('rozpoznawanie mowy: BRAK wsparcia'); return; }
+    var r = new SR(); r.lang = 'ko-KR'; r.interimResults = true;
+    r.onstart = function(){ log('mikrofon: start nasłuchu'); };
+    r.onresult = function(e){ var res = e.results[e.results.length - 1]; log('usłyszano' + (res.isFinal ? ' (finalnie)' : '') + ': ' + res[0].transcript); };
+    r.onerror = function(e){ log('mikrofon: BŁĄD ' + e.error); };
+    r.onend = function(){ log('mikrofon: koniec nasłuchu'); };
+    try{ r.start(); }catch(e){ log('mikrofon: wyjątek ' + e.message); }
+  };
+
+  $('bCopy').onclick = function(){
+    var txt = lines.join('\n');
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){ log('log skopiowany'); }, function(){ log('nie udało się skopiować — zaznacz tekst ręcznie'); });
+    } else { log('brak schowka — zaznacz tekst ręcznie'); }
+  };
+  log('gotowe. Zacznij od kroku 0.');
+})();
+</script>
+</body>
+</html>
