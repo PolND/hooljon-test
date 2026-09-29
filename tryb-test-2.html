@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Hooljon — test dźwięku 2</title>
+<style>
+  :root{ color-scheme:light dark; --bg:#fff; --ink:#111; --dim:#666; --line:#ddd; --ok:#1d7a46; --bad:#b3261e; --mid:#8a6d00; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#111; --ink:#eee; --dim:#999; --line:#333; --ok:#5fd18f; --bad:#ff7a70; --mid:#e7c14a; } }
+  body{ margin:0; padding:16px 16px 60px; background:var(--bg); color:var(--ink); font:15px/1.45 -apple-system, system-ui, sans-serif; }
+  h1{ font-size:19px; margin:0 0 4px; } h2{ font-size:15px; margin:22px 0 6px; }
+  .dim{ color:var(--dim); font-size:13px; }
+  .stan{ position:sticky; top:0; background:var(--bg); padding:8px 0; border-bottom:1px solid var(--line); z-index:2; font-size:13px; }
+  .krok{ border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin:8px 0; }
+  .krok b{ display:block; margin-bottom:2px; }
+  button{ font:inherit; padding:9px 12px; border-radius:10px; border:1px solid var(--line); background:transparent; color:var(--ink); margin:6px 6px 0 0; }
+  button.graj{ font-weight:600; }
+  .oc button{ font-size:13px; padding:6px 9px; }
+  .oc button.wyb{ border-color:var(--ink); font-weight:700; }
+  .wynik{ font-size:12.5px; color:var(--dim); margin-top:4px; }
+  textarea{ width:100%; box-sizing:border-box; min-height:180px; font:12px/1.4 ui-monospace, monospace; background:transparent; color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:8px; }
+  .seg button.wyb{ border-color:var(--ink); font-weight:700; }
+</style>
+</head>
+<body>
+<h1>Test dźwięku 2 — tryb cichy i mikrofon</h1>
+<p class="dim">Diagnoza wyników z <code>.708</code>: brak głosu w trybie bez ekranu i u Haksy, dźwięki interfejsu w trybie cichym. Każdy krok sprawdza jedną rzecz. Po kroku zaznacz, co słychać. Na końcu skopiuj wyniki i odeślij.</p>
+
+<div class="stan" id="stan">…</div>
+
+<h2>Przełącznik z boku telefonu</h2>
+<div class="seg" id="cichy">
+  <button data-v="wł">Tryb cichy WŁĄCZONY</button>
+  <button data-v="wył">Tryb cichy WYŁĄCZONY</button>
+</div>
+<p class="dim">Zaznacz, jak jest ustawiony. Najpierw przejdź wszystkie kroki z trybem cichym włączonym, potem sekcję B jeszcze raz z wyłączonym.</p>
+
+<h2>A. Bez mikrofonu</h2>
+<div id="sekcjaA"></div>
+
+<h2>B. Z mikrofonem</h2>
+<p class="dim">Przy pierwszym kroku telefon zapyta o mikrofon — zezwól. Trzymaj telefon przed sobą, nie przy uchu: chodzi o to, czy dźwięk idzie z głośnika na dole, czy ze słuchawki u góry (cicho, jak w rozmowie telefonicznej).</p>
+<div id="sekcjaB"></div>
+
+<h2>Wyniki</h2>
+<textarea id="wyniki" readonly></textarea>
+<button id="kopiuj">Kopiuj wyniki</button>
+
+<script>
+'use strict';
+const AS = navigator.audioSession || null;
+const ustawTyp = (t) => { try{ if(AS) AS.type = t; }catch(e){ log('ustawienie typu ' + t + ' rzuciło: ' + e.message); } };
+const typ = () => (AS ? AS.type : 'brak API');
+let cichy = '?';
+const W = [];
+const log = (t) => { W.push(t); odswiez(); };
+function odswiez(){
+  document.getElementById('stan').textContent =
+    'audioSession: ' + (AS ? 'jest' : 'BRAK') + ' · typ teraz: ' + typ() + ' · tryb cichy: ' + cichy +
+    ' · ekran główny: ' + (window.navigator.standalone ? 'tak' : 'nie');
+  const ua = navigator.userAgent.match(/OS (\d+[_\d]*)/);
+  document.getElementById('wyniki').value = ['iOS ' + (ua ? ua[1].replace(/_/g, '.') : '?') + ' · ekran główny: ' + (window.navigator.standalone ? 'tak' : 'nie') + ' · audioSession: ' + (AS ? 'jest' : 'brak')].concat(W).join('\n');
+}
+setInterval(odswiez, 500);
+
+/* ── źródła dźwięku ── */
+let ctx = null;
+function kontekst(){ if(!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if(ctx.state === 'suspended') ctx.resume(); return ctx; }
+function pisk(){ const c = kontekst(); const o = c.createOscillator(), g = c.createGain(); o.frequency.value = 660; g.gain.setValueAtTime(0.0001, c.currentTime); g.gain.exponentialRampToValueAtTime(0.4, c.currentTime + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + 0.7); o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + 0.75); }
+function wavPisk(){ const sr = 22050, n = Math.floor(sr * 0.7), b = new ArrayBuffer(44 + n * 2), v = new DataView(b);
+  const s = (o, t) => { for(let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+  s(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); s(8, 'WAVE'); s(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); s(36, 'data'); v.setUint32(40, n * 2, true);
+  for(let i = 0; i < n; i++){ const e = Math.min(1, i / 600, (n - i) / 600); v.setInt16(44 + i * 2, Math.sin(2 * Math.PI * 520 * i / sr) * 12000 * e, true); }
+  let bin = ''; const u = new Uint8Array(b); for(let i = 0; i < u.length; i++) bin += String.fromCharCode(u[i]);
+  return 'data:audio/wav;base64,' + btoa(bin); }
+const WAV = wavPisk();
+function audioEl(){ const a = new Audio(WAV); return a.play().catch((e) => log('  audio.play odrzucone: ' + e.message)); }
+function mowa(t){ try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'pl-PL'; speechSynthesis.speak(u); }catch(e){ log('  synteza rzuciła: ' + e.message); } }
+
+let strumien = null;
+async function mikWlacz(){ if(strumien) return true; try{ strumien = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true } }); return true; }catch(e){ log('  mikrofon: ' + e.name); return false; } }
+function mikWylacz(){ if(strumien){ strumien.getTracks().forEach((t) => t.stop()); strumien = null; } }
+function rozpoznaj(){ return new Promise((res) => {
+  const R = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!R){ log('  brak SpeechRecognition'); res(''); return; }
+  const r = new R(); r.lang = 'pl-PL'; r.interimResults = false; r.maxAlternatives = 1;
+  let wynik = ''; r.onresult = (e) => { wynik = e.results[0][0].transcript; };
+  r.onerror = (e) => { log('  rozpoznawanie błąd: ' + e.error); };
+  r.onend = () => res(wynik);
+  try{ r.start(); }catch(e){ log('  rozpoznawanie start: ' + e.message); res(''); }
+  setTimeout(() => { try{ r.stop(); }catch(e){} }, 5000);
+}); }
+
+/* ── kroki ── */
+const OCENY = ['głośno z głośnika', 'cicho (słuchawka u góry)', 'nie słychać'];
+const KROKI_A = [
+  { id: 'A1', opis: 'typ auto → synteza mowy', f: () => { ustawTyp('auto'); mowa('Test jeden. Synteza mowy.'); } },
+  { id: 'A2', opis: 'typ playback → synteza mowy (jak w tryb-test krok C)', f: () => { ustawTyp('playback'); mowa('Test dwa. Synteza mowy.'); } },
+  { id: 'A3', opis: 'typ playback → element audio (jak lektor Premium)', f: () => { ustawTyp('playback'); audioEl(); } },
+  { id: 'A4', opis: 'typ playback → Web Audio (jak głos Haksy)', f: () => { ustawTyp('playback'); pisk(); } },
+  { id: 'A5', opis: 'powrót: typ auto → Web Audio (jak dźwięk dobrze / źle; w trybie cichym powinno milczeć)', f: () => { ustawTyp('auto'); pisk(); } },
+  { id: 'A6', opis: 'typ auto → element audio (czy element audio sam omija tryb cichy)', f: () => { ustawTyp('auto'); audioEl(); } },
+];
+const KROKI_B = [
+  { id: 'B1', opis: 'typ playback → rozpoznawanie mowy (powiedz „jabłko”, 5 s) → potem synteza', f: async () => { ustawTyp('playback'); log('  B1 typ przed nasłuchem: ' + typ()); const t = await rozpoznaj(); log('  B1 usłyszane: „' + t + '” · typ po nasłuchu: ' + typ()); mowa('Usłyszałem: ' + (t || 'nic')); } },
+  { id: 'B2', opis: 'typ playback → mikrofon otwarty → Web Audio (jak Haksa)', f: async () => { ustawTyp('playback'); if(await mikWlacz()){ log('  B2 typ z otwartym mikrofonem: ' + typ()); pisk(); } } },
+  { id: 'B3', opis: 'typ play-and-record → mikrofon otwarty → Web Audio', f: async () => { ustawTyp('play-and-record'); if(await mikWlacz()){ log('  B3 typ: ' + typ()); pisk(); } } },
+  { id: 'B4', opis: 'typ play-and-record → mikrofon otwarty → synteza mowy', f: async () => { ustawTyp('play-and-record'); if(await mikWlacz()){ mowa('Test B cztery. Mikrofon otwarty.'); } } },
+  { id: 'B5', opis: 'typ auto → mikrofon otwarty → Web Audio (stan sprzed .703)', f: async () => { ustawTyp('auto'); if(await mikWlacz()){ log('  B5 typ: ' + typ()); pisk(); } } },
+  { id: 'B6', opis: 'mikrofon zamknięty, typ auto → Web Audio (czy dźwięki interfejsu wracają pod przełącznik)', f: () => { mikWylacz(); ustawTyp('auto'); pisk(); } },
+];
+function zbuduj(miejsce, kroki){
+  const el = document.getElementById(miejsce);
+  kroki.forEach((k) => {
+    const d = document.createElement('div'); d.className = 'krok';
+    d.innerHTML = '<b>' + k.id + '</b><span class="dim">' + k.opis + '</span><div><button class="graj">Odtwórz</button></div><div class="oc"></div><div class="wynik"></div>';
+    d.querySelector('.graj').addEventListener('click', async () => { try{ await k.f(); }catch(e){ log('  ' + k.id + ' wyjątek: ' + e.message); } odswiez(); });
+    const oc = d.querySelector('.oc');
+    OCENY.forEach((o) => { const b = document.createElement('button'); b.textContent = o; b.addEventListener('click', () => {
+      oc.querySelectorAll('button').forEach((x) => x.classList.toggle('wyb', x === b));
+      d.querySelector('.wynik').textContent = 'zapisane: ' + o;
+      log(k.id + ' [tryb cichy ' + cichy + '] ' + k.opis + ' → ' + o + ' (typ po kroku: ' + typ() + ')');
+    }); oc.appendChild(b); });
+    el.appendChild(d);
+  });
+}
+zbuduj('sekcjaA', KROKI_A);
+zbuduj('sekcjaB', KROKI_B);
+document.querySelectorAll('#cichy button').forEach((b) => b.addEventListener('click', () => {
+  cichy = b.dataset.v; document.querySelectorAll('#cichy button').forEach((x) => x.classList.toggle('wyb', x === b)); odswiez();
+}));
+document.getElementById('kopiuj').addEventListener('click', async () => {
+  const t = document.getElementById('wyniki');
+  try{ await navigator.clipboard.writeText(t.value); }catch(e){ t.select(); document.execCommand('copy'); }
+});
+odswiez();
+</script>
+</body>
+</html>
