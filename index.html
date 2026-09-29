@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.708
-  Zbudowane na: d628d52446f45929ce63b02a3d00d972 (.707)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.709
+  Zbudowane na: 3d30a015fd871b1001e3e1b0cc6044bb (.708)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -18573,7 +18573,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.708';
+const APP_VERSION = '2026-09-11.709';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -21348,11 +21348,34 @@ const ttsPamiec = new Map();     // adres audio w obrębie sesji, żeby nie pyta
 
    Właściciele zamiast gołego przełączania: odsłuch słowa w trakcie sesji
    albo rozmowy nie może po swoim końcu oddać 'auto' pod trwającą sesją.
-   Typ zmieniamy tylko wtedy, gdy jest inny niż bieżący. */
+   Typ zmieniamy tylko wtedy, gdy jest inny niż bieżący.
+
+   ═══ .709 — NIE PRZY OTWARTYM MIKROFONIE (test Damiana na iPhonie po .708) ═══
+   Z trybem cichym WYŁĄCZONYM: w trybie bez ekranu słychać tylko pierwsze
+   słowo, po starcie nasłuchu cisza; Haksy nie słychać wcale. Pojedyncza
+   wymowa (bez mikrofonu) działa. iPhone nie godzi 'playback' z otwartym
+   mikrofonem. Decyzja Damiana: tryb bez ekranu i Haksa wracają do stanu
+   sprzed .703 — w trybie cichym milczą jak dawniej, ale bez trybu cichego
+   mówią. Właściwa poprawka po wynikach tryb-test-2.html (kroki B).
+     - wejście w tryb z mikrofonem ('odpytywanie', 'haksa') zdejmuje
+       'playback', także ten z trwającego odsłuchu słowa;
+     - odsłuch słowa przy czynnym mikrofonie typu nie rusza.
+   przyMikrofonie = true przywraca zachowanie z .703 (do testu, nie do wydania). */
 const HjSesjaAudio = {
   wlasciciele: new Set(),
+  przyMikrofonie: false,
+  mikrofonCzynny(){
+    try{ return (typeof odpytywanieAktywne !== 'undefined' && !!odpytywanieAktywne)
+             || (typeof geminiSocket !== 'undefined' && !!geminiSocket); }catch(e){ return false; }
+  },
   ustaw(typ){ try{ if(navigator.audioSession && navigator.audioSession.type !== typ) navigator.audioSession.type = typ; }catch(e){} },
-  wlacz(kto){ this.wlasciciele.add(kto); this.ustaw('playback'); },
+  wlacz(kto){
+    if(!this.przyMikrofonie){
+      if(kto === 'odpytywanie' || kto === 'haksa'){ this.wlasciciele.clear(); this.ustaw('auto'); return; }
+      if(this.mikrofonCzynny()) return;
+    }
+    this.wlasciciele.add(kto); this.ustaw('playback');
+  },
   zwolnij(kto){ this.wlasciciele.delete(kto); if(!this.wlasciciele.size) this.ustaw('auto'); }
 };
 
