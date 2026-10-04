@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.725
-  Zbudowane na: 825c4facf5001757d60106bf936ac35e (.724)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.726
+  Zbudowane na: 29ab5fd3d446602741e770b718bcfd24 (.725)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -18789,7 +18789,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.725';
+const APP_VERSION = '2026-09-11.726';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -36974,7 +36974,10 @@ var KARAOKE = (function () {
     const odNowa = el('button', 'kar-btn kar-btn-drugi kar-od', en() ? '↺ From start' : '↺ Od początku'); odNowa.type = 'button';
     const tempoL = el('label', 'kar-tempo-l', en() ? 'Tempo ' : 'Tempo ');
     const tempoS = el('select', 'kar-tempo');
-    [['0.75', '0,75×'], ['1', '1×'], ['1.25', '1,25×']].forEach(([v, t]) => { const o = el('option', '', t); o.value = v; if (v === '1') o.selected = true; tempoS.appendChild(o); });
+    [['0.5', '0,5×'], ['0.75', '0,75×'], ['1', '1×'], ['1.25', '1,25×']].forEach(([v, t]) => { const o = el('option', '', t); o.value = v; if (v === '1') o.selected = true; tempoS.appendChild(o); });
+    /* .726 (decyzja nr 20): nagrania startują od 0,75× (głos mówi ok. 6,6 sylaby/s), rytm schematyczny od 1×;
+       gdy uczeń sam wybierze tempo, jego wybór zostaje przy kolejnych zdaniach */
+    let tempoRecznie = false;
     tempoL.appendChild(tempoS);
     ster.appendChild(graj); ster.appendChild(odNowa); ster.appendChild(tempoL);
     const zrodlo = el('div', 'kar-zrodlo', '');
@@ -37073,6 +37076,7 @@ var KARAOKE = (function () {
       l3.hidden = !syl.some((x) => x.range === 'expanded');
       koniec = syl.length ? syl[syl.length - 1].end : 0;
       ustawAudio(z);
+      if (!tempoRecznie) tempoS.value = zAudio ? '0.75' : '1';
       zrodlo.textContent = podpisZrodla(z);
       rysujKontur();
       przewin(0);
@@ -37201,7 +37205,7 @@ var KARAOKE = (function () {
     }
     graj.addEventListener('click', () => (gra ? stop(false) : start()));
     odNowa.addEventListener('click', () => { przewin(0); if (!gra) start(); });
-    tempoS.addEventListener('change', () => { if (zAudio && audio) audio.playbackRate = tempo(); else if (gra) { poz = zegar(); t0 = performance.now(); } });
+    tempoS.addEventListener('change', () => { tempoRecznie = true; if (zAudio && audio) audio.playbackRate = tempo(); else if (gra) { poz = zegar(); t0 = performance.now(); } });
     rysujWybor(); zbuduj();
     return {
       root, zdania: () => zdania, biezace: () => biez,
