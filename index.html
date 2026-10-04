@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.723
-  Zbudowane na: 3e2b7578de6393eed6c42e844b8716f9 (.722)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.724
+  Zbudowane na: 7c198f4e8cf2818ebdb2e1aba95d6669 (.723)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -5596,7 +5596,7 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
   .kar-karta{background:var(--card); border:1px solid var(--border); border-radius:var(--radius, 22px); padding:16px; overflow:hidden;}
   .kar-btn{font:600 14px var(--font-ui); border:1px solid var(--hwang); background:var(--hwang); color:var(--on-accent); border-radius:var(--btn-radius, 999px); padding:9px 16px; cursor:pointer; width:auto; min-height:0;}
   .kar-btn.kar-btn-drugi{background:transparent; color:var(--ink); border-color:var(--border);}
-  .kar-wybor{display:flex; gap:8px; overflow-x:auto; padding:2px 2px 8px; margin-bottom:8px; -webkit-overflow-scrolling:touch; scrollbar-width:thin;}
+  .kar-wybor{display:flex; gap:8px; overflow-x:auto; padding:2px 2px 8px; margin-bottom:8px; -webkit-overflow-scrolling:touch; scrollbar-width:thin; scrollbar-color:var(--border) transparent;}
   .kar-chip{flex:0 0 auto; white-space:nowrap; font:500 13px var(--font-ko); border:1px solid var(--border); background:transparent; color:var(--ink); border-radius:var(--radius-pill, 999px); padding:6px 12px; cursor:pointer;}
   .kar-chip[aria-pressed="true"]{border-color:var(--hwang); color:var(--hwang);}
   .kar-mowca{font:600 15px var(--font-ko); color:var(--ink-dim); margin:2px 0 -2px;}
@@ -5640,6 +5640,9 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
   .kar-tempo-l{font-size:13px; color:var(--ink-dim); display:flex; align-items:center; gap:6px;}
   .kar-tempo{font:inherit; color:var(--ink); background:var(--card); border:1px solid var(--border); border-radius:8px; padding:4px 6px;}
   .kar-zrodlo{font-size:11px; color:var(--ink-dim); margin-top:8px; line-height:1.45;}
+  /* .724 — czytanka z karaoke bez ramki w ramce: tekst z sekcją rośnie razem z kartą (bez max-height 52vh
+     i własnego przewijania z .teach-mode), więc przycisk karaoke jest zawsze w zasięgu przewijania strony */
+  .teach-mode #storyQuestionMain:has(.tekst-tytul):has(.kar-sekcja){max-height:none; overflow-y:visible;}
   @media (prefers-reduced-motion: reduce){ .kar-syl{transition:none;} }
   .teach-mode #storyQuestionMain:has(.tekst-tytul){
     max-height:52vh;
@@ -18786,7 +18789,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.723';
+const APP_VERSION = '2026-09-11.724';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -36962,7 +36965,12 @@ var KARAOKE = (function () {
     legenda.appendChild(l1); legenda.appendChild(l2); legenda.appendChild(l3);
     const pasek = el('div', 'kar-pasek'), pasekI = el('i'); pasek.appendChild(pasekI);
     const ster = el('div', 'kar-ster');
-    const graj = el('button', 'kar-btn kar-graj', en() ? '▶ Play' : '▶ Odtwórz'); graj.type = 'button';
+    /* .724 (decyzja Damiana): bez nagrania przycisk nie obiecuje dźwięku — „Pokaż rytm”; z polem audio — „Odtwórz” */
+    function etykietaGraj() {
+      const z = zdania[biez];
+      return z && typeof z.audio === 'string' && z.audio ? (en() ? '▶ Play' : '▶ Odtwórz') : (en() ? '▶ Show rhythm' : '▶ Pokaż rytm');
+    }
+    const graj = el('button', 'kar-btn kar-graj', ''); graj.type = 'button';
     const odNowa = el('button', 'kar-btn kar-btn-drugi kar-od', en() ? '↺ From start' : '↺ Od początku'); odNowa.type = 'button';
     const tempoL = el('label', 'kar-tempo-l', en() ? 'Tempo ' : 'Tempo ');
     const tempoS = el('select', 'kar-tempo');
@@ -37036,7 +37044,7 @@ var KARAOKE = (function () {
       koniec = syl.length ? syl[syl.length - 1].end : 0;
       rysujKontur();
       przewin(0);
-      graj.textContent = en() ? '▶ Play' : '▶ Odtwórz';
+      graj.textContent = etykietaGraj();
     }
     function rysujKontur() {
       svg.textContent = '';
@@ -37144,7 +37152,7 @@ var KARAOKE = (function () {
     function stop(doKonca) {
       if (gra) poz = Math.min(zegar(), koniec + 0.15);
       gra = false; cancelAnimationFrame(raf);
-      graj.textContent = doKonca ? (en() ? '▶ Again' : '▶ Jeszcze raz') : (en() ? '▶ Play' : '▶ Odtwórz');
+      graj.textContent = doKonca ? (en() ? '▶ Again' : '▶ Jeszcze raz') : etykietaGraj();
       pokaz(poz);
     }
     function przewin(t) { poz = t; t0 = performance.now(); aktywna = -2; pokaz(t); }
