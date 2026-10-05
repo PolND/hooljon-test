@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.742
-  Zbudowane na: 64daf190254bc90636cbe4af6b8123be (.741)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.744
+  Zbudowane na: e7680f035222a6e64bfab1fe9546f4bb (.743)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -570,7 +570,8 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
   .pk-stempel{ margin-top:6px; font-size:11.5px; color:var(--ink-dim);
     font-variant-numeric:tabular-nums; letter-spacing:.02em; }
   .pk-podtytul{ margin-top:2px; font-size:13px; color:var(--ink-dim); }
-  @media (min-width:520px){ .pk-kafel{ flex:1 1 calc(50% - 8px); } }
+  /* .744 (pakiet 6 §9.5): siatka po dwa od 520 px usunięta — opcje Kompasu to jedna oś (od starszego do obcego),
+     nie zbiór rzeczy równoległych. Jedna kolumna na każdej szerokości, we wszystkich trzech krokach. */
   .pk-input, .pk-select{ width:100%; margin-top:10px; padding:11px 12px;
     border:1px solid var(--border); border-radius:var(--radius-pill);
     background:var(--surface); color:var(--ink); font:14.5px var(--font-ui); }
@@ -683,8 +684,11 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
   /* .742 (pakiet 6 §9.4): stan pusty miejsca na wynik Kompasu — trzy przygaszone szczeliny w kształcie kafli
      wyniku i jedno zdanie. Bez centrowania w pionie: wynik pojawia się dokładnie tu, ekran nie podskakuje. */
   .pk-pusto{ display:flex; flex-direction:column; gap:12px; }
-  .pk-szczelina{ height:52px; border:1px solid var(--border); border-radius:14px;
-    background:var(--surface-2); opacity:.45; }
+  /* .743 — reguła Fable: tusz 6 % / obrys 12 %. Na ciemnym tle rozjaśnia, na jasnym przyciemnia, więc krok względem
+     tła jest stały w każdym motywie (w .742: 1,02–1,04:1, czyli niewidoczne w słońcu). */
+  .pk-szczelina{ height:52px; border-radius:14px;
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 12%, transparent); }
   /* zdanie nad szczelinami: na telefonie stoi w pierwszym widoku, nie pod dolną nawigacją */
   .pk-pusto-zdanie{ text-align:center; font-size:13px; color:var(--ink-dim); }
   .word-alt{ display:flex; flex-wrap:wrap; align-items:baseline; gap:6px; margin-top:8px; }
@@ -18574,7 +18578,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.742';
+const APP_VERSION = '2026-09-11.744';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
