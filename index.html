@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.741
-  Zbudowane na: b4e5a095a5205c1eb79193e5d3dff331 (.740)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.742
+  Zbudowane na: 64daf190254bc90636cbe4af6b8123be (.741)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -680,6 +680,13 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
     border:1px solid var(--border); background:0; color:var(--ink-dim); cursor:pointer; }
   .pk-odrzucone, .pk-czekam{ border:1px solid var(--border); border-radius:12px;
     padding:12px 14px; font-size:13px; color:var(--ink-dim); background:var(--surface); }
+  /* .742 (pakiet 6 §9.4): stan pusty miejsca na wynik Kompasu — trzy przygaszone szczeliny w kształcie kafli
+     wyniku i jedno zdanie. Bez centrowania w pionie: wynik pojawia się dokładnie tu, ekran nie podskakuje. */
+  .pk-pusto{ display:flex; flex-direction:column; gap:12px; }
+  .pk-szczelina{ height:52px; border:1px solid var(--border); border-radius:14px;
+    background:var(--surface-2); opacity:.45; }
+  /* zdanie nad szczelinami: na telefonie stoi w pierwszym widoku, nie pod dolną nawigacją */
+  .pk-pusto-zdanie{ text-align:center; font-size:13px; color:var(--ink-dim); }
   .word-alt{ display:flex; flex-wrap:wrap; align-items:baseline; gap:6px; margin-top:8px; }
   .word-alt button{ background:none; border:0; padding:0; font:inherit; color:var(--accent, #3b6ea5);
     text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
@@ -18567,7 +18574,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.741';
+const APP_VERSION = '2026-09-11.742';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -19945,6 +19952,8 @@ const I18N = {
   homeSectionTools: { pl: 'Narzędzia', en: 'Tools' },
   pkZKim: { pl: 'Z kim rozmawiasz', en: 'Who are you talking to' },
   pkPytaj: { pl: 'Pokaż trzy sposoby', en: 'Show three ways' },
+  /* .742, pakiet 6 §9.4 — PL dosłownie z pakietu */
+  pkPustyStan: { pl: 'Tu pojawią się trzy sposoby', en: 'Three ways will appear here' },
   homeChatTitle: { pl: 'Wolna rozmowa', en: 'Free conversation' },
   homeChatDesc: { pl: 'Twój wirtualny mentor — rozmawiaj po koreańsku.', en: 'Your virtual mentor - talk in Korean.' },
   homeReadingTitle: { pl: 'Czytanie', en: 'Reading' },
@@ -30140,7 +30149,10 @@ function pkWejscieDoEkranu(){
   const stempel = document.getElementById('pkStempel');
   if(stempel) stempel.textContent = APP_VERSION + ' · prompt ' + PK_ODCISK_PROMPTU;
   const cel = document.getElementById('pkWynik');
-  if(cel) cel.innerHTML = '';
+  /* .742 (pakiet 6 §9.4): miejsce na wynik ma stan pusty, nie pustkę. data-i18n — zmiana języka podmienia zdanie. */
+  if(cel) cel.innerHTML = '<div class="pk-pusto" id="pkPusto">'
+    + '<div class="pk-pusto-zdanie" data-i18n="pkPustyStan">' + escapeHtml(labNapis('pkPustyStan')) + '</div>'
+    + '<div class="pk-szczelina" aria-hidden="true"></div><div class="pk-szczelina" aria-hidden="true"></div><div class="pk-szczelina" aria-hidden="true"></div></div>';
   const uwaga = document.getElementById('pkWsadUwaga');
   if(uwaga) uwaga.hidden = true;
 }

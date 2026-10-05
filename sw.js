@@ -1,7 +1,7 @@
 /* sw.js — Hooljon. Generowany przez zloz-490.js, nie edytować ręcznie:
    wersja musi pochodzić z APP_VERSION pliku HTML, inaczej byłyby dwa źródła
    prawdy o tym, co jest wdrożone. */
-const WERSJA = '2026-09-11.741';
+const WERSJA = '2026-09-11.742';
 const CACHE = 'hooljon-' + WERSJA;
 const CACHE_ZEWN = 'hooljon-zewnetrzne';
 const ZASOBY = ['./manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
