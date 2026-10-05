@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.734
-  Zbudowane na: a80d1b4514b63afec1981b24ddaba798 (.733)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.735
+  Zbudowane na: ce3c53980ead96e2c68a52cd8b1291cf (.734)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -18825,7 +18825,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.734';
+const APP_VERSION = '2026-09-11.735';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -37521,7 +37521,23 @@ var KARAOKE = (function () {
 })();
 /* Zdania karaoke wybrane dla lekcji Story Mode (pole lekcja_id) i zdania ćwiczeniowe Fable (jednostka „Intonacja"). */
 function karaokeZdaniaLekcji(id) { return KARAOKE_ZDANIA.filter((z) => z.lekcja_id === id); }
-function karaokeZdaniaIntonacji() { return KARAOKE_ZDANIA.filter((z) => /^fable-/.test(z.id)); }
+/* .735: warianty Fable (fable-1b, fable-2b — ten sam tekst, inna intonacja) stoją zaraz po swoim oryginale,
+   a nie na końcu listy, gdzie wyglądały na powtórzone przez pomyłkę (decyzja Damiana po teście .734).
+   Reguła po identyfikatorze: fable-Nb-… po fable-N-…; wariant bez oryginału zostaje na końcu. */
+function karaokeZdaniaIntonacji() {
+  const lista = KARAOKE_ZDANIA.filter((z) => /^fable-/.test(z.id));
+  const nr = (z, wariant) => { const m = /^fable-(\d+)(b?)-/.exec(z.id); return m && (m[2] === 'b') === wariant ? m[1] : null; };
+  const warianty = lista.filter((z) => nr(z, true));
+  const wynik = [];
+  lista.forEach((z) => {
+    if (nr(z, true)) return;
+    wynik.push(z);
+    const n = nr(z, false);
+    if (n) warianty.filter((w) => nr(w, true) === n).forEach((w) => wynik.push(w));
+  });
+  warianty.forEach((w) => { if (wynik.indexOf(w) === -1) wynik.push(w); });
+  return wynik;
+}
 function renderIntonacjaScreen() {
   const m = document.getElementById('intonacjaKaraoke');
   if (!m) return;
