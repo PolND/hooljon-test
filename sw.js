@@ -1,10 +1,11 @@
 /* sw.js — Hooljon. Generowany przez zloz-490.js, nie edytować ręcznie:
    wersja musi pochodzić z APP_VERSION pliku HTML, inaczej byłyby dwa źródła
    prawdy o tym, co jest wdrożone. */
-const WERSJA = '2026-09-11.744';
+const WERSJA = '2026-09-11.755';
 const CACHE = 'hooljon-' + WERSJA;
 const CACHE_ZEWN = 'hooljon-zewnetrzne';
-const ZASOBY = ['./manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
+/* .754 (pakiet 6 §10): nowe nazwy plików ikon */
+const ZASOBY = ['./manifest.webmanifest', './ikona-192.png', './ikona-512.png', './ikona-maskable-512.png', './ikona-mono-512.png', './apple-touch-180.png'];
 
 /* .725: nagrania karaoke („Intonacja”: 15 zdań × .webm + .mp3, razem ok. 260 KB) — w pamięci od instalacji,
    żeby działały offline. Odtwarzacz prosi o nagranie kawałkami (nagłówek Range); z pamięci oddajemy wtedy

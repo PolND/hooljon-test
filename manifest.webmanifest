@@ -1,0 +1,41 @@
+{
+  "name": "Hooljon — nauka koreańskiego",
+  "short_name": "Hooljon",
+  "description": "Koreański od podstaw: słownictwo, gramatyka, hanja i rozmowa z lektorem AI.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F6F3EE",
+  "theme_color": "#F6F3EE",
+  "lang": "pl",
+  "dir": "ltr",
+  "categories": [
+    "education",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "ikona-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "ikona-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "ikona-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "ikona-mono-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "monochrome"
+    }
+  ]
+}
