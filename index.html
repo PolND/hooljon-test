@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.735
-  Zbudowane na: ce3c53980ead96e2c68a52cd8b1291cf (.734)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.736
+  Zbudowane na: 5bddf500c1b65919689aaf3b41f3e6e1 (.735)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -5615,6 +5615,7 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
   .kar-btn{font:600 14px var(--font-ui); border:1px solid var(--hwang); background:var(--hwang); color:var(--on-accent); border-radius:var(--btn-radius, 999px); padding:9px 16px; cursor:pointer; width:auto; min-height:0;}
   .kar-btn.kar-btn-drugi{background:transparent; color:var(--ink); border-color:var(--border);}
   .kar-wybor{display:flex; gap:8px; overflow-x:auto; padding:2px 2px 8px; margin-bottom:8px; -webkit-overflow-scrolling:touch; scrollbar-width:thin; scrollbar-color:var(--border) transparent;}
+  .kar-chip-dop{font-family:var(--font-ui); font-size:.85em; opacity:.72;}   /* .736: dopisek „wariant” na przycisku zdania (krój interfejsu, nie koreański) */
   .kar-chip{flex:0 0 auto; white-space:nowrap; font:500 13px var(--font-ko); border:1px solid var(--border); background:transparent; color:var(--ink); border-radius:var(--radius-pill, 999px); padding:6px 12px; cursor:pointer;}
   .kar-chip[aria-pressed="true"]{border-color:var(--hwang); color:var(--hwang);}
   .kar-mowca{font:600 15px var(--font-ko); color:var(--ink-dim); margin:2px 0 -2px;}
@@ -18825,7 +18826,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.735';
+const APP_VERSION = '2026-09-11.736';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -37319,6 +37320,9 @@ var KARAOKE = (function () {
       wybor.textContent = '';
       zdania.forEach((z, i) => {
         const b = el('button', 'kar-chip', (z.mowca ? z.mowca + ': ' : '') + z.tekst);
+        /* .736: dopisek na przycisku (opcje.dopisekWyboru), np. „wariant” przy 1b i 2b w „Intonacji” — ten sam tekst co oryginał */
+        const dop = typeof opcje.dopisekWyboru === 'function' ? opcje.dopisekWyboru(z) : '';
+        if (dop) b.appendChild(el('span', 'kar-chip-dop', ' · ' + dop));
         b.type = 'button';
         b.setAttribute('aria-pressed', i === biez ? 'true' : 'false');
         b.addEventListener('click', () => { if (gra) stop(false); biez = i; rysujWybor(); zbuduj(); });
@@ -37552,7 +37556,9 @@ function renderIntonacjaScreen() {
   const bezNagrania = en
     ? 'this sentence has a schematic rhythm — the contour shows a pattern that the synthetic recording does not reproduce'
     : 'to zdanie ma rytm schematyczny — kontur pokazuje wzorzec, którego nagranie syntetyczne nie oddaje';
-  if (!m.karaoke || !m.contains(m.karaoke.root)) m.karaoke = KARAOKE.zamontuj(m, karaokeZdaniaIntonacji(), { podpisBezNagrania: bezNagrania });
+  if (!m.karaoke || !m.contains(m.karaoke.root)) m.karaoke = KARAOKE.zamontuj(m, karaokeZdaniaIntonacji(), { podpisBezNagrania: bezNagrania,
+    /* .736: „wariant” na przycisku 1b i 2b (decyzja Damiana po teście .735) */
+    dopisekWyboru: (z) => (/^fable-\d+b-/.test(z.id) ? (uiLang === 'en' ? 'variant' : 'wariant') : '') });
   else m.karaoke.wybierz(m.karaoke.biezace());
 }
 /* Karta „Intonacja" w Materiałach gramatyki (obok Dwóch systemów liczbowych). */
