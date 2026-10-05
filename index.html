@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.755
-  Zbudowane na: d4a2f5aba509a166c81759a40dda34d2 (.754)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.758
+  Zbudowane na: 322b48be600d0826345942175ec48bcd (.757)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -5690,6 +5690,24 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
      i własnego przewijania z .teach-mode), więc przycisk karaoke jest zawsze w zasięgu przewijania strony */
   .teach-mode #storyQuestionMain:has(.tekst-tytul):has(.kar-sekcja){max-height:none; overflow-y:visible;}
   @media (prefers-reduced-motion: reduce){ .kar-syl{transition:none;} }
+  /* .757 — KARAOKE NA TEKŚCIE CZYTANKI: tekst zostaje tekstem; wymowa nad sylabą (ruby), grupy akcentowe podkreślone,
+     pauza na granicy frazy, bieżące zdanie w obwódce akcentu. Bez H/L i bez konturu w tekście (decyzja nr 19). */
+  .kt-ster{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 10px;}
+  .kt-tekst{white-space:normal;}
+  .kt-linia{line-height:2.35; margin:0 0 2px;}
+  .kt-mowca{font-family:var(--font-ui); font-size:.8em; font-weight:600; color:var(--ink-dim);}
+  .kt-zd{border-radius:6px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:background-color .15s ease, box-shadow .15s ease;}
+  .kt-zd-akt{background:color-mix(in srgb, var(--hwang) 9%, transparent); box-shadow:0 0 0 1px color-mix(in srgb, var(--hwang) 40%, transparent);}
+  .kt-ap{text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:6px; text-decoration-color:color-mix(in srgb, var(--ink) 28%, transparent);}
+  .kt-syl{color:var(--ink); transition:color .08s linear;}
+  .kt-syl.kt-minela{color:var(--ink-dim);}
+  .kt-syl.kt-teraz{color:var(--hwang);}
+  .kt-tekst ruby{ruby-position:over;}
+  .kt-tekst rt{font-size:10.5px; line-height:1; color:var(--ink-dim); font-family:var(--font-ko); letter-spacing:0;}
+  .kt-syl.kt-teraz rt{color:var(--hwang);}
+  .kt-blok{font-family:var(--font-ui); font-variant-numeric:tabular-nums;}
+  .kt-pauza{font-family:var(--font-ui); color:var(--hwang); opacity:.6; margin:0 2px;}
+  @media (prefers-reduced-motion: reduce){ .kt-syl, .kt-zd{transition:none;} }
   .teach-mode #storyQuestionMain:has(.tekst-tytul){
     max-height:52vh;
     overflow-y:auto;
@@ -7044,6 +7062,11 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
   }
 
   .reading-text-box{ font-size:var(--reader-size, 21px); }
+  /* .758: przełącznik Tekst / Rytm i tekst w trybie rytmu (ten sam stopień co tekst czytanki) */
+  .rt-tryb{ display:flex; gap:8px; margin:0 0 10px; }
+  .rt-tryb[hidden], .reading-rytm[hidden]{ display:none; }
+  .reading-rytm .kt-tekst{ font-family:var(--font-ko); font-size:var(--reader-size, 21px); text-align:left;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius); padding:12px 16px; margin-bottom:10px; }
   .reading-text-box{
     background:var(--surface-2);
     border:1px solid var(--border);
@@ -9731,7 +9754,13 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
         <div class="hint-note" id="readingUnsupported" style="display:none; color:var(--bad); text-align:left;" data-i18n="speechUnsupported2">
           Twoja przeglądarka nie obsługuje rozpoznawania mowy (Web Speech API). Ta funkcja działa najlepiej w Chrome na komputerze lub Androidzie.
         </div>
+        <!-- .758 (decyzja nr 18, „Przełącznik Tekst / Rytm”): tylko czytanki z anotacją karaoke -->
+        <div class="rt-tryb" id="readingTryb" hidden>
+          <button type="button" class="category-chip active" data-tryb="tekst" aria-pressed="true" data-i18n="readingTrybTekst">Tekst</button>
+          <button type="button" class="category-chip" data-tryb="rytm" aria-pressed="false" data-i18n="readingTrybRytm">Rytm</button>
+        </div>
         <div class="reading-text-box" id="readingTextBox"></div>
+        <div class="reading-rytm" id="readingRytm" hidden></div>
 
         <div class="reading-legend">
           <span><span class="dot rl-current"></span><span data-i18n="legendNow">teraz</span></span>
@@ -18605,7 +18634,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.755';
+const APP_VERSION = '2026-09-11.758';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -19916,6 +19945,9 @@ const I18N = {
   speechUnsupported2: { pl: 'Twoja przeglądarka nie obsługuje rozpoznawania mowy (Web Speech API). Ta funkcja działa najlepiej w Chrome na komputerze lub Androidzie.', en: 'Your browser does not support speech recognition (Web Speech API). This feature works best in Chrome on desktop or Android.' },
   startConversation: { pl: 'Rozpocznij rozmowę', en: 'Start conversation' },
   startReading: { pl: 'Zacznij czytać', en: 'Start reading' },
+  /* .758: przełącznik w „Czytaniu na głos” */
+  readingTrybTekst: { pl: 'Tekst', en: 'Text' },
+  readingTrybRytm: { pl: 'Rytm', en: 'Rhythm' },
   takePickPhoto: { pl: 'Zrób / wybierz zdjęcie', en: 'Take / pick a photo' },
   titleLabel: { pl: 'Tytuł', en: 'Title' },
   togglePremiumOff: { pl: 'Wyłącz Premium (demo)', en: 'Turn off Premium (demo)' },
@@ -36996,6 +37028,15 @@ var KARAOKE = (function () {
         }
       });
     });
+    /* .756 — REGUŁA STRAŻNICZA AP > 7 (decyzja Damiana po .723, karaoke/decyzje-karaoke-13-damian.md; ta sama co
+       w walidatorze ETL prototyp-karaoke.html): grupa akcentowa jest przy łamaniu wierszy nierozdzielna, więc grupa
+       dłuższa niż 7 sylab (licząc wszystkie słowa grupy, także dephrased) może na 320 px wymusić przewijanie poziome.
+       Tylko uwaga — zdanie wchodzi. Treść uwagi dosłownie z decyzji. */
+    const PROG_AP = 7;
+    let apN = null, apK = 0;
+    const apZamknij = () => { if (apN !== null && apK > PROG_AP) u.push('uwaga: grupa akcentowa AP ' + apN + ' ma ' + apK + ' sylab — na ekranach 320 px może wymusić przewijanie poziome, sprawdź podział/dephrasing'); };
+    z.eojeols.forEach((e) => { if (e.ap_index !== apN) { apZamknij(); apN = e.ap_index; apK = 0; } apK += Array.isArray(e.syllables) ? e.syllables.length : 0; });
+    apZamknij();
     return { b, u };
   }
 
@@ -37319,7 +37360,175 @@ var KARAOKE = (function () {
       audio: () => (zAudio ? audio : null),   /* .725: element dźwięku bieżącego zdania (null bez nagrania) */
     };
   }
-  return { sprawdz, zamontuj };
+  /* ═══ .757 — KARAOKE NA TEKŚCIE CZYTANKI (decyzje Damiana nr 16, 17, 19; po pakiecie 6: „Rytm teraz, nagrania potem”)
+     Tekst czytanki zostaje tekstem czytanki: te same słowa, te same wiersze i etykiety mówców. Każde zdanie z anotacją
+     dostaje sylaby, nad sylabą — wymowa, gdy różni się od zapisu (nr 19 „Wymowa nad tekstem”); grupy akcentowe
+     podkreślone, granica frazy w środku zdania z kreską pauzy (nr 19 „Pauzy i grupy słów”); bez znaczników H/L i bez
+     konturu w tekście (nr 19, nie wybrane). Cyfry zostają cyframi i świecą jednym blokiem przez czas sylab liczebnika,
+     nad nimi odczyt (nr 17: 10 ↔ 십). Odtwarzanie idzie zdanie po zdaniu do końca tekstu (nr 16): zdanie z nagraniem
+     (pole audio) gra nagranie, bez nagrania — rytm schematyczny, te same kroki co w karcie zdania. Dotknięcie zdania
+     wywołuje opcje.naZdanie(i) — szczegóły pod tekstem (nr 16).
+     Dopasowanie: słowa tekstu po kolei do eojeoli kolejnych zdań; zdanie z tekst_zmieniony (cyfry) przez blok cyfr.
+     Gdy cokolwiek się nie zgadza — null i tekst zostaje zwykłym tekstem. */
+  const PRZERWA_ZDAN = 0.45;
+  function naTekscie(kontener, tekst, zdaniaWe, opcje) {
+    opcje = opcje || {};
+    const zdania = (zdaniaWe || []).filter((z) => !sprawdz(z).b.length);
+    if (!kontener || !tekst || !zdania.length) return null;
+    const ETYKIETA = /^[^\s:]{1,12}:$/;
+    const rdzen = (w) => { const m = /^([…"“(\[]*)(.*?)([,?!.…"”)\]]*)$/.exec(w); return { lead: m[1], core: m[2], tail: m[3] }; };
+    const linie = tekst.split('\n').map((l) => l.trim().split(/\s+/).filter(Boolean));
+    /* płaska kolejka słów z miejscem w wierszu; etykiety mówców osobno */
+    const slowa = [];
+    /* etykieta mówcy: słowo „Imię:” na początku wiersza albo po końcu zdania (dialog bywa zapisany w jednym wierszu) */
+    linie.forEach((l, li) => l.forEach((w, wi) => { const prev = wi > 0 ? l[wi - 1] : ''; slowa.push({ li, w, etykieta: ETYKIETA.test(w) && (wi === 0 || /[.?!…]$/.test(prev)) }); }));
+    const tresc = slowa.filter((x) => !x.etykieta);
+    let k = 0;
+    const plan = [];   /* [{ z, slowa: [{ x, e, cyfry, sylCyfr }] }] */
+    for (const z of zdania) {
+      const pz = { z, slowa: [] };
+      for (const e of z.eojeols) {
+        const x = tresc[k++];
+        if (!x) return null;
+        const r = rdzen(x.w);
+        if (r.core === e.eojeol) { pz.slowa.push({ x, e, r, cyfry: '' }); continue; }
+        const m = /^(\d+)(.*)$/.exec(r.core);
+        if (!m || !e.eojeol.endsWith(m[2])) return null;
+        const n = e.eojeol.length - m[2].length;
+        if (n < 1) return null;
+        pz.slowa.push({ x, e, r, cyfry: m[1], sylCyfr: n });
+      }
+      plan.push(pz);
+    }
+    if (k !== tresc.length) return null;   /* tekst ma słowa spoza anotacji — bez karaoke */
+    /* ── budowa widoku ── */
+    const id = ++licznik;
+    const root = el('div', 'kt');
+    const ster = el('div', 'kt-ster');
+    const zAudioWTekscie = zdania.some((z) => typeof z.audio === 'string' && z.audio);
+    const etykieta = () => (zAudioWTekscie ? (en() ? '▶ Play' : '▶ Odtwórz') : (en() ? '▶ Show rhythm' : '▶ Pokaż rytm'));
+    const graj = el('button', 'kar-btn kar-graj kt-graj', etykieta()); graj.type = 'button';
+    const odNowa = el('button', 'kar-btn kar-btn-drugi kt-od', en() ? '↺ From start' : '↺ Od początku'); odNowa.type = 'button';
+    ster.appendChild(graj); ster.appendChild(odNowa);
+    const tekstEl = el('div', 'kt-tekst');
+    root.appendChild(ster); root.appendChild(tekstEl);
+    const zdEl = [], sylZd = [];   /* sylZd[j] = [{ el, start, end }] (czas w zdaniu) */
+    const linieEl = linie.map(() => el('div', 'kt-linia'));
+    linieEl.forEach((l) => tekstEl.appendChild(l));
+    /* czasy i kawałki zdań — liczone po kolei; elementy wstawiane w kolejności słów tekstu, więc etykieta mówcy
+       w środku wiersza (dialog w jednym wierszu) staje dokładnie tam, gdzie w tekście */
+    const ruby = (span, tekstSyl, nad) => { const rb = document.createElement('ruby'); rb.appendChild(document.createTextNode(tekstSyl)); const rt = document.createElement('rt'); rt.textContent = nad; rb.appendChild(rt); span.appendChild(rb); };
+    const stanZd = plan.map((pz) => {
+      const z = pz.z;
+      const st = { czasy: z.eojeols.every((e) => e.syllables.every((y) => typeof y.start === 'number' && typeof y.end === 'number')),
+        nSyl: z.eojeols.reduce((a, e) => a + e.syllables.length, 0), t: POCZATEK, nr: 0, lista: [], zEl: null, liOst: -1, apEl: null, apOst: null };
+      st.lista.audio = typeof z.audio === 'string' && z.audio ? z.audio : null;
+      sylZd.push(st.lista);
+      return st;
+    });
+    const przydzial = new Map();
+    plan.forEach((pz, j) => pz.slowa.forEach((s, i) => przydzial.set(s.x, { j, i, s })));
+    let ostatniWLinii = new Map();   /* linia → ostatni wstawiony element (do spacji) */
+    const odstep = (li) => { if (ostatniWLinii.get(li)) linieEl[li].appendChild(document.createTextNode(' ')); };
+    slowa.forEach((x) => {
+      if (x.etykieta) { odstep(x.li); const m = el('span', 'kt-mowca', x.w); linieEl[x.li].appendChild(m); ostatniWLinii.set(x.li, m); return; }
+      const { j, i, s } = przydzial.get(x);
+      const st = stanZd[j], pz = plan[j];
+      if (!st.zEl || x.li !== st.liOst) {   /* nowy kawałek zdania (początek albo zdanie dzielone wierszem tekstu) */
+        odstep(x.li);
+        st.zEl = el('span', 'kt-zd'); st.zEl.dataset.zd = j; linieEl[x.li].appendChild(st.zEl); zdEl.push([j, st.zEl]);
+        ostatniWLinii.set(x.li, st.zEl); st.liOst = x.li; st.apEl = null;
+      }
+      if (!st.apEl || st.apOst !== s.e.ap_index) {
+        if (st.apEl) st.zEl.appendChild(document.createTextNode(' '));
+        st.apEl = el('span', 'kt-ap'); st.zEl.appendChild(st.apEl); st.apOst = s.e.ap_index;
+      } else st.apEl.appendChild(document.createTextNode(' '));
+      if (s.r.lead) st.apEl.appendChild(el('span', 'kar-interp', s.r.lead));
+      const rec = (y) => { st.nr += 1; const a0 = st.czasy ? y.start : st.t, a1 = st.czasy ? y.end : st.t + krok(y); if (!st.czasy) st.t = a1 + (y.boundary && st.nr < st.nSyl ? PAUZA_IP : 0); return [a0, a1]; };
+      let syl = s.e.syllables;
+      if (s.cyfry) {
+        const blok = syl.slice(0, s.sylCyfr);
+        const sp = el('span', 'kt-syl kt-blok');
+        ruby(sp, s.cyfry, blok.map((y) => y.wymowa || y.char).join(''));
+        const czasyB = blok.map(rec);
+        st.lista.push({ el: sp, start: czasyB[0][0], end: czasyB[czasyB.length - 1][1] });
+        st.apEl.appendChild(sp);
+        syl = syl.slice(s.sylCyfr);
+      }
+      syl.forEach((y) => {
+        const sp = el('span', 'kt-syl');
+        if (y.wymowa && y.wymowa !== y.char) ruby(sp, y.char, y.wymowa); else sp.textContent = y.char;
+        const [a0, a1] = rec(y);
+        st.lista.push({ el: sp, start: a0, end: a1 });
+        st.apEl.appendChild(sp);
+      });
+      if (s.r.tail) st.apEl.appendChild(el('span', 'kar-interp', s.r.tail));
+      const ostSyl = s.e.syllables[s.e.syllables.length - 1];
+      if (ostSyl.boundary && i < pz.slowa.length - 1) { st.zEl.appendChild(document.createTextNode(' ')); st.zEl.appendChild(el('span', 'kt-pauza', '|')); st.apEl = null; }
+    });
+    sylZd.forEach((l) => { const ost = l[l.length - 1]; l.koniec = ost ? ost.end : 0; });
+    kontener.textContent = '';
+    kontener.appendChild(root);
+    root.addEventListener('click', (ev) => ev.stopPropagation());   /* karta czytanki czyta tekst na głos po dotknięciu — tu nie */
+    zdEl.forEach(([j, e]) => e.addEventListener('click', () => { if (typeof opcje.naZdanie === 'function') opcje.naZdanie(j); }));
+    /* ── odtwarzanie: zdanie po zdaniu ── */
+    let gra = false, j = 0, t0 = 0, poz = 0, raf = 0, audio = null;
+    const sciezka = (p) => { const a = document.createElement('audio'); return /\.webm$/.test(p) && !a.canPlayType('audio/webm; codecs="opus"') ? p.replace(/\.webm$/, '.mp3') : p; };
+    const zegar = () => (sylZd[j] && sylZd[j].audio && audio ? audio.currentTime : (gra ? poz + (performance.now() - t0) / 1000 : poz));
+    function oznacz(jj, t) {
+      zdEl.forEach(([q, e]) => e.classList.toggle('kt-zd-akt', q === jj));
+      sylZd.forEach((l, q) => l.forEach((s) => {
+        const teraz = q === jj && t >= s.start && t < s.end, minela = q < jj || (q === jj && t >= s.end);
+        s.el.classList.toggle('kt-teraz', teraz); s.el.classList.toggle('kt-minela', minela && !teraz);
+        if (teraz) s.el.style.setProperty('--kar-p', ((t - s.start) / (s.end - s.start)).toFixed(3));
+      }));
+    }
+    function zacznijZdanie(jj, od) {
+      j = jj; poz = od || 0; t0 = performance.now();
+      if (audio) { audio.pause(); }
+      const l = sylZd[j];
+      if (l && l.audio) {
+        if (!audio) { audio = document.createElement('audio'); audio.preload = 'auto'; }
+        const src = sciezka(l.audio); if (audio.getAttribute('src') !== src) audio.setAttribute('src', src);
+        try { audio.currentTime = poz; } catch (e) {}
+        const pr = audio.play(); if (pr && pr.catch) pr.catch(() => { if (gra) stop(); });
+      }
+    }
+    function klatka() {
+      if (!root.isConnected || root.offsetParent === null) { stop(); return; }
+      const t = zegar();
+      oznacz(j, t);
+      if (!gra) return;
+      if (t >= sylZd[j].koniec + PRZERWA_ZDAN) {
+        if (j + 1 < sylZd.length) zacznijZdanie(j + 1, 0);
+        else { koniecTekstu(); return; }
+      }
+      raf = requestAnimationFrame(klatka);
+    }
+    function start() {
+      gra = true; graj.textContent = en() ? '❚❚ Pause' : '❚❚ Pauza';
+      zacznijZdanie(j, poz);
+      cancelAnimationFrame(raf); raf = requestAnimationFrame(klatka);
+    }
+    function stop() {
+      if (gra) poz = zegar();
+      gra = false; cancelAnimationFrame(raf);
+      if (audio) audio.pause();
+      graj.textContent = etykieta();
+    }
+    function koniecTekstu() {
+      stop(); j = 0; poz = 0; oznacz(-1, 0);
+      sylZd.forEach((l) => l.forEach((s) => s.el.classList.add('kt-minela')));
+      graj.textContent = en() ? '▶ Again' : '▶ Jeszcze raz';
+    }
+    graj.addEventListener('click', () => (gra ? stop() : start()));
+    odNowa.addEventListener('click', () => { stop(); j = 0; poz = 0; oznacz(-1, 0); start(); });
+    return {
+      root, zdania: () => zdania, start, stop, gra: () => gra, biezace: () => j,
+      sylaby: () => sylZd, oznacz, id,
+    };
+  }
+  return { sprawdz, zamontuj, naTekscie };
 })();
 /* Zdania karaoke wybrane dla lekcji Story Mode (pole lekcja_id) i zdania ćwiczeniowe Fable (jednostka „Intonacja"). */
 function karaokeZdaniaLekcji(id) { return KARAOKE_ZDANIA.filter((z) => z.lekcja_id === id); }
@@ -38267,7 +38476,14 @@ const aiLoad = document.getElementById('storyTypedAiLoading');
       /* .722 — KARAOKE PROZODYCZNE pod tekstem czytanki (decyzja Damiana: sekcja pod tekstem, nie osobny krok).
          Tylko lekcje, dla których Fable przygotowała anotację; pozostałe czytanki bez zmian. */
       if(q.subtype === 'reading' && typeof karaokeSekcjaCzytanki === 'function'){
-        try{ karaokeSekcjaCzytanki(document.getElementById('storyQuestionMain'), q.lekcjaId); }catch(e){}
+        try{
+          const sterSek = karaokeSekcjaCzytanki(document.getElementById('storyQuestionMain'), q.lekcjaId);
+          /* .757 (decyzje nr 16, 17, 19): karaoke w samym tekście czytanki; dotknięcie zdania wybiera je w sekcji szczegółów pod tekstem */
+          const tk = document.querySelector('#storyQuestionMain .tekst-ko');
+          if(sterSek && tk) KARAOKE.naTekscie(tk, q.tekst.ko, karaokeZdaniaLekcji(q.lekcjaId), {
+            naZdanie: (i) => { sterSek.wybierz(i); const s = document.querySelector('#storyQuestionMain .kar-sekcja'); if(s && s.scrollIntoView){ try{ s.scrollIntoView({ block:'nearest', behavior:'smooth' }); }catch(e){} } },
+          });
+        }catch(e){}
       }
       if(q.tekst.ko) card.dataset.speakText = q.tekst.ko; else delete card.dataset.speakText;
       document.getElementById('storyNextRow').style.display = 'flex';
@@ -41368,6 +41584,55 @@ function openReading(reading){
   document.getElementById('readingQuizBtn').style.display = (reading.quiz && reading.quiz.length) ? 'flex' : 'none';
   document.getElementById('readingReportBox').style.display = 'none'; // ukryj poprzedni raport przy nowej czytance
   renderReadingText();
+  try{ readingTrybPrzygotuj(reading); }catch(e){ /* przełącznik to dodatek */ }
+}
+
+/* .758 — KARAOKE W „CZYTANIU NA GŁOS” (decyzja nr 18; Damian: „Przełącznik Tekst / Rytm”).
+   Anotacja należy do lekcji Story, która pokazuje ten tekst (pole readingId). „Tekst” = widok mikrofonu i karty
+   słowa, bez zmian; „Rytm” = KARAOKE.naTekscie i szczegóły zdania pod tekstem, jak w lekcji. */
+let readingRytmSter = null;
+function readingKaraokeLekcja(reading){
+  if(!reading || typeof KARAOKE_ZDANIA === 'undefined') return null;
+  const l = STORY_LESSONS.find((x) => x.readingId === reading.id && karaokeZdaniaLekcji(x.id).length);
+  return l ? l.id : null;
+}
+function readingTrybPrzygotuj(reading){
+  const prz = document.getElementById('readingTryb'), rytm = document.getElementById('readingRytm');
+  if(!prz || !rytm) return;
+  if(readingRytmSter){ try{ readingRytmSter.stop(); }catch(e){} readingRytmSter = null; }
+  rytm.textContent = '';
+  /* także w trybie cichym (tekst z modułu branżowego, np. Apteka) — rytm nie potrzebuje mikrofonu */
+  prz.hidden = !readingKaraokeLekcja(reading);
+  readingUstawTryb('tekst');
+}
+function readingUstawTryb(tryb){
+  const prz = document.getElementById('readingTryb'), rytm = document.getElementById('readingRytm'), box = document.getElementById('readingTextBox');
+  const leg = document.querySelector('#readingScreen .reading-legend');
+  if(!prz || !rytm || !box) return;
+  const r = tryb === 'rytm' && !prz.hidden;
+  prz.querySelectorAll('[data-tryb]').forEach((b) => { const on = (b.dataset.tryb === 'rytm') === r; b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.classList.toggle('active', on); });
+  box.hidden = r; rytm.hidden = !r;
+  if(leg && !czytankaZModulu) leg.style.display = r ? 'none' : '';
+  if(!r){ if(readingRytmSter){ try{ readingRytmSter.stop(); }catch(e){} } return; }
+  if(rytm.firstChild) return;   /* zbudowany przy tym otwarciu czytanki */
+  const id = readingKaraokeLekcja(currentReading);
+  const tekst = document.createElement('div'); tekst.className = 'reading-rytm-tekst';
+  rytm.appendChild(tekst);
+  const sterSek = karaokeSekcjaCzytanki(rytm, id);
+  const sek = rytm.querySelector('.kar-sekcja'); if(sek) sek.removeAttribute('id');   /* id należy do sekcji w lekcji */
+  readingRytmSter = KARAOKE.naTekscie(tekst, currentReading.ko, karaokeZdaniaLekcji(id), {
+    naZdanie: (i) => { if(sterSek){ sterSek.wybierz(i); if(sek && sek.scrollIntoView){ try{ sek.scrollIntoView({ block:'nearest', behavior:'smooth' }); }catch(e){} } } },
+  });
+  if(!readingRytmSter){ rytm.textContent = ''; prz.hidden = true; readingUstawTryb('tekst'); }
+}
+{
+  const prz = document.getElementById('readingTryb');
+  if(prz) prz.addEventListener('click', (ev) => { const b = ev.target.closest('[data-tryb]'); if(b) readingUstawTryb(b.dataset.tryb); });
+  /* mikrofon, odsłuch i „Od nowa” pracują na widoku „Tekst” — wracamy do niego przed ich obsługą */
+  ['readingMicBtn', 'readingListenBtn', 'readingRestartBtn'].forEach((idp) => {
+    const b = document.getElementById(idp);
+    if(b) b.addEventListener('click', () => { const r = document.getElementById('readingRytm'); if(r && !r.hidden) readingUstawTryb('tekst'); }, true);
+  });
 }
 
 /* Pasek postępu czytania: ile słów zostało już ocenionych. W trybie głośnym to
