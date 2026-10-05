@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.736
-  Zbudowane na: 5bddf500c1b65919689aaf3b41f3e6e1 (.735)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.741
+  Zbudowane na: b4e5a095a5205c1eb79193e5d3dff331 (.740)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -1492,30 +1492,7 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
      nauki (hangul w tle), zamiast pustej przestrzeni. Telefon (poniżej 900px)
      nie widzi żadnej z tych zmian - Etap 1 zostaje nietknięty. */
   @media (min-width:900px){
-    body::before, body::after{
-      content:'';
-      position:fixed;
-      pointer-events:none;
-      z-index:0;
-      font-family:var(--font-ko);
-      color:var(--ink);
-      line-height:1;
-    }
-    body::before{
-      content:'훈';
-      top:-100px;
-      left:-70px;
-      font-size:460px;
-      opacity:0.035;
-    }
-    body::after{
-      content:'련';
-      bottom:-140px;
-      right:-90px;
-      font-size:420px;
-      color:var(--hwang);
-      opacity:0.03;
-    }
+    /* .737 (pakiet 6 §6.2, wariant A): znaki wodne 훈 i 련 usunięte — przestrzeń niesie światło, nie ornament. */
     .wrap{
       max-width:640px;
       /* RAMA TELEFONU na szerokim ekranie. Bez ograniczenia wysokości apka
@@ -1534,12 +1511,38 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
       margin:48px auto;
       background:var(--card);
       border-radius:var(--radius-lg);
-      box-shadow:0 40px 90px -35px rgba(0,0,0,0.28), 0 6px 18px rgba(0,0,0,0.06);
+      /* .737: cień i krawędź kolumny — reguły wariantu A (pakiet 6 §6.2) zaraz za tym blokiem */
       padding-left:40px;
       padding-right:40px;
     }
     .ad-slot{
       max-width:640px; /* ten sam pasek reklamowy, żeby wyrównać się z szerszym panelem powyżej */
+    }
+  }
+
+  /* ═══ .737 — TŁO STRONY NA SZEROKIM EKRANIE, WARIANT A (pakiet 6 §6.2, decyzja Damiana) ═══
+     Tło: --tlo-glebia rozpięte na okno. Poza Cynobrem to ten sam gradient, który aplikacja ma już dziś (jedno
+     światło z --bg-glow) — Cynober nadpisuje token swoimi dwoma światłami i ma aurę z ziarnem na html::before/::after.
+     Pula światła tylko w motywach ciemnych; w jasnych obrzeże okna ciemnieje o ok. 4 % tuszu, żeby kolumna była
+     najjaśniejszą powierzchnią. Kolumna: krawędź z akcentu (działa w każdym motywie) i cień w dwóch wersjach. */
+  /* selektor html (0,0,1), nie :root (0,1,0): :root stoi niżej w arkuszu i przy równej swoistości nadpisałby token Cynobru */
+  html{ --tlo-glebia: radial-gradient(circle at 50% -10%, var(--bg-glow) 0%, var(--bg) 55%); }
+  @media (min-width:900px){
+    body{ background:var(--tlo-glebia); background-attachment:fixed; }
+    /* jasne (Papier, Kobalt i pozostałe jasne palety): obrzeże, bez puli */
+    body::after{
+      content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+      background:radial-gradient(ellipse at center, transparent 55%, color-mix(in srgb, var(--ink) 4%, transparent) 100%);
+    }
+    .wrap{ box-shadow:0 0 0 1px color-mix(in srgb, var(--hwang) 10%, transparent), 0 10px 40px rgba(23,20,18,.08); }
+    /* ciemne (Papier ciemny, Jadeit, Cynober; też Neon z ukrytego Klasycznego): pula światła nad kolumną.
+       .740: 5 %, nie 8 % — ocena Damiana na urządzeniu: przy 8 % pula odcinała kolumnę od tła jak plama. */
+    [data-scheme="dark"] body::after, [data-scheme="jade"] body::after, [data-scheme="cynober"] body::after, [data-scheme="neon"] body::after{
+      inset:auto; left:50%; top:-10%; width:min(120vw, 1100px); height:80vh; transform:translateX(-50%);
+      background:radial-gradient(ellipse at center, color-mix(in srgb, var(--hwang) 5%, transparent) 0%, transparent 68%);
+    }
+    [data-scheme="dark"] .wrap, [data-scheme="jade"] .wrap, [data-scheme="cynober"] .wrap, [data-scheme="neon"] .wrap{
+      box-shadow:0 0 0 1px color-mix(in srgb, var(--hwang) 10%, transparent), 0 24px 80px rgba(0,0,0,.55);
     }
   }
 
@@ -9614,10 +9617,10 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
 
     <div id="pkWynik" class="pk-wynik"></div>
     <div class="pk-wynik">
-      <!-- Wersja i odcisk WIDOCZNE, zanim ktokolwiek kliknie „kopiuj". Numer
-           w panelu konta trzeba było znaleźć; tu stoi przy artefakcie, który
-           się wysyła. -->
-      <div class="pk-stempel" id="pkStempel"></div>
+      <!-- .741 (pakiet 6 §9.1, decyzja Damiana „Do dziennika”): wersja i odcisk promptu nie stoją już na
+           ekranie ucznia. Pokazują się razem z dziennikiem diagnostycznym (trzy stuknięcia w nagłówek
+           „Kompas Nunchi”), czyli tam, skąd zgłoszenie i tak bierze załącznik. -->
+      <div class="pk-stempel" id="pkStempel" hidden></div>
       <pre id="pkDziennik" class="pk-dziennik" hidden></pre>
     </div>
   </div>
@@ -10697,7 +10700,7 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
            te same wartości). Trzy wiersze wspólne dla wszystkich planów
            (słówka, audio, SRS) nie są korzyścią płatną i nie weszły. -->
       <div class="row">
-        <!-- DEV · USUŃ PRZED PUBLIKACJĄ razem z paskiem „Gotowość do startu” (decyzja Damiana 29.09). -->
+        <!-- DEV · .739: za flagą ?demo=1 w adresie (pakiet 6 §9.2, decyzja Damiana „Za flagę”). Bez flagi ukryty. -->
         <button class="primary" id="togglePremium" data-i18n="togglePremiumOff">Wyłącz Premium (demo)</button>
       </div>
       <div class="premium-note" id="premiumStatsNote"></div>
@@ -10723,23 +10726,7 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════════
-     WSKAŹNIK GOTOWOŚCI DO STARTU — WYŁĄCZNIE NA CZAS BUDOWANIA APLIKACJI
-     Ustalony 2026-08-30: checklista + wagi kategorii, cel objętości treści
-     = 100h (parytet z górną granicą zakresu Duolingo Korean, 60-150h).
-     USUŃ CAŁĄ TĘ SEKCJĘ (ten blok HTML + powiązany JS niżej) PRZED PUBLIKACJĄ
-     — to narzędzie deweloperskie, nie ma prawa trafić do prawdziwych userów.
-     ═══════════════════════════════════════════════════════════════════════ -->
-<div id="launchReadinessBar" style="position:fixed; left:0; right:0; bottom:0; z-index:40; background:#111; color:#fff; font-family:'IBM Plex Mono',monospace; font-size:13.5px; padding:6px 10px; padding-bottom:calc(6px + env(safe-area-inset-bottom)); cursor:pointer; box-shadow:0 -2px 10px rgba(0,0,0,0.3);">
-  <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-    <span id="launchReadinessLabel">Gotowość do startu: —%</span>
-    <span id="launchReadinessToggleHint" style="opacity:0.6;">▲ szczegóły</span>
-  </div>
-  <div id="launchReadinessBarTrack" style="height:5px; background:#333; border-radius:3px; margin-top:5px; overflow:hidden;">
-    <div id="launchReadinessBarFill" style="height:100%; width:0%; background:linear-gradient(90deg,#E63946,#F4A340); transition:width .4s ease;"></div>
-  </div>
-  <div id="launchReadinessDetail" style="display:none; margin-top:8px; padding-top:8px; border-top:1px solid #333; line-height:1.8; max-height:55vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y;"></div>
-</div>
+<!-- .738: pasek „Gotowość do startu” usunięty (decyzja Damiana: nieaktualny i zbędny). -->
 
 <!-- Arkusz słowa: wspólny dla wszystkich ekranów z tekstem koreańskim.
      Poza .wrap, bo jest pozycjonowany na stałe u dołu okna. -->
@@ -10753,252 +10740,6 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
 </nav>
 
 <script>
-/* ═══════════════════════════════════════════════════════════════════════
-   WSKAŹNIK GOTOWOŚCI DO STARTU — dane checklisty, ustalone 2026-08-30.
-   Wartości AKTUALIZOWANE RĘCZNIE w miarę postępu prac - to nie jest coś,
-   co da się w pełni policzyć automatycznie z kodu (większość pozycji to
-   oceny jakościowe, nie liczby wyciągalne z bazy). Cel objętości treści:
-   100h (górna-środkowa granica zakresu Duolingo Korean, 60-150h do
-   ukończenia pełnego drzewa), bo ambicja to "trochę więcej niż najwięksi",
-   nie tylko dogonienie dolnej granicy.
-   USUŃ CAŁY TEN BLOK PRZED PUBLIKACJĄ (razem z HTML stopki powyżej). */
-const LAUNCH_READINESS = {
- "categories": [
- {
-  "id": "content",
-  "label": "Objętość treści",
-  "weight": 40,
-  "items": [
-   {
-    "label": "Godziny materiału prowadzonego",
-    "value": 72,
-    "note": "AKTUALIZACJA 2026-09-06: 2615 cwiczen gramatycznych (bylo 1516) - wszystkie trzy poziomy po 12 zdan na wzorzec. 1696 zdan do ukladania (bylo 12). Wszystkie 216 wzorcow zweryfikowanych merytorycznie: verified:false spadlo do zera."
-   },
-   {
-    "label": "Pokrycie treścią horyzontu",
-    "value": 80,
-    "note": "AKTUALIZACJA 2026-09-06: 12 zdan na wzorzec to 12 rund bez ani jednej powtorki. Zdania do ukladania wyprowadzone z kompendium, wiec niosa konkretne wzorce zamiast zyc osobno."
-   }
-  ]
- },
- {
-  "id": "parity",
-  "label": "Parytet funkcjonalny",
-  "weight": 20,
-  "items": [
-   {
-    "label": "Strukturalna nauka hangul",
-    "value": 90,
-    "note": "AKTUALIZACJA 2026-09-05: dodane pole do cwiczenia pisania z ocena kolejnosci i kierunku kresek (24 znaki maja sciezki wzorcowe)."
-   },
-   {
-    "label": "Gramatyka krok-po-kroku przed ćwiczeniem",
-    "value": 85,
-    "note": "AKTUALIZACJA 2026-09-03: 190 wzorcow (bylo 175), kazdy z wyjasnieniem i wizualna tabela odmiany. Doszlo: kompendium z wyszukiwarka dostepne z wnetrza cwiczenia, 2100 wyjasnien KONKRETNEGO bledu (dlaczego twoja odpowiedz jest zla, nie tylko jaka jest poprawna), 6 porownan form bliskoznacznych, cel zdania po polsku pokazywany PRZED odpowiedzia. Zostaje: weryfikacja przez native speakera.",
-    "criteria": [
-     "Klasyfikacja trudności 175 wzorców gotowa (SPEŁNIONE - Fable, 2026-08-30, 196 pkt)",
-     "Podział na lekcje wg budżetu wdrożony w STORY_LESSONS (potrzeba ~78-90 lekcji zamiast obecnych 54)",
-     "Żadna lekcja nie przekracza budżetu 2-3 pkt",
-     "Tempo zweryfikowane na realnych testerach jako nieprzytłaczające"
-    ]
-   },
-   {
-    "label": "Nauka kontekstowa (Story Mode)",
-    "value": 75,
-    "note": "AKTUALIZACJA 2026-09-03: 136 lekcji (bylo 54), tempo potwierdzone przez testera jako \"znacznie polepszone\". Uproszczono 16 przykladow uzywajacych gramatyki spoza poziomu. Zostaje: brak lekcji o sytuacjach praktycznych (numer telefonu, e-mail, lekarz, poczta, bilety).",
-    "criteria": [
-     "Fabuła spójna między lekcjami/rozdziałami",
-     "Słownictwo powtarza się w kontekście, nie tylko raz",
-     "Zrozumiałość potwierdzona na realnych testerach"
-    ]
-   },
-   {
-    "label": "SRS dla słownictwa",
-    "value": 85,
-    "note": "AKTUALIZACJA 2026-09-06: tryb odpytywania glosem (samochod, spacer) z zejsciem na przycisk, gdy rozpoznawanie mowy zawodzi. Pieczecie biegłosci licza retencje z srsData i moga SPASC, gdy user zaczyna zapominac."
-   },
-   {
-    "label": "Rozmowa z Haksa (AI głosowe)",
-    "value": 60,
-    "note": "AKTUALIZACJA 2026-09-06: audyt przekaznika wykryl BRAK konfiguracji VAD - to bylo zrodlo nienaturalnej kadencji, nie bufor audio po stronie klienta. Wdrozone: progi ciszy zalezne od poziomu, barge-in, rejestr jako parametr sesji, konkretne listy 216 wzorcow zamiast opisow, naliczanie po aktywnosci zamiast zegara polaczenia. WDROZONE 2026-09-08T20:32Z (v23) - potwierdzone pobraniem funkcji i porownaniem MD5 ze zrodlem, nie sama data. AKTUALIZACJA 2026-09-09: rejestr byl nieosiagalny - przekaznik czyta parametr register, ktorego klient nigdy nie wysylal, wiec zawsze wychodzilo haeyo, niezaleznie od scenariusza. Naprawione w .468: rejestr idzie ze scenariusza (19 polite, 8 formal, 4 casual). Przekaznik nie zna jeszcze wartosci banmal - 4 scenariusze casual czekaja na tamta strone. Ocena po testach na urzadzeniach.",
-    "criteria": [
-     "Trafność korekt AI zweryfikowana przez native speakera na próbce prawdziwych rozmów",
-     "Przetestowane przez realnych userów na różnych poziomach",
-     "Potwierdzone, że faktycznie pomaga w nauce"
-    ]
-   },
-   {
-    "label": "Czytanie z \"oceną AI\"",
-    "value": 70,
-    "note": "KOREKTA 2026-09-03: wpis byl nieaktualny - mowil o braku AI, a ocena dziala od 2026-08-30 (dopasowanie LCS, ocena wymowy, podswietlanie bledow, Opowiedz swoimi slowami). Doszlo: arkusz slowa z rozkladem hanja, uklad dwukolumnowy, komunikat gdy przegladarka nie wspiera mikrofonu. Zostaje: Web Speech slabo radzi sobie z mowa nie-natywna - to ograniczenie silnika, nie nasze.",
-    "criteria": [
-     "Rzeczywista ocena przez model AI, zgodna z opisem w cenniku — BRAK, obecnie zero AI, samo dopasowanie tekstu",
-     "Raport po sesji: co przeczytano źle vs co rozpoznawanie źle zrozumiało — BRAK, tylko \"X/Y poprawnie\" bez rozbicia",
-     "Zgodność z bramkowaniem Premium Pro z cennika — BRAK, funkcja niezablokowana mimo że sprzedawana jako płatna"
-    ]
-   },
-   {
-    "label": "Widoczne etykiety poziomu TOPIK/CEFR",
-    "value": 90,
-    "note": "AKTUALIZACJA 2026-09-06: poziom wyzszy nazwany uczciwie (TOPIK 4 / B2), a wzorce wykraczajace ponad ten poziom oznaczone w wyjasnieniach adnotacja TOPIK 5+.",
-    "criteria": [
-     "Etykieta widoczna na Story Map i w Sandbox, nie tylko w jednym miejscu (SPEŁNIONE)",
-     "Tester potrafi bez pytania powiedzieć, na jakim jest poziomie"
-    ]
-   },
-   {
-    "label": "Czytelność (rozmiar czcionek, kontrast)",
-    "value": 100,
-    "note": "naprawione 2026-08-30: baza 17px, twardy floor 13px w całej apce"
-   }
-  ]
- },
- {
-  "id": "edge",
-  "label": "Przewagi różnicujące",
-  "weight": 15,
-  "items": [
-   {
-    "label": "Akademia",
-    "value": 100,
-    "note": "SPELNIONE 2026-09-05: 12/12 domen odblokowanych, po 25 slow z przykladowym zdaniem w rejestrze popularnonaukowym."
-   },
-   {
-    "label": "Wizualna gramatyka wszystkich wzorców",
-    "value": 100,
-    "note": "SPELNIONE 2026-09-03: wszystkie 190 wzorcow ma conjHtml i conjHtmlEn, plus kompendium z wyszukiwaniem po czterech polach.",
-    "criteria": [
-     "175/175 wzorców z conjHtml i conjHtmlEn (SPEŁNIONE)",
-     "Poprawność lingwistyczna zweryfikowana przez native speakera",
-     "Zero błędów zgłoszonych przez testerów/userów"
-    ]
-   },
-   {
-    "label": "Poziom zaawansowany",
-    "value": 85,
-    "note": "AKTUALIZACJA 2026-09-06: 26 wzorcow rejestru pisanego po audycie merytorycznym - 37 dystraktorow-literowek podmienione na kontrasty gramatyczne, trzy wzorce ponad B2 dostaly adnotacje TOPIK 5+. Nadal brak modulu tekstowego dla pelnego C1."
-   },
-   {
-    "label": "Czytanka dnia (żaden porównywany konkurent tego nie ma)",
-    "value": 55,
-    "note": "pipeline zbudowany i zweryfikowany end-to-end na poziomie backendu (baza, logi); NIEZWERYFIKOWANE jeszcze jako realna funkcja w apce - nikt tego jeszcze nie przetestował jako user",
-    "criteria": [
-     "Pipeline generowania (fabricated + real) zweryfikowany end-to-end na poziomie backendu (SPEŁNIONE)",
-     "Bezpieczny wzorzec dla treści \"real\" - fakty jako kontekst, nie tłumaczenie (SPEŁNIONE, potwierdzone punktową kontrolą)",
-     "Przetestowane jako realna funkcja w apce przez człowieka (czy się wyświetla, czy działa z rozpoznawaniem mowy, czy wygląda dobrze)",
-     "Pierwszy w pełni automatyczny, nienadzorowany przebieg cron potwierdzony"
-    ]
-   }
-  ]
- },
- {
-  "id": "blockers",
-  "label": "Blokery biznesowo-techniczne",
-  "weight": 25,
-  "items": [
-   {
-    "label": "Prawdziwe płatności (Stripe/Google Play)",
-    "value": 0,
-    "note": "tylko demo",
-    "criteria": [
-     "Prawdziwa integracja (nie toggle demo)",
-     "Pełny test flow: zakup, odnowienie, anulowanie, zwrot"
-    ]
-   },
-   {
-    "label": "Prawdziwe reklamy (AdMob)",
-    "value": 0,
-    "note": "tylko placeholder",
-    "criteria": [
-     "Prawdziwa integracja SDK",
-     "Zmierzone realne eCPM przez min. 2 tygodnie żywego ruchu"
-    ]
-   },
-   {
-    "label": "Stabilność na realnych urządzeniach",
-    "value": 70,
-    "note": "AKTUALIZACJA 2026-09-03: naprawiono po testach na Samsungu S23 i iPhone: cichy zastoj rozmowy AI (timeout 15s, kod 4008), transkrypcja w zlym jezyku, brak komunikatu o niewspieranym mikrofonie, rozjazd postepu miedzy urzadzeniami, wyrzucanie na dol mapy po lekcji. Zostaje: testy na wiekszej liczbie urzadzen.",
-    "criteria": [
-     "Testy na min. 5 różnych urządzeniach/wersjach OS",
-     "Zero critical bugów przez min. 2 tygodnie codziennego użycia",
-     "Brak zgłoszeń o utracie danych/postępu"
-    ]
-   },
-   {
-    "label": "Bezpieczeństwo uprawnień RPC (anon)",
-    "value": 100,
-    "note": "2026-08-30: znaleziono i naprawiono lukę - anon dostawał HTTP 200 z realnych funkcji (get_ai_usage_status, get_gemini_usage_status) przez brak jawnego revoke execute from public/anon. Zweryfikowane na świeżym koncie testowym, nie tylko na słowo migracji.",
-    "criteria": [
-     "Wszystkie istniejące RPC audytowane pod kątem revoke execute from public/anon — SPEŁNIONE",
-     "Zweryfikowane na realnym koncie testowym (nie tylko treść migracji) — SPEŁNIONE",
-     "Nowe RPC (np. get_daily_readings) dostają jawny revoke od razu przy tworzeniu, nie jako poprawka później"
-    ]
-   },
-   {
-    "label": "Lokalizacja: hiszpański i portugalski",
-    "value": 0,
-    "note": "DODANE 2026-09-06. Apka deklaruje 9 jezykow, gotowe sa DWA: pl i en. es i pt maja ZERO tlumaczen. Skala na jeden jezyk: 7509 slow, 1990 przykladow, 216 wzorcow z wyjasnieniem, 80 czytanek (tekst + 3 pytania x 4 odpowiedzi), 18 tematow kultury, 423 napisy interfejsu - okolo 11 600 jednostek. Dla dwoch jezykow ~23 200. To najwieksza pozycja na liscie i nie da sie jej zrobic przy okazji."
-   },
-   {
-    "label": "Profilowanie L1 i podpowiedzi pod język ojczysty",
-    "value": 0,
-    "note": "DODANE 2026-09-06. Uczen anglojezyczny myli szyk SOV i szuka przedimkow; hiszpanski i portugalski redukuja 10 samoglosek koreanskich do 5 wlasnych (myla ㅓ z ㅗ). Dzis komunikaty o bledach sa te same dla wszystkich. Wymaga: pytania o jezyk ojczysty przy wprowadzeniu, tabeli typowych bledow per jezyk, par minimalnych do treningu sluchu. NIE wymaga tlumaczenia calej apki - dziala nawet przy interfejsie po angielsku."
-   }
-  ]
- }
-]
-};
-
-function computeLaunchReadiness(){
-  let weightedSum = 0, totalWeight = 0;
-  const byCategory = LAUNCH_READINESS.categories.map(cat => {
-    const avg = cat.items.reduce((s,i) => s + i.value, 0) / cat.items.length;
-    weightedSum += avg * cat.weight;
-    totalWeight += cat.weight;
-    return { ...cat, avg };
-  });
-  return { overall: Math.round(weightedSum / totalWeight), byCategory };
-}
-
-function renderLaunchReadinessBar(){
-  const { overall, byCategory } = computeLaunchReadiness();
-  document.getElementById('launchReadinessLabel').textContent = `🚀 Gotowość do startu: ${overall}%`;
-  document.getElementById('launchReadinessBarFill').style.width = overall + '%';
-  document.getElementById('launchReadinessDetail').innerHTML = byCategory.map(cat => `
-    <div style="margin-bottom:10px;">
-      <b>${cat.label}</b> (waga ${cat.weight}%) — ${Math.round(cat.avg)}%
-      ${cat.items.map(i => `
-        <div style="padding-left:10px; margin-top:4px;">
-          <div style="opacity:0.85;">• ${i.label}: ${i.value}%${i.note ? ' — '+i.note : ''}</div>
-          ${i.criteria ? `<div style="padding-left:14px;">${i.criteria.map(c => {
-            // Kryteria oznaczone słowem SPEŁNIONE w treści renderujemy jako odhaczone i na zielono -
-            // inaczej cała lista wygląda jednakowo i nie widać na pierwszy rzut oka, co jest już zrobione.
-            const done = /SPEŁNIONE/.test(c);
-            return done
-              ? `<span style="color:#4ade80;">☑ ${c}</span>`
-              : `<span style="opacity:0.55;">☐ ${c}</span>`;
-          }).join('<br>')}</div>` : ''}
-        </div>
-      `).join('')}
-    </div>
-  `).join('');
-}
-
-document.getElementById('launchReadinessBar').addEventListener('click', (e) => {
-  // Kliknięcia/dotknięcia POCHODZĄCE z wnętrza rozwiniętej listy mają tylko przewijać,
-  // nie przełączać widoczność całego panelu - inaczej próba scrollowania palcem po liście
-  // (dotyk-przeciągnięcie bywa odczytywany jako "click" na całym pasku) zamykała/otwierała
-  // panel w trakcie przewijania, dając wrażenie "pasek się rusza, treść stoi w miejscu".
-  if(e.target.closest('#launchReadinessDetail')) return;
-  const detail = document.getElementById('launchReadinessDetail');
-  const hint = document.getElementById('launchReadinessToggleHint');
-  const isOpen = detail.style.display === 'block';
-  detail.style.display = isOpen ? 'none' : 'block';
-  hint.textContent = isOpen ? '▲ szczegóły' : '▼ zwiń';
-});
-
-renderLaunchReadinessBar();
-/* ═══════════════════════════ KONIEC WSKAŹNIKA GOTOWOŚCI ═══════════════════════════ */
 
 // Zabezpieczenie diagnostyczne: jeśli SDK Supabase (ładowane z zewnętrznego CDN, patrz
 // <script src> w <head>) z jakiegokolwiek powodu nie zdążyło się wczytać - najczęściej
@@ -18826,7 +18567,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.736';
+const APP_VERSION = '2026-09-11.741';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -30442,7 +30183,10 @@ function pkPodepnij(){
     pkStukLicznik = 0;
     const pre = document.getElementById('pkDziennik');
     if(!pre) return;
-    if(!pre.hidden){ pre.hidden = true; return; }
+    /* .741: sygnatura (wersja · prompt) chodzi razem z dziennikiem (pakiet 6 §9.1) */
+    const sygn = document.getElementById('pkStempel');
+    if(!pre.hidden){ pre.hidden = true; if(sygn) sygn.hidden = true; return; }
+    if(sygn) sygn.hidden = false;
     const l = przekaznikDziennik();
     pre.textContent = l.length ? JSON.stringify(l, null, 1) : pkTekst('Dziennik pusty.', 'Log empty.');
     pre.hidden = false;
@@ -43885,7 +43629,10 @@ function applyPremiumUI(){
 function renderPremiumNotka(){
   const toggleBtn = document.getElementById('togglePremium');
   if(!toggleBtn) return;
-  toggleBtn.style.display = isPremium ? 'inline-block' : 'none';
+  /* .739 (pakiet 6 §9.2): przycisk demo tylko z flagą ?demo=1 w adresie — jak ?premium=… do testów lokalnych,
+     nic się nie zapisuje. Bez flagi ukryty także dla kont Premium. */
+  const flagaDemo = new URLSearchParams(window.location.search).get('demo') === '1';
+  toggleBtn.style.display = (isPremium && flagaDemo) ? 'inline-block' : 'none';
   toggleBtn.textContent = uiLang === 'en' ? 'Turn off Premium (demo)' : 'Wyłącz Premium (demo)';
 
   const acc = totalAnswered ? Math.round((totalCorrect/totalAnswered)*100) : 0;
