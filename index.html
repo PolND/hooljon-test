@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.731
-  Zbudowane na: 2255242cdaa66e41fd594e14a0e6f563 (.730)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.734
+  Zbudowane na: a80d1b4514b63afec1981b24ddaba798 (.733)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -766,7 +766,9 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
      kolorystyce i akcent JEST ich tożsamością. Zgłoszone przez Damiana. */
   .theme-swatch{ flex:1; height:44px; min-width:0; border-radius:var(--radius);
     border:1px solid var(--border); padding:0; cursor:pointer; }
-  .theme-swatch[aria-pressed="true"]{ border:2px solid var(--hwang); }
+  /* .733 (pakiet 6 §1): pierścień z przerwą w kolorze tła. Ramka 2 px w akcencie ginęła na kafelku,
+     którego połowa ma barwę akcentu (Cynober: złoto na złocie) — kafelek wyglądał na przycięty. */
+  .theme-swatch[aria-pressed="true"]{ box-shadow:0 0 0 2px var(--bg), 0 0 0 3.5px var(--hwang); }
   .theme-swatch[data-locked="true"]{ opacity:.45; }
   .theme-name{ font-size:12.5px; color:var(--ink-dim); margin-top:8px; }
   .theme-picker--schemes{ margin-top:10px; }
@@ -2228,6 +2230,9 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
     box-shadow:var(--shadow-card);
     border-radius:var(--radius);
   }
+  /* .733 (pakiet 6 §3): <button> bez zadanej szerokości kurczy się do treści — w Akademii (dzieci bloku,
+     nie siatki) każda karta miała inną szerokość. W siatce nic to nie zmienia. */
+  .home-card{ width:100%; }
   .sb-tappable{cursor:pointer; transition:transform .12s ease, box-shadow .2s ease;}
   .sb-tappable:hover{box-shadow:0 10px 24px -12px rgba(0,0,0,0.25);}
   .sb-tappable:active{transform:scale(0.98);}
@@ -3666,10 +3671,12 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
     transition:all .15s ease;
     user-select:none;
   }
+  /* .733 (pakiet 6 §4): akcent motywu, nie token kierunku E z kompasu; napis --on-accent, nie biały
+     (Jadeit 2,66:1 i Papier ciemny 2,57:1 → powyżej 4,5:1 we wszystkich motywach). */
   .category-chip.active{
-    background:var(--cheong);
-    border-color:var(--cheong);
-    color:#fff;
+    background:var(--hwang);
+    border-color:var(--hwang);
+    color:var(--on-accent);
     font-weight:500;
   }
   .category-chip .count{opacity:0.7; font-size:13.5px;}
@@ -4293,6 +4300,15 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
     margin-top:3px; font-size:12.5px; color:var(--ink-dim);
   }
   .achv-streak-best{font-size:14px; color:var(--hwang); margin-top:8px; font-weight:600;}
+  /* .734 — FORMA: trzeci filar profilu (świeżość pamięci). Tokeny istniejące, bez nowych zmiennych kolorów. */
+  .forma{ margin:14px auto 4px; max-width:260px; }
+  .forma-glowa{ display:flex; align-items:baseline; justify-content:center; gap:8px; }
+  .forma-nazwa{ font-size:12.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-dim); }
+  .forma-proc{ font-size:20px; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .forma-tor{ height:4px; margin-top:6px; border-radius:var(--radius-pill); background:var(--surface-2); overflow:hidden; }
+  .forma-tor > i{ display:block; height:4px; width:0; border-radius:var(--radius-pill); background:var(--hwang); transition:width .4s ease; }
+  .forma.forma-pusta .forma-tor{ display:none; }
+  .forma-opis{ margin-top:5px; font-size:12.5px; color:var(--ink-dim); }
   .achv-section-title{
     font-size:14.5px;
     font-weight:600;
@@ -9822,6 +9838,12 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
       <div class="achv-streak-label" data-i18n="achvStreakLabel">dni z rzędu</div>
       <div class="achv-streak-best" id="achvStreakBest"></div>
       <div class="achv-streak-best" id="plomienEra" hidden></div>
+      <!-- .734 — FORMA: między Płomieniem (seria) a Drogą Mędrca (ranga). -->
+      <div class="forma forma-pusta" id="formaBlok">
+        <div class="forma-glowa"><span class="forma-nazwa" id="formaNazwa">Forma</span><span class="forma-proc" id="formaProc">—</span></div>
+        <div class="forma-tor"><i id="formaPasek"></i></div>
+        <div class="forma-opis" id="formaOpis"></div>
+      </div>
       <div class="sage-rank" id="sageRank"></div>
       <div class="sage-next" id="sageNext"></div>
       <div class="shield-row" id="shieldRow"></div>
@@ -18803,7 +18825,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.731';
+const APP_VERSION = '2026-09-11.734';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -24807,13 +24829,15 @@ const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100, 200, 365];
    Fable (pola opis / opisEn) — do tego czasu ceremonia pokazuje próg w punktach.
    .729: opisy Fable (grywalizacja/rangi-opisy-728.md) przy 9 rangach.
    .731: 초보 „Początek drogi” (grywalizacja/rangi-opis-chobo-729.md — zapasowa wersja Fable, wybór Damiana:
-   200 pkt da się zebrać także bez lekcji). Wszystkie 10 rang ma opis. */
+   200 pkt da się zebrać także bez lekcji). Wszystkie 10 rang ma opis.
+   .732: ta sama zasada dla 진사 („Uczony z tytułem”) i 태조 („Założyciel własnej drogi”) — opis prawdziwy
+   przy każdej drodze do progu (decyzje-grywalizacji-2-damian.md, runda 2c). */
 const SAGE_RANKS = [
   { from:0,   pkt:0, ko:'불씨',   pl:'Iskra',      en:'Ember',        flame:'·', opis:'Pierwsze słowa', opisEn:'First words' },
   { from:7,   pkt:200, ko:'초보',   pl:'Nowicjusz',  en:'Novice',       flame:'▪', opis:'Początek drogi', opisEn:'The path begins' },
   { from:14,  pkt:800, ko:'유생',   pl:'Adept',      en:'Adept',        flame:'◆', opis:'Uczeń przy księgach', opisEn:'Student at the books' },
   { from:30,  pkt:2000, ko:'선비',   pl:'Mędrzec',    en:'Scholar',      flame:'◈', opis:'Podstawy opanowane', opisEn:'Foundations mastered' },
-  { from:60,  pkt:4500, ko:'진사',   pl:'Uczony',     en:'Graduate',     flame:'✦', opis:'Egzamin zdany', opisEn:'The exam passed' },
+  { from:60,  pkt:4500, ko:'진사',   pl:'Uczony',     en:'Graduate',     flame:'✦', opis:'Uczony z tytułem', opisEn:'A scholar with a title' },
   { from:90,  pkt:8000, ko:'학사',   pl:'Mentor',     en:'Mentor',       flame:'✧', opis:'Wiedza, którą można przekazać', opisEn:'Knowledge worth passing on' },
   { from:120, pkt:13000, ko:'정승',   pl:'Minister',   en:'Minister',     flame:'❖', opis:'Rada przy królu', opisEn:'Counsel to the king' },
   { from:180, pkt:20000, ko:'왕세자', pl:'Następca',   en:'Heir',         flame:'✵', opis:'Przygotowany do tronu', opisEn:'Ready for the throne' },
@@ -24828,7 +24852,7 @@ const SAGE_RANKS = [
   /* „Założyciel", nie „Władca": 태조 to imię świątynne pierwszego króla
      dynastii, czyli dokładnie tego, kto ją ZAŁOŻYŁ. Angielskie `Founder`
      stało tu poprawnie od początku i to polska etykieta była odstępstwem. */
-  { from:365, pkt:50000, ko:'태조',   pl:'Założyciel', en:'Founder',      flame:'✹', opis:'Cały materiał opanowany', opisEn:'All of it, mastered' },
+  { from:365, pkt:50000, ko:'태조',   pl:'Założyciel', en:'Founder',      flame:'✹', opis:'Założyciel własnej drogi', opisEn:'Founder of a path' },
 ];
 
 /* Pełna drabina rang. Pokazujemy WSZYSTKIE stopnie, także odległe - sens
@@ -24894,6 +24918,42 @@ function plomienEra(dni){
   return uiLang === 'en'
     ? 'Reign · day ' + d + ' of Year ' + eraRzymska(rok)
     : 'Era Panowania · ' + d + '. dzień Roku ' + eraRzymska(rok);
+}
+
+/* ═══ FORMA (.734) — trzeci filar profilu: świeżość pamięci ═══════════════
+   Odsetek kart w powtórkach, których termin jeszcze nie minął: słówka (allWords z wpisem w SRS) i wzorce
+   gramatyczne z gotowych rozdziałów. Zaległe liczone tak samo jak „do powtórki” w aplikacji (due <= teraz),
+   więc liczba pod Formą zgadza się z licznikiem powtórek. Bez żadnej karty — null: kreska i zdanie, nigdy 0%. */
+function formaStan(){
+  const teraz = Date.now();
+  let karty = 0, zalegle = 0;
+  const licz = (k) => { const s = srsData && srsData[k]; if(!s) return; karty += 1; if((s.due || 0) <= teraz) zalegle += 1; };
+  try{ allWords.forEach(w => licz(w.ko)); }catch(e){}
+  try{ getAllGrammarItems().forEach(it => licz(grammarKey(it))); }catch(e){}
+  return { karty, zalegle, proc: karty ? Math.round(100 * (karty - zalegle) / karty) : null };
+}
+
+function formaKartyTekst(n){
+  if(uiLang === 'en') return n + (n === 1 ? ' card due' : ' cards due');
+  const r10 = n % 10, r100 = n % 100;
+  const forma = n === 1 ? 'karta' : (r10 >= 2 && r10 <= 4 && (r100 < 12 || r100 > 14)) ? 'karty' : 'kart';
+  return n + ' ' + forma + ' do powtórki';
+}
+
+function renderForma(){
+  const blok = document.getElementById('formaBlok');
+  if(!blok) return;
+  const en = uiLang === 'en';
+  const f = formaStan();
+  const nazwa = document.getElementById('formaNazwa');
+  if(nazwa) nazwa.textContent = en ? 'Form' : 'Forma';
+  const proc = document.getElementById('formaProc'), pasek = document.getElementById('formaPasek'), opis = document.getElementById('formaOpis');
+  blok.classList.toggle('forma-pusta', f.proc === null);
+  if(proc) proc.textContent = f.proc === null ? '—' : f.proc + '%';
+  if(pasek) pasek.style.width = (f.proc === null ? 0 : f.proc) + '%';
+  if(opis) opis.textContent = f.proc === null
+    ? (en ? 'Your form appears after your first reviews' : 'Forma pojawi się po pierwszych powtórkach')
+    : (f.zalegle ? formaKartyTekst(f.zalegle) : (en ? 'All reviewed' : 'Wszystko powtórzone'));
 }
 
 function sageRankFor(days){
@@ -32985,6 +33045,7 @@ function renderAchievementsScreen(){
     if(icon) icon.innerHTML = '<span data-ik="plomien"></span>';
     const eraEl = document.getElementById('plomienEra');
     if(eraEl){ const t = plomienEra(dayStreak); eraEl.textContent = t; eraEl.hidden = !t; }
+    try{ renderForma(); }catch(e){ /* Forma to dodatek, nie może zablokować ekranu */ }
     const sr = sageRankWiedzy();
     const rankEl = document.getElementById('sageRank');
     if(rankEl) rankEl.textContent = sr.rank.ko + ' · ' + (uiLang === 'en' ? sr.rank.en : sr.rank.pl);
