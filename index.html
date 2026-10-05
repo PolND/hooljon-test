@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.728
-  Zbudowane na: 3c252185b73262a4e33ffcf987708520 (.727)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.730
+  Zbudowane na: dec77e7138a7e7c8819827af05c5d5c3 (.729)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -4366,7 +4366,9 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
   @keyframes aura-tchnienie{ 0%,100%{ opacity:.4; transform:scale(1) } 50%{ opacity:.9; transform:scale(1.05) } }
   @keyframes cicha-puls{ 0%{ opacity:.35; transform:scale(.9) } 45%{ opacity:1; transform:scale(1.12) } 100%{ opacity:1; transform:scale(1) } }
   @keyframes cicha-wjazd{ from{ opacity:0; transform:translateY(-6px) } to{ opacity:1; transform:translateY(0) } }
-  @keyframes pas-gora{ from{ opacity:0; transform:translateY(-100%) } to{ opacity:1; transform:translateY(0) } }
+  /* .730: klatki niosą też translateX(-50%) — bez tego animacja (fill-mode both) nadpisywała wyśrodkowanie
+     .ng-pasek i pasek awansu wyjeżdżał o pół szerokości w prawo, poza ekran. */
+  @keyframes pas-gora{ from{ opacity:0; transform:translateX(-50%) translateY(-100%) } to{ opacity:1; transform:translateX(-50%) translateY(0) } }
   @keyframes pas-wjazd{ from{ opacity:0; transform:translateY(16px) } to{ opacity:1; transform:translateY(0) } }
 
   /* ── wspólna nakładka (poziomy 2-4) ── */
@@ -18801,7 +18803,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.728';
+const APP_VERSION = '2026-09-11.730';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -24802,16 +24804,18 @@ const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100, 200, 365];
 /* .728: progi rangi w PUNKTACH WIEDZY (pole pkt, założenia Damiana) — patrz WIEDZA niżej.
    Pole from (dni) zostaje WYŁĄCZNIE do odtworzenia tytułu sprzed .728 (tytulMin).
    Opisy z dniami („Tydzień z rzędu.”) usunięte, bo przestały być prawdą; nowe opisy pisze
-   Fable (pola opis / opisEn) — do tego czasu ceremonia pokazuje próg w punktach. */
+   Fable (pola opis / opisEn) — do tego czasu ceremonia pokazuje próg w punktach.
+   .729: opisy Fable (grywalizacja/rangi-opisy-728.md) przy 9 rangach; 초보 czeka na nowy opis (decyzja
+   Damiana: pierwsze dwie lekcje to słówka, nie czytanki) i do tego czasu pokazuje próg. */
 const SAGE_RANKS = [
-  { from:0,   pkt:0, ko:'불씨',   pl:'Iskra',      en:'Ember',        flame:'·' },
+  { from:0,   pkt:0, ko:'불씨',   pl:'Iskra',      en:'Ember',        flame:'·', opis:'Pierwsze słowa', opisEn:'First words' },
   { from:7,   pkt:200, ko:'초보',   pl:'Nowicjusz',  en:'Novice',       flame:'▪' },
-  { from:14,  pkt:800, ko:'유생',   pl:'Adept',      en:'Adept',        flame:'◆' },
-  { from:30,  pkt:2000, ko:'선비',   pl:'Mędrzec',    en:'Scholar',      flame:'◈' },
-  { from:60,  pkt:4500, ko:'진사',   pl:'Uczony',     en:'Graduate',     flame:'✦' },
-  { from:90,  pkt:8000, ko:'학사',   pl:'Mentor',     en:'Mentor',       flame:'✧' },
-  { from:120, pkt:13000, ko:'정승',   pl:'Minister',   en:'Minister',     flame:'❖' },
-  { from:180, pkt:20000, ko:'왕세자', pl:'Następca',   en:'Heir',         flame:'✵' },
+  { from:14,  pkt:800, ko:'유생',   pl:'Adept',      en:'Adept',        flame:'◆', opis:'Uczeń przy księgach', opisEn:'Student at the books' },
+  { from:30,  pkt:2000, ko:'선비',   pl:'Mędrzec',    en:'Scholar',      flame:'◈', opis:'Podstawy opanowane', opisEn:'Foundations mastered' },
+  { from:60,  pkt:4500, ko:'진사',   pl:'Uczony',     en:'Graduate',     flame:'✦', opis:'Egzamin zdany', opisEn:'The exam passed' },
+  { from:90,  pkt:8000, ko:'학사',   pl:'Mentor',     en:'Mentor',       flame:'✧', opis:'Wiedza, którą można przekazać', opisEn:'Knowledge worth passing on' },
+  { from:120, pkt:13000, ko:'정승',   pl:'Minister',   en:'Minister',     flame:'❖', opis:'Rada przy królu', opisEn:'Counsel to the king' },
+  { from:180, pkt:20000, ko:'왕세자', pl:'Następca',   en:'Heir',         flame:'✵', opis:'Przygotowany do tronu', opisEn:'Ready for the throne' },
   /* 상왕 („król senior") to tytuł władcy, który abdykował na rzecz następcy
      i panuje obok niego — mieści się w tej samej, dworskiej drabinie co
      정승 i 왕세자. 신선 („nieśmiertelny") pochodził z zupełnie innego
@@ -24819,11 +24823,11 @@ const SAGE_RANKS = [
      `from` zostaje 270, więc oprawa, poziom i przypisanie dźwięku są
      nietknięte. KLUCZ W `AWANS_DZWIEKI` idzie razem z nazwą — inaczej
      fanfara zostałaby osierocona. */
-  { from:270, pkt:30000, ko:'상왕',   ko2:'신선', pl:'Król Senior', en:'Senior King', flame:'✸' },
+  { from:270, pkt:30000, ko:'상왕',   ko2:'신선', pl:'Król Senior', en:'Senior King', flame:'✸', opis:'Rządził i wie', opisEn:'Has ruled, and knows' },
   /* „Założyciel", nie „Władca": 태조 to imię świątynne pierwszego króla
      dynastii, czyli dokładnie tego, kto ją ZAŁOŻYŁ. Angielskie `Founder`
      stało tu poprawnie od początku i to polska etykieta była odstępstwem. */
-  { from:365, pkt:50000, ko:'태조',   pl:'Założyciel', en:'Founder',      flame:'✹' },
+  { from:365, pkt:50000, ko:'태조',   pl:'Założyciel', en:'Founder',      flame:'✹', opis:'Cały materiał opanowany', opisEn:'All of it, mastered' },
 ];
 
 /* Pełna drabina rang. Pokazujemy WSZYSTKIE stopnie, także odległe - sens
