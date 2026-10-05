@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.758
-  Zbudowane na: 322b48be600d0826345942175ec48bcd (.757)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.760
+  Zbudowane na: 37f80225125e5f690f2181a6f5ff1e40 (.759)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -777,11 +777,19 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
      zasada („najpierw jasny czy ciemny, potem akcent") zakładała, że akcent
      jest wyborem osobnym; nie jest — motywy Pro mają po jednej, własnej
      kolorystyce i akcent JEST ich tożsamością. Zgłoszone przez Damiana. */
+  /* .759 (poprawka Fable §1.1, „akcent znaczy stan”): obrys niewybranego kafelka neutralny, nie --border
+     (w Cynobrze --border jest złoty i wybrany kafelek miał dwie złote linie). Ciemne: biel 9 %, jasne: tusz 10 %. */
   .theme-swatch{ flex:1; height:44px; min-width:0; border-radius:var(--radius);
-    border:1px solid var(--border); padding:0; cursor:pointer; }
+    border:1px solid rgba(255,255,255,.09); padding:0; cursor:pointer; }
+  html:not([data-scheme]) .theme-swatch, [data-scheme=""] .theme-swatch,
+  [data-scheme="kobalt"] .theme-swatch{ border-color:rgba(23,20,18,.10); }
   /* .733 (pakiet 6 §1): pierścień z przerwą w kolorze tła. Ramka 2 px w akcencie ginęła na kafelku,
-     którego połowa ma barwę akcentu (Cynober: złoto na złocie) — kafelek wyglądał na przycięty. */
-  .theme-swatch[aria-pressed="true"]{ box-shadow:0 0 0 2px var(--bg), 0 0 0 3.5px var(--hwang); }
+     którego połowa ma barwę akcentu (Cynober: złoto na złocie) — kafelek wyglądał na przycięty.
+     .759: wybrany — sam pierścień, obrys bazowy przezroczysty. */
+  .theme-swatch[aria-pressed="true"]{ border-color:transparent; box-shadow:0 0 0 2px var(--bg), 0 0 0 3.5px var(--hwang); }
+  /* .759: gradient liczony od krawędzi zewnętrznej — przy przezroczystym obrysie powtórzony kafel tła wchodził pod obrys
+     i rysował przy lewej krawędzi 1 px drugiej połowy (akcentu). !important, bo tło stoi w stylu inline (skrót background). */
+  .theme-swatch{ background-origin:border-box !important; }
   .theme-swatch[data-locked="true"]{ opacity:.45; }
   .theme-name{ font-size:12.5px; color:var(--ink-dim); margin-top:8px; }
   .theme-picker--schemes{ margin-top:10px; }
@@ -3725,12 +3733,14 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
   .achv-streak-icon{font-size:40px;}
 
   /* ═══ .755 — PŁOMIEŃ SERII W CZTERECH DIALEKTACH (pakiet 6 §11) ═══
-     Tylko karta Postępu (44 px, powyżej progu 28 px). Rysunki z §11.2, kolor = akcent (§11.3), liczba w tuszu.
+     Tylko karta Postępu (44 px, powyżej progu 28 px). Kolor = akcent (§11.3), liczba w tuszu.
+     .760: rysunki z poprawki Fable §2 (zastępuje §11.2, rysunki .755 wycofane): wszystkie motywy biorą sylwetkę
+     Cynobru, dialekt zostaje w traktowaniu kreski.
      Poniżej 28 px (drabina rang, próbnik ceremonii, baner passy) bez dialektu — §11.4/§11.5. */
   .achv-streak-icon{ color:var(--hwang); line-height:0; margin-bottom:6px; }
-  .achv-streak-icon [data-ik="plomien"]::before{ width:44px; height:44px; vertical-align:0; --ik:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23000%27%20stroke-width%3D%271.4%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M4.6%2013.8h14.8a7.4%207.4%200%200%201-14.8%200z%27%2F%3E%3Cpath%20d%3D%27M12%2021.2v-2.6%27%2F%3E%3Cpath%20d%3D%27M8.4%2021.4h7.2%27%2F%3E%3Cpath%20d%3D%27M12%2013.6v-2.2%27%2F%3E%3Cpath%20d%3D%27M12%2011.2c-1.5-1.5-1.4-3.3%200-5.1%201.4%201.8%201.5%203.6%200%205.1z%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
-  [data-theme="jade"] .achv-streak-icon [data-ik="plomien"]::before{ --ik:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23000%27%20stroke-width%3D%271.6%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M12.2%202.8c1%203-.9%204.8-2.6%206.7-1.9%202.1-3%203.9-3%206%200%203%202.4%205.5%205.4%205.5s5.4-2.5%205.4-5.5c0-2.1-1-3.9-2.4-5.5%27%2F%3E%3Cpath%20d%3D%27M12%2021c-1.4%200-2.5-1.2-2.5-2.7%200-1.5%201-2.5%202.5-4.1%201.4%201.6%202.5%202.6%202.5%204.1%200%201.5-1.1%202.7-2.5%202.7z%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
-  [data-theme="kobalt"] .achv-streak-icon [data-ik="plomien"]::before{ --ik:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23000%27%20stroke-width%3D%271.9%27%20stroke-linecap%3D%27butt%27%20stroke-linejoin%3D%27miter%27%3E%3Cpath%20d%3D%27M11.2%202.6%2014%208.4l2.4%203.4v4.4L14.2%2019.2H9.8L7.6%2016.2v-4z%27%2F%3E%3Cpath%20d%3D%27M12%2013.4%2014.4%2017H9.6z%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
+  .achv-streak-icon [data-ik="plomien"]::before{ width:44px; height:44px; vertical-align:0; --ik:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23000%27%20stroke-width%3D%271.4%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M12%202.4c3.4%203.9%205.2%206.7%205.2%209.1%200%203.2-2.3%205.4-5.2%205.4s-5.2-2.2-5.2-5.4c0-2.4%201.8-5.2%205.2-9.1z%27%2F%3E%3Cpath%20d%3D%27M12%2014.6c-1.1%200-1.9-.8-1.9-1.9%200-1%20.7-1.8%201.9-3%201.2%201.2%201.9%202%201.9%203%200%201.1-.8%201.9-1.9%201.9z%27%2F%3E%3Cpath%20d%3D%27M6%2017.8h12a6.8%206.8%200%200%201-12%200z%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
+  [data-theme="jade"] .achv-streak-icon [data-ik="plomien"]::before{ --ik:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23000%27%20stroke-width%3D%271.6%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M12%202.4c-4.2%204.8-6.4%208.2-6.4%2011.2%200%203.9%202.9%206.6%206.4%206.6s6.4-2.7%206.4-6.6c0-2.3-1.3-4.9-3.7-7.8%27%2F%3E%3Cpath%20d%3D%27M12%2017.8c-1.6%200-2.8-1.2-2.8-2.8%200-1.5%201-2.6%202.8-4.4%201.8%201.8%202.8%202.9%202.8%204.4%200%201.6-1.2%202.8-2.8%202.8z%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
+  [data-theme="kobalt"] .achv-streak-icon [data-ik="plomien"]::before{ --ik:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23000%27%20stroke-width%3D%271.9%27%20stroke-linecap%3D%27butt%27%20stroke-linejoin%3D%27miter%27%3E%3Cpath%20d%3D%27M12%202.6%2016.4%2010.4v5L12%2021l-4.4-5.6v-5z%27%2F%3E%3Cpath%20d%3D%27M12%2013.2%2014.4%2016.4%2012%2019.6%209.6%2016.4z%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
   [data-scheme="cynober"] .achv-streak-icon [data-ik="plomien"]::before{ --ik:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20fill%3D%27%23000%27%20fill-rule%3D%27evenodd%27%20d%3D%27M12%202.4c4.2%204.8%206.4%208.2%206.4%2011.2%200%203.9-2.9%206.6-6.4%206.6s-6.4-2.7-6.4-6.6c0-1.9.9-3.9%202.6-6.1-.3%202.4.5%203.8%201.8%204.4.4-3.3%201.2-6.2%202-9.5z%20M12%2017.8c-1.6%200-2.8-1.2-2.8-2.8%200-1.5%201-2.6%202.8-4.4%201.8%201.8%202.8%202.9%202.8%204.4%200%201.6-1.2%202.8-2.8%202.8z%27%2F%3E%3C%2Fsvg%3E"); }
   .achv-streak-title{font-size:13.5px; color:var(--hwang); font-weight:600; text-transform:uppercase; letter-spacing:0.3px; margin-bottom:8px; font-family:var(--font-ui);}
   .achv-streak-num{font-size:40px; font-weight:700; color:var(--ink); font-family:var(--font-ui); line-height:1.1;}
@@ -18634,7 +18644,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.758';
+const APP_VERSION = '2026-09-11.760';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -20851,7 +20861,7 @@ function renderAccountScreen(){
     const nazwa = nazwaMotywu(t);
     return `<span class="theme-opcja" ${locked ? 'data-locked="true"' : ''}>
       <button type="button" class="theme-swatch" data-theme-id="${t.id}"
-        style="background:linear-gradient(135deg,${t.sw[0]} 50%,${t.sw[1]} 50%);" ${locked ? 'data-locked="true"' : ''}
+        style="background:linear-gradient(135deg,${t.sw[0]} calc(50% - 0.5px),${t.sw[1]} calc(50% + 0.5px));" ${locked ? 'data-locked="true"' : ''}
         aria-pressed="${t.id === currentTheme ? 'true' : 'false'}"
         aria-label="${escapeHtml(nazwa)}" title="${escapeHtml(nazwa)}"></button>
       <span class="theme-opcja-nazwa">${escapeHtml(nazwa)}${locked ? '<span class="theme-opcja-pro">Pro</span>' : ''}</span>
@@ -20877,7 +20887,7 @@ function renderAccountScreen(){
       const nazwaP = nazwaPalety(x);
       return `<span class="theme-opcja" ${locked ? 'data-locked="true"' : ''}>
         <button type="button" class="theme-swatch" data-scheme-id="${x.id}"
-          style="background:linear-gradient(135deg,${x.sw[0]} 50%,${x.sw[1]} 50%);" ${locked ? 'data-locked="true"' : ''}
+          style="background:linear-gradient(135deg,${x.sw[0]} calc(50% - 0.5px),${x.sw[1]} calc(50% + 0.5px));" ${locked ? 'data-locked="true"' : ''}
           aria-pressed="${x.id === active ? 'true' : 'false'}"
           aria-label="${escapeHtml(nazwaP)}" title="${escapeHtml(nazwaP)}"></button>
         <span class="theme-opcja-nazwa">${escapeHtml(nazwaP)}${locked ? '<span class="theme-opcja-pro">Pro</span>' : ''}</span>
@@ -23356,7 +23366,7 @@ function renderThemePanel(){
 
   let html = visible.map(t => `
     <button class="theme-row ${t.id === currentTheme ? 'active' : ''}" data-theme-id="${t.id}">
-      <span class="tr-swatch" style="background:linear-gradient(135deg,${t.sw[0]} 50%,${t.sw[1]} 50%);"></span>
+      <span class="tr-swatch" style="background:linear-gradient(135deg,${t.sw[0]} calc(50% - 0.5px),${t.sw[1]} calc(50% + 0.5px));"></span>
       <span style="flex:1; min-width:0;">
         <span class="tr-name" style="display:block;">${t.name}</span>
         <span class="tr-ko" style="display:block;">${t.ko}</span>
@@ -23373,7 +23383,7 @@ function renderThemePanel(){
     html += `<div class="scheme-label">${uiLang === 'en' ? 'Colours' : 'Kolorystyka'}</div>` +
       schemes.map(x => `
         <button class="theme-row scheme-row ${x.id === active ? 'active' : ''}" data-scheme-id="${x.id}">
-          <span class="tr-swatch" style="background:linear-gradient(135deg,${x.sw[0]} 50%,${x.sw[1]} 50%);"></span>
+          <span class="tr-swatch" style="background:linear-gradient(135deg,${x.sw[0]} calc(50% - 0.5px),${x.sw[1]} calc(50% + 0.5px));"></span>
           <span style="flex:1; min-width:0;">
             <span class="tr-name" style="display:block;">${x.name}</span>
             <span class="tr-ko" style="display:block;">${x.ko}</span>
