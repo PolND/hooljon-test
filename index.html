@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.730
-  Zbudowane na: dec77e7138a7e7c8819827af05c5d5c3 (.729)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.731
+  Zbudowane na: 2255242cdaa66e41fd594e14a0e6f563 (.730)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -18803,7 +18803,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.730';
+const APP_VERSION = '2026-09-11.731';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -24805,11 +24805,12 @@ const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100, 200, 365];
    Pole from (dni) zostaje WYŁĄCZNIE do odtworzenia tytułu sprzed .728 (tytulMin).
    Opisy z dniami („Tydzień z rzędu.”) usunięte, bo przestały być prawdą; nowe opisy pisze
    Fable (pola opis / opisEn) — do tego czasu ceremonia pokazuje próg w punktach.
-   .729: opisy Fable (grywalizacja/rangi-opisy-728.md) przy 9 rangach; 초보 czeka na nowy opis (decyzja
-   Damiana: pierwsze dwie lekcje to słówka, nie czytanki) i do tego czasu pokazuje próg. */
+   .729: opisy Fable (grywalizacja/rangi-opisy-728.md) przy 9 rangach.
+   .731: 초보 „Początek drogi” (grywalizacja/rangi-opis-chobo-729.md — zapasowa wersja Fable, wybór Damiana:
+   200 pkt da się zebrać także bez lekcji). Wszystkie 10 rang ma opis. */
 const SAGE_RANKS = [
   { from:0,   pkt:0, ko:'불씨',   pl:'Iskra',      en:'Ember',        flame:'·', opis:'Pierwsze słowa', opisEn:'First words' },
-  { from:7,   pkt:200, ko:'초보',   pl:'Nowicjusz',  en:'Novice',       flame:'▪' },
+  { from:7,   pkt:200, ko:'초보',   pl:'Nowicjusz',  en:'Novice',       flame:'▪', opis:'Początek drogi', opisEn:'The path begins' },
   { from:14,  pkt:800, ko:'유생',   pl:'Adept',      en:'Adept',        flame:'◆', opis:'Uczeń przy księgach', opisEn:'Student at the books' },
   { from:30,  pkt:2000, ko:'선비',   pl:'Mędrzec',    en:'Scholar',      flame:'◈', opis:'Podstawy opanowane', opisEn:'Foundations mastered' },
   { from:60,  pkt:4500, ko:'진사',   pl:'Uczony',     en:'Graduate',     flame:'✦', opis:'Egzamin zdany', opisEn:'The exam passed' },
