@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.775
-  Zbudowane na: 6778d467eb18f4d62d6fa4458dd6afe4 (.774)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.776
+  Zbudowane na: 44f41c9eec7fd14c68f780814e859ed4 (.775)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -401,8 +401,10 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
      reguła CSS nie zna górnego paddingu .wrap ani wysokości notcha - liczona
      na sztywno wychodziła 32px za nisko i arkusz słowa wystawał poza okno.
      Ten sam wzorzec co syncConjRefHeight. */
-  #readingScreen{ display:flex; flex-direction:column; width:100%; min-width:0;
-    height:var(--reader-h, calc(100dvh - 24px)); }
+  /* .776: tylko przy otwartym tekście. Na liście czytanek stała wysokość sprawiała, że lista wylewała się poza
+     ekran: ostatni element trafiał pod pasek nawigacji, a tło motywu powtarzało się co wysokość ekranu. */
+  #readingScreen{ display:flex; flex-direction:column; width:100%; min-width:0; }
+  #readingScreen.czytnik-otwarty{ height:var(--reader-h, calc(100dvh - 24px)); }
   .reader-bar{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:4px 0 10px; }
   .reader-back{ flex:none; width:44px; height:44px; border:0; background:0;
     color:var(--ink); font-size:26px; line-height:1; cursor:pointer; }
@@ -18649,7 +18651,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.775';
+const APP_VERSION = '2026-09-11.776';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -40451,6 +40453,7 @@ async function saveCustomReadings(){
 function showReadingList(){
   document.getElementById('readingListWrap').style.display = 'block';
   document.getElementById('readingActiveWrap').style.display = 'none';
+  document.getElementById('readingScreen').classList.remove('czytnik-otwarty');   /* .776: lista rośnie normalnie */
   try{ updateBottomNav(currentScreen); }catch(e){}   /* .775: na liście pasek wraca */
   stopReadingMic();
   renderReadingList();
@@ -41587,6 +41590,7 @@ function openReading(reading){
 
   document.getElementById('readingListWrap').style.display = 'none';
   document.getElementById('readingActiveWrap').style.display = 'block';
+  document.getElementById('readingScreen').classList.add('czytnik-otwarty');   /* .776: stała wysokość tylko tu */
   try{ updateBottomNav(currentScreen); requestAnimationFrame(() => { try{ syncReaderHeight(); }catch(e){} }); }catch(e){}   /* .775: czytnik bez paska */
   document.getElementById('readingActiveTitle').textContent = (uiLang === 'en' && reading.titleEn) ? reading.titleEn : reading.title;
   document.getElementById('readingStatus').textContent = readingStatusIdleText();
