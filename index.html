@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.774
-  Zbudowane na: 0f9fe6856cff1e41bda94c9d3c8b69a5 (.773)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.775
+  Zbudowane na: 6778d467eb18f4d62d6fa4458dd6afe4 (.774)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -18649,7 +18649,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.774';
+const APP_VERSION = '2026-09-11.775';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -18696,11 +18696,17 @@ const NAV_TARGETS = { learn:'home', dict:'dictBrowse', chat:'aiChat', progress:'
 const NAV_HIDDEN_SCREENS = new Set([
   'login','loading','register','onboarding','hangulGate','placementTest',
   'storyLesson','vocabStudy','vocab','conjugation','grammarQuiz','grammarPractice',
-  'topikTest','sentenceBuilder',
-  // Czytnik jest immersyjny - w makiecie 5b arkusz słowa siada na samym dole
-  // ekranu, bez paska nawigacji pod spodem. Dodane 2026-09-02.
-  'reader'
+  'topikTest','sentenceBuilder'
 ]);
+/* Czytnik jest immersyjny - w makiecie 5b arkusz słowa siada na samym dole
+   ekranu, bez paska nawigacji pod spodem. Dodane 2026-09-02 jako wpis 'reader',
+   który nigdy nie działał (ekran nazywa się 'reading' i obejmuje też listę
+   czytanek). .775 (decyzja Damiana): pasek znika tylko przy otwartym tekście. */
+function navUkrytyWCzytniku(screen){
+  if(screen !== 'reading') return false;
+  const a = document.getElementById('readingActiveWrap');
+  return !!a && a.style.display === 'block';
+}
 // Które ekrany "należą" do której zakładki - do podświetlenia aktywnej.
 const NAV_OWNS = {
   learn: ['home','modeSelect','storyMap','scenariuszeHub','warsztat','vocabMode','vocabDept','vocabLevel','myWords','folderEdit','academy','kodeks','kanwa','hangul','grammarHub','grammarLevel','grammarChapter','reading'],
@@ -18787,7 +18793,7 @@ function refreshHomeChrome(){
 function updateBottomNav(screen){
   const bar = document.getElementById('bottomNav');
   if(!bar) return;
-  bar.style.display = NAV_HIDDEN_SCREENS.has(screen) ? 'none' : '';
+  bar.style.display = (NAV_HIDDEN_SCREENS.has(screen) || navUkrytyWCzytniku(screen)) ? 'none' : '';
   let active = null;
   for(const [tab, screens] of Object.entries(NAV_OWNS)){
     if(screens.includes(screen)){ active = tab; break; }
@@ -40445,6 +40451,7 @@ async function saveCustomReadings(){
 function showReadingList(){
   document.getElementById('readingListWrap').style.display = 'block';
   document.getElementById('readingActiveWrap').style.display = 'none';
+  try{ updateBottomNav(currentScreen); }catch(e){}   /* .775: na liście pasek wraca */
   stopReadingMic();
   renderReadingList();
 }
@@ -41580,6 +41587,7 @@ function openReading(reading){
 
   document.getElementById('readingListWrap').style.display = 'none';
   document.getElementById('readingActiveWrap').style.display = 'block';
+  try{ updateBottomNav(currentScreen); requestAnimationFrame(() => { try{ syncReaderHeight(); }catch(e){} }); }catch(e){}   /* .775: czytnik bez paska */
   document.getElementById('readingActiveTitle').textContent = (uiLang === 'en' && reading.titleEn) ? reading.titleEn : reading.title;
   document.getElementById('readingStatus').textContent = readingStatusIdleText();
   document.getElementById('readingMicBtn').textContent = readingMicIdleLabel();
