@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.777
-  Zbudowane na: be4479b9009329101c36be462397f2a3 (.776)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.779
+  Zbudowane na: 36f198de7ad70972a5d6d08f6cfe6f6c (.778)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -18651,7 +18651,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.777';
+const APP_VERSION = '2026-09-11.779';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -36988,7 +36988,8 @@ var KARAOKE = (function () {
   /* .777 (transza 5, Fable): samodzielny myślnik („배부르랴 — 이제”) należy do słowa przed nim i jest granicą frazy
      jak przecinek; cudzysłów zamykający po znaku końcowym („되나요?"”) i cudzysłów w środku wyrazu („것"이라고”) to
      interpunkcja — sylaby porównujemy z wyrazem bez cudzysłowu. */
-  const MYSLNIK = /^[—–]+$/, CUDZYSLOW = /["“”'‘’]/g;
+  /* .778 (transza 6, 225-s04 없었네!"라고): znak końcowy cytatu tuż przed cudzysłowem też jest interpunkcją */
+  const MYSLNIK = /^[—–]+$/, CUDZYSLOW = /[!?.…]*["“”'‘’]/g;
   const jestGranica = (znak) => /[,—–]/.test(znak);
   function tokeny(tekst) {
     const tok = [];
@@ -37407,32 +37408,73 @@ var KARAOKE = (function () {
     opcje = opcje || {};
     const zdania = (zdaniaWe || []).filter((z) => !sprawdz(z).b.length);
     if (!kontener || !tekst || !zdania.length) return null;
-    const ETYKIETA = /^[^\s:]{1,12}:$/;
+    const ETYKIETA = /^[^\s:]{1,16}:$/;
     const rdzen = (w) => { const m = /^([…"“'‘(\[]*)(.*?)([,?!.…"”'’)\]]*)$/.exec(w); return { lead: m[1], core: m[2], tail: m[3] }; };
     const linie = tekst.split('\n').map((l) => l.trim().split(/\s+/).filter(Boolean));
     /* płaska kolejka słów z miejscem w wierszu; etykiety mówców osobno */
     const slowa = [];
-    /* etykieta mówcy: słowo „Imię:” na początku wiersza albo po końcu zdania (dialog bywa zapisany w jednym wierszu) */
-    linie.forEach((l, li) => l.forEach((w, wi) => { const prev = wi > 0 ? l[wi - 1] : ''; slowa.push({ li, w, etykieta: ETYKIETA.test(w) && (wi === 0 || /[.?!…]$/.test(prev)), znak: MYSLNIK.test(w) }); }));
+    /* etykieta mówcy: słowo „Imię:” na początku wiersza albo po końcu zdania (dialog bywa zapisany w jednym wierszu);
+       .779: także dwa słowa („접수 직원:” — 260) */
+    const poczatek = (l, wi) => wi === 0 || /[.?!…]["”'’]?$/.test(l[wi - 1]);
+    linie.forEach((l, li) => l.forEach((w, wi) => {
+      const et = ETYKIETA.test(w), et1 = et && poczatek(l, wi), et2 = et && !et1 && wi > 0 && !/:$/.test(l[wi - 1]) && poczatek(l, wi - 1) && /[가-힣]/.test(l[wi - 1]);
+      if (et2) slowa[slowa.length - 1].etykieta = true;
+      slowa.push({ li, w, etykieta: et1 || et2, znak: MYSLNIK.test(w) });
+    }));
     const tresc = slowa.filter((x) => !x.etykieta && !x.znak);
-    let k = 0;
-    const plan = [];   /* [{ z, slowa: [{ x, e, cyfry, sylCyfr }] }] */
-    for (const z of zdania) {
-      const pz = { z, slowa: [] };
-      for (const e of z.eojeols) {
-        const x = tresc[k++];
+    /* .779 — DOPASOWANIE SŁÓW Z TEKST_ZMIENIONY I ODSIANYCH PÓL (decyzja Damiana „Naprawić w .779”). Słowo tekstu dzieli się
+       na odcinki: hangul (musi się zgadzać sylaba w sylabę z anotacją) i pozostałe znaki — cyfry, litery, nawiasy
+       z obsadą, cudzysłowy, zaślepki (10월, 비타민C, SPF50이고, 서준(김도현)과, 7일(월)부터, 2~3주, ○○엔터테인먼트입니다,
+       작사·작곡했는데). Odcinek z cyframi albo literami świeci jako blok nad sylabami, które go czytają (odczyt nad nim, jak
+       nr 17); odcinek bez nich (nawias, cudzysłów, zaślepka) może nie mieć sylab — stoi jako interpunkcja. Słowo bez sylab,
+       cyfr i liter (emoji, ㅋㅋㅋ, ★★★★☆) w środku zdania — zwykły znak. Fragmenty tekstu bez anotacji między zdaniami
+       (odsiane nagłówki i pola, zdania usunięte z karaoke) — zwykły tekst; dopasowanie zdania szuka jego początku dalej. */
+    const ALNUM = /[0-9A-Za-z]/;
+    const bezTresci = (w) => !/[가-힣0-9A-Za-z]/.test(w);
+    function dopasujSlowo(core, e) {
+      const seg = [];
+      for (let i = 0; i < core.length;) {
+        if (core[i] === '(' && core.indexOf(')', i) > i) { const j = core.indexOf(')', i); seg.push({ h: false, t: core.slice(i, j + 1) }); i = j + 1; continue; }
+        const h = SYLABA.test(core[i]), ost = seg[seg.length - 1];
+        if (ost && ost.h === h && !(ost.t[0] === '(' && ost.t[ost.t.length - 1] === ')')) ost.t += core[i]; else seg.push({ h, t: core[i] });
+        i += 1;
+      }
+      const S = e.syllables.map((y) => y.char).join('');
+      const re = new RegExp('^' + seg.map((s) => (s.h ? s.t : ALNUM.test(s.t) ? '(.+?)' : '(.*?)')).join('') + '$');
+      const m = re.exec(S);
+      if (!m) return null;
+      let g = 1;
+      return seg.map((s) => ({ h: s.h, t: s.t, n: s.h ? s.t.length : m[g++].length }));
+    }
+    function dopasujZdanie(z, k0) {
+      const sl = []; let k = k0;
+      for (let ie = 0; ie < z.eojeols.length; ie++) {
+        const e = z.eojeols[ie];
+        if (ie > 0) while (k < tresc.length && bezTresci(tresc[k].w)) { sl.push({ x: tresc[k], pomin: true }); k += 1; }
+        const x = tresc[k];
         if (!x) return null;
         const r = rdzen(x.w);
-        if (r.core === e.eojeol) { pz.slowa.push({ x, e, r, cyfry: '' }); continue; }
-        const m = /^(\d+)(.*)$/.exec(r.core);
-        if (!m || !e.eojeol.endsWith(m[2])) return null;
-        const n = e.eojeol.length - m[2].length;
-        if (n < 1) return null;
-        pz.slowa.push({ x, e, r, cyfry: m[1], sylCyfr: n });
+        const cz = dopasujSlowo(r.core, e);
+        if (!cz) return null;
+        sl.push({ x, e, r, cz }); k += 1;
       }
-      plan.push(pz);
+      return { sl, k };
     }
-    if (k !== tresc.length) return null;   /* tekst ma słowa spoza anotacji — bez karaoke */
+    let k = 0, dopasowanych = 0, pominietych = 0;
+    const plan = [];   /* [{ z, slowa: [{ x, e, r, cz }] }] */
+    for (const z of zdania) {
+      let k1 = k, wyn = dopasujZdanie(z, k1);
+      while (!wyn && k1 < tresc.length - 1) { k1 += 1; wyn = dopasujZdanie(z, k1); }
+      if (!wyn) return null;
+      for (let q = k; q < k1; q++) { tresc[q].poza = true; pominietych += 1; }
+      wyn.sl.forEach((s) => { if (s.pomin) s.x.wZdaniu = true; });
+      const sl = wyn.sl.filter((s) => !s.pomin);
+      dopasowanych += sl.length;
+      plan.push({ z, slowa: sl });
+      k = wyn.k;
+    }
+    for (let q = k; q < tresc.length; q++) { tresc[q].poza = true; pominietych += 1; }
+    if (pominietych > dopasowanych) return null;   /* tekst w większości spoza anotacji — bez karaoke */
     /* ── budowa widoku ── */
     const id = ++licznik;
     const root = el('div', 'kt');
@@ -37470,6 +37512,9 @@ var KARAOKE = (function () {
         return;
       }
       if (x.etykieta) { odstep(x.li); const m = el('span', 'kt-mowca', x.w); linieEl[x.li].appendChild(m); ostatniWLinii.set(x.li, m); return; }
+      /* .779: słowo bez anotacji — w środku zdania jak znak, między zdaniami zwykły tekst poza zdaniem */
+      if (x.wZdaniu && stOst && stOst.zEl && stOst.liOst === x.li) { stOst.zEl.appendChild(document.createTextNode(' ')); stOst.zEl.appendChild(el('span', 'kar-interp', x.w)); stOst.apEl = null; return; }
+      if (x.poza || x.wZdaniu) { odstep(x.li); const m = el('span', 'kt-poza', x.w); linieEl[x.li].appendChild(m); ostatniWLinii.set(x.li, m); stOst = null; return; }
       const { j, i, s } = przydzial.get(x);
       const st = stanZd[j], pz = plan[j];
       stOst = st;
@@ -37484,26 +37529,27 @@ var KARAOKE = (function () {
       } else st.apEl.appendChild(document.createTextNode(' '));
       if (s.r.lead) st.apEl.appendChild(el('span', 'kar-interp', s.r.lead));
       const rec = (y) => { st.nr += 1; const a0 = st.czasy ? y.start : st.t, a1 = st.czasy ? y.end : st.t + krok(y); if (!st.czasy) st.t = a1 + (y.boundary && st.nr < st.nSyl ? PAUZA_IP : 0); return [a0, a1]; };
-      let syl = s.e.syllables;
-      if (s.cyfry) {
-        const blok = syl.slice(0, s.sylCyfr);
-        const sp = el('span', 'kt-syl kt-blok');
-        ruby(sp, s.cyfry, blok.map((y) => y.wymowa || y.char).join(''));
-        const czasyB = blok.map(rec);
-        st.lista.push({ el: sp, start: czasyB[0][0], end: czasyB[czasyB.length - 1][1] });
-        st.apEl.appendChild(sp);
-        syl = syl.slice(s.sylCyfr);
-      }
-      const wewn = [];   /* .777: znaki w środku wyrazu (것"이라고) — przed sylabą, przed którą stoją w wyrazie */
-      { let n = 0; for (const ch of s.e.eojeol) { if (SYLABA.test(ch)) n += 1; else wewn[n] = (wewn[n] || '') + ch; } }
-      const odSyl = s.e.syllables.length - syl.length;
-      syl.forEach((y, jw) => {
-        if (wewn[odSyl + jw]) st.apEl.appendChild(el('span', 'kar-interp', wewn[odSyl + jw]));
-        const sp = el('span', 'kt-syl');
-        if (y.wymowa && y.wymowa !== y.char) ruby(sp, y.char, y.wymowa); else sp.textContent = y.char;
-        const [a0, a1] = rec(y);
-        st.lista.push({ el: sp, start: a0, end: a1 });
-        st.apEl.appendChild(sp);
+      /* .779: słowo po odcinkach (dopasujSlowo): hangul — sylaba po sylabie; cyfry / litery — blok z odczytem nad nim;
+         znak bez sylab — interpunkcja w miejscu */
+      let iy = 0;
+      s.cz.forEach((c) => {
+        const syl = s.e.syllables.slice(iy, iy + c.n); iy += c.n;
+        if (!c.h && !syl.length) { st.apEl.appendChild(el('span', 'kar-interp', c.t)); return; }
+        if (!c.h) {
+          const sp = el('span', 'kt-syl kt-blok');
+          ruby(sp, c.t, syl.map((y) => y.wymowa || y.char).join(''));
+          const czasyB = syl.map(rec);
+          st.lista.push({ el: sp, start: czasyB[0][0], end: czasyB[czasyB.length - 1][1] });
+          st.apEl.appendChild(sp);
+          return;
+        }
+        syl.forEach((y) => {
+          const sp = el('span', 'kt-syl');
+          if (y.wymowa && y.wymowa !== y.char) ruby(sp, y.char, y.wymowa); else sp.textContent = y.char;
+          const [a0, a1] = rec(y);
+          st.lista.push({ el: sp, start: a0, end: a1 });
+          st.apEl.appendChild(sp);
+        });
       });
       if (s.r.tail) st.apEl.appendChild(el('span', 'kar-interp', s.r.tail));
       const ostSyl = s.e.syllables[s.e.syllables.length - 1];
