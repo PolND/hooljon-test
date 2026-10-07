@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.776
-  Zbudowane na: 44f41c9eec7fd14c68f780814e859ed4 (.775)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.777
+  Zbudowane na: be4479b9009329101c36be462397f2a3 (.776)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -18651,7 +18651,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.776';
+const APP_VERSION = '2026-09-11.777';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -36985,10 +36985,20 @@ var KARAOKE = (function () {
   const TONY = ['L', 'H'], TONY_STARE = ['HL', 'LH'], GRANICE = ['L%', 'H%', 'HL%', 'LH%', 'LHL%'];
   const SYLABA = /^[가-힣]$/;
   const maCzas = (s) => s.start !== undefined || s.end !== undefined;
+  /* .777 (transza 5, Fable): samodzielny myślnik („배부르랴 — 이제”) należy do słowa przed nim i jest granicą frazy
+     jak przecinek; cudzysłów zamykający po znaku końcowym („되나요?"”) i cudzysłów w środku wyrazu („것"이라고”) to
+     interpunkcja — sylaby porównujemy z wyrazem bez cudzysłowu. */
+  const MYSLNIK = /^[—–]+$/, CUDZYSLOW = /["“”'‘’]/g;
+  const jestGranica = (znak) => /[,—–]/.test(znak);
+  function tokeny(tekst) {
+    const tok = [];
+    (tekst || '').trim().split(/\s+/).filter(Boolean).forEach((w) => { if (MYSLNIK.test(w) && tok.length) tok[tok.length - 1] += ' ' + w; else tok.push(w); });
+    return tok;
+  }
   function interpunkcja(z) {
-    const tok = (z.tekst || '').trim().split(/\s+/).filter(Boolean);
+    const tok = tokeny(z.tekst);
     if (!Array.isArray(z.eojeols) || tok.length !== z.eojeols.length) return null;
-    return tok.map((w) => (w.match(/[,?!.…]+$/) || [''])[0]);
+    return tok.map((w) => (w.match(/[,?!.…"”'’)\]]*(?: [—–]+)?$/) || [''])[0]);
   }
   /* b — błędy (zdanie pomijane), u — uwagi (zdanie wchodzi) */
   function sprawdz(z) {
@@ -37006,7 +37016,7 @@ var KARAOKE = (function () {
       const g0 = 'eojeol ' + (i + 1);
       if (poGranicy && (e.dephrased === true || e.ap_index === poprzAp)) b.push(g0 + ': po granicy IP nowa grupa');
       poGranicy = false;
-      if (ip && ip[i].includes(',') && i < z.eojeols.length - 1 && !(e.syllables || []).some((s) => s.boundary)) u.push(g0 + ': przecinek bez boundary');
+      if (ip && jestGranica(ip[i]) && i < z.eojeols.length - 1 && !(e.syllables || []).some((s) => s.boundary)) u.push(g0 + ': przecinek bez boundary');
       if (typeof e.eojeol !== 'string') b.push(g0 + ': brak tekstu');
       if (e.dephrased !== undefined && typeof e.dephrased !== 'boolean') b.push(g0 + ': dephrased');
       if (!Number.isInteger(e.ap_index) || e.ap_index < 1) b.push(g0 + ': ap_index');
@@ -37017,7 +37027,7 @@ var KARAOKE = (function () {
       else if (e.ap_index === poprzAp && e.dephrased !== true) u.push(g0 + ': ta sama grupa bez dephrased');
       if (Number.isInteger(e.ap_index)) poprzAp = e.ap_index;
       if (!Array.isArray(e.syllables) || !e.syllables.length) { b.push(g0 + ': brak sylab'); return; }
-      if (e.syllables.map((s) => s.char).join('') !== e.eojeol) b.push(g0 + ': sylaby ≠ eojeol');
+      if (e.syllables.map((s) => s.char).join('') !== e.eojeol.replace(CUDZYSLOW, '')) b.push(g0 + ': sylaby ≠ eojeol');
       e.syllables.forEach((s, j) => {
         nr += 1;
         const g = g0 + ', sylaba ' + (j + 1);
@@ -37033,7 +37043,7 @@ var KARAOKE = (function () {
         else if (!TONY.includes(s.pitch)) b.push(g + ': pitch');
         if (s.boundary !== undefined) {
           if (!GRANICE.includes(s.boundary)) b.push(g + ': boundary');
-          const ostZd = nr === wszystkie.length, ostSl = j === e.syllables.length - 1, przecinek = !!(ip && ip[i].includes(','));
+          const ostZd = nr === wszystkie.length, ostSl = j === e.syllables.length - 1, przecinek = !!(ip && jestGranica(ip[i]));
           if (!ostZd && !(ostSl && przecinek)) b.push(g + ': boundary nie na końcu frazy');
           if (!ostZd && ostSl && przecinek) poGranicy = true;
         }
@@ -37192,7 +37202,7 @@ var KARAOKE = (function () {
       zd.textContent = ''; syl = [];
       if (!z) return;
       let t = POCZATEK;
-      const tok = (z.tekst || '').trim().split(/\s+/);
+      const tok = tokeny(z.tekst);
       const ipk = interpunkcja(z), interp = ((z.tekst || '').match(/[?!.…]+$/) || [''])[0];
       const nSyl = z.eojeols.reduce((a, e) => a + e.syllables.length, 0);
       /* .725: czasy sylab z nagrania (start / end w danych) — tylko gdy ma je każda sylaba (walidator pilnuje) */
@@ -37207,9 +37217,13 @@ var KARAOKE = (function () {
         if (!ipEl) { ipEl = el('span', 'kar-ip'); zd.appendChild(ipEl); apEl = null; }
         if (!apEl || apOst !== e.ap_index) { apEl = el('span', 'kar-apg'); ipEl.appendChild(apEl); apOst = e.ap_index; }
         const s = el('span', 'kar-eojeol' + (e.ap_index % 2 === 0 ? ' kar-ap-par' : '') + (e.dephrased ? ' kar-deph' : ''));
-        const lead = ipk ? ((tok[i] || '').match(/^[…"“(\[]+/) || [''])[0] : '';
+        const lead = ipk ? ((tok[i] || '').match(/^[…"“'‘(\[]+/) || [''])[0] : '';
+        /* .777: znaki w środku wyrazu (것"이라고) — przed sylabą, przed którą stoją w wyrazie */
+        const wewn = [];
+        { let n = 0; for (const ch of e.eojeol) { if (SYLABA.test(ch)) n += 1; else wewn[n] = (wewn[n] || '') + ch; } }
         if (lead) s.appendChild(el('span', 'kar-interp', lead));
-        e.syllables.forEach((y) => {
+        e.syllables.forEach((y, jw) => {
+          if (wewn[jw]) s.appendChild(el('span', 'kar-interp', wewn[jw]));
           const sp = el('span', 'kar-syl', y.char);
           k += 1;
           const st = czasyZDanych ? y.start : t, en_ = czasyZDanych ? y.end : t + krok(y);
@@ -37394,13 +37408,13 @@ var KARAOKE = (function () {
     const zdania = (zdaniaWe || []).filter((z) => !sprawdz(z).b.length);
     if (!kontener || !tekst || !zdania.length) return null;
     const ETYKIETA = /^[^\s:]{1,12}:$/;
-    const rdzen = (w) => { const m = /^([…"“(\[]*)(.*?)([,?!.…"”)\]]*)$/.exec(w); return { lead: m[1], core: m[2], tail: m[3] }; };
+    const rdzen = (w) => { const m = /^([…"“'‘(\[]*)(.*?)([,?!.…"”'’)\]]*)$/.exec(w); return { lead: m[1], core: m[2], tail: m[3] }; };
     const linie = tekst.split('\n').map((l) => l.trim().split(/\s+/).filter(Boolean));
     /* płaska kolejka słów z miejscem w wierszu; etykiety mówców osobno */
     const slowa = [];
     /* etykieta mówcy: słowo „Imię:” na początku wiersza albo po końcu zdania (dialog bywa zapisany w jednym wierszu) */
-    linie.forEach((l, li) => l.forEach((w, wi) => { const prev = wi > 0 ? l[wi - 1] : ''; slowa.push({ li, w, etykieta: ETYKIETA.test(w) && (wi === 0 || /[.?!…]$/.test(prev)) }); }));
-    const tresc = slowa.filter((x) => !x.etykieta);
+    linie.forEach((l, li) => l.forEach((w, wi) => { const prev = wi > 0 ? l[wi - 1] : ''; slowa.push({ li, w, etykieta: ETYKIETA.test(w) && (wi === 0 || /[.?!…]$/.test(prev)), znak: MYSLNIK.test(w) }); }));
+    const tresc = slowa.filter((x) => !x.etykieta && !x.znak);
     let k = 0;
     const plan = [];   /* [{ z, slowa: [{ x, e, cyfry, sylCyfr }] }] */
     for (const z of zdania) {
@@ -37448,10 +37462,17 @@ var KARAOKE = (function () {
     plan.forEach((pz, j) => pz.slowa.forEach((s, i) => przydzial.set(s.x, { j, i, s })));
     let ostatniWLinii = new Map();   /* linia → ostatni wstawiony element (do spacji) */
     const odstep = (li) => { if (ostatniWLinii.get(li)) linieEl[li].appendChild(document.createTextNode(' ')); };
-    slowa.forEach((x) => {
+    let stOst = null;   /* .777: zdanie ostatniego słowa — myślnik staje w nim, w miejscu kreski pauzy */
+    slowa.forEach((x, ix) => {
+      if (x.znak) {
+        if (stOst && stOst.zEl && stOst.liOst === x.li) { stOst.zEl.appendChild(document.createTextNode(' ')); stOst.zEl.appendChild(el('span', 'kar-interp', x.w)); stOst.zEl.appendChild(document.createTextNode(' ')); stOst.apEl = null; }
+        else { odstep(x.li); const m = el('span', 'kar-interp', x.w); linieEl[x.li].appendChild(m); ostatniWLinii.set(x.li, m); }
+        return;
+      }
       if (x.etykieta) { odstep(x.li); const m = el('span', 'kt-mowca', x.w); linieEl[x.li].appendChild(m); ostatniWLinii.set(x.li, m); return; }
       const { j, i, s } = przydzial.get(x);
       const st = stanZd[j], pz = plan[j];
+      stOst = st;
       if (!st.zEl || x.li !== st.liOst) {   /* nowy kawałek zdania (początek albo zdanie dzielone wierszem tekstu) */
         odstep(x.li);
         st.zEl = el('span', 'kt-zd'); st.zEl.dataset.zd = j; linieEl[x.li].appendChild(st.zEl); zdEl.push([j, st.zEl]);
@@ -37473,7 +37494,11 @@ var KARAOKE = (function () {
         st.apEl.appendChild(sp);
         syl = syl.slice(s.sylCyfr);
       }
-      syl.forEach((y) => {
+      const wewn = [];   /* .777: znaki w środku wyrazu (것"이라고) — przed sylabą, przed którą stoją w wyrazie */
+      { let n = 0; for (const ch of s.e.eojeol) { if (SYLABA.test(ch)) n += 1; else wewn[n] = (wewn[n] || '') + ch; } }
+      const odSyl = s.e.syllables.length - syl.length;
+      syl.forEach((y, jw) => {
+        if (wewn[odSyl + jw]) st.apEl.appendChild(el('span', 'kar-interp', wewn[odSyl + jw]));
         const sp = el('span', 'kt-syl');
         if (y.wymowa && y.wymowa !== y.char) ruby(sp, y.char, y.wymowa); else sp.textContent = y.char;
         const [a0, a1] = rec(y);
@@ -37482,7 +37507,8 @@ var KARAOKE = (function () {
       });
       if (s.r.tail) st.apEl.appendChild(el('span', 'kar-interp', s.r.tail));
       const ostSyl = s.e.syllables[s.e.syllables.length - 1];
-      if (ostSyl.boundary && i < pz.slowa.length - 1) { st.zEl.appendChild(document.createTextNode(' ')); st.zEl.appendChild(el('span', 'kt-pauza', '|')); st.apEl = null; }
+      const zaMyslnik = slowa[ix + 1] && slowa[ix + 1].znak && slowa[ix + 1].li === x.li;
+      if (ostSyl.boundary && i < pz.slowa.length - 1 && !zaMyslnik) { st.zEl.appendChild(document.createTextNode(' ')); st.zEl.appendChild(el('span', 'kt-pauza', '|')); st.apEl = null; }
     });
     sylZd.forEach((l) => { const ost = l[l.length - 1]; l.koniec = ost ? ost.end : 0; });
     kontener.textContent = '';
