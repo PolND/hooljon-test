@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.793
-  Zbudowane na: 222ad6091eaf72723465db8558190f6e (.792)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.794
+  Zbudowane na: 2fc9f3d8dc3e05cde76711d82c609cab (.793)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -21004,7 +21004,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.793';
+const APP_VERSION = '2026-09-11.794';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -21215,6 +21215,9 @@ function setScreen(screen){
 
   const prevScreen = currentScreen;
   currentScreen = screen;
+  /* .794 (Damian: powrót z czytanki do tego samego miejsca): wychodząc z mapy do lekcji zapamiętujemy rozwinięte
+     rozdziały i położenie klikniętej lekcji na ekranie; przycisk „Mapa programu” je odtwarza. */
+  if(prevScreen === 'storyMap' && screen === 'storyLesson'){ try{ mapaZapamietaj(); }catch(e){} }
 
   const targetId = SCREEN_IDS[screen];
   try{ powrotUstaw(prevScreen, screen); }catch(e){}
@@ -21409,7 +21412,13 @@ function setScreen(screen){
   if(screen === 'intonacja') renderIntonacjaScreen();
   if(screen === 'placementTest') startPlacementTest();
   if(screen === 'storyMap'){
+    const wracam = prevScreen === 'storyLesson' && !!mapaStan && !mapaDoNastepnej;   /* .794 */
+    if(mapaStan) mapaStan.wrocono = wracam;
+    if(!wracam) mapaStan = null;
+    mapaDoNastepnej = false;
     renderStoryMap();
+    if(wracam) mapaOdtworz();
+    else
     // Po powrocie z lekcji przeglądarka zachowuje poprzednią pozycję przewijania,
     // więc user lądował gdzieś na dole listy zamiast przy kolejnej lekcji.
     // Przewijamy do karty "następna lekcja" - to jedyne miejsce, które go interesuje.
@@ -39220,7 +39229,7 @@ function renderStoryMap(){
     // Rozdział zawierający NASTĘPNĄ nieukończoną lekcję startuje rozwinięty - reszta zwinięta,
     // żeby przy dziesiątkach rozdziałów user od razu widział, gdzie kontynuować.
     const isCurrentChapter = lessonIndices.includes(nextIndex);
-    const openCls = (isCurrentChapter && !chapterLocked) ? ' sc-open' : '';
+    const openCls = (!chapterLocked && ((mapaStan && mapaStan.wrocono) ? mapaStan.otwarte.includes(String(chIdx)) : isCurrentChapter)) ? ' sc-open' : '';   /* .794 */
     const lockedCls = chapterLocked ? ' sc-locked' : '';
 
     const pathHtml = chapterLocked ? '' : `
@@ -39266,6 +39275,27 @@ function renderStoryMap(){
 }
 
 let storyCurrentLessonIndex = 0;
+/* .794: miejsce na mapie programu przy wyjściu do lekcji — rozwinięte rozdziały, kliknięta lekcja i jej odległość od
+   góry ekranu. mapaDoNastepnej: „Kontynuuj” po ukończonej lekcji wraca do karty następnej lekcji (jak dotąd). */
+let mapaStan = null, mapaDoNastepnej = false;
+function mapaZapamietaj(){
+  const lista = document.getElementById('storyLessonList');
+  const otwarte = lista ? [...lista.querySelectorAll('.story-chapter.sc-open')].map((c) => c.dataset.ch) : [];
+  const wezel = lista ? lista.querySelector('.sc-node[data-idx="' + storyCurrentLessonIndex + '"]') : null;
+  const r = wezel && wezel.offsetParent ? wezel.getBoundingClientRect() : null;
+  mapaStan = { otwarte, idx: storyCurrentLessonIndex, top: r ? r.top : null, y: window.scrollY, wrocono: false };
+}
+function mapaUstaw(){
+  const st = mapaStan, lista = document.getElementById('storyLessonList');
+  if(!st || !st.wrocono || !lista) return;
+  const wezel = lista.querySelector('.sc-node[data-idx="' + st.idx + '"]');
+  const y = (wezel && wezel.offsetParent && st.top !== null) ? window.scrollY + wezel.getBoundingClientRect().top - st.top : st.y;
+  try{ window.scrollTo({ top: Math.max(0, y), behavior: 'instant' }); }catch(e){ window.scrollTo(0, Math.max(0, y)); }
+}
+function mapaOdtworz(){
+  mapaUstaw();
+  setTimeout(mapaUstaw, SCREEN_TRANSITION_MS + 40);   /* po animacji przejścia — ekran lekcji znika z układu */
+}
 let storyQueue = [];
 let storyQIndex = 0;
 let storyLocked = false;
@@ -41873,7 +41903,7 @@ function finishStoryLesson(){
   });
 }
 
-document.getElementById('storyContinueBtn').addEventListener('click', ()=> setScreen('storyMap'));
+document.getElementById('storyContinueBtn').addEventListener('click', ()=>{ mapaDoNastepnej = true; setScreen('storyMap'); });   /* .794 */
 document.getElementById('modeSelectStoryBtn').addEventListener('click', ()=> { setLastMode('storyMap'); setScreen('scenariuszeHub'); });
 document.getElementById('modeSelectSandboxBtn').addEventListener('click', ()=> { setLastMode('home'); setScreen('home'); });
 document.getElementById('modeSelectAcademyBtn').addEventListener('click', ()=> { setLastMode('academy'); setScreen('academy'); });
