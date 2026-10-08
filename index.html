@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.790
-  Zbudowane na: ae6e0b413f7bd1f9aeeeac39fa2d8852 (.789)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.791
+  Zbudowane na: fa5428a8bef8def50d506563db3d9bb8 (.790)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -5699,6 +5699,10 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
   .kar-tempo{font:inherit; color:var(--ink); background:var(--card); border:1px solid var(--border); border-radius:8px; padding:4px 6px;}
   .kar-zrodlo{font-size:11px; color:var(--ink-dim); margin-top:8px; line-height:1.45;}
   .kar-zrodlo.kar-dotyk{margin-top:2px;}   /* .763: osobny, krótszy wiersz pod parą podpisów (Fable) */
+  /* .791 — komunikat, gdy nagranie się nie wczyta (bez internetu): pod przyciskami, w obwódce akcentu */
+  .kar-komunikat{font-family:var(--font-ui); font-size:13px; font-weight:400; color:var(--ink); background:var(--card); border:1px solid var(--hwang); border-radius:8px; padding:8px 10px; margin-top:10px; line-height:1.45;}
+  .kar-komunikat[hidden]{display:none;}
+  .kt-komunikat{margin:0 0 10px;}
   /* .724 — czytanka z karaoke bez ramki w ramce: tekst z sekcją rośnie razem z kartą (bez max-height 52vh
      i własnego przewijania z .teach-mode), więc przycisk karaoke jest zawsze w zasięgu przewijania strony */
   .teach-mode #storyQuestionMain:has(.tekst-tytul):has(.kar-sekcja){max-height:none; overflow-y:visible;}
@@ -21000,7 +21004,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.790';
+const APP_VERSION = '2026-09-11.791';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -39489,6 +39493,9 @@ var KARAOKE = (function () {
   let licznik = 0;
   const NS = 'http://www.w3.org/2000/svg';
   const en = () => (typeof uiLang !== 'undefined' && uiLang === 'en');
+  /* .791 (Damian): nagranie się nie wczytało (bez internetu, a pliku nie ma w pamięci aplikacji) — komunikat pod przyciskami */
+  const tekstBrakSieci = () => (en() ? 'This recording needs an internet connection. Connect and try again.' : 'To nagranie wymaga internetu. Połącz się i spróbuj jeszcze raz.');
+  const bladWczytania = (a, e) => !!(a && a.error) || !!(e && e.name === 'NotSupportedError');
   const el = (tag, klasa, tekst) => { const e = document.createElement(tag); if (klasa) e.className = klasa; if (tekst !== undefined) e.textContent = tekst; return e; };
 
   function zamontuj(miejsce, zdaniaWe, opcje) {
@@ -39531,6 +39538,8 @@ var KARAOKE = (function () {
        w czytankach i w „Intonacji”. „Dotknij sylaby…” osobnym wierszem pod parą, jednakowo w obu przypadkach
        (przeskok działa w obu trybach). opcje.podpisBezNagrania (.725) zostaje dla zgodności, ekrany już go nie podają. */
     const dotyk = el('div', 'kar-zrodlo kar-dotyk', '');
+    const komunikat = el('div', 'kar-komunikat', ''); komunikat.setAttribute('role', 'status'); komunikat.hidden = true;   /* .791 */
+    function pokazKomunikat(tak) { komunikat.textContent = tak ? tekstBrakSieci() : ''; komunikat.hidden = !tak; }
     function podpisZrodla(z) {
       if (z && typeof z.audio === 'string' && z.audio) return en()
         ? 'Synthetic recording (TTS). The highlight follows the voice; the contour shows the pattern you hear here.'
@@ -39541,7 +39550,7 @@ var KARAOKE = (function () {
         : 'Rytm schematyczny, bez nagrania. Podświetlenie idzie w stałym tempie; kontur pokazuje wzorzec, którego głos syntetyczny nie oddaje.';
     }
     [wybor, mowca, zd, tlum, zmiana, uczy, wymowa].forEach((x) => root.appendChild(x));
-    root.appendChild(svg); [legenda, pasek, ster, zrodlo, dotyk].forEach((x) => root.appendChild(x));
+    root.appendChild(svg); [legenda, pasek, ster, komunikat, zrodlo, dotyk].forEach((x) => root.appendChild(x));
     miejsce.appendChild(root);
 
     let biez = 0, syl = [], probki = [], koniec = 0, sx = null, gra = false, t0 = 0, poz = 0, raf = 0, aktywna = -1, wsk = null, odkr = null;
@@ -39558,11 +39567,13 @@ var KARAOKE = (function () {
       return /\.webm$/.test(p) && !a.canPlayType('audio/webm; codecs="opus"') ? p.replace(/\.webm$/, '.mp3') : p;
     };
     function ustawAudio(z) {
+      pokazKomunikat(false);
       zAudio = !!(z && typeof z.audio === 'string' && z.audio);
       if (!zAudio) { if (audio) { audio.pause(); audio.removeAttribute('src'); try { audio.load(); } catch (e) {} } return; }
       if (!audio) {
         audio = document.createElement('audio'); audio.preload = 'auto';
         audio.addEventListener('ended', () => { if (gra) stop(true); });
+        audio.addEventListener('error', () => { if (gra) { stop(false); pokazKomunikat(true); } });   /* .791 */
       }
       const src = sciezkaAudio(z.audio);
       if (audio.getAttribute('src') !== src) audio.setAttribute('src', src);
@@ -39735,20 +39746,23 @@ var KARAOKE = (function () {
       pokaz(zegar());
       if (gra) {
         /* .786: z nagraniem do końca pliku (głos wybrzmiewa do 0,4 s po ostatniej sylabie); rytm schematyczny jak dotąd */
-        if (zAudio && audio ? (audio.ended || !!audio.error) : zegar() >= koniec + 0.15) { stop(true); return; }
+        /* .791: nagranie się nie wczytało — stop z komunikatem, bez „Jeszcze raz” i bez kar-koniec */
+        if (zAudio && audio && audio.error) { stop(false); pokazKomunikat(true); return; }
+        if (zAudio && audio ? audio.ended : zegar() >= koniec + 0.15) { stop(true); return; }
         raf = requestAnimationFrame(klatka);
       }
     }
     function start() {
       if (zegar() >= koniec) przewin(0);
       odPoczatku = !syl.length || zegar() <= (syl.length > 1 ? syl[1].start : syl[0].end);
+      pokazKomunikat(false);
       gra = true; t0 = performance.now(); STAT.n = 0; STAT.maks = 0; STAT.sum = 0; STAT.ost = 0;
       graj.textContent = en() ? '❚❚ Pause' : '❚❚ Pauza';
       if (zAudio) {
         audio.playbackRate = tempo();
         /* odtwarzanie startuje z kliknięcia; gdy przeglądarka odmówi — zatrzymanie bez blokowania widoku */
         const pr = audio.play();
-        if (pr && pr.catch) pr.catch(() => { if (gra) stop(false); });
+        if (pr && pr.catch) pr.catch((e) => { if (gra) stop(false); if (bladWczytania(audio, e)) pokazKomunikat(true); });
       }
       cancelAnimationFrame(raf); raf = requestAnimationFrame(klatka);
     }
@@ -39875,7 +39889,9 @@ var KARAOKE = (function () {
     const odNowa = el('button', 'kar-btn kar-btn-drugi kt-od', en() ? '↺ From start' : '↺ Od początku'); odNowa.type = 'button';
     ster.appendChild(graj); ster.appendChild(odNowa);
     const tekstEl = el('div', 'kt-tekst');
-    root.appendChild(ster); root.appendChild(tekstEl);
+    const komunikatT = el('div', 'kar-komunikat kt-komunikat', ''); komunikatT.setAttribute('role', 'status'); komunikatT.hidden = true;   /* .791 */
+    const pokazKomunikatT = (tak) => { komunikatT.textContent = tak ? tekstBrakSieci() : ''; komunikatT.hidden = !tak; };
+    root.appendChild(ster); root.appendChild(komunikatT); root.appendChild(tekstEl);
     const zdEl = [], sylZd = [];   /* sylZd[j] = [{ el, start, end }] (czas w zdaniu) */
     const linieEl = linie.map(() => el('div', 'kt-linia'));
     linieEl.forEach((l) => tekstEl.appendChild(l));
@@ -39972,10 +39988,10 @@ var KARAOKE = (function () {
       if (audio) { audio.pause(); }
       const l = sylZd[j];
       if (l && l.audio) {
-        if (!audio) { audio = document.createElement('audio'); audio.preload = 'auto'; }
+        if (!audio) { audio = document.createElement('audio'); audio.preload = 'auto'; audio.addEventListener('error', () => { if (gra) { stop(); pokazKomunikatT(true); } }); }
         const src = sciezka(l.audio); if (audio.getAttribute('src') !== src) audio.setAttribute('src', src);
         try { audio.currentTime = poz; } catch (e) {}
-        const pr = audio.play(); if (pr && pr.catch) pr.catch(() => { if (gra) stop(); });
+        const pr = audio.play(); if (pr && pr.catch) pr.catch((e) => { if (gra) stop(); if (bladWczytania(audio, e)) pokazKomunikatT(true); });
       }
     }
     function klatka() {
@@ -39990,6 +40006,7 @@ var KARAOKE = (function () {
       raf = requestAnimationFrame(klatka);
     }
     function start() {
+      pokazKomunikatT(false);
       gra = true; graj.textContent = en() ? '❚❚ Pause' : '❚❚ Pauza';
       zacznijZdanie(j, poz);
       cancelAnimationFrame(raf); raf = requestAnimationFrame(klatka);
