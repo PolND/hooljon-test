@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.926
-  Zbudowane na: e88ab2343b92b2558dddb059abd03070 (.925)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.928
+  Zbudowane na: 022ee992e32ecd13f5519211bc08c811 (.927)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -5846,6 +5846,134 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
   .vs-drabinka .vsd-podp{font:600 20px var(--font-ui); color:var(--ink); margin-bottom:14px;}
   .vs-drabinka .vsd-opcje{margin-top:14px;}
   .vs-drabinka .vsd-sprawdz, .vs-drabinka .vsd-dalej{margin-top:12px; width:100%;}
+  /* .928 — LOSY 제비뽑기 (Fable, losy/hooljon-losy.md; prototyp losy/losy-prototyp.html). Kolory karty i patyczków z motywu
+     aplikacji; naczynie ma jedno drewno i jeden mosiądz, motyw zmienia tylko światło (--sw-*). */
+  #losyScreen{
+    --drewno:#8E6540; --drewno-ciemne:#6B4A2C; --drewno-jasne:#A87C4F; --mosiadz:#C8A05A; --mosiadz-cien:#8A6A33; --lak:#A8322A;
+    --e-wyj:cubic-bezier(.2,0,0,1); --e-doj:cubic-bezier(.16,1,.3,1); --e-pap:cubic-bezier(.33,.86,.3,1); --e-nac:cubic-bezier(.4,0,.2,1);
+    --t-karta:var(--card); --t-ink:var(--ink); --t-dim:var(--ink-dim); --t-akcent:var(--hwang); --t-nitka:var(--border);
+    --t-strona:var(--bg); --t-akcent-tlo:color-mix(in srgb, var(--hwang) 12%, transparent);
+    --sw-jasn:1; --sw-nasyc:1; --sw-swiat:#FFF3DE; --sw-moc:.07; --sw-cien:.26;
+  }
+  [data-scheme="dark"] #losyScreen{ --sw-jasn:.80; --sw-nasyc:.96; --sw-swiat:#2A1A0E; --sw-moc:.30; --sw-cien:.46; }
+  [data-scheme="kobalt"] #losyScreen{ --sw-jasn:1.06; --sw-nasyc:.88; --sw-swiat:#D7E8F5; --sw-moc:.13; --sw-cien:.20; }
+  [data-scheme="jade"] #losyScreen{ --sw-jasn:.84; --sw-nasyc:.90; --sw-swiat:#15332A; --sw-moc:.23; --sw-cien:.44; }
+  [data-scheme="cynober"] #losyScreen{ --sw-jasn:.88; --sw-nasyc:1.10; --sw-swiat:#4A2E08; --sw-moc:.26; --sw-cien:.44; --t-karta:#222327; }
+  #losyScreen [hidden]{display:none !important;}
+  #losyScreen .losy-panel{max-width:420px; margin:0 auto; display:flex; flex-direction:column; gap:14px; padding:4px 0 18px;}
+  #losyScreen .losy-gora{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+  #losyScreen .losy-tryby{display:flex; gap:6px;}
+  #losyScreen .losy-chip{padding:7px 12px; border-radius:999px; border:1px solid var(--border); background:transparent; color:var(--ink); font:600 13px var(--font-ui); cursor:pointer; min-height:0; width:auto;}
+  #losyScreen .losy-chip[aria-pressed="true"]{background:var(--t-akcent-tlo); border-color:var(--hwang); color:var(--hwang);}
+  #losyScreen .losy-pula{font:400 12px var(--font-ui); color:var(--ink-dim); text-align:right;}
+  #losyScreen .losy-pula b{color:var(--ink); font-weight:700;}
+  #losyScreen .losy-limit{font:600 12px var(--font-ui); color:var(--ink-dim); text-align:center;}
+  #losyScreen .losy-limit.zero{color:var(--hwang);}
+  #losyScreen .plac{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; min-height:340px; position:relative; perspective:900px;}
+  #losyScreen .tuba-box{height:206px; display:grid; place-items:end center; cursor:pointer;}
+  #losyScreen .tuba{width:96px; height:142px; position:relative; transform-origin:50% 100%; will-change:transform;}
+  #losyScreen .naczynie{position:absolute; inset:0; pointer-events:none; filter:brightness(var(--sw-jasn,1)) saturate(var(--sw-nasyc,1));}
+  #losyScreen .naczynie.tyl{z-index:1;}
+  #losyScreen .naczynie.przod{z-index:5;}
+  #losyScreen .korpus{position:absolute; left:0; right:0; top:0; bottom:0; z-index:1; border-radius:2px 2px 13px 13px;
+    background:linear-gradient(90deg, #45301C 0%, var(--drewno-ciemne) 10%, var(--drewno) 33%, var(--drewno-jasne) 45%, var(--drewno) 63%, var(--drewno-ciemne) 87%, #45301C 100%);
+    box-shadow:inset 0 -12px 18px rgba(42,26,12,.42), 0 9px 20px rgba(10,15,20,var(--sw-cien,.28));}
+  #losyScreen .korpus::before{content:""; position:absolute; inset:0; border-radius:inherit; background:var(--sw-swiat,transparent); opacity:var(--sw-moc,0);}
+  #losyScreen .korpus::after{content:""; position:absolute; inset:0; border-radius:inherit; opacity:.34; background:repeating-linear-gradient(90.5deg, rgba(42,26,12,.17) 0 1px, transparent 1px 9px);}
+  #losyScreen .kolnierz{position:absolute; left:0; right:0; top:-13px; height:26px; border-radius:50%; z-index:2; background:linear-gradient(90deg, var(--drewno-ciemne), var(--drewno-jasne) 48%, var(--drewno-ciemne));}
+  #losyScreen .usta{position:absolute; left:6px; right:6px; top:-9px; height:18px; border-radius:50%; z-index:3; background:radial-gradient(ellipse at 50% 34%, #24180E 0%, #120D07 72%);
+    box-shadow:inset 0 3px 6px rgba(0,0,0,.75), inset 0 -5px 7px rgba(0,0,0,.65);}
+  #losyScreen .kolnierz::after, #losyScreen .warga::after{content:""; position:absolute; inset:0; border-radius:50%; background:var(--sw-swiat,transparent); opacity:var(--sw-moc,0);}
+  #losyScreen .warga{position:absolute; left:0; right:0; top:-13px; height:26px; border-radius:50%; z-index:5; background:linear-gradient(90deg, var(--drewno-ciemne), var(--drewno-jasne) 48%, var(--drewno-ciemne)); clip-path:inset(50% 0 0 0); pointer-events:none;}
+  #losyScreen .obrecz{position:absolute; left:-1px; right:-1px; height:5px; z-index:6; pointer-events:none;
+    background:linear-gradient(180deg, var(--mosiadz-cien), var(--mosiadz) 40%, #EADCA8 52%, var(--mosiadz) 64%, var(--mosiadz-cien)); box-shadow:0 1px 2px rgba(0,0,0,.3);}
+  #losyScreen .obrecz.gora{top:23px;}
+  #losyScreen .obrecz.dol{bottom:15px;}
+  #losyScreen .slipy{position:absolute; left:8px; right:8px; bottom:144px; height:60px; z-index:4; display:flex; gap:4px; justify-content:center; align-items:flex-end;}
+  #losyScreen .slipy i{width:9px; border-radius:2px 2px 0 0; background:var(--t-karta); box-shadow:0 0 0 1px var(--t-nitka), -2px 0 3px rgba(0,0,0,.14) inset; transform-origin:50% 100%; will-change:transform; position:relative;}
+  #losyScreen .slipy i::after{content:""; position:absolute; left:0; right:0; top:0; height:6px; border-radius:2px 2px 0 0; background:var(--t-ink); opacity:.82;}
+  #losyScreen .slipy i.czerwony::after{background:var(--lak); opacity:1;}
+  #losyScreen .slipy i.leci{opacity:0;}
+  #losyScreen .wynik{width:100%; min-height:156px; display:grid; place-items:center;}
+  #losyScreen .los, #losyScreen .lot{width:min(260px,100%); min-height:156px; border-radius:11px; background:var(--t-karta); box-shadow:0 0 0 1px var(--t-nitka), 0 12px 26px rgba(10,15,20,.2);
+    display:flex; align-items:center; justify-content:center; text-align:center; position:relative; padding:20px 18px; font:600 16.5px/1.42 var(--font-ui); color:var(--t-ink); overflow:hidden;}
+  #losyScreen .los::before, #losyScreen .lot::before{content:""; position:absolute; inset:0; pointer-events:none; opacity:.62;
+    background-image:repeating-linear-gradient(93.5deg, rgba(120,100,70,.05) 0 1px, transparent 1px 13px),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.2'/%3E%3C/svg%3E");}
+  #losyScreen .los.pusty{background:transparent; box-shadow:none; color:var(--t-dim); font-weight:400; font-size:14px;}
+  #losyScreen .los.pusty::before{display:none;}
+  #losyScreen .los.pusty .pieczec{display:none;}
+  #losyScreen .los.ukryty{visibility:hidden;}
+  #losyScreen .los .tr, #losyScreen .lot .tr{position:relative; z-index:2;}
+  #losyScreen .lot{position:absolute; z-index:7; pointer-events:none; transform-origin:50% 50%; will-change:transform; backface-visibility:hidden;}
+  #losyScreen .lot .tr{opacity:0;}
+  #losyScreen .lot .grzbiet{position:absolute; left:0; right:0; top:0; height:9px; background:var(--t-ink); opacity:.82; z-index:3;}
+  #losyScreen .lot.czerwony .grzbiet{background:var(--lak); opacity:1;}
+  #losyScreen .pieczec{position:absolute; right:11px; bottom:11px; width:30px; height:30px; border-radius:5px; display:grid; place-items:center; font:700 15px var(--font-ko);
+    color:var(--lak); box-shadow:inset 0 0 0 1.5px var(--lak); opacity:.5; z-index:4; transform:rotate(-4deg); pointer-events:none;}
+  #losyScreen .pieczec.bij{animation:losyStempel 540ms var(--e-pap) forwards;}
+  @keyframes losyStempel{
+    0%{opacity:0; transform:scale(1.9) rotate(-16deg)}
+    40%{opacity:1; transform:scale(.9) rotate(2deg); background:var(--lak); color:var(--t-karta); box-shadow:none}
+    72%{transform:scale(1.04) rotate(-2deg); background:var(--lak); color:var(--t-karta); box-shadow:none}
+    100%{opacity:1; transform:scale(1) rotate(-4deg); background:var(--lak); color:var(--t-karta); box-shadow:none}
+  }
+  #losyScreen .wzorzec{width:min(260px,100%); padding:12px 14px; border-radius:10px; background:var(--t-akcent-tlo); color:var(--t-akcent); font:500 17px/1.4 var(--font-ko); text-align:center;}
+  #losyScreen .wzorzec.wchodzi{animation:losyOdslona 320ms var(--e-doj);}
+  #losyScreen .odp-pole{width:min(260px,100%); display:flex; flex-direction:column; gap:7px;}
+  #losyScreen .pole-wiersz{position:relative;}
+  #losyScreen .odp-pole input{width:100%; padding:11px 50px 11px 13px; border-radius:10px; border:1px solid var(--t-nitka); background:transparent; color:var(--t-ink); font:400 16px var(--font-ko); margin:0;}
+  #losyScreen .odp-pole input::placeholder{color:var(--t-dim); font-family:var(--font-ui);}
+  #losyScreen .pole-wiersz .mik{position:absolute; right:5px; top:50%; transform:translateY(-50%); width:36px; height:36px; min-height:36px; border-radius:9px; padding:0; margin:0;
+    border:0; background:transparent; color:var(--t-dim); display:grid; place-items:center; cursor:pointer; box-shadow:inset 0 0 0 1px var(--t-nitka);
+    transition:transform 110ms var(--e-nac), background-color 140ms linear, color 140ms linear;}
+  #losyScreen .pole-wiersz .mik:active{transform:translateY(-50%) scale(.93);}
+  #losyScreen .pole-wiersz .mik svg{width:17px; height:17px; display:block;}
+  #losyScreen .pole-wiersz .mik.slucha{background:var(--t-akcent); color:var(--t-strona); box-shadow:none;}
+  #losyScreen .pole-wiersz .mik.slucha::after{content:""; position:absolute; inset:-5px; border-radius:13px; border:2px solid var(--t-akcent); animation:losyNasluch 1100ms ease-out infinite;}
+  @keyframes losyNasluch{0%{opacity:.5; transform:scale(.88)} 100%{opacity:0; transform:scale(1.2)}}
+  #losyScreen .podp{font:400 11.5px/1.45 var(--font-ui); color:var(--t-dim); padding:0 3px;}
+  #losyScreen .podp.aktywna{color:var(--t-akcent); font-weight:600;}
+  #losyScreen .fb{font:400 13px/1.5 var(--font-ui); color:var(--t-ink); background:var(--t-akcent-tlo); border-radius:10px; padding:10px 12px; animation:losyOdslona 280ms var(--e-doj);}
+  #losyScreen .fb em{font-style:normal; color:var(--t-akcent); font-weight:600; font-family:var(--font-ko);}
+  #losyScreen .fb .uw{display:block; margin-top:6px; font-size:11px; color:var(--t-dim);}
+  #losyScreen .losy-akcje{display:flex; flex-direction:column; gap:9px;}
+  #losyScreen .losy-akcje button{width:100%; min-height:52px; border-radius:13px; border:0; font:700 16.5px var(--font-ui); cursor:pointer; transition:transform 110ms var(--e-nac), opacity 140ms linear; margin:0;}
+  #losyScreen .losy-akcje button:active:not(:disabled){transform:scale(.975);}
+  #losyScreen .losy-akcje .btn-glowny{background:var(--hwang); color:var(--bg);}
+  #losyScreen .losy-akcje .btn-wtorny{background:transparent; color:var(--hwang); box-shadow:inset 0 0 0 1px var(--hwang);}
+  #losyScreen .losy-akcje button:disabled{opacity:.45; cursor:default;}
+  #losyScreen button:focus-visible, #losyScreen input:focus-visible{outline:2px solid var(--hwang); outline-offset:2px;}
+  @keyframes losyZamach{0%{transform:translateY(0) scaleY(1)} 100%{transform:translateY(3px) scaleY(.98)}}
+  @keyframes losyTrzes{
+    0%{transform:translateY(3px) scaleY(.98) rotate(0)}
+    13%{transform:translateY(0) scaleY(1) rotate(-3deg)}
+    30%{transform:rotate(2.4deg)} 48%{transform:rotate(-1.6deg)}
+    66%{transform:rotate(1deg)} 84%{transform:rotate(-.4deg)} 100%{transform:rotate(0)}
+  }
+  @keyframes losyStaccato{
+    0%{transform:translateY(0) rotate(var(--k0))}
+    14%{transform:translateY(-7px) rotate(var(--k1))}
+    27%{transform:translateY(0) rotate(var(--k0))}
+    41%{transform:translateY(-5px) rotate(var(--k2))}
+    54%{transform:translateY(0) rotate(var(--k0))}
+    68%{transform:translateY(-3px) rotate(var(--k1))}
+    81%{transform:translateY(0) rotate(var(--k0))}
+    91%{transform:translateY(-1.5px) rotate(var(--k2))}
+    100%{transform:translateY(0) rotate(var(--k0))}
+  }
+  @keyframes losyOdslona{0%{opacity:0; transform:translateY(8px)} 100%{opacity:1; transform:none}}
+  @keyframes losyPojaw{0%{opacity:0} 100%{opacity:1}}
+  #losyScreen.zamach .tuba{animation:losyZamach var(--t-zamach) var(--e-wyj) forwards;}
+  #losyScreen.trzesie .tuba{animation:losyTrzes var(--t-trzes) var(--e-pap);}
+  #losyScreen.trzesie .slipy i{animation:losyStaccato var(--t-trzes) linear;}
+  @media (prefers-reduced-motion: reduce){
+    #losyScreen .pole-wiersz .mik.slucha::after{animation:none!important; opacity:.45;}
+    #losyScreen.zamach .tuba, #losyScreen.trzesie .tuba, #losyScreen.trzesie .slipy i{animation:none!important;}
+    #losyScreen .wzorzec.wchodzi, #losyScreen .fb{animation:losyPojaw 160ms linear!important;}
+    #losyScreen .pieczec.bij{animation:losyPojaw 160ms linear forwards!important; opacity:1;}
+    #losyScreen .losy-akcje button:active:not(:disabled){transform:none;}
+  }
   /* .909 — dzienny limit nowych lekcji (konto darmowe) */
   #storyMapScreen .story-limit{margin:-6px 0 14px; text-align:center; font:600 13px var(--font-ui); color:var(--ink-dim);}
   #storyMapScreen .story-limit.story-limit-zero{color:var(--hwang);}
@@ -9010,6 +9138,13 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
         <div class="desc" data-i18n="homeChatDesc">Rozmawiaj z botem po koreańsku.</div>
       </span>
     </button>
+    <button class="home-card variant-row span-2" data-target="losy">   <!-- .928 -->
+      <span class="icon" data-ico="losy" data-glif="뽑" data-rys="">뽑</span>
+      <span>
+        <div class="title" data-i18n="homeLosyTitle">Losy</div>
+        <div class="desc" data-i18n="homeLosyDesc">Wylosuj zdanie i powiedz je po koreańsku.</div>
+      </span>
+    </button>
     <!-- ═══ NARZĘDZIA ══════════════════════════════════════════════════════
          Sekcja referencyjna: rzeczy, do których się WRACA, a nie przez które
          się przechodzi. Kompas Nunchi trafia tu z Praktyki, bo nie jest
@@ -9948,6 +10083,63 @@ try{ for(var i = 0; i < localStorage.length; i++){ if(/^sb-.+-auth-token$/.test(
        Drugie narzędzie Poligonu. Kompas odpowiada „jak to powiedzieć do tej
        osoby"; Laboratorium odpowiada „co właściwie powiedziałem". Nic tu nie
        jest oceniane na punkty — to przyrząd pomiarowy, nie ćwiczenie. -->
+  <!-- .928 — LOSY 제비뽑기 (Fable, losy/hooljon-losy.md; decyzje Damiana 14.10): losowanie zdania z ukończonych rozdziałów,
+       solo z oceną AI (ai-proxy, Haiku; 2 dziennie bez Pro) albo tryb nauczyciela (bez AI, bez limitu). -->
+  <div id="losyScreen" style="display:none;">
+    <button class="back-btn" data-back="home" data-i18n="backHome">Menu główne</button>
+    <div class="losy-panel">
+      <div class="losy-gora">
+        <div class="losy-tryby" role="group" aria-label="Tryb">
+          <button type="button" class="losy-chip" id="losyTrybSolo" aria-pressed="true">Solo z AI</button>
+          <button type="button" class="losy-chip" id="losyTrybLektor" aria-pressed="false">Nauczyciel</button>
+          <button type="button" class="losy-chip" id="losyDzwiek" aria-pressed="false">Dźwięk</button>
+        </div>
+        <div class="losy-pula" id="losyPula">pula: <b id="losyPulaN">0</b> zdań</div>
+      </div>
+      <div class="losy-limit" id="losyLimit" hidden></div>
+      <div class="plac" id="losyPlac">
+        <div class="tuba-box" id="losyTuba" title="Dotknij, żeby pominąć">
+          <div class="tuba">
+            <div class="naczynie tyl">
+              <div class="korpus"></div>
+              <div class="kolnierz"></div>
+              <div class="usta"></div>
+            </div>
+            <div class="slipy" id="losySlipy"></div>
+            <div class="naczynie przod">
+              <div class="warga"></div>
+              <div class="obrecz gora"></div>
+              <div class="obrecz dol"></div>
+            </div>
+          </div>
+        </div>
+        <div class="wynik">
+          <div class="los pusty" id="losyLos"><span class="tr" id="losyLosTekst">Naciśnij „Losuj”, żeby wyciągnąć los</span>
+            <span class="pieczec" id="losyPieczec">正</span>
+          </div>
+        </div>
+        <div class="wzorzec" id="losyWzorzec" lang="ko" hidden></div>
+        <div class="odp-pole" id="losyOdpPole" hidden>
+          <div class="pole-wiersz">
+            <input id="losyOdp" lang="ko" placeholder="Wpisz po koreańsku" autocomplete="off" autocapitalize="off" spellcheck="false">
+            <button class="mik" id="losyMik" type="button" aria-label="Powiedz po koreańsku" title="Powiedz po koreańsku" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <rect x="9" y="2.5" width="6" height="11.5" rx="3" fill="currentColor" stroke="none"></rect>
+                <path d="M5.4 11.2a6.6 6.6 0 0 0 13.2 0"></path><path d="M12 17.8V21"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="podp" id="losyPodp" hidden>albo powiedz po koreańsku</div>
+          <div class="fb" id="losyFb" hidden></div>
+        </div>
+      </div>
+      <div class="losy-akcje">
+        <button type="button" class="btn-glowny" id="losyLosuj">Losuj</button>
+        <button type="button" class="btn-wtorny" id="losyDrugi" hidden></button>
+      </div>
+    </div>
+  </div>
+
   <div id="laboratoriumScreen" style="display:none;">
     <button class="back-btn" data-back="home" data-i18n="backHome">Menu główne</button>
 
@@ -24079,7 +24271,7 @@ const SLANG_KO = new Set(DEFAULT_WORDS.filter(w => w.category === SLANG_KAT).map
    drugie konto (dziecko, konto testowe) dostawało postęp, wiek 18+ i statystyki pierwszego, a scalanie postępu
    zapisywało je na serwerze nowego konta. Teraz każdy z nich żyje pod nazwą „klucz:<user_id>”.
    Preferencje urządzenia (motyw, wibracje, reklamy, ostatni tryb, wprowadzenie) zostają wspólne. */
-const KLUCZE_KONTA = Object.freeze(["hooljon_story_progress","hooljon_story_layout_version","hooljon_wiedza","hooljon_culture_read","hooljon_misje_zrobione","hj-wprowadzone","hooljon_pcz_widziane","hooljon_rk_rekord","hooljon_rk_pozycja","hooljon_poziom_z_testu","hooljon_odp_zestaw","hooljon_odp_dzis","hooljon_puste_zestawy","hooljon_hangul_done","hooljon_l1","hj-pelnoletni","hooljon_hesitation","hooljon_latency_baselines","USER_CUSTOM_ITEMS","PRZEKAZNIK_LOG","hooljon_limit_lekcji"]);
+const KLUCZE_KONTA = Object.freeze(["hooljon_story_progress","hooljon_story_layout_version","hooljon_wiedza","hooljon_culture_read","hooljon_misje_zrobione","hj-wprowadzone","hooljon_pcz_widziane","hooljon_rk_rekord","hooljon_rk_pozycja","hooljon_poziom_z_testu","hooljon_odp_zestaw","hooljon_odp_dzis","hooljon_puste_zestawy","hooljon_hangul_done","hooljon_l1","hj-pelnoletni","hooljon_hesitation","hooljon_latency_baselines","USER_CUSTOM_ITEMS","PRZEKAZNIK_LOG","hooljon_limit_lekcji","hooljon_losy_ai"]);
 const KONTO_MIGRACJA_KLUCZ = 'hooljon_konta_migracja';
 let kontoId = null;          // konto, pod którym czytamy i zapisujemy klucze z listy
 let kontoWPamieci = null;    // konto, którego dane wczytano do pamięci tej strony
@@ -24256,7 +24448,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.926';
+const APP_VERSION = '2026-09-11.928';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -24268,6 +24460,7 @@ const APP_VERSION = '2026-09-11.926';
 const SCREEN_IDS = {
   przekaznik:'przekaznikScreen',
   laboratorium:'laboratoriumScreen',
+  losy:'losyScreen',   /* .928 */
   login:'loginScreen', loading:'loadingScreen', home:'homeScreen', vocabMode:'vocabModeScreen', vocabDept:'vocabDeptScreen',
   // PRZYWRÓCONE 2026-09-04: usunąłem ten wpis jako "martwy", bo szukałem
   // dosłownego setScreen('vocab'). A wywołanie jest warunkowe:
@@ -24491,6 +24684,7 @@ function setScreen(screen){
 
   const prevScreen = currentScreen;
   currentScreen = screen;
+  try{ if(prevScreen === 'losy' && screen !== 'losy') losyZamknij(); if(screen === 'losy') losyOtworz(); }catch(e){}   /* .928 */
   /* .794 (Damian: powrót z czytanki do tego samego miejsca): wychodząc z mapy do lekcji zapamiętujemy rozwinięte
      rozdziały i położenie klikniętej lekcji na ekranie; przycisk „Mapa programu” je odtwarza. */
   if(prevScreen === 'storyMap' && screen === 'storyLesson'){ try{ mapaZapamietaj(); }catch(e){} }
@@ -25672,6 +25866,8 @@ const I18N = {
     en: 'What do you want to say? e.g. ask for help' },
   homePkTitle: { pl: 'Kompas Nunchi', en: 'Nunchi Compass' },
   homeLabTitle: { pl: 'Laboratorium Zdań', en: 'Sentence Lab' },
+  homeLosyTitle: { pl: 'Losy', en: 'Lots' },   /* .928 */
+  homeLosyDesc: { pl: 'Wylosuj zdanie i powiedz je po koreańsku.', en: 'Draw a sentence and say it in Korean.' },
   homeLabDesc: { pl: 'Wklej zdanie — rozbiór, słownik i diagnoza rejestru.', en: 'Paste a sentence — parsing, dictionary and register diagnosis.' },
   labEyebrow: { pl: 'Laboratorium Zdań', en: 'Sentence Lab' },
   labPodtytul: { pl: 'Wklej zdanie po koreańsku — rozbiorę je i sprawdzę rejestr', en: 'Paste a Korean sentence — I will parse it and check the register' },
@@ -43850,6 +44046,331 @@ function isLessonUnlocked(index){
   if(index === 0) return true;
   return index <= storyNajdalejUkonczona() + 1;
 }
+/* ═══ .928 LOSY 제비뽑기 (Fable, losy/hooljon-losy.md; prototyp losy/losy-prototyp.html; decyzje Damiana 14.10) ═══════
+   Naczynie (산통) z patyczkami: potrząśnięcie, jeden patyczek wysuwa się i obraca w kartę ze zdaniem. Zadanie: powiedzieć
+   albo napisać je po koreańsku.
+   - Pula: zdania (przykłady i zdania mikrokroków) z lekcji gramatyki w UKOŃCZONYCH rozdziałach programu; blokada powtórzeń
+     okno min(12, floor(N/3)).
+   - Solo: ocena przez istniejące ai-proxy (Haiku), łagodniej przy odpowiedzi z rozpoznawania mowy; bez Premium Pro
+     2 karty z oceną AI dziennie (licznik per konto, hooljon_losy_ai), potem i przy błędzie AI — porównanie ze wzorcem.
+   - Nauczyciel: bez pola odpowiedzi, „Pokaż wzorzec”, bez AI i bez limitu, wolniejsza animacja, dźwięk domyślnie włączony. */
+const LOSY_CZASY = { solo: { zamach: 120, trzes: 620, wysun: 300, obrot: 620 }, lektor: { zamach: 200, trzes: 1150, wysun: 480, obrot: 950 } };
+const LOSY_LIMIT_AI = 2;
+const LOSY_MODEL = 'claude-haiku-4-5-20251001';
+const losyStan = { tryb: 'solo', dzwiek: false, dzwiekRecznie: false, ostatnie: [], biezace: null, animuje: false, czeka: null, timery: [], lot: null, wybrany: 2,
+  slucha: false, rozp: null, liczona: false, proby: 0, pula: [], sprawdza: false };
+function losyEn(){ return uiLang === 'en'; }
+function losyT(pl, en){ return losyEn() ? en : pl; }
+function losyEl(id){ return document.getElementById(id); }
+function losyRK(){ return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
+function losySpokoj(){ try{ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } }
+
+/* pula: rozdział ukończony = każda lekcja rozdziału ukończona (bez lekcji z polem bezZaliczenia) */
+function losyPulaZdan(){
+  const out = [], jest = {};
+  const dodaj = function(ko, pl, en){ ko = String(ko || '').trim(); if(!ko || !pl || ko.indexOf('_') >= 0 || jest[ko]) return; jest[ko] = 1; out.push({ id: ko, ko: ko, pl: pl, en: en || pl }); };
+  STORY_CHAPTERS.forEach(function(c){
+    const ids = (c.lessonIds || []).filter(function(id){ const l = STORY_LESSONS.find(function(x){ return x.id === id; }); return l && !l.bezZaliczenia; });
+    if(!ids.length || !ids.every(function(id){ return isLessonDone(id); })) return;
+    ids.forEach(function(id){
+      const l = STORY_LESSONS.find(function(x){ return x.id === id; }); if(!l || l.type !== 'grammar') return;
+      (l.mikrokroki || []).forEach(function(m){ (m.przyklady || []).forEach(function(x){ dodaj(x.ko, x.pl, x.en); }); });
+      let items = []; try{ items = resolveLessonGrammarItems(l) || []; }catch(e){ items = []; }
+      items.forEach(function(it){ [it].concat(Array.isArray(it.moreExamples) ? it.moreExamples : []).forEach(function(x){ dodaj(x.full, x.pl, x.en); }); });
+    });
+  });
+  return out;
+}
+
+/* limit oceny AI: bez Premium Pro LOSY_LIMIT_AI kart dziennie (karta liczy się przy pierwszej ocenie) */
+function losyLimitStan(){
+  let s = null; try{ s = JSON.parse(kontoLS.getItem('hooljon_losy_ai') || 'null'); }catch(e){}
+  const d = todayValueDateString();
+  return (s && s.data === d && typeof s.n === 'number') ? s : { data: d, n: 0 };
+}
+function losyZostaloAI(){ return isPremiumPro ? Infinity : Math.max(0, LOSY_LIMIT_AI - losyLimitStan().n); }
+function losyLiczAI(){ const s = losyLimitStan(); s.n += 1; try{ kontoLS.setItem('hooljon_losy_ai', JSON.stringify(s)); }catch(e){} }
+function losyPokazLimit(){
+  const el = losyEl('losyLimit'); if(!el) return;
+  if(losyStan.tryb !== 'solo' || isPremiumPro){ el.hidden = true; return; }
+  const z = losyZostaloAI(); el.hidden = false; el.classList.toggle('zero', z === 0);
+  el.textContent = z > 0 ? losyT('Ocena AI: zostało ' + z + ' z ' + LOSY_LIMIT_AI + ' na dziś', 'AI check: ' + z + ' of ' + LOSY_LIMIT_AI + ' left today')
+    : losyT('Ocena AI na dziś wykorzystana: odpowiedź zostanie porównana ze wzorcem. Premium Pro: bez limitu.', 'Today\'s AI checks are used up: your answer is compared with the model sentence. Premium Pro: no limit.');
+}
+
+function losyPuk(mocny){ try{ if(navigator.vibrate) navigator.vibrate(mocny ? 22 : 8); }catch(e){} }
+let losyAc = null;
+function losyGrzechot(ms){
+  if(!losyStan.dzwiek) return;
+  try{
+    losyAc = losyAc || new (window.AudioContext || window.webkitAudioContext)();
+    const n = Math.max(4, Math.round(ms / 85));
+    for(let i = 0; i < n; i++){
+      const t = losyAc.currentTime + i * (ms / 1000) / n;
+      const buf = losyAc.createBuffer(1, 1300, losyAc.sampleRate), d = buf.getChannelData(0);
+      for(let j = 0; j < d.length; j++) d[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / d.length, 2.4);
+      const src = losyAc.createBufferSource(); src.buffer = buf;
+      const bp = losyAc.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 900 + Math.random() * 700; bp.Q.value = 2.2;
+      const g = losyAc.createGain(); g.gain.value = 0.055 * (1 - i / n * 0.5);
+      src.connect(bp); bp.connect(g); g.connect(losyAc.destination); src.start(t);
+    }
+  }catch(e){}
+}
+function losyWyczysc(){ losyStan.timery.forEach(clearTimeout); losyStan.timery = []; }
+function losyPozniej(f, ms){ losyStan.timery.push(setTimeout(f, ms)); }
+function losyUsunLot(){
+  if(losyStan.lot){
+    (losyStan.lot.anims || []).forEach(function(a){ try{ a.cancel(); }catch(e){} });
+    if(losyStan.lot.el && losyStan.lot.el.parentNode) losyStan.lot.el.parentNode.removeChild(losyStan.lot.el);
+    losyStan.lot = null;
+  }
+}
+function losyPrzywrocPatyki(){
+  const s = losyEl('losySlipy'); if(!s) return;
+  Array.prototype.forEach.call(s.children, function(i){
+    i.classList.remove('leci', 'czerwony');
+    try{ i.getAnimations().forEach(function(a){ try{ a.cancel(); }catch(e){} }); }catch(e){}
+    i.style.transform = '';
+  });
+}
+function losyTekstKarty(z){ return losyEn() ? z.en : z.pl; }
+function losyUstawSluch(on){
+  losyStan.slucha = on;
+  const m = losyEl('losyMik'), p = losyEl('losyPodp');
+  if(m) m.classList.toggle('slucha', on);
+  if(p){ p.classList.toggle('aktywna', on); p.textContent = on ? losyT('Słucham… powiedz całe zdanie', 'Listening… say the whole sentence') : losyT('albo powiedz po koreańsku', 'or say it in Korean'); }
+}
+function losyStopSluch(){ if(losyStan.rozp){ try{ losyStan.rozp.abort(); }catch(e){} losyStan.rozp = null; } losyUstawSluch(false); }
+function losySluchaj(){
+  if(losyStan.slucha){ losyStopSluch(); return; }
+  const RK = losyRK(); if(!RK || !losyStan.biezace) return;
+  losyPuk(false);
+  const input = losyEl('losyOdp');
+  const r = new RK(); r.lang = 'ko-KR'; r.interimResults = true; r.maxAlternatives = 1; r.continuous = false;
+  r.onresult = function(e){ let t = ''; for(let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; input.value = t; };
+  r.onerror = function(){ losyStan.rozp = null; losyUstawSluch(false); const p = losyEl('losyPodp'); if(p) p.textContent = losyT('Nie udało się włączyć mikrofonu — wpisz odpowiedź', 'Could not turn on the microphone — type your answer'); };
+  r.onend = function(){ losyStan.rozp = null; losyUstawSluch(false); if(input.value.trim()){ losyPuk(true); losySprawdz(true); } };
+  losyStan.rozp = r;
+  try{ r.start(); losyUstawSluch(true); }catch(e){ losyStan.rozp = null; losyUstawSluch(false); }
+}
+function losyUstawCzasy(){
+  const c = LOSY_CZASY[losyStan.tryb], s = losyEl('losyScreen'); if(!s) return;
+  s.style.setProperty('--t-zamach', c.zamach + 'ms'); s.style.setProperty('--t-trzes', c.trzes + 'ms');
+}
+function losyReset(){
+  losyWyczysc(); losyUsunLot(); losyPrzywrocPatyki(); losyStopSluch();
+  losyStan.animuje = false; losyStan.czeka = null; losyStan.biezace = null;
+  const s = losyEl('losyScreen'); if(s) s.classList.remove('zamach', 'trzesie');
+  const los = losyEl('losyLos'); los.className = 'los pusty';
+  losyEl('losyPieczec').className = 'pieczec';
+  losyEl('losyWzorzec').hidden = true; losyEl('losyOdpPole').hidden = true; losyEl('losyFb').hidden = true; losyEl('losyOdp').value = '';
+  losyEl('losyDrugi').hidden = true;
+  const b = losyEl('losyLosuj'); b.textContent = losyT('Losuj', 'Draw'); b.disabled = !losyStan.pula.length;
+  losyEl('losyLosTekst').textContent = losyStan.pula.length ? losyT('Naciśnij „Losuj”, żeby wyciągnąć los', 'Press “Draw” to pull a lot')
+    : losyT('Ukończ pierwszy rozdział programu — wtedy jego zdania trafią do naczynia.', 'Finish the first chapter of the course — its sentences will then go into the cup.');
+}
+function losyWybierz(){
+  const P = losyStan.pula;
+  let pula = P.filter(function(z){ return losyStan.ostatnie.indexOf(z.id) === -1; });
+  if(!pula.length) pula = P;
+  const z = pula[Math.floor(Math.random() * pula.length)];
+  losyStan.ostatnie.push(z.id);
+  const okno = Math.min(12, Math.floor(P.length / 3));
+  while(losyStan.ostatnie.length > okno) losyStan.ostatnie.shift();
+  return z;
+}
+function losyNaMiejscu(z){
+  losyUsunLot();
+  const los = losyEl('losyLos'); los.className = 'los';
+  losyEl('losyLosTekst').textContent = losyTekstKarty(z);
+  losyStan.animuje = false; losyStan.czeka = null; losyStan.biezace = z; losyStan.liczona = false; losyStan.proby = 0;
+  const b = losyEl('losyLosuj'); b.textContent = losyT('Losuj następne', 'Draw another'); b.disabled = false;
+  const d = losyEl('losyDrugi');
+  if(losyStan.tryb === 'lektor'){ d.hidden = false; d.textContent = losyT('Pokaż wzorzec', 'Show the model'); losyEl('losyWzorzec').hidden = true; }
+  else {
+    losyEl('losyOdpPole').hidden = false; losyEl('losyFb').hidden = true; d.hidden = false; d.disabled = false; d.textContent = losyT('Sprawdź', 'Check');
+    const RK = losyRK(); losyEl('losyMik').hidden = !RK; losyEl('losyPodp').hidden = !RK; losyUstawSluch(false);
+    try{ losyEl('losyOdp').focus({ preventScroll: true }); }catch(e){}
+  }
+}
+/* wysunięcie patyczka, pauza, obrót w kartę — jeden przedmiot (Fable §6; geometria z realnych prostokątów) */
+function losyWyciagnij(z, c, gotowe){
+  const slipy = losyEl('losySlipy'), plac = losyEl('losyPlac'), losEl = losyEl('losyLos');
+  const patyk = slipy.children[losyStan.wybrany];
+  patyk.classList.add('czerwony');
+  const rP0 = patyk.getBoundingClientRect();
+  const a1 = patyk.animate([
+    { transform: 'translateY(0) rotate(0)', easing: 'cubic-bezier(.3,0,.25,1)' },
+    { transform: 'translateY(-' + Math.round(rP0.height * 0.92) + 'px) rotate(-1.6deg)', offset: 0.66 },
+    { transform: 'translateY(-' + Math.round(rP0.height * 0.97) + 'px) rotate(-1.6deg)', offset: 1 }
+  ], { duration: c.wysun, fill: 'forwards' });
+  a1.onfinish = function(){
+    losyPozniej(function(){
+      const rZ = patyk.getBoundingClientRect(), rC = losEl.getBoundingClientRect(), rPl = plac.getBoundingClientRect();
+      const el = document.createElement('div');
+      el.className = 'lot czerwony';
+      el.innerHTML = '<span class="grzbiet"></span><span class="tr"></span>';
+      el.querySelector('.tr').textContent = losyTekstKarty(z);
+      el.style.top = (rC.top - rPl.top) + 'px'; el.style.left = (rC.left - rPl.left) + 'px'; el.style.width = rC.width + 'px';
+      plac.appendChild(el);
+      const rL = el.getBoundingClientRect();
+      const sy = rZ.height / rL.height, sx = (rZ.width / rL.width) / Math.cos(78 * Math.PI / 180);
+      const dx = (rZ.left + rZ.width / 2) - (rL.left + rL.width / 2), dy = (rZ.top + rZ.height / 2) - (rL.top + rL.height / 2);
+      patyk.classList.add('leci'); losEl.classList.add('ukryty');
+      losyPuk(true);
+      const an = el.animate([
+        { transform: 'translate(' + dx + 'px,' + dy + 'px) rotateY(-78deg) rotateZ(-2deg) scale(' + sx + ',' + sy + ')', offset: 0, easing: 'cubic-bezier(.2,.65,.25,1)' },
+        { transform: 'translate(' + (dx * 0.82) + 'px,' + (dy - 34) + 'px) rotateY(-62deg) rotateZ(-5deg) scale(' + (sx * 1.05) + ',' + (sy * 1.08) + ')', offset: 0.26, easing: 'cubic-bezier(.3,.2,.2,1)' },
+        { transform: 'translate(' + (dx * 0.3) + 'px,' + (dy * 0.34) + 'px) rotateY(-24deg) rotateZ(-3deg) scale(' + (sx + (1 - sx) * 0.74) + ',' + (sy + (1 - sy) * 0.7) + ')', offset: 0.68, easing: 'cubic-bezier(.33,.86,.3,1)' },
+        { transform: 'translate(0,0) rotateY(4deg) rotateZ(.8deg) scale(1,1)', offset: 0.9 },
+        { transform: 'translate(0,0) rotateY(0) rotateZ(0) scale(1,1)', offset: 1 }
+      ], { duration: c.obrot, fill: 'forwards' });
+      const an2 = el.querySelector('.tr').animate([{ opacity: 0, offset: 0 }, { opacity: 0, offset: 0.6 }, { opacity: 1, offset: 0.85 }, { opacity: 1, offset: 1 }], { duration: c.obrot, fill: 'forwards', easing: 'linear' });
+      const an3 = el.querySelector('.grzbiet').animate([{ opacity: 1, offset: 0 }, { opacity: 1, offset: 0.3 }, { opacity: 0, offset: 0.62 }, { opacity: 0, offset: 1 }], { duration: c.obrot, fill: 'forwards', easing: 'linear' });
+      losyStan.lot = { el: el, anims: [an, an2, an3] };
+      an.onfinish = function(){ losEl.classList.remove('ukryty'); losyUsunLot(); gotowe(); };
+    }, 50);
+  };
+  losyStan.lot = { el: null, anims: [a1] };
+}
+function losyLosuj(){
+  if(losyStan.animuje || !losyStan.pula.length) return;
+  losyWyczysc(); losyUsunLot(); losyPrzywrocPatyki(); losyStopSluch();
+  const z = losyWybierz(), c = LOSY_CZASY[losyStan.tryb];
+  losyStan.wybrany = 1 + Math.floor(Math.random() * 4);
+  losyStan.animuje = true; losyStan.czeka = z; losyEl('losyLosuj').disabled = true;
+  losyEl('losyWzorzec').hidden = true; losyEl('losyOdpPole').hidden = true; losyEl('losyFb').hidden = true; losyEl('losyDrugi').hidden = true; losyEl('losyOdp').value = '';
+  losyEl('losyPieczec').className = 'pieczec';
+  const los = losyEl('losyLos'); los.className = 'los pusty'; losyEl('losyLosTekst').textContent = '';
+  if(losySpokoj() || typeof Element.prototype.animate !== 'function'){ losyNaMiejscu(z); return; }
+  const s = losyEl('losyScreen');
+  s.classList.add('zamach');
+  losyPozniej(function(){
+    s.classList.remove('zamach'); s.classList.add('trzesie');
+    losyGrzechot(c.trzes); losyPuk(false);
+    losyPozniej(function(){ losyPuk(false); }, c.trzes * 0.34);
+    losyPozniej(function(){ losyPuk(false); }, c.trzes * 0.68);
+    losyPozniej(function(){ s.classList.remove('trzesie'); losyWyciagnij(z, c, function(){ losyNaMiejscu(z); }); }, c.trzes);
+  }, c.zamach);
+}
+function losyUprosc(s){ return String(s || '').replace(/[\s.,!?！？。~…"'“”]/g, ''); }
+/* prompt oceny (decyzja Damiana: łagodniej przy odpowiedzi z rozpoznawania mowy) */
+function losyPrompt(z, odp, zMowy){
+  const en = losyEn();
+  return 'Jesteś nauczycielem koreańskiego. Uczeń tłumaczy zdanie na koreański.\n'
+    + 'Zdanie do przetłumaczenia (' + (en ? 'angielski' : 'polski') + '): "' + losyTekstKarty(z) + '"\n'
+    + 'Zdanie wzorcowe: "' + z.ko + '"\n'
+    + 'Odpowiedź ucznia: "' + odp + '"\n'
+    + (zMowy ? 'Odpowiedź pochodzi z rozpoznawania mowy w przeglądarce: nie oceniaj spacji ani interpunkcji, a różnice wyglądające na pomyłkę rozpoznawania (podobnie brzmiące sylaby, brakujący lub zdublowany fragment) traktuj łagodnie, jak dobrą wymowę z błędem zapisu.\n' : '')
+    + 'Koreański jest elastyczny: pominięty zaimek, inna poprawna partykuła, inny szyk przy tym samym sensie albo inny poprawny poziom grzeczności to nadal dobra odpowiedź. Oceniaj sens i poprawność, nie zgodność ze wzorcem znak po znaku.\n'
+    + 'Odpowiedz WYŁĄCZNIE jednym obiektem JSON, bez niczego więcej: {"ocena":"dobrze" albo "prawie" albo "zle","uwaga":"jedno krótkie zdanie po ' + (en ? 'angielsku' : 'polsku') + ', najwyżej 25 słów: co poprawić albo co byłoby naturalniejsze; przy ocenie dobrze krótko, co jest dobre"}';
+}
+/* funkcja serwerowa losy-ocena (decyzja Damiana: „Nowa funkcja losy-ocena”; supabase/functions/losy-ocena): prompt i limit
+   po stronie serwera, działa także dla kont bez Premium. Dopóki nie jest wdrożona (404 albo błąd sieci / CORS) — ai-proxy. */
+function losyUstawZostalo(z){ if(isPremiumPro) return; const s = losyLimitStan(); s.n = Math.max(0, LOSY_LIMIT_AI - z); try{ kontoLS.setItem('hooljon_losy_ai', JSON.stringify(s)); }catch(e){} }
+async function losyOcenaSerwer(z, odp, zMowy){
+  const { data: { session } } = await sb.auth.getSession();
+  if(!session) throw new Error(losyT('Musisz być zalogowany/a, żeby korzystać z oceny AI.', 'You must be logged in to use AI checks.'));
+  let r = null;
+  try{
+    r = await fetch(SUPABASE_URL + '/functions/v1/losy-ocena', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ tekst: losyTekstKarty(z), ko: z.ko, odp: odp, zMowy: !!zMowy, jezyk: losyEn() ? 'en' : 'pl' }) });
+  }catch(e){ return null; }
+  if(!r || r.status === 404) return null;
+  let d = null; try{ d = await r.json(); }catch(e){}
+  if(r.status === 429){ losyUstawZostalo(0); throw new Error('Daily Losy limit reached'); }
+  if(!r.ok || !d || ['dobrze', 'prawie', 'zle'].indexOf(d.ocena) < 0) throw new Error((d && d.error) || ('status ' + r.status));
+  if(typeof d.zostalo === 'number') losyUstawZostalo(d.zostalo);
+  return { ocena: d.ocena, uwaga: String(d.uwaga || ''), serwer: true };
+}
+async function losyOcenaAI(z, odp, zMowy){
+  const s = await losyOcenaSerwer(z, odp, zMowy); if(s) return s;
+  const r = await callAiProxy({ model: LOSY_MODEL, max_tokens: 220, messages: [{ role: 'user', content: losyPrompt(z, odp, zMowy) }] });
+  const data = await r.json();
+  const txt = (data && data.content && data.content[0] && data.content[0].text) || '';
+  const m = /\{[\s\S]*\}/.exec(txt); if(!m) throw new Error('format');
+  const o = JSON.parse(m[0]);
+  if(['dobrze', 'prawie', 'zle'].indexOf(o.ocena) < 0) throw new Error('format');
+  return { ocena: o.ocena, uwaga: String(o.uwaga || '') };
+}
+function losyPokazOcene(z, ocena, uwaga, dopisek, zMowy, odp){
+  const fb = losyEl('losyFb'); fb.hidden = false; fb.className = 'fb';
+  const wz = losyT('Wzorzec', 'Model') + ': <em lang="ko">' + escapeHtml(z.ko) + '</em>';
+  const glowa = ocena === 'dobrze' ? losyT('Dobrze.', 'Correct.') : ocena === 'prawie' ? losyT('Prawie.', 'Almost.') : (ocena === 'zle' ? losyT('Jeszcze nie.', 'Not yet.') : '');
+  fb.innerHTML = (glowa ? '<b>' + glowa + '</b> ' : '') + (uwaga ? escapeHtml(uwaga) + ' ' : '') + wz
+    + (zMowy ? '<span class="uw">' + escapeHtml(losyT('usłyszane: ', 'heard: ') + odp) + '</span>' : '')
+    + (dopisek ? '<span class="uw">' + escapeHtml(dopisek) + '</span>' : '');
+  if(ocena === 'dobrze'){ losyEl('losyPieczec').className = 'pieczec bij'; losyPuk(true); }
+}
+async function losySprawdz(zMowy){
+  const z = losyStan.biezace; if(!z || losyStan.sprawdza) return;
+  const odp = losyEl('losyOdp').value.trim(); if(!odp) return;
+  losyStopSluch();
+  const lokalnie = function(dopisek){ const ok = losyUprosc(odp) === losyUprosc(z.ko); losyPokazOcene(z, ok ? 'dobrze' : '', '', dopisek, zMowy, odp); };
+  if(losyStan.proby >= 3){ lokalnie(losyT('Trzy oceny AI dla tej karty wykorzystane — wylosuj następną.', 'Three AI checks for this card used — draw another.')); return; }
+  if(!losyStan.liczona && losyZostaloAI() <= 0){ lokalnie(losyT('Ocena AI na dziś wykorzystana — porównanie ze wzorcem.', 'Today\'s AI checks are used up — compared with the model.')); return; }
+  losyStan.sprawdza = true; const d = losyEl('losyDrugi'); d.disabled = true; d.textContent = losyT('Sprawdzam…', 'Checking…');
+  try{
+    const o = await losyOcenaAI(z, odp, !!zMowy);
+    if(!losyStan.liczona && !isPremiumPro && !o.serwer){ losyLiczAI(); }   /* serwer liczy sam i podaje „zostało” */
+    losyStan.liczona = true; losyStan.proby += 1;
+    losyPokazOcene(z, o.ocena, o.uwaga, '', zMowy, odp);
+  }catch(e){
+    let pow = e && e.message ? translateAiErrorMessage(e.message) : '';
+    if(e && e.message === 'Daily Losy limit reached') pow = losyT('Ocena AI na dziś wykorzystana.', 'Today\'s AI checks are used up.');
+    if(pow === 'format') pow = losyT('Ocena AI nie dotarła w czytelnej postaci.', 'The AI check came back unreadable.');
+    lokalnie((pow ? pow + ' ' : '') + losyT('Porównanie ze wzorcem.', 'Compared with the model.'));
+  }finally{
+    losyStan.sprawdza = false; d.disabled = false; d.textContent = losyT('Sprawdź', 'Check'); losyPokazLimit();
+  }
+}
+function losyUstawTryb(t){
+  losyStan.tryb = t;
+  if(!losyStan.dzwiekRecznie) losyStan.dzwiek = (t === 'lektor');
+  losyEl('losyTrybSolo').setAttribute('aria-pressed', t === 'solo' ? 'true' : 'false');
+  losyEl('losyTrybLektor').setAttribute('aria-pressed', t === 'lektor' ? 'true' : 'false');
+  losyEl('losyDzwiek').setAttribute('aria-pressed', losyStan.dzwiek ? 'true' : 'false');
+  losyUstawCzasy(); losyReset(); losyPokazLimit();
+}
+function losyOtworz(){
+  losyStan.pula = losyPulaZdan();
+  losyEl('losyPulaN').textContent = losyStan.pula.length;
+  losyEl('losyPula').firstChild.textContent = losyT('pula: ', 'pool: ');
+  losyEl('losyPula').lastChild.textContent = losyT(' zdań', ' sentences');
+  losyEl('losyTrybSolo').textContent = losyT('Solo z AI', 'Solo with AI');
+  losyEl('losyTrybLektor').textContent = losyT('Nauczyciel', 'Teacher');
+  losyEl('losyDzwiek').textContent = losyT('Dźwięk', 'Sound');
+  losyEl('losyOdp').placeholder = losyT('Wpisz po koreańsku', 'Type in Korean');
+  losyEl('losyMik').setAttribute('aria-label', losyT('Powiedz po koreańsku', 'Say it in Korean'));
+  losyEl('losyTuba').title = losyT('Dotknij, żeby pominąć', 'Tap to skip');
+  losyUstawTryb(losyStan.tryb);
+}
+function losyZamknij(){ losyWyczysc(); losyUsunLot(); losyStopSluch(); const s = losyEl('losyScreen'); if(s) s.classList.remove('zamach', 'trzesie'); losyStan.animuje = false; }
+(function(){
+  const slipy = losyEl('losySlipy'); if(!slipy) return;
+  const WYS = [46, 54, 58, 49, 52, 44], PRZECH = [0, 0, 0, -3.5, 0, 2];
+  for(let i = 0; i < WYS.length; i++){
+    const s = document.createElement('i');
+    s.style.height = WYS[i] + 'px';
+    s.style.setProperty('--k0', PRZECH[i] + 'deg');
+    s.style.setProperty('--k1', (PRZECH[i] + (i % 2 ? 2.6 : -2.2)) + 'deg');
+    s.style.setProperty('--k2', (PRZECH[i] + (i % 2 ? -1.8 : 1.5)) + 'deg');
+    s.style.animationDelay = (i * 17) + 'ms';
+    slipy.appendChild(s);
+  }
+  losyEl('losyLosuj').addEventListener('click', losyLosuj);
+  losyEl('losyTuba').addEventListener('click', function(){ if(losyStan.animuje && losyStan.czeka) losyNaMiejscu(losyStan.czeka); });
+  losyEl('losyMik').addEventListener('click', losySluchaj);
+  losyEl('losyTrybSolo').addEventListener('click', function(){ losyUstawTryb('solo'); });
+  losyEl('losyTrybLektor').addEventListener('click', function(){ losyUstawTryb('lektor'); });
+  losyEl('losyDzwiek').addEventListener('click', function(){ losyStan.dzwiekRecznie = true; losyStan.dzwiek = !losyStan.dzwiek; losyEl('losyDzwiek').setAttribute('aria-pressed', losyStan.dzwiek ? 'true' : 'false'); });
+  losyEl('losyDrugi').addEventListener('click', function(){
+    const z = losyStan.biezace; if(!z) return;
+    if(losyStan.tryb === 'lektor'){ const w = losyEl('losyWzorzec'); w.hidden = false; w.className = 'wzorzec wchodzi'; w.textContent = z.ko; losyEl('losyDrugi').hidden = true; return; }
+    losySprawdz(false);
+  });
+  losyEl('losyOdp').addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); losyEl('losyDrugi').click(); } });
+})();
 /* .909 (Damian): darmowe konto — najwyżej 3 nowe lekcje słownictwa / gramatyki dziennie; Premium i Pro bez limitu */
 let LIMIT_LEKCJI_DARMOWE = 3;
 function limitLekcjiStan(){
@@ -44227,6 +44748,16 @@ function slowaZnaneDo(idx){
   return (slowaZnanePamiec[idx] = DEFAULT_WORDS.filter(function(x){ return klucze.has(x.ko) && !x.wulgarny; }));
 }
 function pulaPowtorki(){ const l = STORY_LESSONS[storyCurrentLessonIndex]; return (l && l.type === 'powtorka') ? slowaZnaneDo(storyCurrentLessonIndex) : null; }
+/* .927 (Fable, odpowiedz-926 §1): także w lekcjach — słowa poznane przed jednostką plus słowa tej jednostki */
+const slowaZLekcjaPamiec = {};
+function pulaZnanych(){
+  const idx = storyCurrentLessonIndex, l = STORY_LESSONS[idx]; if(!l) return null;
+  if(l.type === 'powtorka') return slowaZnaneDo(idx);
+  if(slowaZLekcjaPamiec[idx]) return slowaZLekcjaPamiec[idx];
+  const wlasne = new Set((l.type === 'vocab' ? (l.wordKos || []) : []).concat(l.slowaWzorca || []));
+  const znane = slowaZnaneDo(idx), juz = new Set(znane.map(function(x){ return x.ko; }));
+  return (slowaZLekcjaPamiec[idx] = znane.concat(DEFAULT_WORDS.filter(function(x){ return wlasne.has(x.ko) && !juz.has(x.ko) && !x.wulgarny; })));
+}
 function pickDistractors(w, count, pula){
   const wTr = trLekcji(w);   /* .900 */
   if(Array.isArray(pula)){   /* .924: najpierw ta sama część mowy, bez hasła o tym samym zapisie, bez powtórzeń glos */
@@ -44295,7 +44826,7 @@ function buildStoryTestItem(subtype, source, isReview){
     if(format === 'typed'){
       return { kind:'test', subtype:'vocab', format:'typed', prompt: w.ko, answer: trLekcji(w), isReview };
     }
-    const distractors = pickDistractors(w, 3, pulaPowtorki());   /* .924 */
+    const distractors = pickDistractors(w, 3, pulaZnanych());   /* .924 powtórki; .927 także lekcje */
     const choices = shuffle([trLekcji(w), ...distractors]);
     return { kind:'test', subtype:'vocab', format:'choice', prompt: w.ko, answer: trLekcji(w), choices, isReview };
   }
@@ -45529,7 +46060,7 @@ function tempoPytanieSlowa(w, f, pula){
     }
     if(words.length + dodatkowe.length >= 3) return { kind:'test', subtype:'vocab', format:'order', words: words, dodatkowe: dodatkowe, hint: trLekcji(w), pokaz: ko, srsKlucz: w.ko };
   }
-  return { kind:'test', subtype:'vocab', format:'choice', prompt: w.ko, answer: trLekcji(w), choices: shuffle([trLekcji(w)].concat(pickDistractors(w, 3))), srsKlucz: w.ko };
+  return { kind:'test', subtype:'vocab', format:'choice', prompt: w.ko, answer: trLekcji(w), choices: shuffle([trLekcji(w)].concat(pickDistractors(w, 3, pulaZnanych()))), srsKlucz: w.ko };   /* .927 */
 }
 function tempoZdanie(e){ const it = e.src; const lista = [it].concat(Array.isArray(it.moreExamples) ? it.moreExamples : []); const z = lista[e.przyklad % lista.length]; e.przyklad += 1; return z; }
 function tempoPytanie(e, f){
