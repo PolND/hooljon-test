@@ -2,8 +2,8 @@
 <!--
   HOOLJON — znacznik synchronizacji, nie usuwaj.
   Ostatnia aktualizacja treści klienckiej: 2026-09-01
-  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.928
-  Zbudowane na: 022ee992e32ecd13f5519211bc08c811 (.927)
+  Wersja aplikacji (APP_VERSION w kodzie, widoczna w panelu konta): 2026-09-11.929
+  Zbudowane na: 32ee8345898652f16eee655f3c34e50f (.928)
   Zmiana .391 (Design, geometria): pieczęć na logowaniu i koncie wraca jako płytka
   z ramą po wewnętrznej stronie i nierównym obrysem odbicia; token na tekst na
   akcencie ujednolicony dla sześciu motywów; promień płytki znaku wycofany, awatar
@@ -24448,7 +24448,7 @@ const els2 = {
    i automatycznie dokleja do każdego zgłoszenia błędu. Dzięki temu widać od razu,
    czy tester miał aktualną wersję, czy przeglądarka podała mu starą z pamięci
    podręcznej (realny przypadek 2026-09-01). Format: RRRR-MM-DD.N */
-const APP_VERSION = '2026-09-11.928';
+const APP_VERSION = '2026-09-11.929';
 
 // Wpisanie wersji do panelu konta od razu przy wczytaniu skryptu - bez czekania na
 // cokolwiek innego, żeby była widoczna nawet gdyby reszta startu zawiodła.
@@ -44065,19 +44065,15 @@ function losyEl(id){ return document.getElementById(id); }
 function losyRK(){ return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
 function losySpokoj(){ try{ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } }
 
-/* pula: rozdział ukończony = każda lekcja rozdziału ukończona (bez lekcji z polem bezZaliczenia) */
+/* pula (.929, Damian 14.10: „Zdania z ukończonych lekcji”): zdania każdej ukończonej lekcji gramatyki, w kolejności programu */
 function losyPulaZdan(){
   const out = [], jest = {};
   const dodaj = function(ko, pl, en){ ko = String(ko || '').trim(); if(!ko || !pl || ko.indexOf('_') >= 0 || jest[ko]) return; jest[ko] = 1; out.push({ id: ko, ko: ko, pl: pl, en: en || pl }); };
-  STORY_CHAPTERS.forEach(function(c){
-    const ids = (c.lessonIds || []).filter(function(id){ const l = STORY_LESSONS.find(function(x){ return x.id === id; }); return l && !l.bezZaliczenia; });
-    if(!ids.length || !ids.every(function(id){ return isLessonDone(id); })) return;
-    ids.forEach(function(id){
-      const l = STORY_LESSONS.find(function(x){ return x.id === id; }); if(!l || l.type !== 'grammar') return;
-      (l.mikrokroki || []).forEach(function(m){ (m.przyklady || []).forEach(function(x){ dodaj(x.ko, x.pl, x.en); }); });
-      let items = []; try{ items = resolveLessonGrammarItems(l) || []; }catch(e){ items = []; }
-      items.forEach(function(it){ [it].concat(Array.isArray(it.moreExamples) ? it.moreExamples : []).forEach(function(x){ dodaj(x.full, x.pl, x.en); }); });
-    });
+  STORY_LESSONS.forEach(function(l){
+    if(!l || l.type !== 'grammar' || !isLessonDone(l.id)) return;
+    (l.mikrokroki || []).forEach(function(m){ (m.przyklady || []).forEach(function(x){ dodaj(x.ko, x.pl, x.en); }); });
+    let items = []; try{ items = resolveLessonGrammarItems(l) || []; }catch(e){ items = []; }
+    items.forEach(function(it){ [it].concat(Array.isArray(it.moreExamples) ? it.moreExamples : []).forEach(function(x){ dodaj(x.full, x.pl, x.en); }); });
   });
   return out;
 }
@@ -44167,7 +44163,7 @@ function losyReset(){
   losyEl('losyDrugi').hidden = true;
   const b = losyEl('losyLosuj'); b.textContent = losyT('Losuj', 'Draw'); b.disabled = !losyStan.pula.length;
   losyEl('losyLosTekst').textContent = losyStan.pula.length ? losyT('Naciśnij „Losuj”, żeby wyciągnąć los', 'Press “Draw” to pull a lot')
-    : losyT('Ukończ pierwszy rozdział programu — wtedy jego zdania trafią do naczynia.', 'Finish the first chapter of the course — its sentences will then go into the cup.');
+    : losyT('Ukończ pierwszą lekcję gramatyki — wtedy jej zdania trafią do naczynia.', 'Finish your first grammar lesson — its sentences will then go into the cup.');
 }
 function losyWybierz(){
   const P = losyStan.pula;
