@@ -1,7 +1,7 @@
 /* sw.js — Hooljon. Generowany przez zloz-490.js, nie edytować ręcznie:
    wersja musi pochodzić z APP_VERSION pliku HTML, inaczej byłyby dwa źródła
    prawdy o tym, co jest wdrożone. */
-const WERSJA = '2026-09-11.946';
+const WERSJA = '2026-09-11.947';
 const CACHE = 'hooljon-' + WERSJA;
 const CACHE_ZEWN = 'hooljon-zewnetrzne';
 /* .945: nagrania statyczne lektora (tts/c/<sha1 tekstu>.webm / .mp3). Osobna pamięć, która przeżywa nowe wersje: nazwa pliku
