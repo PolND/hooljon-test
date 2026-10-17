@@ -1,9 +1,13 @@
 /* sw.js — Hooljon. Generowany przez zloz-490.js, nie edytować ręcznie:
    wersja musi pochodzić z APP_VERSION pliku HTML, inaczej byłyby dwa źródła
    prawdy o tym, co jest wdrożone. */
-const WERSJA = '2026-09-11.942';
+const WERSJA = '2026-09-11.945';
 const CACHE = 'hooljon-' + WERSJA;
 const CACHE_ZEWN = 'hooljon-zewnetrzne';
+/* .945: nagrania statyczne lektora (tts/c/<sha1 tekstu>.webm / .mp3). Osobna pamięć, która przeżywa nowe wersje: nazwa pliku
+   to skrót tekstu, a c w ścieżce to głos, więc ten sam adres to zawsze to samo nagranie. Partie przychodzą wiadomością
+   z aplikacji (ona wie, który format gra przeglądarka): 1 od razu, 2 od R6, 3 od R10; reszta przy pierwszym odtworzeniu. */
+const CACHE_TTS = 'hooljon-tts-c';
 /* .754 (pakiet 6 §10): nowe nazwy plików ikon */
 const ZASOBY = ['./manifest.webmanifest', './ikona-192.png', './ikona-512.png', './ikona-maskable-512.png', './ikona-mono-512.png', './apple-touch-180.png'];
 
@@ -40,7 +44,7 @@ self.addEventListener('install', (e) => {
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys()
-    .then((k) => Promise.all(k.map((n) => (n !== CACHE && n !== CACHE_ZEWN) ? caches.delete(n) : null)))
+    .then((k) => Promise.all(k.map((n) => (n !== CACHE && n !== CACHE_ZEWN && n !== CACHE_TTS) ? caches.delete(n) : null)))
     .then(() => self.clients.claim()));
 });
 
@@ -62,7 +66,7 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  if (url.origin === self.location.origin && url.pathname.indexOf('/audio/karaoke/') !== -1) {
+  if (url.origin === self.location.origin && (url.pathname.indexOf('/audio/karaoke/') !== -1 || url.pathname.indexOf('/tts/c/') !== -1)) {
     e.respondWith(odpowiedzAudio(req));
     return;
   }
@@ -97,7 +101,7 @@ async function odpowiedzAudio(req) {
     pelna = await fetch(klucz);
     if (!pelna.ok || pelna.status !== 200) return pelna;
     const kopia = pelna.clone();
-    caches.open(CACHE).then((c) => c.put(klucz, kopia)).catch(() => {});
+    caches.open(klucz.indexOf('/tts/c/') !== -1 ? CACHE_TTS : CACHE).then((c) => c.put(klucz, kopia)).catch(() => {});   /* .945 */
   }
   const zakres = req.headers.get('range');
   if (!zakres) return pelna;
@@ -111,3 +115,18 @@ async function odpowiedzAudio(req) {
   const typ = pelna.headers.get('Content-Type') || (/\.mp3$/.test(klucz) ? 'audio/mpeg' : 'audio/webm');
   return new Response(dane.slice(a, b + 1), { status: 206, headers: { 'Content-Type': typ, 'Content-Range': 'bytes ' + a + '-' + b + '/' + n, 'Content-Length': String(b - a + 1), 'Accept-Ranges': 'bytes' } });
 }
+
+/* .945: partie nagrań statycznych od aplikacji — pobieramy tylko brakujące, po 4 naraz; adresy wyłącznie tts/c/<10 hex>.webm|.mp3 */
+self.addEventListener('message', (e) => {
+  const d = e.data || {};
+  if (d.typ !== 'tts-statyczne' || !Array.isArray(d.urle)) return;
+  const urle = d.urle.filter((u) => typeof u === 'string' && /^tts\/c\/[0-9a-f]{10}\.(webm|mp3)$/.test(u)).map((u) => new URL(u, self.registration.scope).href);
+  const praca = caches.open(CACHE_TTS).then(async (c) => {
+    const brak = [];
+    for (const u of urle) if (!(await c.match(u))) brak.push(u);
+    let i = 0;
+    const pracownik = async () => { while (i < brak.length) { const u = brak[i++]; try { const o = await fetch(u); if (o.ok && o.status === 200) await c.put(u, o); } catch (err) {} } };
+    await Promise.all([0, 1, 2, 3].map(pracownik));
+  }).catch(() => {});
+  if (e.waitUntil) e.waitUntil(praca);
+});
